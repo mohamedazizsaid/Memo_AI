@@ -1,0 +1,40 @@
+"""
+MemoAi — Persons Serializers
+"""
+
+from rest_framework import serializers
+from .models import Person, FaceDetection
+
+
+class PersonSerializer(serializers.ModelSerializer):
+    memory_count = serializers.ReadOnlyField()
+    has_embedding = serializers.ReadOnlyField()
+
+    class Meta:
+        model = Person
+        fields = [
+            'id', 'name', 'avatar_url', 'notes',
+            'memory_count', 'has_embedding', 'is_confirmed',
+            'created_at', 'updated_at',
+        ]
+        read_only_fields = ['id', 'created_at', 'updated_at', 'memory_count', 'has_embedding']
+
+
+class PersonUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Person
+        fields = ['name', 'avatar_url', 'notes', 'is_confirmed']
+
+
+class FaceDetectionSerializer(serializers.ModelSerializer):
+    person = PersonSerializer(read_only=True)
+
+    class Meta:
+        model = FaceDetection
+        fields = ['id', 'person', 'confidence', 'bounding_box', 'is_corrected', 'created_at']
+        read_only_fields = fields
+
+
+class AssignFaceSerializer(serializers.Serializer):
+    """Reassign a face detection to a different person."""
+    person_id = serializers.UUIDField(allow_null=True)

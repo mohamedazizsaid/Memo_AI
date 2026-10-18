@@ -48,7 +48,7 @@ config
 journal
 media_app
 notifications
-persons
+
 static
 tags
 test
