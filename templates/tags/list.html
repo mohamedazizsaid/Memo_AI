@@ -1,0 +1,674 @@
+{% extends 'base.html' %}
+{% block title %}Mes Tags — MemoAI{% endblock %}
+{% block nav_tags %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+  .tags-hero {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+  }
+
+  .tags-layout {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    gap: 32px;
+    align-items: start;
+    margin-bottom: 60px;
+  }
+
+  @media (max-width: 960px) {
+    .tags-layout {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Form Card */
+  .tag-editor-card {
+    background: var(--color-paper-white);
+    border: 1px solid var(--border-subtle);
+    border-radius: 20px;
+    padding: 26px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.03);
+    position: sticky;
+    top: 96px;
+  }
+
+  .tag-editor-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .tag-editor-title {
+    font-family: var(--font-primary);
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--color-ink-black);
+    margin: 0;
+  }
+
+  /* Live Preview Box */
+  .tag-preview-box {
+    background: var(--color-linen-canvas);
+    border: 1.5px dashed var(--border-medium);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 22px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .tag-preview-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--color-stone);
+  }
+
+  .tag-pill-preview {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    transition: all 0.2s ease;
+  }
+
+  /* Form Elements */
+  .form-group-spaced {
+    margin-bottom: 18px;
+  }
+
+  .emoji-quick-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .emoji-btn {
+    border: 1px solid var(--border-subtle);
+    background: var(--color-paper-white);
+    border-radius: 8px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform 0.15s ease, background 0.15s ease;
+  }
+
+  .emoji-btn:hover {
+    transform: scale(1.18);
+    background: var(--color-linen-canvas);
+  }
+
+  /* Color Palette Grid */
+  .palette-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+    align-items: center;
+    margin-top: 8px;
+  }
+
+  .color-radio-label {
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .color-radio-label input {
+    opacity: 0;
+    position: absolute;
+  }
+
+  .color-swatch-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: block;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+    border: 2px solid var(--color-paper-white);
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.12);
+  }
+
+  .color-radio-label:hover .color-swatch-circle {
+    transform: scale(1.15);
+  }
+
+  .color-radio-label input:checked + .color-swatch-circle {
+    box-shadow: 0 0 0 2.5px var(--color-ink-black), 0 3px 8px rgba(0,0,0,0.2);
+    transform: scale(1.08);
+  }
+
+  .custom-color-wrapper {
+    position: relative;
+    width: 32px;
+    height: 32px;
+  }
+
+  .custom-color-input {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    background: transparent;
+  }
+
+  /* Right Panel: Stats & Cards Grid */
+  .tags-content-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-width: 0;
+  }
+
+  /* Stats Ribbon */
+  .tags-stats-ribbon {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .tag-stat-pill {
+    background: var(--color-paper-white);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 10px 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+  }
+
+  .tag-stat-value {
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--color-ink-black);
+  }
+
+  .tag-stat-label {
+    font-size: 12px;
+    color: var(--color-stone);
+  }
+
+  /* Search & Filter Toolbar */
+  .tags-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    background: var(--color-paper-white);
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px;
+    padding: 8px 14px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+  }
+
+  .tags-search-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+  }
+
+  .tags-search-input {
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 14px;
+    color: var(--color-ink-black);
+    width: 100%;
+  }
+
+  /* Tags Cards Grid */
+  .tags-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+  }
+
+  .tag-card {
+    background: var(--color-paper-white);
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    padding: 18px 20px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.02);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 16px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.2s ease;
+  }
+
+  .tag-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 28px rgba(0,0,0,0.07);
+    border-color: var(--border-medium);
+  }
+
+  .tag-card-accent-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 4px;
+    border-radius: 4px 0 0 4px;
+  }
+
+  .tag-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .tag-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 600;
+    max-width: calc(100% - 60px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    border: 1px solid transparent;
+  }
+
+  .tag-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    opacity: 0.85;
+    transition: opacity 0.2s ease;
+  }
+
+  .tag-card:hover .tag-actions {
+    opacity: 1;
+  }
+
+  .tag-btn-action {
+    background: transparent;
+    border: none;
+    padding: 6px;
+    border-radius: 8px;
+    color: var(--color-stone);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+  }
+
+  .tag-btn-action:hover {
+    background: var(--color-linen-canvas);
+    color: var(--color-ink-black);
+    transform: scale(1.1);
+  }
+
+  .tag-btn-action--danger:hover {
+    background: #fee2e2;
+    color: #ef4444;
+  }
+
+  [data-theme="dark"] .tag-btn-action--danger:hover {
+    background: #451a1a;
+    color: #f87171;
+  }
+
+  .tag-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .tag-entries-link {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-stone);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.15s ease, transform 0.15s ease;
+  }
+
+  .tag-entries-link:hover {
+    color: var(--color-ink-black);
+    transform: translateX(2px);
+  }
+
+  /* Empty state */
+  .tags-empty-state {
+    background: var(--color-paper-white);
+    border: 1.5px dashed var(--border-medium);
+    border-radius: 20px;
+    padding: 48px 24px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .tags-empty-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: var(--color-linen-canvas);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-stone);
+    margin-bottom: 4px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <!-- Header -->
+  <div class="tags-hero">
+    <div>
+      <p class="eyebrow">ORGANISATION & CATÉGORISATION</p>
+      <h1 class="page-title">Mes tags</h1>
+    </div>
+  </div>
+
+  <div class="tags-layout">
+    <!-- Left: Form Card -->
+    <div class="tag-editor-card">
+      <div class="tag-editor-header">
+        <h2 class="tag-editor-title">
+          {% if edit_tag %}Modifier le tag{% else %}Nouveau tag{% endif %}
+        </h2>
+        {% if edit_tag %}
+          <a href="/tags/" class="btn btn-ghost btn-sm" style="font-size:12px;">+ Nouveau</a>
+        {% endif %}
+      </div>
+
+      <!-- Live Interactive Tag Preview -->
+      <div class="tag-preview-box">
+        <span class="tag-preview-label">Aperçu en direct</span>
+        <div id="live-tag-pill" class="tag-pill-preview" style="background: {{ form.color.value|default:'#6366f1' }}18; color: {{ form.color.value|default:'#6366f1' }}; border: 1.5px solid {{ form.color.value|default:'#6366f1' }}40;">
+          <span id="preview-emoji">{{ form.icon.value|default:'🏷️' }}</span>
+          <span id="preview-text">{{ form.name.value|default:'Mon tag' }}</span>
+        </div>
+      </div>
+
+      <form method="post" action="" id="tag-form">
+        {% csrf_token %}
+
+        <div class="form-group-spaced">
+          <label for="id_name" class="form-label">Nom du tag</label>
+          <input type="text" name="name" id="id_name"
+            class="form-input" placeholder="Voyage, Idées, Famille..."
+            value="{{ form.name.value|default:'' }}" maxlength="50" required autocomplete="off">
+        </div>
+
+        <div class="form-group-spaced">
+          <label class="form-label">Emoji / Icône</label>
+          <input type="text" name="icon" id="id_icon"
+            class="form-input form-input--sm" placeholder="🏷️"
+            value="{{ form.icon.value|default:'' }}" maxlength="10">
+          <div class="emoji-quick-list">
+            <button type="button" class="emoji-btn" data-emoji="✨">✨</button>
+            <button type="button" class="emoji-btn" data-emoji="❤️">❤️</button>
+            <button type="button" class="emoji-btn" data-emoji="🌿">🌿</button>
+            <button type="button" class="emoji-btn" data-emoji="✈️">✈️</button>
+            <button type="button" class="emoji-btn" data-emoji="💼">💼</button>
+            <button type="button" class="emoji-btn" data-emoji="💡">💡</button>
+            <button type="button" class="emoji-btn" data-emoji="🎉">🎉</button>
+            <button type="button" class="emoji-btn" data-emoji="📚">📚</button>
+            <button type="button" class="emoji-btn" data-emoji="☕">☕</button>
+          </div>
+        </div>
+
+        <div class="form-group-spaced">
+          <label class="form-label">Couleur</label>
+          <div class="palette-grid">
+            {% for color in color_choices %}
+              <label class="color-radio-label">
+                <input type="radio" name="color" value="{{ color }}"
+                  {% if form.color.value == color or not form.color.value and forloop.first %}checked{% endif %}>
+                <span class="color-swatch-circle" style="background-color: {{ color }};"></span>
+              </label>
+            {% endfor %}
+            <div class="custom-color-wrapper" title="Couleur personnalisée">
+              <input type="color" name="color_custom" id="id_color_custom" class="custom-color-input"
+                value="{{ form.color.value|default:'#6366f1' }}">
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 24px;">
+          <button type="submit" class="btn btn-primary" id="save-tag" style="flex:1;">
+            {% if edit_tag %}Enregistrer{% else %}Créer le tag{% endif %}
+          </button>
+          {% if edit_tag %}
+            <a href="/tags/" class="btn btn-secondary">Annuler</a>
+          {% endif %}
+        </div>
+      </form>
+    </div>
+
+    <!-- Right: Tags Cards Grid -->
+    <div class="tags-content-panel">
+      <!-- Stats Ribbon -->
+      {% if tags %}
+        <div class="tags-stats-ribbon">
+          <div class="tag-stat-pill">
+            <span class="tag-stat-value">{{ total_tags }}</span>
+            <span class="tag-stat-label">Tags au total</span>
+          </div>
+          <div class="tag-stat-pill">
+            <span class="tag-stat-value">{{ total_uses }}</span>
+            <span class="tag-stat-label">Utilisations</span>
+          </div>
+          {% if most_used_tag %}
+            <div class="tag-stat-pill">
+              <span class="tag-stat-label">Le plus fréquent :</span>
+              <span class="tag-stat-value" style="color: {{ most_used_tag.color }};">
+                {% if most_used_tag.icon %}{{ most_used_tag.icon }} {% endif %}{{ most_used_tag.name }}
+              </span>
+            </div>
+          {% endif %}
+        </div>
+
+        <!-- Search Bar -->
+        <div class="tags-toolbar">
+          <div class="tags-search-input-wrapper">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="color:var(--color-stone);">
+              <circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M11 11L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <input type="text" id="tag-filter-input" class="tags-search-input" placeholder="Rechercher parmi vos tags..." autocomplete="off">
+          </div>
+          <span style="font-size:12px; color:var(--color-stone); font-weight:500;" id="tags-count-badge">
+            {{ tags|length }} tag{{ tags|length|pluralize }}
+          </span>
+        </div>
+      {% endif %}
+
+      <!-- Grid of Cards -->
+      {% if tags %}
+        <div class="tags-grid" id="tags-cards-container">
+          {% for tag in tags %}
+            <div class="tag-card" id="tag-item-{{ tag.id }}" data-tag-name="{{ tag.name|lower }}">
+              <div class="tag-card-accent-bar" style="background-color: {{ tag.color }};"></div>
+
+              <div class="tag-card-header">
+                <span class="tag-badge" style="background-color: {{ tag.color }}18; color: {{ tag.color }}; border-color: {{ tag.color }}40;">
+                  <span>{% if tag.icon %}{{ tag.icon }}{% else %}🏷️{% endif %}</span>
+                  <span style="font-weight:600;">{{ tag.name }}</span>
+                </span>
+
+                <div class="tag-actions">
+                  <a href="/tags/{{ tag.id }}/modifier/" class="tag-btn-action" title="Modifier {{ tag.name }}" aria-label="Modifier">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                  </a>
+                  <form method="post" action="/tags/{{ tag.id }}/supprimer/" style="margin:0; display:inline;" onsubmit="return confirm('Supprimer définitivement le tag « {{ tag.name|escapejs }} » ?');">
+                    {% csrf_token %}
+                    <button type="submit" class="tag-btn-action tag-btn-action--danger" title="Supprimer {{ tag.name }}" aria-label="Supprimer">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        <line x1="10" y1="11" x2="10" y2="17"></line>
+                        <line x1="14" y1="11" x2="14" y2="17"></line>
+                      </svg>
+                    </button>
+                  </form>
+                </div>
+              </div>
+
+              <div class="tag-card-footer">
+                <a href="/journal/liste/?search={{ tag.name }}" class="tag-entries-link" title="Voir les entrées associées">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                  </svg>
+                  <span>{{ tag.entry_count }} souvenir{{ tag.entry_count|pluralize }}</span>
+                  <span style="opacity: 0.6;">&rarr;</span>
+                </a>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="tags-empty-state">
+          <div class="tags-empty-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+              <line x1="7" y1="7" x2="7.01" y2="7"></line>
+            </svg>
+          </div>
+          <h3 style="font-family: var(--font-primary); font-size: 18px; margin: 0; color: var(--color-ink-black);">Aucun tag créé</h3>
+          <p style="font-size: 14px; color: var(--color-stone); margin: 0; max-width: 320px;">
+            Créez votre premier tag à l'aide du formulaire pour classer vos souvenirs par thématique.
+          </p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var nameInput = document.getElementById('id_name');
+  var iconInput = document.getElementById('id_icon');
+  var previewText = document.getElementById('preview-text');
+  var previewEmoji = document.getElementById('preview-emoji');
+  var previewPill = document.getElementById('live-tag-pill');
+  var customColorInput = document.getElementById('id_color_custom');
+
+  function getSelectedColor() {
+    var checkedRadio = document.querySelector('input[name="color"]:checked');
+    if (checkedRadio) return checkedRadio.value;
+    if (customColorInput && customColorInput.value) return customColorInput.value;
+    return '#6366f1';
+  }
+
+  function updatePreview() {
+    var name = (nameInput && nameInput.value.trim()) || 'Mon tag';
+    var icon = (iconInput && iconInput.value.trim()) || '🏷️';
+    var color = getSelectedColor();
+
+    if (previewText) previewText.textContent = name;
+    if (previewEmoji) previewEmoji.textContent = icon;
+    if (previewPill) {
+      previewPill.style.backgroundColor = color + '22';
+      previewPill.style.color = color;
+      previewPill.style.borderColor = color + '55';
+    }
+  }
+
+  if (nameInput) nameInput.addEventListener('input', updatePreview);
+  if (iconInput) iconInput.addEventListener('input', updatePreview);
+
+  // Radio colors
+  document.querySelectorAll('input[name="color"]').forEach(function(radio) {
+    radio.addEventListener('change', function() {
+      if (customColorInput) customColorInput.value = radio.value;
+      updatePreview();
+    });
+  });
+
+  // Custom color
+  if (customColorInput) {
+    customColorInput.addEventListener('input', function() {
+      document.querySelectorAll('input[name="color"]').forEach(function(r) { r.checked = false; });
+      updatePreview();
+    });
+  }
+
+  // Quick emoji buttons
+  document.querySelectorAll('.emoji-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      if (iconInput) {
+        iconInput.value = btn.dataset.emoji;
+        updatePreview();
+      }
+    });
+  });
+
+  // Real-time search filter for tags
+  var filterInput = document.getElementById('tag-filter-input');
+  if (filterInput) {
+    filterInput.addEventListener('input', function() {
+      var query = filterInput.value.toLowerCase().trim();
+      var cards = document.querySelectorAll('.tag-card');
+      var visibleCount = 0;
+      cards.forEach(function(card) {
+        var tagName = card.getAttribute('data-tag-name') || '';
+        if (tagName.includes(query)) {
+          card.style.display = 'flex';
+          visibleCount++;
+        } else {
+          card.style.display = 'none';
+        }
+      });
+      var badge = document.getElementById('tags-count-badge');
+      if (badge) {
+        badge.textContent = visibleCount + ' tag' + (visibleCount > 1 ? 's' : '');
+      }
+    });
+  }
+
+  updatePreview();
+});
+</script>
+{% endblock %}
