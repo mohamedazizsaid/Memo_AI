@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="{{ current_lang|default:'fr' }}" data-theme="light">
 <head>
+  <script>document.documentElement.classList.add('js');</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}MemoAI — Votre journal intelligent{% endblock %}</title>
@@ -13,7 +14,7 @@
   <link rel="stylesheet" href="{% static 'css/cosmos.css' %}?v=20261010_15">
   {% block app_css %}{% if user.is_authenticated %}
   <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20261019_2">
+  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20261019_3">
   {% endif %}{% endblock %}
   <style>
     /* Critical Toast Styling — Guarantees floating top-right display regardless of browser cache */

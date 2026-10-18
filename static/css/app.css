@@ -23,7 +23,26 @@
   --app-ease: cubic-bezier(0.22, 1, 0.36, 1);
   --app-shadow-sm: 0 1px 2px rgba(13, 13, 13, 0.04);
   --app-shadow-md: 0 12px 32px -16px rgba(13, 13, 13, 0.18), 0 2px 6px rgba(13, 13, 13, 0.04);
+
+  /* Vertical rhythm — one source of truth for spacing between sections */
+  --app-gap-section: 44px;
+  --app-radius: 20px;
 }
+
+/* Dark theme: cosmos.css flips the base colours, but a few app-owned tokens
+   were pinned to light values which made text and chips unreadable. */
+[data-theme="dark"] {
+  --app-elevation: #26221e;
+  --app-secondary: #a8a4a0;
+  --app-tertiary: #a09c98;
+  --app-line-soft: rgba(240, 237, 233, 0.08);
+  --app-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.45);
+  --app-shadow-md: 0 16px 40px -18px rgba(0, 0, 0, 0.72), 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* Form controls must never fall back to the UA "buttontext" colour (black),
+   which is invisible on the dark canvas. */
+button, input, select, textarea { color: inherit; }
 
 /* ─── Typography & surface ─────────────────────────────────────────── */
 body {
@@ -317,7 +336,7 @@ h1, h2, h3, h4 {
 .dropzone-label-strong { font-weight: 600; }
 
 .editor-toolbar { border-radius: 14px 14px 0 0; }
-.word-counter { font-family: var(--app-font); }
+.word-counter { font-family: var(--app-font); color: var(--app-tertiary); }
 
 .dropdown-item { border-radius: 10px; }
 .dropdown-header { border-radius: 0; }
@@ -327,80 +346,118 @@ h1, h2, h3, h4 {
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   ANIMATED BACKGROUND — a soft aurora behind every post-login page.
-   Sits between the page background and the content (z-index 0 vs 1).
+   ANIMATED BACKGROUND — a soft aurora that lives behind every page.
+   It is `fixed`, so it reads as a real background: content scrolls over
+   it while the light keeps drifting. The blobs are big, coloured and
+   only gently blurred so the motion is genuinely perceptible.
    ═══════════════════════════════════════════════════════════════════ */
 .app-aurora {
   position: fixed;
-  inset: 0;
+  inset: -12vh -12vw;
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
-  will-change: transform;
 }
-.main-content, .footer, .nav-wrapper { position: relative; z-index: 1; }
+.main-content, .footer { position: relative; z-index: 1; }
+/* The nav stays `fixed` (cosmos owns its position) — only lift it above the
+   animated background. */
+.nav-wrapper { z-index: 100; }
 
 .app-aurora__blob {
   position: absolute;
   border-radius: 50%;
-  filter: blur(72px);
-  opacity: 0.55;
+  filter: blur(58px);
+  opacity: 0.7;
   will-change: transform;
 }
 .app-aurora__blob--1 {
-  width: 46vw; height: 46vw; top: -16vw; left: -10vw;
-  background: radial-gradient(circle at 35% 35%, rgba(200, 150, 62, 0.30), rgba(200, 150, 62, 0) 70%);
-  animation: auroraFloat1 28s ease-in-out infinite;
+  width: 58vw; height: 58vw; top: -16vw; left: -14vw;
+  background: radial-gradient(circle at 38% 38%, rgba(228, 172, 74, 0.55), rgba(228, 172, 74, 0) 68%);
+  animation: auroraFloat1 26s ease-in-out infinite;
 }
 .app-aurora__blob--2 {
-  width: 42vw; height: 42vw; top: 18vh; right: -14vw;
-  background: radial-gradient(circle at 60% 40%, rgba(99, 102, 241, 0.20), rgba(99, 102, 241, 0) 70%);
-  animation: auroraFloat2 34s ease-in-out infinite;
+  width: 52vw; height: 52vw; top: 6vh; right: -18vw;
+  background: radial-gradient(circle at 60% 40%, rgba(126, 125, 242, 0.42), rgba(126, 125, 242, 0) 68%);
+  animation: auroraFloat2 32s ease-in-out infinite;
 }
 .app-aurora__blob--3 {
-  width: 40vw; height: 40vw; bottom: -18vw; left: 24vw;
-  background: radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.16), rgba(16, 185, 129, 0) 70%);
-  animation: auroraFloat3 40s ease-in-out infinite;
+  width: 50vw; height: 50vw; bottom: -20vw; left: 14vw;
+  background: radial-gradient(circle at 50% 50%, rgba(60, 214, 160, 0.34), rgba(60, 214, 160, 0) 68%);
+  animation: auroraFloat3 38s ease-in-out infinite;
 }
+/* A faint vignette keeps the very top/bottom calm for the nav and footer. */
 .app-aurora__grain {
   position: absolute; inset: 0;
   background:
-    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0) 40%, rgba(247, 245, 243, 0.55) 100%);
+    radial-gradient(130% 80% at 50% 0%, rgba(255, 255, 255, 0) 48%, rgba(247, 245, 243, 0.45) 100%);
 }
-[data-theme="dark"] .app-aurora__blob { opacity: 0.4; filter: blur(90px); }
+[data-theme="dark"] .app-aurora__blob { opacity: 0.55; filter: blur(70px); }
+[data-theme="dark"] .app-aurora__blob--1 {
+  background: radial-gradient(circle at 38% 38%, rgba(228, 172, 74, 0.42), rgba(228, 172, 74, 0) 68%);
+}
+[data-theme="dark"] .app-aurora__blob--2 {
+  background: radial-gradient(circle at 60% 40%, rgba(126, 125, 242, 0.44), rgba(126, 125, 242, 0) 68%);
+}
+[data-theme="dark"] .app-aurora__blob--3 {
+  background: radial-gradient(circle at 50% 50%, rgba(52, 211, 153, 0.32), rgba(52, 211, 153, 0) 68%);
+}
 [data-theme="dark"] .app-aurora__grain {
-  background: radial-gradient(circle at 50% 0%, rgba(0, 0, 0, 0) 35%, rgba(12, 12, 14, 0.6) 100%);
+  background: radial-gradient(130% 80% at 50% 0%, rgba(0, 0, 0, 0) 42%, rgba(12, 11, 10, 0.72) 100%);
 }
 
 @keyframes auroraFloat1 {
   0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
-  50% { transform: translate3d(5vw, 4vh, 0) scale(1.12); }
+  50% { transform: translate3d(6vw, 5vh, 0) scale(1.16); }
 }
 @keyframes auroraFloat2 {
   0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
-  50% { transform: translate3d(-6vw, 5vh, 0) scale(1.08); }
+  50% { transform: translate3d(-7vw, 6vh, 0) scale(1.1); }
 }
 @keyframes auroraFloat3 {
   0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
-  50% { transform: translate3d(4vw, -5vh, 0) scale(1.15); }
+  50% { transform: translate3d(5vw, -6vh, 0) scale(1.18); }
+}
+
+@media (max-width: 720px) {
+  .app-aurora__blob { filter: blur(46px); opacity: 0.55; }
 }
 
 /* ═══════════════════════════════════════════════════════════════════
    REVEAL — staged entrance for sections as they scroll into view.
    ═══════════════════════════════════════════════════════════════════ */
-.reveal {
+/* Every page opens with a gentle, staggered rise so nothing ever "pops".
+   `animation-fill-mode: backwards` (not `both`) keeps the end state equal to
+   the normal one, so hover transforms on cards still work afterwards.
+   Only direct children of the page container are animated, and the two
+   scroll-reveal helpers are exempt (they have their own choreography). */
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: none; }
+}
+.main-content .container > *:not(.reveal):not(.reveal-stagger) {
+  animation: pageIn 0.55s var(--app-ease) backwards;
+}
+.main-content .container > *:nth-child(2) { animation-delay: 0.05s; }
+.main-content .container > *:nth-child(3) { animation-delay: 0.1s; }
+.main-content .container > *:nth-child(4) { animation-delay: 0.15s; }
+.main-content .container > *:nth-child(5) { animation-delay: 0.2s; }
+.main-content .container > *:nth-child(6) { animation-delay: 0.25s; }
+
+/* Scroll reveal — only armed when JS is available, so the page is never
+   left blank if a script fails to load. */
+html.js .reveal {
   opacity: 0;
   transform: translateY(20px);
   transition: opacity 0.6s var(--app-ease), transform 0.6s var(--app-ease);
 }
-.reveal.is-visible { opacity: 1; transform: none; }
+html.js .reveal.is-visible { opacity: 1; transform: none; }
 
-.reveal-stagger > * {
+html.js .reveal-stagger > * {
   opacity: 0;
   transform: translateY(16px);
   transition: opacity 0.55s var(--app-ease), transform 0.55s var(--app-ease);
 }
-.reveal-stagger.is-visible > * { opacity: 1; transform: none; }
+html.js .reveal-stagger.is-visible > * { opacity: 1; transform: none; }
 .reveal-stagger.is-visible > *:nth-child(1) { transition-delay: 0.02s; }
 .reveal-stagger.is-visible > *:nth-child(2) { transition-delay: 0.08s; }
 .reveal-stagger.is-visible > *:nth-child(3) { transition-delay: 0.14s; }
@@ -572,7 +629,7 @@ h1, h2, h3, h4 {
 .hero-collage__item:nth-child(odd) { --tilt: -2deg; }
 .hero-collage__item:nth-child(even) { --tilt: 2deg; }
 
-.dashboard-actions-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+.dashboard-actions-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; margin-bottom: var(--app-gap-section); }
 
 @media (max-width: 860px) {
   .hero-collage { position: relative; width: 100%; height: 180px; margin-top: 20px; }
@@ -655,10 +712,70 @@ h1, h2, h3, h4 {
 .remember-label input { width: 16px; height: 16px; accent-color: #18181b; cursor: pointer; }
 
 /* ═══════════════════════════════════════════════════════════════════
+   DARK MODE + CONSISTENCY FIXES
+   Components that hard-coded light-only colours, plus a small pass that
+   makes every surface share the same radius / border / rhythm.
+   ═══════════════════════════════════════════════════════════════════ */
+/* These are <button>s, so the UA `buttontext` colour (black) applied and
+   disappeared on the dark canvas. */
+.mood-btn, .emoji-btn, .theme-option { color: var(--app-ink); }
+.mood-btn { border-radius: 16px; }
+.mood-btn--active,
+.theme-option--active {
+  background: var(--app-ink);
+  color: var(--app-paper);
+  border-color: var(--app-ink);
+}
+.mood-btn--active .mood-name { color: color-mix(in srgb, var(--app-paper) 78%, transparent); }
+
+.filter-chip { color: var(--app-secondary); }
+.filter-chip--active {
+  background: var(--app-ink);
+  color: var(--app-paper);
+  border-color: var(--app-ink);
+}
+
+/* The profile avatar placeholder used a hard-coded light indigo gradient. */
+[data-theme="dark"] .profile-avatar-placeholder {
+  background: linear-gradient(135deg, #2b2f52 0%, #3b3f6e 100%);
+  color: #c7d2fe;
+}
+/* Nav avatar: the initials defaulted to the muted "stone" tone, which is
+   too dim against the dark chip. */
+[data-theme="dark"] .nav-avatar { background: #26221e; border-color: rgba(240, 237, 233, 0.16); }
+[data-theme="dark"] .avatar-initials { color: #f0ede9; }
+
+/* Dividers follow the theme token instead of the raw cosmos border. */
+.pref-item { border-bottom: 1px solid var(--app-line-soft); }
+.prefs-card-header { border-bottom: 1px solid var(--app-line-soft); }
+
+/* One radius + one border for every surface. */
+.prefs-card, .profile-avatar-card, .wizard-card, .insight-card,
+.tag-card, .empty-state, .filter-bar, .notification-item, .person-card {
+  border-radius: var(--app-radius);
+  border-color: var(--app-line);
+}
+
+/* ─── Micro-interactions ───────────────────────────────────────────── */
+.nav-link, .text-link, .breadcrumb-link, .footer-link, .profile-nav-item {
+  transition: color 0.18s ease, background-color 0.18s ease, opacity 0.18s ease, transform 0.18s var(--app-ease);
+}
+.section-header .text-link:hover { transform: translateX(3px); }
+.filter-chip { transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s var(--app-ease); }
+.filter-chip:hover { transform: translateY(-1px); }
+.btn-primary, .btn-secondary, .btn-ghost, .pagination-btn, .tag-pill {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease,
+              transform 0.18s var(--app-ease), box-shadow 0.25s var(--app-ease), opacity 0.2s ease;
+}
+.btn-primary:hover, .btn-secondary:hover, .btn-ghost:hover,
+.pagination-btn:hover, .tag-pill:hover { transform: translateY(-1px); }
+
+/* ═══════════════════════════════════════════════════════════════════
    REDUCED MOTION — honour the user preference and the OS setting.
    ═══════════════════════════════════════════════════════════════════ */
 .reduce-motion .app-aurora__blob,
 .reduce-motion .hero-collage__item,
+.reduce-motion .main-content .container > *,
 .reduce-motion .trend-bar { animation: none !important; }
 .reduce-motion .reveal,
 .reduce-motion .reveal-stagger > * { opacity: 1 !important; transform: none !important; }
@@ -672,7 +789,7 @@ h1, h2, h3, h4 {
 
 @media (prefers-reduced-motion: reduce) {
   .reveal, .reveal-stagger > * { opacity: 1 !important; transform: none !important; }
-  .app-aurora__blob, .hero-collage__item, .trend-bar { animation: none !important; }
+  .app-aurora__blob, .hero-collage__item, .main-content .container > *, .trend-bar { animation: none !important; }
   .hero-collage__item { opacity: 1 !important; }
   .ai-processing__pulse::after, .ai-shimmer { animation: none !important; }
 }
