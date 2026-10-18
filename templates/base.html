@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="{{ current_lang|default:'fr' }}" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}MemoAI — Votre journal intelligent{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}MemoAI - Journalisez vos souvenirs avec l'IA.{% endblock %}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,350;0,9..144,400;0,9..144,500;1,9..144,350&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/cosmos.css' %}?v=20261010_15">
+  <style>
+    /* Critical Toast Styling — Guarantees floating top-right display regardless of browser cache */
+    .toast-container {
+      position: fixed !important;
+      top: 24px !important;
+      right: 24px !important;
+      z-index: 999999 !important;
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 12px !important;
+      max-width: 420px !important;
+      width: calc(100vw - 48px) !important;
+      pointer-events: none !important;
+    }
+
+    .toast {
+      pointer-events: auto !important;
+      position: relative !important;
+      display: flex !important;
+      align-items: flex-start !important;
+      gap: 14px !important;
+      padding: 16px 18px 18px !important;
+      background: rgba(255, 255, 255, 0.96) !important;
+      backdrop-filter: blur(20px) !important;
+      -webkit-backdrop-filter: blur(20px) !important;
+      border-radius: 16px !important;
+      box-shadow: 0 16px 40px -6px rgba(15, 23, 42, 0.16), 0 0 0 1px rgba(15, 23, 42, 0.08) !important;
+      overflow: hidden !important;
+      box-sizing: border-box !important;
+      animation: toastSlideIn 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease !important;
+    }
+
+    [data-theme="dark"] .toast {
+      background: rgba(24, 24, 27, 0.96) !important;
+      box-shadow: 0 16px 40px -6px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.12) !important;
+      color: #f4f4f5 !important;
+    }
+
+    .toast.toast--hiding {
+      animation: toastSlideOut 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+    }
+
+    @keyframes toastSlideIn {
+      from {
+        transform: translateX(120%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes toastSlideOut {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(120%);
+        opacity: 0;
+      }
+    }
+
+    .toast-icon-box {
+      width: 34px !important;
+      height: 34px !important;
+      border-radius: 10px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      flex-shrink: 0 !important;
+      color: #ffffff !important;
+    }
+
+    .toast--success .toast-icon-box {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35) !important;
+    }
+
+    .toast--error .toast-icon-box,
+    .toast--danger .toast-icon-box {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35) !important;
+    }
+
+    .toast--warning .toast-icon-box {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35) !important;
+    }
+
+    .toast--info .toast-icon-box {
+      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35) !important;
+    }
+
+    .toast-body {
+      flex: 1 !important;
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 3px !important;
+      min-width: 0 !important;
+      padding-top: 1px !important;
+    }
+
+    .toast-title {
+      font-family: inherit !important;
+      font-size: 14px !important;
+      font-weight: 600 !important;
+      color: inherit !important;
+      margin: 0 !important;
+      letter-spacing: -0.2px !important;
+      line-height: 1.3 !important;
+    }
+
+    .toast-msg {
+      font-family: inherit !important;
+      font-size: 13px !important;
+      line-height: 1.45 !important;
+      color: #64748b !important;
+      margin: 0 !important;
+      word-break: break-word !important;
+    }
+
+    [data-theme="dark"] .toast-msg {
+      color: #a1a1aa !important;
+    }
+
+    .toast-close-btn {
+      background: transparent !important;
+      border: none !important;
+      padding: 4px !important;
+      border-radius: 8px !important;
+      cursor: pointer !important;
+      color: #94a3b8 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      transition: all 0.15s ease !important;
+      margin-top: 2px !important;
+      flex-shrink: 0 !important;
+    }
+
+    .toast-close-btn:hover {
+      color: #0f172a !important;
+      background: rgba(0, 0, 0, 0.06) !important;
+      transform: scale(1.08) !important;
+    }
+
+    [data-theme="dark"] .toast-close-btn:hover {
+      background: rgba(255, 255, 255, 0.1) !important;
+      color: #ffffff !important;
+    }
+
+    .toast-progress-bar {
+      position: absolute !important;
+      bottom: 0 !important;
+      left: 0 !important;
+      height: 3px !important;
+      width: 100% !important;
+    }
+
+    .toast--success .toast-progress-bar { background: #10b981 !important; }
+    .toast--error .toast-progress-bar,
+    .toast--danger .toast-progress-bar { background: #ef4444 !important; }
+    .toast--warning .toast-progress-bar { background: #f59e0b !important; }
+    .toast--info .toast-progress-bar { background: #6366f1 !important; }
+
+    /* Lang pills switch */
+    .lang-switch-pills {
+      display: inline-flex !important;
+      align-items: center !important;
+      background: var(--color-linen-canvas, #f4f4f5) !important;
+      border: 1px solid var(--border-subtle, rgba(0,0,0,0.08)) !important;
+      border-radius: 999px !important;
+      padding: 2px 4px !important;
+      gap: 2px !important;
+      font-size: 11px !important;
+      font-weight: 700 !important;
+      font-family: var(--font-ui, sans-serif) !important;
+    }
+    .lang-pill {
+      padding: 2px 7px !important;
+      border-radius: 999px !important;
+      color: var(--color-stone, #71717a) !important;
+      text-decoration: none !important;
+      cursor: pointer !important;
+      transition: all 0.2s ease !important;
+    }
+    .lang-pill:hover {
+      color: var(--color-ink-black, #18181b) !important;
+    }
+    .lang-pill--active {
+      background: var(--color-paper-white, #ffffff) !important;
+      color: var(--color-ink-black, #18181b) !important;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.12) !important;
+      cursor: default !important;
+    }
+    [data-theme="dark"] .lang-switch-pills {
+      background: #27272a !important;
+      border-color: #3f3f46 !important;
+    }
+    [data-theme="dark"] .lang-pill--active {
+      background: #3f3f46 !important;
+      color: #f4f4f5 !important;
+    }
+  </style>
+  {% block extra_css %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+
+  <header class="nav-wrapper" role="banner">
+    <nav class="nav-pill" aria-label="Navigation principale">
+
+      <!-- Logo — always visible -->
+      <a href="/" class="nav-logo" aria-label="MemoAI Accueil">
+        <div class="dot-cluster" aria-hidden="true">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          <span class="dot"></span><span class="dot dot--hidden"></span><span class="dot"></span>
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        </div>
+        <span class="nav-brand">MemoAI</span>
+      </a>
+
+      {% if user.is_authenticated %}
+        <!-- ── APP NAV (authenticated) ── -->
+        <div class="nav-links">
+          <a href="/journal/" class="nav-link {% block nav_journal %}{% endblock %}">{{ t.nav_journal }}</a>
+          <a href="/journal/liste/" class="nav-link {% block nav_memories %}{% endblock %}">{{ t.nav_memories }}</a>
+          <a href="/personnes/" class="nav-link {% block nav_persons %}{% endblock %}">{{ t.nav_persons }}</a>
+          <a href="/insights/" class="nav-link {% block nav_insights %}{% endblock %}">{{ t.nav_insights }}</a>
+          <a href="/tags/" class="nav-link {% block nav_tags %}{% endblock %}">{{ t.nav_tags }}</a>
+        </div>
+
+        <div class="nav-search">
+          <form action="/journal/liste/" method="get" role="search">
+            <label for="nav-search-input" class="sr-only">{{ t.search|default:"Rechercher" }}</label>
+            <div class="search-wrapper">
+              <svg class="search-icon" aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M11 11L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+              <input id="nav-search-input" type="search" name="search" class="search-input" placeholder="{{ t.nav_search_placeholder }}" autocomplete="off">
+            </div>
+          </form>
+        </div>
+
+        <div class="nav-actions">
+          <div class="lang-switch-pills" title="Changer de langue / Switch language">
+            {% if is_en %}
+              <a href="/comptes/changer-langue/?lang=fr&next={{ request.get_full_path|urlencode }}" class="lang-pill" title="Passer en français">FR</a>
+              <span class="lang-pill lang-pill--active">EN</span>
+            {% else %}
+              <span class="lang-pill lang-pill--active">FR</span>
+              <a href="/comptes/changer-langue/?lang=en&next={{ request.get_full_path|urlencode }}" class="lang-pill" title="Switch to English">EN</a>
+            {% endif %}
+          </div>
+
+          <a href="/notifications/" class="nav-notif-btn {% block nav_notifications %}{% endblock %}" aria-label="{{ t.nav_notifications }}" title="{{ t.nav_notifications }}" id="nav-notif-btn">
+            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+            {% if unread_notifications_count %}
+              <span class="nav-notif-badge">{{ unread_notifications_count }}</span>
+            {% endif %}
+          </a>
+
+          <button id="theme-toggle" class="theme-toggle" aria-label="{{ t.toggle_theme }}" type="button">
+            <svg class="icon-sun" aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v1.5M8 13.5V15M1 8h1.5M13.5 8H15M3.05 3.05l1.06 1.06M11.89 11.89l1.06 1.06M3.05 12.95l1.06-1.06M11.89 4.11l1.06-1.06" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <svg class="icon-moon" aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M13.5 10.5A6 6 0 115.5 2.5a5 5 0 008 8z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          </button>
+
+          <a href="/journal/nouveau/" class="btn btn-primary btn-sm" id="nav-new-entry">
+            <svg aria-hidden="true" width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            {{ t.nav_new }}
+          </a>
+
+          <div class="nav-avatar-wrapper">
+            <button class="nav-avatar" id="avatar-btn" aria-haspopup="true" aria-expanded="false" type="button" title="{{ user.get_full_name|default:user.email }}">
+              {% if user.avatar %}
+                <img src="{{ user.avatar }}" alt="{{ user.first_name }}" class="avatar-img">
+              {% else %}
+                <span class="avatar-initials">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</span>
+              {% endif %}
+            </button>
+            <div class="avatar-dropdown" id="avatar-dropdown" role="menu">
+              <div class="dropdown-header" style="display:flex;align-items:center;gap:12px;padding:12px 16px;">
+                <div style="width:40px;height:40px;border-radius:50%;overflow:hidden;flex-shrink:0;border:1.5px solid var(--color-amber-gold, #c8963e);background:var(--color-linen-canvas);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+                  {% if user.avatar %}
+                    <img src="{{ user.avatar }}" alt="{{ user.first_name }}" style="width:100%;height:100%;object-fit:cover;">
+                  {% else %}
+                    <span style="font-family:var(--font-ui);font-weight:700;font-size:14px;color:var(--color-amber-gold, #c8963e);">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</span>
+                  {% endif %}
+                </div>
+                <div style="min-width:0;flex:1;">
+                  <p class="dropdown-name" style="margin:0;font-weight:600;font-size:14px;color:var(--color-ink-black);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ user.get_full_name|default:user.email }}</p>
+                  <p class="dropdown-email" style="margin:2px 0 0;font-size:11px;color:var(--color-stone);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ user.email }}</p>
+                </div>
+              </div>
+              <div class="dropdown-divider"></div>
+              <a href="/comptes/profil/" class="dropdown-item" role="menuitem">{{ t.nav_my_profile }}</a>
+              <a href="/comptes/preferences/" class="dropdown-item" role="menuitem">{{ t.nav_preferences }}</a>
+              <a href="/notifications/" class="dropdown-item" role="menuitem">{{ t.nav_notifications }}</a>
+              <a href="/tags/" class="dropdown-item" role="menuitem">{{ t.nav_tags }}</a>
+              <div class="dropdown-divider"></div>
+              <form method="post" action="/comptes/deconnexion/" style="margin:0">
+                {% csrf_token %}
+                <button type="submit" class="dropdown-item dropdown-item--danger">{{ t.nav_logout }}</button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+      {% else %}
+        <!-- ── PUBLIC NAV (not authenticated) ── -->
+        <div class="nav-links">
+          <a href="/" class="nav-link">{{ t.nav_home }}</a>
+          <a href="/#about" class="nav-link">{{ t.nav_about }}</a>
+          <a href="/#contact" class="nav-link">{{ t.nav_contact }}</a>
+        </div>
+
+        <div class="nav-actions">
+          <div class="lang-switch-pills" title="Changer de langue / Switch language">
+            {% if is_en %}
+              <a href="/comptes/changer-langue/?lang=fr&next={{ request.get_full_path|urlencode }}" class="lang-pill" title="Passer en français">FR</a>
+              <span class="lang-pill lang-pill--active">EN</span>
+            {% else %}
+              <span class="lang-pill lang-pill--active">FR</span>
+              <a href="/comptes/changer-langue/?lang=en&next={{ request.get_full_path|urlencode }}" class="lang-pill" title="Switch to English">EN</a>
+            {% endif %}
+          </div>
+
+          <button id="theme-toggle" class="theme-toggle" aria-label="{{ t.toggle_theme }}" type="button">
+            <svg class="icon-sun" aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v1.5M8 13.5V15M1 8h1.5M13.5 8H15M3.05 3.05l1.06 1.06M11.89 11.89l1.06 1.06M3.05 12.95l1.06-1.06M11.89 4.11l1.06-1.06" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <svg class="icon-moon" aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M13.5 10.5A6 6 0 115.5 2.5a5 5 0 008 8z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          </button>
+          <a href="/comptes/connexion/" class="btn btn-secondary btn-sm" id="nav-login">{{ t.nav_login }}</a>
+          <a href="/comptes/inscription/" class="btn btn-primary btn-sm" id="nav-register">{{ t.nav_register }}</a>
+        </div>
+      {% endif %}
+
+    </nav>
+  </header>
+
+  <!-- ── TOAST NOTIFICATIONS ── -->
+  <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true">
+    {% if messages %}
+      {% for message in messages %}
+        <div class="toast toast--{{ message.tags|default:'info' }}" role="alert">
+          <div class="toast-icon-box" aria-hidden="true">
+            {% if 'success' in message.tags %}
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            {% elif 'error' in message.tags or 'danger' in message.tags %}
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="15" y1="9" x2="9" y2="15"></line>
+                <line x1="9" y1="9" x2="15" y2="15"></line>
+              </svg>
+            {% elif 'warning' in message.tags %}
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+            {% else %}
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+              </svg>
+            {% endif %}
+          </div>
+          <div class="toast-body">
+            <p class="toast-title">
+              {% if 'success' in message.tags %}Succès
+              {% elif 'error' in message.tags or 'danger' in message.tags %}Erreur
+              {% elif 'warning' in message.tags %}Attention
+              {% else %}Information{% endif %}
+            </p>
+            <p class="toast-msg">{{ message }}</p>
+          </div>
+          <button class="toast-close-btn" aria-label="Fermer" type="button">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="1" y1="1" x2="13" y2="13"></line>
+              <line x1="13" y1="1" x2="1" y2="13"></line>
+            </svg>
+          </button>
+          <div class="toast-progress-bar"></div>
+        </div>
+      {% endfor %}
+    {% endif %}
+  </div>
+
+  <main id="main-content" class="main-content">
+    {% block content %}{% endblock %}
+  </main>
+
+  {% block footer %}
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <div class="dot-cluster dot-cluster--sm" aria-hidden="true">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            <span class="dot"></span><span class="dot dot--hidden"></span><span class="dot"></span>
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          </div>
+          <span class="footer-name">MemoAI</span>
+        </div>
+        <p class="footer-copy">Journal intelligent propulse par l'IA &copy; 2026</p>
+        <div class="footer-links">
+          <a href="#" class="footer-link">Confidentialite</a>
+          <a href="#" class="footer-link">Conditions</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  {% endblock %}
+
+  <script>
+    (function(){
+      var s = localStorage.getItem("memo-theme");
+      if(s === "dark"){ document.documentElement.setAttribute("data-theme","dark"); }
+      else if(s === "light"){ document.documentElement.setAttribute("data-theme","light"); }
+      else if(s === "system" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches){
+        document.documentElement.setAttribute("data-theme","dark");
+      }
+    })();
+
+    document.addEventListener("DOMContentLoaded", function(){
+      // Theme toggle in nav
+      var themeBtn = document.getElementById("theme-toggle");
+      if(themeBtn){
+        themeBtn.addEventListener("click", function(){
+          var h = document.documentElement;
+          var isDark = h.getAttribute("data-theme") === "dark";
+          var nextTheme = isDark ? "light" : "dark";
+          h.setAttribute("data-theme", nextTheme);
+          localStorage.setItem("memo-theme", nextTheme);
+          // Sync with preferences theme buttons if on that page
+          var opt = document.querySelector('.theme-option[data-theme="' + nextTheme + '"]');
+          if(opt) {
+            document.querySelectorAll('.theme-option').forEach(function(o){ o.classList.remove('theme-option--active'); });
+            opt.classList.add('theme-option--active');
+            var idTheme = document.getElementById('id_theme');
+            if(idTheme) idTheme.value = nextTheme;
+          }
+        });
+      }
+
+      // Avatar dropdown
+      var aBtn = document.getElementById("avatar-btn");
+      var aDrop = document.getElementById("avatar-dropdown");
+      if(aBtn && aDrop){
+        aBtn.addEventListener("click", function(e){
+          e.stopPropagation();
+          var o = aBtn.getAttribute("aria-expanded") === "true";
+          aBtn.setAttribute("aria-expanded", String(!o));
+          aDrop.classList.toggle("open", !o);
+        });
+        document.addEventListener("click", function(){
+          if(aBtn) aBtn.setAttribute("aria-expanded", "false");
+          if(aDrop) aDrop.classList.remove("open");
+        });
+      }
+
+      // Toast Notification Engine
+      function initToast(toast) {
+        var duration = 4500;
+        var progressBar = toast.querySelector('.toast-progress-bar');
+        var startTime = Date.now();
+        var remaining = duration;
+        var timerId = null;
+
+        function startTimer() {
+          if (progressBar) {
+            progressBar.style.transition = 'width ' + remaining + 'ms linear';
+            progressBar.style.width = '0%';
+          }
+          startTime = Date.now();
+          timerId = setTimeout(dismissToast, remaining);
+        }
+
+        function pauseTimer() {
+          if (timerId) {
+            clearTimeout(timerId);
+            timerId = null;
+          }
+          if (progressBar) {
+            var elapsed = Date.now() - startTime;
+            remaining = Math.max(0, remaining - elapsed);
+            var computedWidth = getComputedStyle(progressBar).width;
+            progressBar.style.transition = 'none';
+            progressBar.style.width = computedWidth;
+          }
+        }
+
+        function dismissToast() {
+          if (toast.classList.contains('toast--hiding')) return;
+          toast.classList.add('toast--hiding');
+          setTimeout(function() {
+            if (toast.parentNode) toast.parentNode.removeChild(toast);
+          }, 320);
+        }
+
+        var closeBtn = toast.querySelector('.toast-close-btn');
+        if (closeBtn) {
+          closeBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            dismissToast();
+          });
+        }
+
+        toast.addEventListener('mouseenter', pauseTimer);
+        toast.addEventListener('mouseleave', function() {
+          if (remaining > 0) startTimer();
+        });
+
+        startTimer();
+      }
+
+      document.querySelectorAll('.toast').forEach(initToast);
+
+      // Global helper available to any script
+      window.showToast = function(message, type, title) {
+        type = type || 'info';
+        var container = document.getElementById('toast-container');
+        if (!container) {
+          container = document.createElement('div');
+          container.id = 'toast-container';
+          container.className = 'toast-container';
+          document.body.appendChild(container);
+        }
+        var toast = document.createElement('div');
+        toast.className = 'toast toast--' + type;
+        var iconSvg = '';
+        var isEn = document.documentElement.getAttribute('lang') === 'en';
+        var defaultTitle = isEn ? 'Notice' : 'Information';
+        if (type === 'success') {
+          defaultTitle = isEn ? 'Success' : 'Succès';
+          iconSvg = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+        } else if (type === 'error' || type === 'danger') {
+          defaultTitle = isEn ? 'Error' : 'Erreur';
+          iconSvg = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>';
+        } else if (type === 'warning') {
+          defaultTitle = isEn ? 'Warning' : 'Attention';
+          iconSvg = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>';
+        } else {
+          iconSvg = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>';
+        }
+        toast.innerHTML = '<div class="toast-icon-box" aria-hidden="true">' + iconSvg + '</div>' +
+          '<div class="toast-body"><p class="toast-title">' + (title || defaultTitle) + '</p><p class="toast-msg">' + message + '</p></div>' +
+          '<button class="toast-close-btn" aria-label="Fermer" type="button"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="13" y2="13"></line><line x1="13" y1="1" x2="1" y2="13"></line></svg></button>' +
+          '<div class="toast-progress-bar"></div>';
+        container.appendChild(toast);
+        initToast(toast);
+      };
+    });
+  </script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

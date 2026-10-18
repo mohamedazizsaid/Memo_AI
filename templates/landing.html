@@ -1,0 +1,225 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}MemoAI — Preservez vos souvenirs avec l'IA{% endblock %}
+{% block meta_description %}MemoAI est votre journal personnel intelligent. Ecrivez, analysez vos emotions, retrouvez vos souvenirs.{% endblock %}
+{% block body_class %}landing-page{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block content %}
+<!-- ═══ HERO — cosmos.so style ══════════════════════════════════════ -->
+<section class="cosmos-hero" aria-label="Accueil">
+
+  <!-- Floating tiles — spread across the whole viewport -->
+  <div class="cosmos-tiles" aria-hidden="true" id="cosmos-tiles">
+    <!-- JS will inject tiles dynamically -->
+  </div>
+
+  <!-- Center content -->
+  <div class="cosmos-center" id="cosmos-center">
+    <h1 class="cosmos-headline">
+      <span class="cosmos-headline-static">Journalisez</span>
+      <span class="cosmos-headline-flip-wrapper" aria-live="polite">
+        <span class="cosmos-flip-word" id="flip-word">chaque souvenir</span>
+      </span>
+    </h1>
+
+    <p class="cosmos-sub" id="cosmos-sub">
+      Votre journal personnel enrichi par l'intelligence artificielle
+    </p>
+
+    <div class="cosmos-actions">
+      <a href="/comptes/inscription/" class="cosmos-btn cosmos-btn--primary" id="cosmos-cta-main">
+        Commencer gratuitement
+      </a>
+    </div>
+
+    <a href="#features" class="cosmos-scroll-hint" id="cosmos-scroll">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <path d="M10 4v12M5 11l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>
+  </div>
+</section>
+
+<!-- ═══ FEATURES ════════════════════════════════════════════════════ -->
+<section class="lp-features" id="features" aria-label="Fonctionnalites">
+  <div class="container">
+    <div class="lp-features-header">
+      <p class="eyebrow">FONCTIONNALITES</p>
+      <h2 class="lp-features-title">Tout ce dont vous avez besoin<br>pour capturer votre vie</h2>
+    </div>
+    <div class="lp-features-grid">
+      <div class="lp-feat-card" id="feat-journal">
+        <div class="lp-feat-img-wrap">
+          <img src="{% static 'img/tile_notebook.jpg' %}" alt="Journal quotidien" class="lp-feat-img">
+        </div>
+        <div class="lp-feat-body">
+          <h3 class="lp-feat-title">Journal quotidien</h3>
+          <p class="lp-feat-desc">Ecrivez librement, ajoutez des photos et des enregistrements audio pour capturer chaque moment.</p>
+        </div>
+      </div>
+      <div class="lp-feat-card lp-feat-card--dark" id="feat-ai">
+        <div class="lp-feat-img-wrap lp-feat-img-wrap--ai">
+          <div class="ai-anim-grid" aria-hidden="true">
+            <span></span><span></span><span></span><span></span><span class="big"></span>
+            <span></span><span></span><span></span><span></span>
+          </div>
+        </div>
+        <div class="lp-feat-body">
+          <h3 class="lp-feat-title lp-feat-title--light">Analyse IA</h3>
+          <p class="lp-feat-desc lp-feat-desc--light">L'IA analyse vos emotions, genere des resumes et detecte les themes recurrents de votre vie.</p>
+        </div>
+      </div>
+      <div class="lp-feat-card" id="feat-memories">
+        <div class="lp-feat-img-wrap">
+          <img src="{% static 'img/tile_sunset.jpg' %}" alt="Souvenirs" class="lp-feat-img">
+        </div>
+        <div class="lp-feat-body">
+          <h3 class="lp-feat-title">En ce jour</h3>
+          <p class="lp-feat-desc">Retrouvez ce que vous faisiez exactement un an ou cinq ans en arriere.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CTA ══════════════════════════════════════════════════════════ -->
+<section class="lp-cta" id="contact" aria-label="Appel a l'action">
+  <div class="container">
+    <div class="lp-cta-box">
+      <h2 class="lp-cta-title">Commencez votre journal aujourd'hui</h2>
+      <p class="lp-cta-sub">Gratuit. Prive. Intelligent.</p>
+      <div class="cosmos-actions">
+        <a href="/comptes/inscription/" class="cosmos-btn cosmos-btn--primary" id="cta-signup-bottom">Creer mon journal</a>
+        <a href="/comptes/connexion/" class="cosmos-btn cosmos-btn--secondary" id="cta-login-bottom">Se connecter</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  'use strict';
+
+  /* ─── IMAGE POOL ─────────────────────────────────────────────── */
+  var IMGS = [
+    "{% static 'img/tile_coffee.jpg' %}",
+    "{% static 'img/tile_notebook.jpg' %}",
+    "{% static 'img/tile_sunset.jpg' %}",
+    "{% static 'img/tile_flowers.jpg' %}",
+    "{% static 'img/tile_friends.jpg' %}",
+    "{% static 'img/tile_city.jpg' %}",
+    "{% static 'img/tile_hero.jpg' %}",
+  ];
+
+  /* ─── TILE CONFIG ────────────────────────────────────────────── */
+  /* Each tile: [left%, top%, width(px), rotate-initial(deg), anim-duration(s), anim-delay(s), rx, ry, rz] */
+  var TILES = [
+    [2,  6,  100, -15, 22, 0,    0.4, 1,   0.2],
+    [8,  55, 90,  12,  28, 2,    0.2, 0.8, 0.5],
+    [5,  30, 110, -8,  25, 5,    0.6, 0.4, 0.3],
+    [14, 72, 85,  20,  30, 1,    0.3, 1.2, 0.1],
+    [0,  85, 95,  -25, 19, 3.5,  0.7, 0.6, 0.4],
+    [18, 10, 105, 8,   24, 0.5,  0.1, 0.9, 0.6],
+    [12, 42, 80,  -12, 26, 4,    0.5, 0.7, 0.2],
+    [22, 88, 100, 18,  21, 2.5,  0.3, 1.1, 0.5],
+    [72, 4,  110, -18, 23, 1,    0.6, 0.8, 0.3],
+    [80, 60, 95,  14,  27, 3,    0.2, 1.0, 0.4],
+    [85, 25, 100, -6,  20, 0.8,  0.8, 0.5, 0.1],
+    [90, 78, 88,  22,  29, 4.5,  0.4, 0.7, 0.6],
+    [76, 88, 105, -20, 18, 2,    0.6, 0.9, 0.2],
+    [68, 48, 90,  10,  25, 1.5,  0.3, 1.2, 0.5],
+    [62, 12, 115, -5,  22, 5,    0.5, 0.6, 0.3],
+    [88, 10, 80,  16,  31, 0.3,  0.7, 0.8, 0.4],
+    [55, 80, 95,  -22, 24, 3,    0.2, 1.0, 0.6],
+    [48, 5,  85,  7,   28, 2.2,  0.4, 0.7, 0.2],
+    [35, 92, 100, -14, 20, 1.8,  0.6, 0.9, 0.5],
+    [42, 20, 90,  19,  26, 4.2,  0.3, 1.1, 0.3],
+  ];
+
+  /* ─── CREATE TILES ───────────────────────────────────────────── */
+  var container = document.getElementById('cosmos-tiles');
+  if (!container) return;
+
+  TILES.forEach(function (cfg, i) {
+    var left = cfg[0], top = cfg[1], width = cfg[2], initRot = cfg[3];
+    var dur = cfg[4], delay = cfg[5], rx = cfg[6], ry = cfg[7], rz = cfg[8];
+    var img = IMGS[i % IMGS.length];
+
+    var tile = document.createElement('div');
+    tile.className = 'ctile';
+    tile.style.cssText = [
+      'left:' + left + 'vw',
+      'top:' + top + 'vh',
+      'width:' + width + 'px',
+      'animation-duration:' + dur + 's',
+      'animation-delay:-' + delay + 's',
+      '--rx:' + rx,
+      '--ry:' + ry,
+      '--rz:' + rz,
+      '--init-rot:' + initRot + 'deg',
+    ].join(';');
+
+    var inner = document.createElement('div');
+    inner.className = 'ctile-inner';
+
+    var imgEl = document.createElement('img');
+    imgEl.src = img;
+    imgEl.alt = '';
+    imgEl.loading = 'lazy';
+    imgEl.className = 'ctile-img';
+    imgEl.draggable = false;
+
+    inner.appendChild(imgEl);
+    tile.appendChild(inner);
+    container.appendChild(tile);
+  });
+
+  /* ─── TEXT FLIP ──────────────────────────────────────────────── */
+  var phrases = [
+    'chaque souvenir',
+    'vos emotions',
+    'vos memoires',
+    'chaque instant',
+    'votre histoire',
+  ];
+  var subTexts = [
+    'Votre journal personnel enrichi par l\u2019intelligence artificielle',
+    'Analysez vos humeurs, detectez vos patterns emotionnels',
+    'Retrouvez vos souvenirs graace a la recherche intelligente',
+    'Capturez chaque moment avec photos, texte et audio',
+    'Votre vie merite d\u2019etre racontee et preservee',
+  ];
+
+  var flipWord = document.getElementById('flip-word');
+  var cosmosSubEl = document.getElementById('cosmos-sub');
+  var current = 0;
+
+  function flipNext() {
+    current = (current + 1) % phrases.length;
+
+    /* Phase 1 — flip out */
+    flipWord.classList.add('flip-out');
+    if (cosmosSubEl) cosmosSubEl.classList.add('fade-out');
+
+    setTimeout(function () {
+      flipWord.textContent = phrases[current];
+      if (cosmosSubEl) cosmosSubEl.textContent = subTexts[current];
+      flipWord.classList.remove('flip-out');
+      flipWord.classList.add('flip-in');
+      if (cosmosSubEl) cosmosSubEl.classList.remove('fade-out');
+
+      setTimeout(function () {
+        flipWord.classList.remove('flip-in');
+      }, 500);
+    }, 350);
+  }
+
+  setInterval(flipNext, 3000);
+
+})();
+</script>
+{% endblock %}
