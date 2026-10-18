@@ -1,0 +1,655 @@
+{% extends 'base.html' %}
+{% block title %}Inscription en 2 étapes — MemoAI{% endblock %}
+
+{% block extra_css %}
+<style>
+  .auth-card--multistep {
+    max-width: 520px;
+    width: 100%;
+    margin: 40px auto;
+    background: var(--color-paper-white);
+    border: 1px solid var(--border-subtle);
+    border-radius: 24px;
+    padding: 36px 40px;
+    box-shadow: 0 12px 40px -10px rgba(0, 0, 0, 0.06);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Stepper Progress Header */
+  .auth-stepper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 28px;
+    position: relative;
+  }
+
+  .step-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-stone);
+    transition: all 0.3s ease;
+  }
+
+  .step-indicator.active {
+    color: var(--color-ink-black);
+  }
+
+  .step-bubble {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--color-linen-canvas);
+    color: var(--color-stone);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .step-indicator.active .step-bubble {
+    background: var(--color-ink-black);
+    color: var(--color-paper-white);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+  }
+
+  [data-theme="dark"] .step-indicator.active .step-bubble {
+    background: #6366f1;
+    color: #ffffff;
+  }
+
+  .step-indicator.completed .step-bubble {
+    background: #10b981;
+    color: #ffffff;
+  }
+
+  .step-connector {
+    width: 40px;
+    height: 2px;
+    background: var(--border-subtle);
+    border-radius: 2px;
+    transition: background 0.3s ease;
+  }
+
+  .step-connector.completed {
+    background: #10b981;
+  }
+
+  /* Step Containers */
+  .step-pane {
+    display: none;
+    animation: fadeInStep 0.3s ease forwards;
+  }
+
+  .step-pane.active {
+    display: block;
+  }
+
+  @keyframes fadeInStep {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Drag & Drop Avatar Zone */
+  .avatar-dropzone {
+    border: 2px dashed var(--border-medium);
+    border-radius: 20px;
+    padding: 32px 20px;
+    text-align: center;
+    background: var(--color-linen-canvas);
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    position: relative;
+  }
+
+  .avatar-dropzone:hover,
+  .avatar-dropzone.dragover {
+    border-color: #6366f1;
+    background: rgba(99, 102, 241, 0.05);
+    transform: scale(1.01);
+  }
+
+  .avatar-dropzone-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--color-paper-white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6366f1;
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.15);
+    transition: transform 0.2s ease;
+  }
+
+  .avatar-dropzone:hover .avatar-dropzone-icon {
+    transform: translateY(-2px) scale(1.05);
+  }
+
+  .avatar-dropzone-title {
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--color-ink-black);
+    margin: 0;
+  }
+
+  .avatar-dropzone-subtitle {
+    font-size: 12px;
+    color: var(--color-stone);
+    margin: 0;
+  }
+
+  /* Avatar Preview Display */
+  .avatar-preview-display {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 24px;
+    text-align: center;
+  }
+
+  .avatar-preview-img-wrapper {
+    position: relative;
+    width: 104px;
+    height: 104px;
+    border-radius: 50%;
+    padding: 3px;
+    background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+    box-shadow: 0 8px 24px rgba(99, 102, 241, 0.25);
+  }
+
+  .avatar-preview-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    background: var(--color-paper-white);
+    display: block;
+  }
+
+  .avatar-filename {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-ink-black);
+  }
+
+  /* Quick Avatar Suggestions */
+  .avatar-presets-title {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--color-stone);
+    margin-bottom: 10px;
+    text-align: center;
+  }
+
+  .avatar-presets-grid {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .avatar-preset-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 2px solid var(--border-subtle);
+    background: var(--color-linen-canvas);
+    cursor: pointer;
+    overflow: hidden;
+    padding: 0;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .avatar-preset-btn:hover {
+    transform: scale(1.15);
+    border-color: #6366f1;
+  }
+
+  .avatar-preset-btn.selected {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+    transform: scale(1.1);
+  }
+
+  .avatar-preset-btn img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Step Actions */
+  .step-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 24px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+  <div class="auth-card auth-card--multistep">
+
+    <!-- Header & Dot Cluster -->
+    <div class="auth-header">
+      <div class="dot-cluster dot-cluster--lg" aria-hidden="true">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span class="dot"></span><span class="dot dot--hidden"></span><span class="dot"></span>
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      </div>
+      <p class="eyebrow">MEMOAI</p>
+      <h1 class="auth-title">Créer votre compte</h1>
+      <p class="auth-subtitle">Votre journal privé et intelligent en deux étapes simples</p>
+    </div>
+
+    <!-- Stepper Indicator -->
+    <div class="auth-stepper" aria-label="Progression de l'inscription">
+      <div class="step-indicator active" id="step-indicator-1">
+        <span class="step-bubble">1</span>
+        <span>Informations</span>
+      </div>
+      <div class="step-connector" id="step-connector-1"></div>
+      <div class="step-indicator" id="step-indicator-2">
+        <span class="step-bubble">2</span>
+        <span>Photo de profil</span>
+      </div>
+    </div>
+
+    <!-- Multi-step Form -->
+    <form method="post" action="" id="register-form" class="auth-form" enctype="multipart/form-data" novalidate>
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+        <div class="form-error-banner" role="alert">{{ form.non_field_errors }}</div>
+      {% endif %}
+
+      <!-- ══════════════════════════════════════════════════
+           ÉTAPE 1 : COORDONNÉES & SÉCURITÉ
+           ══════════════════════════════════════════════════ -->
+      <div class="step-pane active" id="step-pane-1">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="id_first_name" class="form-label">Prénom</label>
+            <input type="text" name="first_name" id="id_first_name"
+              class="form-input {% if form.first_name.errors %}form-input--error{% endif %}"
+              placeholder="Prénom" value="{{ form.first_name.value|default:'' }}" required autocomplete="given-name">
+            {% if form.first_name.errors %}<p class="form-error">{{ form.first_name.errors|join:", " }}</p>{% endif %}
+          </div>
+          <div class="form-group">
+            <label for="id_last_name" class="form-label">Nom</label>
+            <input type="text" name="last_name" id="id_last_name"
+              class="form-input {% if form.last_name.errors %}form-input--error{% endif %}"
+              placeholder="Nom" value="{{ form.last_name.value|default:'' }}" required autocomplete="family-name">
+            {% if form.last_name.errors %}<p class="form-error">{{ form.last_name.errors|join:", " }}</p>{% endif %}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="id_email" class="form-label">Adresse email</label>
+          <input type="email" name="email" id="id_email"
+            class="form-input {% if form.email.errors %}form-input--error{% endif %}"
+            placeholder="vous@exemple.com" value="{{ form.email.value|default:'' }}" autocomplete="email" required>
+          {% if form.email.errors %}<p class="form-error">{{ form.email.errors|join:", " }}</p>{% endif %}
+        </div>
+
+        <div class="form-group">
+          <label for="id_password1" class="form-label">Mot de passe</label>
+          <div class="input-password-wrapper">
+            <input type="password" name="password1" id="id_password1"
+              class="form-input {% if form.password1.errors %}form-input--error{% endif %}"
+              placeholder="Minimum 8 caractères" autocomplete="new-password" required>
+            <button type="button" class="password-toggle" aria-label="Afficher/masquer">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M1.5 8C3 4.5 5.5 3 8 3s5 1.5 6.5 5c-1.5 3.5-4 5-6.5 5S3 11.5 1.5 8z" stroke="currentColor" stroke-width="1.5"/></svg>
+            </button>
+          </div>
+          {% if form.password1.errors %}<p class="form-error">{{ form.password1.errors|join:", " }}</p>{% endif %}
+        </div>
+
+        <div class="form-group">
+          <label for="id_password2" class="form-label">Confirmer le mot de passe</label>
+          <input type="password" name="password2" id="id_password2"
+            class="form-input {% if form.password2.errors %}form-input--error{% endif %}"
+            placeholder="Répétez le mot de passe" autocomplete="new-password" required>
+          {% if form.password2.errors %}<p class="form-error">{{ form.password2.errors|join:", " }}</p>{% endif %}
+        </div>
+
+        <div class="form-group form-group--checkbox">
+          <label class="checkbox-label">
+            <input type="checkbox" name="accept_terms" id="id_accept_terms" checked required>
+            <span class="checkbox-custom"></span>
+            J'accepte les <a href="#" class="form-link">conditions d'utilisation</a>
+          </label>
+        </div>
+
+        <button type="button" class="btn btn-primary btn-full" id="btn-next-step" style="margin-top:8px;">
+          Continuer vers la photo de profil &rarr;
+        </button>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════
+           ÉTAPE 2 : PHOTO DE PROFIL DRAG & DROP
+           ══════════════════════════════════════════════════ -->
+      <div class="step-pane" id="step-pane-2">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <h2 style="font-family: var(--font-primary); font-size: 19px; font-weight: 600; margin: 0 0 6px; color: var(--color-ink-black);">
+            Personnalisez votre avatar
+          </h2>
+          <p style="font-size: 13px; color: var(--color-stone); margin: 0;">
+            Cette photo apparaîtra dans votre barre de navigation et sur votre journal.
+          </p>
+        </div>
+
+        <!-- Hidden input for file upload -->
+        <input type="file" name="avatar_file" id="id_avatar_file" accept="image/png, image/jpeg, image/webp, image/gif" style="display:none;">
+        <!-- Hidden input for preset avatar URL fallback -->
+        <input type="hidden" name="avatar_url" id="id_avatar_url" value="">
+
+        <!-- Drag & Drop Zone -->
+        <div class="avatar-dropzone" id="avatar-dropzone" role="button" tabindex="0" aria-label="Zone de dépôt de photo de profil">
+          <div class="avatar-dropzone-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+          </div>
+          <div>
+            <p class="avatar-dropzone-title">Glissez et déposez votre photo ici</p>
+            <p class="avatar-dropzone-subtitle">ou <span style="color:#6366f1; font-weight:600; text-decoration:underline;">parcourir vos fichiers</span> (PNG, JPG, WEBP jusqu'à 10 Mo)</p>
+          </div>
+        </div>
+
+        <!-- Preview when image is selected/dropped -->
+        <div class="avatar-preview-display" id="avatar-preview-display">
+          <div class="avatar-preview-img-wrapper">
+            <img src="" alt="Aperçu avatar" id="avatar-preview-img" class="avatar-preview-img">
+          </div>
+          <div>
+            <p class="avatar-filename" id="avatar-filename">photo.jpg</p>
+            <button type="button" class="btn btn-ghost btn-sm" id="btn-remove-avatar" style="color:#ef4444; font-size:12px; margin-top:4px;">
+              ✕ Retirer cette photo
+            </button>
+          </div>
+        </div>
+
+        <!-- Or Quick Presets -->
+        <div class="avatar-presets-title">Ou choisissez un avatar suggéré</div>
+        <div class="avatar-presets-grid" id="avatar-presets-grid">
+          <button type="button" class="avatar-preset-btn" data-url="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80" title="Portrait 1">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80" alt="Avatar 1">
+          </button>
+          <button type="button" class="avatar-preset-btn" data-url="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80" title="Portrait 2">
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80" alt="Avatar 2">
+          </button>
+          <button type="button" class="avatar-preset-btn" data-url="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80" title="Portrait 3">
+            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80" alt="Avatar 3">
+          </button>
+          <button type="button" class="avatar-preset-btn" data-url="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80" title="Portrait 4">
+            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80" alt="Avatar 4">
+          </button>
+          <button type="button" class="avatar-preset-btn" data-url="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80" title="Portrait 5">
+            <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80" alt="Avatar 5">
+          </button>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="step-actions">
+          <button type="button" class="btn btn-secondary" id="btn-prev-step" style="flex:1;">
+            &larr; Retour
+          </button>
+          <button type="submit" class="btn btn-primary" id="register-submit" style="flex:2;">
+            Créer mon compte &rarr;
+          </button>
+        </div>
+
+        <div style="text-align: center; margin-top: 14px;">
+          <button type="submit" class="btn btn-ghost btn-sm" id="btn-skip-avatar" style="font-size: 13px; color: var(--color-stone);">
+            Passer cette étape (choisir plus tard)
+          </button>
+        </div>
+      </div>
+
+    </form>
+
+    <p class="auth-switch">
+      Déjà un compte ?
+      <a href="/comptes/connexion/" class="auth-switch-link">Se connecter</a>
+    </p>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Elements
+  var stepPane1 = document.getElementById('step-pane-1');
+  var stepPane2 = document.getElementById('step-pane-2');
+  var stepIndicator1 = document.getElementById('step-indicator-1');
+  var stepIndicator2 = document.getElementById('step-indicator-2');
+  var stepConnector = document.getElementById('step-connector-1');
+  var btnNext = document.getElementById('btn-next-step');
+  var btnPrev = document.getElementById('btn-prev-step');
+
+  var fileInput = document.getElementById('id_avatar_file');
+  var urlInput = document.getElementById('id_avatar_url');
+  var dropzone = document.getElementById('avatar-dropzone');
+  var previewDisplay = document.getElementById('avatar-preview-display');
+  var previewImg = document.getElementById('avatar-preview-img');
+  var filenameLabel = document.getElementById('avatar-filename');
+  var btnRemove = document.getElementById('btn-remove-avatar');
+  var presetBtns = document.querySelectorAll('.avatar-preset-btn');
+
+  // Input fields for step 1 validation
+  var firstName = document.getElementById('id_first_name');
+  var lastName = document.getElementById('id_last_name');
+  var email = document.getElementById('id_email');
+  var pwd1 = document.getElementById('id_password1');
+  var pwd2 = document.getElementById('id_password2');
+  var terms = document.getElementById('id_accept_terms');
+
+  function validateStep1() {
+    if (!firstName.value.trim()) {
+      firstName.focus();
+      if (window.showToast) window.showToast('Veuillez entrer votre prénom.', 'warning');
+      return false;
+    }
+    if (!lastName.value.trim()) {
+      lastName.focus();
+      if (window.showToast) window.showToast('Veuillez entrer votre nom.', 'warning');
+      return false;
+    }
+    if (!email.value.trim() || !email.checkValidity()) {
+      email.focus();
+      if (window.showToast) window.showToast('Veuillez entrer une adresse email valide.', 'warning');
+      return false;
+    }
+    if (!pwd1.value || pwd1.value.length < 8) {
+      pwd1.focus();
+      if (window.showToast) window.showToast('Le mot de passe doit comporter au moins 8 caractères.', 'warning');
+      return false;
+    }
+    if (pwd1.value !== pwd2.value) {
+      pwd2.focus();
+      if (window.showToast) window.showToast('Les deux mots de passe ne correspondent pas.', 'warning');
+      return false;
+    }
+    if (terms && !terms.checked) {
+      terms.focus();
+      if (window.showToast) window.showToast('Veuillez accepter les conditions d\'utilisation.', 'warning');
+      return false;
+    }
+    return true;
+  }
+
+  function goToStep2() {
+    stepPane1.classList.remove('active');
+    stepPane2.classList.add('active');
+
+    stepIndicator1.classList.remove('active');
+    stepIndicator1.classList.add('completed');
+    stepConnector.classList.add('completed');
+    stepIndicator2.classList.add('active');
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function goToStep1() {
+    stepPane2.classList.remove('active');
+    stepPane1.classList.add('active');
+
+    stepIndicator2.classList.remove('active');
+    stepIndicator1.classList.remove('completed');
+    stepConnector.classList.remove('completed');
+    stepIndicator1.classList.add('active');
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  if (btnNext) {
+    btnNext.addEventListener('click', function() {
+      if (validateStep1()) {
+        goToStep2();
+      }
+    });
+  }
+
+  if (btnPrev) {
+    btnPrev.addEventListener('click', goToStep1);
+  }
+
+  // Password visibility toggle
+  var pwdToggle = document.querySelector('.password-toggle');
+  if (pwdToggle && pwd1) {
+    pwdToggle.addEventListener('click', function() {
+      var isPwd = pwd1.getAttribute('type') === 'password';
+      pwd1.setAttribute('type', isPwd ? 'text' : 'password');
+      if (pwd2) pwd2.setAttribute('type', isPwd ? 'text' : 'password');
+    });
+  }
+
+  // ── Drag and Drop handling ──
+  function handleFile(file) {
+    if (!file || !file.type.startsWith('image/')) {
+      if (window.showToast) window.showToast('Le fichier doit être une image (JPG, PNG, WEBP).', 'error');
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      if (window.showToast) window.showToast('L\'image dépasse la taille maximale autorisée (10 Mo).', 'error');
+      return;
+    }
+
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      previewImg.src = e.target.result;
+      filenameLabel.textContent = file.name + ' (' + Math.round(file.size / 1024) + ' Ko)';
+      dropzone.style.display = 'none';
+      previewDisplay.style.display = 'flex';
+      urlInput.value = '';
+      presetBtns.forEach(function(b) { b.classList.remove('selected'); });
+      if (window.showToast) window.showToast('Photo de profil chargée avec succès !', 'success');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  if (dropzone && fileInput) {
+    dropzone.addEventListener('click', function() {
+      fileInput.click();
+    });
+
+    fileInput.addEventListener('change', function() {
+      if (fileInput.files && fileInput.files[0]) {
+        handleFile(fileInput.files[0]);
+      }
+    });
+
+    // Drag events
+    ['dragenter', 'dragover'].forEach(function(eventName) {
+      dropzone.addEventListener(eventName, function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        dropzone.classList.add('dragover');
+      });
+    });
+
+    ['dragleave', 'drop'].forEach(function(eventName) {
+      dropzone.addEventListener(eventName, function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        dropzone.classList.remove('dragover');
+      });
+    });
+
+    dropzone.addEventListener('drop', function(e) {
+      var dt = e.dataTransfer;
+      if (dt && dt.files && dt.files[0]) {
+        try {
+          fileInput.files = dt.files;
+        } catch (err) {
+          try {
+            var dtObj = new DataTransfer();
+            dtObj.items.add(dt.files[0]);
+            fileInput.files = dtObj.files;
+          } catch (e2) {}
+        }
+        handleFile(dt.files[0]);
+      }
+    });
+  }
+
+  // Remove avatar button
+  if (btnRemove) {
+    btnRemove.addEventListener('click', function() {
+      if (fileInput) fileInput.value = '';
+      if (urlInput) urlInput.value = '';
+      previewImg.src = '';
+      previewDisplay.style.display = 'none';
+      dropzone.style.display = 'flex';
+      presetBtns.forEach(function(b) { b.classList.remove('selected'); });
+    });
+  }
+
+  // Preset avatars click
+  presetBtns.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      presetBtns.forEach(function(b) { b.classList.remove('selected'); });
+      btn.classList.add('selected');
+      var url = btn.dataset.url;
+      urlInput.value = url;
+      if (fileInput) fileInput.value = '';
+      previewImg.src = url;
+      filenameLabel.textContent = 'Avatar prédéfini sélectionné';
+      dropzone.style.display = 'none';
+      previewDisplay.style.display = 'flex';
+    });
+  });
+
+  // Skip button sets empty avatar and submits
+  var btnSkip = document.getElementById('btn-skip-avatar');
+  if (btnSkip) {
+    btnSkip.addEventListener('click', function() {
+      if (fileInput) fileInput.value = '';
+      if (urlInput) urlInput.value = '';
+    });
+  }
+});
+</script>
+{% endblock %}

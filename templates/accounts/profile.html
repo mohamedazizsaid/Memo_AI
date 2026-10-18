@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+{% block title %}Mon profil — MemoAI{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="page-header">
+    <p class="eyebrow">COMPTE</p>
+    <h1 class="page-title">Mon profil</h1>
+  </div>
+
+  <div class="profile-layout">
+    <!-- Sidebar -->
+    <aside class="profile-sidebar">
+      <div class="profile-avatar-card">
+        {% if user.avatar %}
+          <img src="{{ user.avatar }}" alt="{{ user.get_full_name }}" class="profile-avatar-img">
+        {% else %}
+          <div class="profile-avatar-placeholder">
+            <span>{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</span>
+          </div>
+        {% endif %}
+        <h2 class="profile-name">{{ user.get_full_name }}</h2>
+        <p class="profile-email">{{ user.email }}</p>
+        <p class="profile-member-since">Membre depuis {{ user.created_at|date:"F Y" }}</p>
+      </div>
+
+      <nav class="profile-nav" aria-label="Navigation profil">
+        <a href="/comptes/profil/" class="profile-nav-item active">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          Informations personnelles
+        </a>
+        <a href="/comptes/preferences/" class="profile-nav-item">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+          Préférences
+        </a>
+        <a href="/comptes/preferences/#securite" class="profile-nav-item">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          Sécurité
+        </a>
+        <a href="/comptes/preferences/#notifications" class="profile-nav-item">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+          </svg>
+          Notifications
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Main content -->
+    <div class="profile-content">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Informations personnelles</h2>
+        </div>
+        <form method="post" action="/comptes/profil/" class="profile-form" id="profile-form" enctype="multipart/form-data">
+          {% csrf_token %}
+
+          {% if form.non_field_errors %}
+            <div class="form-error-banner">{{ form.non_field_errors }}</div>
+          {% endif %}
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="id_first_name" class="form-label">Prenom</label>
+              <input type="text" name="first_name" id="id_first_name"
+                class="form-input" value="{{ user.first_name }}" required>
+            </div>
+            <div class="form-group">
+              <label for="id_last_name" class="form-label">Nom</label>
+              <input type="text" name="last_name" id="id_last_name"
+                class="form-input" value="{{ user.last_name }}" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="id_email" class="form-label">Email</label>
+            <input type="email" name="email" id="id_email"
+              class="form-input" value="{{ user.email }}" required>
+          </div>
+
+          <div class="form-group">
+            <label for="id_avatar" class="form-label">Photo de profil (URL)</label>
+            <input type="url" name="avatar" id="id_avatar"
+              class="form-input" value="{{ user.avatar }}" placeholder="https://...">
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary" id="profile-save">Enregistrer</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Danger Zone -->
+      <div class="card card--danger">
+        <div class="card-header">
+          <h2 class="card-title card-title--danger">Zone dangereuse</h2>
+        </div>
+        <div class="danger-zone-content">
+          <div>
+            <p class="danger-zone-label">Supprimer mon compte</p>
+            <p class="danger-zone-desc">Cette action est irreversible. Toutes vos donnees seront supprimees definitivement.</p>
+          </div>
+          <button type="button" class="btn btn-danger" id="delete-account-btn">Supprimer le compte</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Account Modal -->
+<div class="modal-overlay" id="delete-modal" aria-modal="true" role="dialog" aria-labelledby="delete-modal-title" hidden>
+  <div class="modal">
+    <h2 id="delete-modal-title" class="modal-title">Supprimer votre compte ?</h2>
+    <p class="modal-body">Cette action est definitvement irreversible. Tous vos souvenirs, photos et analyses IA seront supprimes.</p>
+    <p class="modal-body">Tapez <strong>SUPPRIMER</strong> pour confirmer :</p>
+    <input type="text" id="delete-confirm-input" class="form-input" placeholder="SUPPRIMER">
+    <div class="modal-actions">
+      <button type="button" class="btn btn-secondary" id="delete-cancel">Annuler</button>
+      <form method="post" action="/comptes/supprimer/" id="delete-account-form">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger" id="delete-confirm" disabled>Supprimer definitivement</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var deleteBtn = document.getElementById('delete-account-btn');
+  var modal = document.getElementById('delete-modal');
+  var cancelBtn = document.getElementById('delete-cancel');
+  var confirmInput = document.getElementById('delete-confirm-input');
+  var confirmBtn = document.getElementById('delete-confirm');
+
+  if (deleteBtn) deleteBtn.addEventListener('click', function() { modal.hidden = false; });
+  if (cancelBtn) cancelBtn.addEventListener('click', function() { modal.hidden = true; });
+  if (confirmInput) confirmInput.addEventListener('input', function() {
+    confirmBtn.disabled = this.value !== 'SUPPRIMER';
+  });
+  if (modal) modal.addEventListener('click', function(e) {
+    if (e.target === modal) modal.hidden = true;
+  });
+});
+</script>
+{% endblock %}
