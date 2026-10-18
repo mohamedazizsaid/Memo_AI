@@ -47,7 +47,7 @@ common
 config
 journal
 media_app
-notifications
+
 
 
 
