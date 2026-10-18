@@ -43,6 +43,17 @@
       </div>
     </header>
 
+    <!-- Live AI processing state (auto-refreshes when the analysis lands) -->
+    {% if entry.ai_status == 'processing' or entry.ai_status == 'pending' %}
+      <div class="ai-processing" id="ai-processing" data-status-url="/journal/{{ entry.id }}/statut/" data-status="{{ entry.ai_status }}">
+        <span class="ai-processing__pulse" aria-hidden="true"></span>
+        <p class="ai-processing__text">
+          <strong>{% trans_text "L'IA analyse votre journee…" "The AI is analysing your day…" %}</strong><br>
+          {% trans_text "Resume, sentiment, mots-cles et illustration en cours de creation." "Summary, sentiment, keywords and illustration are being created." %}
+        </p>
+      </div>
+    {% endif %}
+
     <!-- Generated image -->
     {% if entry.ai_analysis.generated_image_url %}
       <div class="entry-generated-image">
@@ -231,6 +242,28 @@ document.addEventListener('DOMContentLoaded', function() {
         overlay.hidden = true;
       });
     });
+  }
+
+  // Live AI status polling — reload once the analysis finishes.
+  var processing = document.getElementById('ai-processing');
+  if (processing) {
+    var url = processing.dataset.statusUrl;
+    var attempts = 0;
+    var maxAttempts = 60; // ~2.5 min at 2.5s
+    var poll = setInterval(function() {
+      attempts += 1;
+      if (attempts > maxAttempts) { clearInterval(poll); return; }
+      fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(function(r) { return r.ok ? r.json() : null; })
+        .then(function(data) {
+          if (!data) return;
+          if (data.status === 'completed' || data.status === 'failed') {
+            clearInterval(poll);
+            window.location.reload();
+          }
+        })
+        .catch(function() { /* keep waiting */ });
+    }, 2500);
   }
 });
 </script>

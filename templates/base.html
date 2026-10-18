@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="{% static 'css/cosmos.css' %}?v=20261010_15">
   {% block app_css %}{% if user.is_authenticated %}
   <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20261018_2">
+  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20261019_2">
   {% endif %}{% endblock %}
   <style>
     /* Critical Toast Styling — Guarantees floating top-right display regardless of browser cache */
@@ -647,6 +647,49 @@
         initToast(toast);
       };
     });
+  </script>
+
+  <script>
+    /* ── Scroll reveal: gives every post-login page a gentle staged entrance ── */
+    (function () {
+      var root = document.body;
+      var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      function showAll() {
+        document.querySelectorAll('.reveal, .reveal-stagger').forEach(function (el) {
+          el.classList.add('is-visible');
+        });
+      }
+      if (!root || root.classList.contains('reduce-motion') || prefersReduced || !('IntersectionObserver' in window)) {
+        showAll();
+        return;
+      }
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1, rootMargin: '0px 0px -36px 0px' });
+      document.querySelectorAll('.reveal, .reveal-stagger').forEach(function (el) { observer.observe(el); });
+    })();
+
+    /* ── Subtle parallax on the aurora background (desktop, motion allowed) ── */
+    (function () {
+      var aurora = document.querySelector('.app-aurora');
+      if (!aurora || document.body.classList.contains('reduce-motion')) return;
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      var ticking = false;
+      window.addEventListener('scroll', function () {
+        if (ticking) return;
+        ticking = true;
+        window.requestAnimationFrame(function () {
+          var y = window.scrollY || 0;
+          aurora.style.transform = 'translate3d(0,' + Math.min(y * 0.06, 60) + 'px,0)';
+          ticking = false;
+        });
+      }, { passive: true });
+    })();
   </script>
   {% block extra_js %}{% endblock %}
 </body>

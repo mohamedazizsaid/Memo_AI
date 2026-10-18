@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}{% trans_text "Tableau de bord" "Dashboard" %} — MemoAI{% endblock %}
 {% block nav_journal %}active{% endblock %}
 
@@ -6,7 +7,7 @@
 <div class="container">
   <!-- Hero greeting -->
   <section class="dashboard-hero">
-    <div class="dashboard-hero-text">
+    <div class="dashboard-hero-text reveal">
       <p class="eyebrow">
       <div class="dot-cluster dot-cluster--sm" aria-hidden="true">
         <span class="dot"></span><span class="dot"></span><span class="dot"></span>
@@ -23,29 +24,43 @@
       <p class="hero-date">{{ today|date:"l j F Y" }}</p>
     </div>
 
-    <div class="dashboard-actions" style="gap: 10px;">
-      {% if today_entry %}
-      <a href="/journal/{{ today_entry.id }}/" class="btn btn-secondary" id="view-today-entry">
-        {% trans_text "Voir mon entree d'aujourd'hui" "See today's entry" %}
-      </a>
-      <a href="/journal/{{ today_entry.id }}/modifier/" class="btn btn-primary" id="edit-today-entry">
-        {% trans_text "Continuer a ecrire" "Keep writing" %}
-      </a>
-      {% else %}
-      <a href="/journal/nouveau/" class="btn btn-primary" id="new-entry-hero">
-        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M8 1v14M1 8h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-        </svg>
-        {% trans_text "Ecrire aujourd'hui" "Write today" %}
-      </a>
-      <a href="/journal/liste/" class="btn btn-secondary" id="view-all-entries">{% trans_text "Voir mes souvenirs" "See my memories" %}</a>
-      {% endif %}
+    <!-- Animated photo collage (top-right) -->
+    <div class="hero-collage" aria-hidden="true">
+      {% for photo in hero_photos %}
+        <figure class="hero-collage__item"><img src="{{ photo }}" alt="" loading="lazy"></figure>
+      {% empty %}
+        <figure class="hero-collage__item"><img src="{% static 'img/orbit/o03.jpg' %}" alt="" loading="lazy"></figure>
+        <figure class="hero-collage__item"><img src="{% static 'img/orbit/o07.jpg' %}" alt="" loading="lazy"></figure>
+        <figure class="hero-collage__item"><img src="{% static 'img/orbit/o11.jpg' %}" alt="" loading="lazy"></figure>
+        <figure class="hero-collage__item"><img src="{% static 'img/orbit/o15.jpg' %}" alt="" loading="lazy"></figure>
+        <figure class="hero-collage__item"><img src="{% static 'img/orbit/o19.jpg' %}" alt="" loading="lazy"></figure>
+        <figure class="hero-collage__item"><img src="{% static 'img/orbit/o23.jpg' %}" alt="" loading="lazy"></figure>
+      {% endfor %}
     </div>
   </section>
 
+  <div class="dashboard-actions dashboard-actions-row reveal">
+    {% if today_entry %}
+    <a href="/journal/{{ today_entry.id }}/" class="btn btn-secondary" id="view-today-entry">
+      {% trans_text "Voir mon entree d'aujourd'hui" "See today's entry" %}
+    </a>
+    <a href="/journal/{{ today_entry.id }}/modifier/" class="btn btn-primary" id="edit-today-entry">
+      {% trans_text "Continuer a ecrire" "Keep writing" %}
+    </a>
+    {% else %}
+    <a href="/journal/nouveau/" class="btn btn-primary" id="new-entry-hero">
+      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M8 1v14M1 8h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+      </svg>
+      {% trans_text "Ecrire aujourd'hui" "Write today" %}
+    </a>
+    <a href="/journal/liste/" class="btn btn-secondary" id="view-all-entries">{% trans_text "Voir mes souvenirs" "See my memories" %}</a>
+    {% endif %}
+  </div>
+
   <!-- Stats Band -->
   {% if user.is_authenticated and stats %}
-  <section class="stats-band">
+  <section class="stats-band reveal-stagger">
     <div class="stat-card">
       <span class="stat-value">{{ stats.total_entries }}</span>
       <span class="stat-label">{% trans_text "Entrees totales" "Total entries" %}</span>
@@ -67,7 +82,7 @@
 
   <!-- On this day -->
   {% if on_this_day %}
-  <section class="section-band">
+  <section class="section-band reveal">
     <div class="section-header">
       <div>
         <p class="eyebrow">{% trans_text "MEMOIRE" "MEMORY" %}</p>
@@ -81,7 +96,7 @@
         {% trans_text "Voir tout" "See all" %}
       </a>
     </div>
-    <div class="entries-scroll">
+    <div class="entries-scroll reveal-stagger">
       {% for entry in on_this_day %}
       <a href="/journal/{{ entry.id }}/" class="entry-card-mini" id="otd-entry-{{ entry.id }}">
         {% if entry.cover_image_url %}
@@ -104,7 +119,7 @@
   {% endif %}
 
   <!-- Recent entries -->
-  <section class="section-band">
+  <section class="section-band reveal">
     <div class="section-header">
       <div>
         <p class="eyebrow">JOURNAL</p>
@@ -120,7 +135,7 @@
     </div>
 
     {% if recent_entries %}
-    <div class="entries-grid">
+    <div class="entries-grid reveal-stagger">
       {% for entry in recent_entries %}
       {% include 'journal/_entry_card.html' with entry=entry %}
       {% endfor %}
