@@ -6,13 +6,13 @@
 <div class="container container--narrow">
   <div class="page-header">
     <div>
-      <p class="eyebrow">ACTIVITE</p>
+      <p class="eyebrow">{% trans_text "ACTIVITE" "ACTIVITY" %}</p>
       <h1 class="page-title">Notifications</h1>
     </div>
     {% if notifications %}
       <form method="post" action="/notifications/tout-lire/">
         {% csrf_token %}
-        <button type="submit" class="btn btn-ghost btn-sm" id="mark-all-read">Tout marquer comme lu</button>
+        <button type="submit" class="btn btn-ghost btn-sm" id="mark-all-read">{% trans_text "Tout marquer comme lu" "Mark all as read" %}</button>
       </form>
     {% endif %}
   </div>
@@ -48,7 +48,7 @@
           {% if not notif.is_read %}
             <form method="post" action="/notifications/{{ notif.id }}/lire/">
               {% csrf_token %}
-              <button type="submit" class="btn-icon" aria-label="Marquer comme lu">
+              <button type="submit" class="btn-icon" aria-label="{% trans_text 'Marquer comme lu' 'Mark as read' %}">
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                   <circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.3"/>
                   <path d="M4.5 7l2 2 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
@@ -67,8 +67,8 @@
           <path d="M19 38a5 5 0 0 0 10 0" stroke="currentColor" stroke-width="2"/>
         </svg>
       </div>
-      <h3 class="empty-state-title">Aucune notification</h3>
-      <p class="empty-state-body">Vous etes a jour. Les rappels et resumes apparaitront ici.</p>
+      <h3 class="empty-state-title">{% trans_text "Aucune notification" "No notifications" %}</h3>
+      <p class="empty-state-body">{% trans_text "Vous etes a jour. Les rappels et resumes apparaitront ici." "You're all caught up. Reminders and summaries will appear here." %}</p>
     </div>
   {% endif %}
 </div>

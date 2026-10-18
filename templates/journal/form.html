@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load static memo_filters %}
-{% block title %}{% if entry %}Modifier l'entree{% else %}Nouvelle entree{% endif %} — MemoAI{% endblock %}
+{% block title %}{% if entry %}{% trans_text "Modifier l'entree" "Edit entry" %}{% else %}{% trans_text "Nouvelle entree" "New entry" %}{% endif %} — MemoAI{% endblock %}
 {% block nav_journal %}active{% endblock %}
 
 {% block extra_css %}
@@ -13,12 +13,12 @@
   <div class="page-header">
     <div>
       <p class="eyebrow">JOURNAL</p>
-      <h1 class="page-title">{% if entry %}Modifier l'entree{% else %}Nouvelle entree{% endif %}</h1>
+      <h1 class="page-title">{% if entry %}{% trans_text "Modifier l'entree" "Edit entry" %}{% else %}{% trans_text "Nouvelle entree" "New entry" %}{% endif %}</h1>
     </div>
     {% if entry %}
-      <a href="/journal/{{ entry.id }}/" class="btn btn-ghost">Annuler</a>
+      <a href="/journal/{{ entry.id }}/" class="btn btn-ghost">{% trans_text "Annuler" "Cancel" %}</a>
     {% else %}
-      <a href="/journal/" class="btn btn-ghost">Annuler</a>
+      <a href="/journal/" class="btn btn-ghost">{% trans_text "Annuler" "Cancel" %}</a>
     {% endif %}
   </div>
 
@@ -31,7 +31,7 @@
 
     <!-- Date -->
     <div class="form-group">
-      <label for="id_entry_date" class="form-label">Date de l'entree</label>
+      <label for="id_entry_date" class="form-label">{% trans_text "Date de l'entree" "Entry date" %}</label>
       <input type="date" name="entry_date" id="id_entry_date" class="form-input"
         value="{{ form.entry_date.value|default:today }}" required>
     </div>
@@ -39,17 +39,17 @@
     <!-- Title -->
     <div class="form-group">
       <label for="id_title" class="form-label">
-        Titre <span class="form-optional">(optionnel)</span>
+        {% trans_text "Titre" "Title" %} <span class="form-optional">({% trans_text "optionnel" "optional" %})</span>
       </label>
       <input type="text" name="title" id="id_title" class="form-input"
-        placeholder="Donnez un titre a cette journee..."
+        placeholder="{% trans_text 'Donnez un titre a cette journee...' 'Give a title to this day...' %}"
         value="{{ form.title.value|default:'' }}" maxlength="255">
     </div>
 
     <!-- Mood selector -->
     <div class="form-group">
-      <label class="form-label">Humeur</label>
-      <div class="mood-selector" id="mood-selector" role="radiogroup" aria-label="Choisir une humeur">
+      <label class="form-label">{% trans_text "Humeur" "Mood" %}</label>
+      <div class="mood-selector" id="mood-selector" role="radiogroup" aria-label="{% trans_text 'Choisir une humeur' 'Choose a mood' %}">
         {% for value, label in mood_choices %}
           <button type="button"
             class="mood-btn {% if form.mood.value == value %}mood-btn--active{% endif %}"
@@ -66,15 +66,15 @@
 
     <!-- Content -->
     <div class="form-group">
-      <label for="id_content" class="form-label">Votre entree</label>
+      <label for="id_content" class="form-label">{% trans_text "Votre entree" "Your entry" %}</label>
       <div class="editor-toolbar">
-        <button type="button" class="editor-tool" data-format="bold" title="Gras"><b>B</b></button>
-        <button type="button" class="editor-tool" data-format="italic" title="Italique"><i>I</i></button>
+        <button type="button" class="editor-tool" data-format="bold" title="{% trans_text 'Gras' 'Bold' %}"><b>B</b></button>
+        <button type="button" class="editor-tool" data-format="italic" title="{% trans_text 'Italique' 'Italic' %}"><i>I</i></button>
         <span class="editor-separator"></span>
-        <span class="word-counter" id="word-counter" aria-live="polite">0 mots</span>
+        <span class="word-counter" id="word-counter" aria-live="polite">0 {% trans_text "mots" "words" %}</span>
       </div>
       <textarea name="content" id="id_content" class="form-textarea"
-        placeholder="Que s'est-il passe aujourd'hui ? Comment vous sentez-vous ?"
+        placeholder="{% trans_text 'Que s\'est-il passe aujourd\'hui ? Comment vous sentez-vous ?' 'What happened today? How do you feel?' %}"
         rows="14">{{ form.content.value|default:'' }}</textarea>
       {% if form.content.errors %}
         <p class="form-error">{{ form.content.errors|join:", " }}</p>
@@ -131,9 +131,9 @@
     <div class="form-group">
       <label class="form-label">
         Photos & Audio
-        <span class="form-optional">(optionnel)</span>
+        <span class="form-optional">({% trans_text "optionnel" "optional" %})</span>
       </label>
-      <div class="dropzone" id="dropzone" role="region" aria-label="Zone de depot de fichiers">
+      <div class="dropzone" id="dropzone" role="region" aria-label="{% trans_text 'Zone de depot de fichiers' 'File drop zone' %}">
         <input type="file" name="media_files" id="media-file-input"
           class="dropzone-input" multiple
           accept="image/jpeg,image/png,image/webp,image/gif,audio/mpeg,audio/wav,audio/ogg,audio/webm,audio/mp4,audio/m4a">
@@ -145,10 +145,10 @@
             </svg>
           </div>
           <p class="dropzone-label">
-            <span class="dropzone-label-strong">Glissez vos fichiers ici</span><br>
-            ou <button type="button" class="dropzone-browse" id="dropzone-browse">choisir des fichiers</button>
+            <span class="dropzone-label-strong">{% trans_text "Glissez vos fichiers ici" "Drag your files here" %}</span><br>
+            {% trans_text "ou" "or" %} <button type="button" class="dropzone-browse" id="dropzone-browse">{% trans_text "choisir des fichiers" "choose files" %}</button>
           </p>
-          <p class="dropzone-hint">JPG, PNG, WebP, GIF, MP3, WAV, OGG — max 50 Mo</p>
+          <p class="dropzone-hint">{% trans_text "JPG, PNG, WebP, GIF, MP3, WAV, OGG — max 50 Mo" "JPG, PNG, WebP, GIF, MP3, WAV, OGG — max 50 MB" %}</p>
         </div>
         <div class="dropzone-preview" id="dropzone-preview" hidden></div>
       </div>
@@ -161,11 +161,11 @@
           <path d="M7 1a4 4 0 0 1 4 4c0 3-4 8-4 8S3 8 3 5a4 4 0 0 1 4-4z" stroke="currentColor" stroke-width="1.3"/>
           <circle cx="7" cy="5" r="1.3" stroke="currentColor" stroke-width="1.3"/>
         </svg>
-        Ajouter un lieu
+        {% trans_text "Ajouter un lieu" "Add a location" %}
       </button>
       <div id="location-fields" class="form-collapsible-body" {% if not form.location.value %}hidden{% endif %}>
         <input type="text" name="location" id="id_location" class="form-input"
-          placeholder="Ville, lieu..." value="{{ form.location.value|default:'' }}" maxlength="255">
+          placeholder="{% trans_text 'Ville, lieu...' 'City, place...' %}" value="{{ form.location.value|default:'' }}" maxlength="255">
       </div>
     </div>
 
@@ -182,10 +182,10 @@
             </span>
           </label>
         {% empty %}
-          <a href="/tags/" class="tag-add-link" id="add-tag-link">Creer des tags</a>
+          <a href="/tags/" class="tag-add-link" id="add-tag-link">{% trans_text "Creer des tags" "Create tags" %}</a>
         {% endfor %}
         {% if user_tags %}
-          <a href="/tags/" class="tag-add-link" id="add-tag-link">+ Nouveau tag</a>
+          <a href="/tags/" class="tag-add-link" id="add-tag-link">{% trans_text "+ Nouveau tag" "+ New tag" %}</a>
         {% endif %}
       </div>
     </div>
@@ -197,7 +197,7 @@
       </div>
       <div class="form-actions-right">
         <button type="submit" class="btn btn-primary" id="save-entry">
-          {% if entry %}Enregistrer{% else %}Creer l'entree{% endif %}
+          {% if entry %}{% trans_text "Enregistrer" "Save" %}{% else %}{% trans_text "Creer l'entree" "Create entry" %}{% endif %}
         </button>
       </div>
     </div>

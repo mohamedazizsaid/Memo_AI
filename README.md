@@ -59,6 +59,20 @@ npm run dev
 ```
 *Le frontend sera accessible sur : `http://localhost:5173`*
 
+### 3. Variables d'environnement (`.env`)
+Tout est déjà renseigné dans le fichier `.env` à la racine. Les variables clés ajoutées pour les nouvelles fonctionnalités :
+
+| Variable | Rôle |
+| --- | --- |
+| `EMAIL_BACKEND` | `django.core.mail.backends.smtp.EmailBackend` pour **envoyer réellement** les emails de réinitialisation, ou `django.core.mail.backends.console.EmailBackend` pour les afficher dans la console (dev) |
+| `EMAIL_HOST` / `EMAIL_PORT` / `EMAIL_USE_TLS` | Serveur SMTP — Gmail : `smtp.gmail.com`, `587`, `True` |
+| `EMAIL_HOST_USER` | Adresse email expéditrice (Gmail) |
+| `EMAIL_HOST_PASSWORD` | **Mot de passe d'application** Google (16 caractères), et non le mot de passe du compte |
+| `DEFAULT_FROM_EMAIL` | Expéditeur affiché — avec Gmail il doit correspondre à `EMAIL_HOST_USER` |
+| `PEXELS_API_KEY` | Clé gratuite sur https://www.pexels.com/api/ pour la bibliothèque de photos du journal |
+
+> Sans `PEXELS_API_KEY`, l'éditeur affiche un message d'aide à la place de la galerie de photos ; le reste de l'application continue de fonctionner.
+
 ---
 
 ## 🧪 Tests d'Intégration

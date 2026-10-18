@@ -1,19 +1,19 @@
 {% extends 'base.html' %}
-{% block title %}Personnes — MemoAI{% endblock %}
+{% block title %}{% trans_text "Personnes" "People" %} — MemoAI{% endblock %}
 {% block nav_persons %}active{% endblock %}
 
 {% block content %}
 <div class="container">
   <div class="page-header">
     <div>
-      <p class="eyebrow">MEMOIRE</p>
-      <h1 class="page-title">Personnes</h1>
+      <p class="eyebrow">{% trans_text "MEMOIRE" "MEMORY" %}</p>
+      <h1 class="page-title">{% trans_text "Personnes" "People" %}</h1>
     </div>
     <a href="/personnes/nouveau/" class="btn btn-primary" id="add-person">
       <svg aria-hidden="true" width="14" height="14" viewBox="0 0 14 14" fill="none">
         <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
       </svg>
-      Ajouter
+      {% trans_text "Ajouter" "Add" %}
     </a>
   </div>
 
@@ -26,12 +26,12 @@
         </svg>
       </div>
       <div class="consent-banner-text">
-        <h3 class="consent-banner-title">Reconnaissance faciale desactivee</h3>
-        <p class="consent-banner-body">Activez la reconnaissance faciale pour identifier automatiquement les personnes dans vos photos. Vos donnees restent sur nos serveurs et ne sont jamais partagees.</p>
+        <h3 class="consent-banner-title">{% trans_text "Reconnaissance faciale desactivee" "Facial recognition disabled" %}</h3>
+        <p class="consent-banner-body">{% trans_text "Activez la reconnaissance faciale pour identifier automatiquement les personnes dans vos photos. Vos donnees restent sur nos serveurs et ne sont jamais partagees." "Enable facial recognition to automatically identify people in your photos. Your data stays on our servers and is never shared." %}</p>
       </div>
       <form method="post" action="/comptes/reconnaissance-faciale/consentement/" class="consent-banner-action">
         {% csrf_token %}
-        <button type="submit" class="btn btn-primary btn-sm" id="grant-consent">Activer</button>
+        <button type="submit" class="btn btn-primary btn-sm" id="grant-consent">{% trans_text "Activer" "Enable" %}</button>
       </form>
     </div>
   {% endif %}
@@ -52,10 +52,10 @@
           <div class="person-card-body">
             <h3 class="person-name">{{ person.name }}</h3>
             <p class="person-meta">
-              {{ person.memory_count }} souvenir{{ person.memory_count|pluralize }}
+              {{ person.memory_count }} {% if person.memory_count == 1 %}{% trans_text "souvenir" "memory" %}{% else %}{% trans_text "souvenirs" "memories" %}{% endif %}
               {% if person.is_confirmed %}
                 <span class="person-confirmed-badge">
-                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-label="Confirme">
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-label="{% trans_text 'Confirme' 'Confirmed' %}">
                     <circle cx="5" cy="5" r="4" stroke="currentColor" stroke-width="1"/>
                     <path d="M3 5l1.5 1.5L7 3.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
@@ -74,9 +74,9 @@
           <path d="M6 42c0-9.94 8.06-18 18-18s18 8.06 18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
         </svg>
       </div>
-      <h3 class="empty-state-title">Aucune personne</h3>
-      <p class="empty-state-body">Ajoutez des personnes pour les retrouver dans vos souvenirs.</p>
-      <a href="/personnes/nouveau/" class="btn btn-primary" id="add-first-person">Ajouter une personne</a>
+      <h3 class="empty-state-title">{% trans_text "Aucune personne" "No people" %}</h3>
+      <p class="empty-state-body">{% trans_text "Ajoutez des personnes pour les retrouver dans vos souvenirs." "Add people to find them in your memories." %}</p>
+      <a href="/personnes/nouveau/" class="btn btn-primary" id="add-first-person">{% trans_text "Ajouter une personne" "Add a person" %}</a>
     </div>
   {% endif %}
 </div>

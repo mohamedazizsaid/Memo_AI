@@ -3,8 +3,8 @@
 
 {% block content %}
 <div class="container">
-  <nav class="breadcrumb" aria-label="Fil d'ariane">
-    <a href="/personnes/" class="breadcrumb-link">Personnes</a>
+  <nav class="breadcrumb" aria-label="{% trans_text 'Fil d\'ariane' 'Breadcrumb' %}">
+    <a href="/personnes/" class="breadcrumb-link">{% trans_text "Personnes" "People" %}</a>
     <span class="breadcrumb-sep" aria-hidden="true">/</span>
     <span class="breadcrumb-current">{{ person.name }}</span>
   </nav>
@@ -21,9 +21,9 @@
     <div class="person-detail-info">
       <h1 class="person-detail-name">{{ person.name }}</h1>
       <p class="person-detail-meta">
-        {{ person.memory_count }} souvenir{{ person.memory_count|pluralize }}
+        {{ person.memory_count }} {% if person.memory_count == 1 %}{% trans_text "souvenir" "memory" %}{% else %}{% trans_text "souvenirs" "memories" %}{% endif %}
         {% if person.is_confirmed %}
-          <span class="person-confirmed-badge">Confirme</span>
+          <span class="person-confirmed-badge">{% trans_text "Confirme" "Confirmed" %}</span>
         {% endif %}
       </p>
       {% if person.notes %}
@@ -32,8 +32,8 @@
     </div>
 
     <div class="person-detail-actions">
-      <a href="/personnes/{{ person.id }}/modifier/" class="btn btn-secondary" id="edit-person">Modifier</a>
-      <button type="button" class="btn btn-ghost" id="delete-person-btn">Supprimer</button>
+      <a href="/personnes/{{ person.id }}/modifier/" class="btn btn-secondary" id="edit-person">{% trans_text "Modifier" "Edit" %}</a>
+      <button type="button" class="btn btn-ghost" id="delete-person-btn">{% trans_text "Supprimer" "Delete" %}</button>
     </div>
   </div>
 
@@ -41,8 +41,8 @@
   <section class="section-band">
     <div class="section-header">
       <div>
-        <p class="eyebrow">SOUVENIRS</p>
-        <h2 class="section-title">Apparitions de {{ person.name }}</h2>
+        <p class="eyebrow">{% trans_text "SOUVENIRS" "MEMORIES" %}</p>
+        <h2 class="section-title">{% trans_text "Apparitions de" "Appearances of" %} {{ person.name }}</h2>
       </div>
     </div>
 
@@ -54,7 +54,7 @@
       </div>
     {% else %}
       <div class="empty-state">
-        <p class="empty-state-body">{{ person.name }} n'apparait dans aucune entree pour le moment.</p>
+        <p class="empty-state-body">{{ person.name }} {% trans_text "n'apparait dans aucune entree pour le moment." "does not appear in any entry yet." %}</p>
       </div>
     {% endif %}
   </section>
@@ -62,13 +62,13 @@
 
 <div class="modal-overlay" id="delete-person-modal" aria-modal="true" role="dialog" hidden>
   <div class="modal">
-    <h2 class="modal-title">Supprimer {{ person.name }} ?</h2>
-    <p class="modal-body">Cette action supprimera la personne. Les entrees associees ne seront pas supprimees.</p>
+    <h2 class="modal-title">{% trans_text "Supprimer" "Delete" %} {{ person.name }} ?</h2>
+    <p class="modal-body">{% trans_text "Cette action supprimera la personne. Les entrees associees ne seront pas supprimees." "This action will delete the person. Associated entries will not be deleted." %}</p>
     <div class="modal-actions">
-      <button type="button" class="btn btn-secondary" id="delete-person-cancel">Annuler</button>
+      <button type="button" class="btn btn-secondary" id="delete-person-cancel">{% trans_text "Annuler" "Cancel" %}</button>
       <form method="post" action="/personnes/{{ person.id }}/supprimer/">
         {% csrf_token %}
-        <button type="submit" class="btn btn-danger">Supprimer</button>
+        <button type="submit" class="btn btn-danger">{% trans_text "Supprimer" "Delete" %}</button>
       </form>
     </div>
   </div>

@@ -1,14 +1,14 @@
 {% extends 'base.html' %}
-{% block title %}{% if person %}Modifier{% else %}Ajouter{% endif %} une personne — MemoAI{% endblock %}
+{% block title %}{% if person %}{% trans_text "Modifier" "Edit" %}{% else %}{% trans_text "Ajouter" "Add" %}{% endif %} {% trans_text "une personne" "a person" %} — MemoAI{% endblock %}
 
 {% block content %}
 <div class="container container--narrow">
   <div class="page-header">
     <div>
-      <p class="eyebrow">PERSONNES</p>
-      <h1 class="page-title">{% if person %}Modifier {{ person.name }}{% else %}Ajouter une personne{% endif %}</h1>
+      <p class="eyebrow">{% trans_text "PERSONNES" "PEOPLE" %}</p>
+      <h1 class="page-title">{% if person %}{% trans_text "Modifier" "Edit" %} {{ person.name }}{% else %}{% trans_text "Ajouter une personne" "Add a person" %}{% endif %}</h1>
     </div>
-    <a href="/personnes/" class="btn btn-ghost">Annuler</a>
+    <a href="/personnes/" class="btn btn-ghost">{% trans_text "Annuler" "Cancel" %}</a>
   </div>
 
   <div class="card">
@@ -16,26 +16,26 @@
       {% csrf_token %}
 
       <div class="form-group">
-        <label for="id_name" class="form-label">Nom</label>
+        <label for="id_name" class="form-label">{% trans_text "Nom" "Name" %}</label>
         <input type="text" name="name" id="id_name" class="form-input"
-          placeholder="Nom de la personne" value="{{ person.name|default:'' }}" required>
+          placeholder="{% trans_text 'Nom de la personne' 'Name of the person' %}" value="{{ person.name|default:'' }}" required>
       </div>
 
       <div class="form-group">
-        <label for="id_avatar_url" class="form-label">Photo (URL) <span class="form-optional">(optionnel)</span></label>
+        <label for="id_avatar_url" class="form-label">Photo (URL) <span class="form-optional">({% trans_text "optionnel" "optional" %})</span></label>
         <input type="url" name="avatar_url" id="id_avatar_url" class="form-input"
           placeholder="https://..." value="{{ person.avatar_url|default:'' }}">
       </div>
 
       <div class="form-group">
-        <label for="id_notes" class="form-label">Notes <span class="form-optional">(optionnel)</span></label>
+        <label for="id_notes" class="form-label">Notes <span class="form-optional">({% trans_text "optionnel" "optional" %})</span></label>
         <textarea name="notes" id="id_notes" class="form-textarea" rows="4"
-          placeholder="Notes sur cette personne...">{{ person.notes|default:'' }}</textarea>
+          placeholder="{% trans_text 'Notes sur cette personne...' 'Notes about this person...' %}">{{ person.notes|default:'' }}</textarea>
       </div>
 
       <div class="form-actions">
         <button type="submit" class="btn btn-primary" id="save-person">
-          {% if person %}Enregistrer{% else %}Ajouter{% endif %}
+          {% if person %}{% trans_text "Enregistrer" "Save" %}{% else %}{% trans_text "Ajouter" "Add" %}{% endif %}
         </button>
       </div>
     </form>

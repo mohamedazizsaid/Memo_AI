@@ -1,21 +1,21 @@
 {% extends 'base.html' %}
-{% block title %}Insights IA — MemoAI{% endblock %}
+{% block title %}{% trans_text "Insights IA" "AI insights" %} — MemoAI{% endblock %}
 {% block nav_insights %}active{% endblock %}
 
 {% block content %}
 <div class="container">
   <div class="page-header">
     <div>
-      <p class="eyebrow">INTELLIGENCE ARTIFICIELLE</p>
-      <h1 class="page-title">Vos insights</h1>
+      <p class="eyebrow">{% trans_text "INTELLIGENCE ARTIFICIELLE" "ARTIFICIAL INTELLIGENCE" %}</p>
+      <h1 class="page-title">{% trans_text "Vos insights" "Your insights" %}</h1>
     </div>
     <div class="header-period-selector">
       <form method="get" action="" id="period-form">
         <select name="period" class="form-select" onchange="this.form.submit()" id="period-select">
-          <option value="7" {% if period == '7' %}selected{% endif %}>7 derniers jours</option>
-          <option value="30" {% if period == '30' or not period %}selected{% endif %}>30 derniers jours</option>
-          <option value="90" {% if period == '90' %}selected{% endif %}>3 derniers mois</option>
-          <option value="365" {% if period == '365' %}selected{% endif %}>Cette annee</option>
+          <option value="7" {% if period == '7' %}selected{% endif %}>{% trans_text "7 derniers jours" "Last 7 days" %}</option>
+          <option value="30" {% if period == '30' or not period %}selected{% endif %}>{% trans_text "30 derniers jours" "Last 30 days" %}</option>
+          <option value="90" {% if period == '90' %}selected{% endif %}>{% trans_text "3 derniers mois" "Last 3 months" %}</option>
+          <option value="365" {% if period == '365' %}selected{% endif %}>{% trans_text "Cette annee" "This year" %}</option>
         </select>
       </form>
     </div>
@@ -25,19 +25,19 @@
   <div class="insights-stats">
     <div class="insight-stat-card">
       <span class="insight-stat-value">{{ stats.total_entries|default:0 }}</span>
-      <span class="insight-stat-label">Entrees</span>
+      <span class="insight-stat-label">{% trans_text "Entrees" "Entries" %}</span>
     </div>
     <div class="insight-stat-card">
       <span class="insight-stat-value">{{ stats.total_words|default:0 }}</span>
-      <span class="insight-stat-label">Mots ecrits</span>
+      <span class="insight-stat-label">{% trans_text "Mots ecrits" "Words written" %}</span>
     </div>
     <div class="insight-stat-card">
       <span class="insight-stat-value">{{ stats.streak_days|default:0 }}</span>
-      <span class="insight-stat-label">Jours consecutifs</span>
+      <span class="insight-stat-label">{% trans_text "Jours consecutifs" "Day streak" %}</span>
     </div>
     <div class="insight-stat-card">
       <span class="insight-stat-value">{{ stats.most_used_mood|default:"—" }}</span>
-      <span class="insight-stat-label">Humeur dominante</span>
+      <span class="insight-stat-label">{% trans_text "Humeur dominante" "Dominant mood" %}</span>
     </div>
   </div>
 
@@ -45,9 +45,9 @@
   <div class="insights-grid">
     <div class="insight-card insight-card--wide">
       <div class="insight-card-header">
-        <h2 class="insight-card-title">Distribution des humeurs</h2>
+        <h2 class="insight-card-title">{% trans_text "Distribution des humeurs" "Mood distribution" %}</h2>
       </div>
-      <div class="mood-chart" id="mood-chart" aria-label="Graphique des humeurs">
+      <div class="mood-chart" id="mood-chart" aria-label="{% trans_text 'Graphique des humeurs' 'Mood chart' %}">
         {% if stats.entries_by_mood %}
           {% for mood, count in stats.entries_by_mood.items %}
             <div class="mood-bar-row">
@@ -72,7 +72,7 @@
             </div>
           {% endfor %}
         {% else %}
-          <p class="insight-empty">Pas encore assez de donnees.</p>
+          <p class="insight-empty">{% trans_text "Pas encore assez de donnees." "Not enough data yet." %}</p>
         {% endif %}
       </div>
     </div>
@@ -80,35 +80,35 @@
     <!-- Top tags -->
     <div class="insight-card">
       <div class="insight-card-header">
-        <h2 class="insight-card-title">Tags les plus utilises</h2>
+        <h2 class="insight-card-title">{% trans_text "Tags les plus utilises" "Most used tags" %}</h2>
       </div>
       {% if stats.most_used_tags %}
         <div class="top-tags-list">
           {% for tag in stats.most_used_tags %}
             <div class="top-tag-item">
               <span class="tag-pill" style="--tag-color: {{ tag.color }}">{{ tag.name }}</span>
-              <span class="top-tag-count">{{ tag.entry_count }} entree{{ tag.entry_count|pluralize }}</span>
+              <span class="top-tag-count">{{ tag.entry_count }} {% if tag.entry_count == 1 %}{% trans_text "entree" "entry" %}{% else %}{% trans_text "entrees" "entries" %}{% endif %}</span>
             </div>
           {% endfor %}
         </div>
       {% else %}
-        <p class="insight-empty">Aucun tag encore utilise.</p>
+        <p class="insight-empty">{% trans_text "Aucun tag encore utilise." "No tag used yet." %}</p>
       {% endif %}
     </div>
 
     <!-- Writing frequency -->
     <div class="insight-card">
       <div class="insight-card-header">
-        <h2 class="insight-card-title">Frequence d'ecriture</h2>
+        <h2 class="insight-card-title">{% trans_text "Frequence d'ecriture" "Writing frequency" %}</h2>
       </div>
       <div class="freq-stats">
         <div class="freq-stat">
           <span class="freq-value">{{ stats.entries_this_week|default:0 }}</span>
-          <span class="freq-label">Cette semaine</span>
+          <span class="freq-label">{% trans_text "Cette semaine" "This week" %}</span>
         </div>
         <div class="freq-stat">
           <span class="freq-value">{{ stats.entries_this_month|default:0 }}</span>
-          <span class="freq-label">Ce mois-ci</span>
+          <span class="freq-label">{% trans_text "Ce mois-ci" "This month" %}</span>
         </div>
       </div>
     </div>
@@ -119,8 +119,8 @@
     <section class="section-band">
       <div class="section-header">
         <div>
-          <p class="eyebrow">ANALYSE</p>
-          <h2 class="section-title">Insights recents</h2>
+          <p class="eyebrow">{% trans_text "ANALYSE" "ANALYSIS" %}</p>
+          <h2 class="section-title">{% trans_text "Insights recents" "Recent insights" %}</h2>
         </div>
       </div>
       <div class="insights-list">

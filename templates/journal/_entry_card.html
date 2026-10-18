@@ -1,5 +1,5 @@
 <article class="entry-card" id="entry-{{ entry.id }}">
-  <a href="/journal/{{ entry.id }}/" class="entry-card-link" aria-label="{{ entry.title|default:'Entree sans titre' }} - {{ entry.entry_date|date:'j F Y' }}">
+  <a href="/journal/{{ entry.id }}/" class="entry-card-link" aria-label="{% if entry.title %}{{ entry.title }}{% else %}{% trans_text 'Entree sans titre' 'Untitled entry' %}{% endif %} - {{ entry.entry_date|date:'j F Y' }}">
     {% if entry.cover_image_url %}
       <div class="entry-card-image">
         <img src="{{ entry.cover_image_url }}" alt="{{ entry.title|default:'' }}" loading="lazy" class="entry-card-img">
@@ -25,7 +25,7 @@
         {% endif %}
       </div>
 
-      <h3 class="entry-card-title">{{ entry.title|default:"Sans titre" }}</h3>
+      <h3 class="entry-card-title">{% if entry.title %}{{ entry.title }}{% else %}{% trans_text "Sans titre" "Untitled" %}{% endif %}</h3>
       <p class="entry-card-excerpt">{{ entry.excerpt }}</p>
 
       {% if entry.tags.all %}
@@ -37,14 +37,14 @@
       {% endif %}
 
       <div class="entry-card-footer">
-        <span class="entry-word-count">{{ entry.word_count }} mots</span>
+        <span class="entry-word-count">{{ entry.word_count }} {% trans_text "mots" "words" %}</span>
         {% if entry.ai_status == 'completed' %}
           <span class="ai-badge">
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-label="Analyse IA complete">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-label="{% trans_text 'Analyse IA complete' 'AI analysis complete' %}">
               <circle cx="5" cy="5" r="4" stroke="currentColor" stroke-width="1"/>
               <path d="M3 5l1.5 1.5L7 3.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            IA
+            {% trans_text "IA" "AI" %}
           </span>
         {% endif %}
       </div>

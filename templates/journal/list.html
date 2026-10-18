@@ -31,7 +31,7 @@
         </div>
       </div>
 
-      <div class="filter-chips" role="group" aria-label="Filtrer par humeur">
+      <div class="filter-chips" role="group" aria-label="{% trans_text 'Filtrer par humeur' 'Filter by mood' %}">
         <button type="submit" name="mood" value="" class="filter-chip {% if not request.GET.mood %}filter-chip--active{% endif %}">{{ t.all|default:"Tout" }}</button>
         <button type="submit" name="mood" value="amazing" class="filter-chip {% if request.GET.mood == 'amazing' %}filter-chip--active{% endif %}">🤩 {% trans_text "Fantastique" "Amazing" %}</button>
         <button type="submit" name="mood" value="good" class="filter-chip {% if request.GET.mood == 'good' %}filter-chip--active{% endif %}">😊 {% trans_text "Bien" "Good" %}</button>
@@ -61,7 +61,7 @@
 
   <!-- Results info -->
   <div class="results-info">
-    <span class="results-count">{{ page_obj.paginator.count|default:entries.count }} entree{{ entries.count|pluralize }}</span>
+    <span class="results-count">{{ page_obj.paginator.count|default:entries.count }} {% if entries.count == 1 %}{% trans_text "entree" "entry" %}{% else %}{% trans_text "entrees" "entries" %}{% endif %}</span>
   </div>
 
   <!-- Entries grid -->
@@ -76,11 +76,11 @@
     {% if is_paginated %}
       <nav class="pagination" aria-label="Pagination">
         {% if page_obj.has_previous %}
-          <a href="?{% if request.GET.search %}search={{ request.GET.search }}&{% endif %}page={{ page_obj.previous_page_number }}" class="pagination-btn" id="prev-page">Precedent</a>
+          <a href="?{% if request.GET.search %}search={{ request.GET.search }}&{% endif %}page={{ page_obj.previous_page_number }}" class="pagination-btn" id="prev-page">{% trans_text "Precedent" "Previous" %}</a>
         {% endif %}
-        <span class="pagination-info">Page {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }}</span>
+        <span class="pagination-info">Page {{ page_obj.number }} {% trans_text "sur" "of" %} {{ page_obj.paginator.num_pages }}</span>
         {% if page_obj.has_next %}
-          <a href="?{% if request.GET.search %}search={{ request.GET.search }}&{% endif %}page={{ page_obj.next_page_number }}" class="pagination-btn" id="next-page">Suivant</a>
+          <a href="?{% if request.GET.search %}search={{ request.GET.search }}&{% endif %}page={{ page_obj.next_page_number }}" class="pagination-btn" id="next-page">{% trans_text "Suivant" "Next" %}</a>
         {% endif %}
       </nav>
     {% endif %}
@@ -93,15 +93,15 @@
           <path d="M16 21h10M21 16v10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
         </svg>
       </div>
-      <h3 class="empty-state-title">Aucune entree trouvee</h3>
+      <h3 class="empty-state-title">{% trans_text "Aucune entree trouvee" "No entry found" %}</h3>
       <p class="empty-state-body">
         {% if request.GET %}
-          Aucune entree ne correspond a vos criteres. Essayez de modifier vos filtres.
+          {% trans_text "Aucune entree ne correspond a vos criteres. Essayez de modifier vos filtres." "No entry matches your criteria. Try changing your filters." %}
         {% else %}
-          Vous n'avez pas encore d'entrees. Commencez a ecrire!
+          {% trans_text "Vous n'avez pas encore d'entrees. Commencez a ecrire!" "You don't have any entries yet. Start writing!" %}
         {% endif %}
       </p>
-      <a href="/journal/nouveau/" class="btn btn-primary" id="empty-create">Creer une entree</a>
+      <a href="/journal/nouveau/" class="btn btn-primary" id="empty-create">{% trans_text "Creer une entree" "Create an entry" %}</a>
     </div>
   {% endif %}
 </div>

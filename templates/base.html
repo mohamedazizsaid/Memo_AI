@@ -11,10 +11,10 @@
   <meta name="csrf-token" content="{{ csrf_token }}">
   {% load static %}
   <link rel="stylesheet" href="{% static 'css/cosmos.css' %}?v=20261010_15">
-  {% if user.is_authenticated %}
+  {% block app_css %}{% if user.is_authenticated %}
   <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20261018_1">
-  {% endif %}
+  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20261018_2">
+  {% endif %}{% endblock %}
   <style>
     /* Critical Toast Styling — Guarantees floating top-right display regardless of browser cache */
     .toast-container {

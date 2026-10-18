@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
-{% block title %}Mon profil — MemoAI{% endblock %}
+{% block title %}{% trans_text "Mon profil" "My profile" %} — MemoAI{% endblock %}
 
 {% block content %}
 <div class="container">
   <div class="page-header">
-    <p class="eyebrow">COMPTE</p>
-    <h1 class="page-title">Mon profil</h1>
+    <p class="eyebrow">{% trans_text "COMPTE" "ACCOUNT" %}</p>
+    <h1 class="page-title">{% trans_text "Mon profil" "My profile" %}</h1>
   </div>
 
   <div class="profile-layout">
@@ -21,30 +21,30 @@
         {% endif %}
         <h2 class="profile-name">{{ user.get_full_name }}</h2>
         <p class="profile-email">{{ user.email }}</p>
-        <p class="profile-member-since">Membre depuis {{ user.created_at|date:"F Y" }}</p>
+        <p class="profile-member-since">{% trans_text "Membre depuis" "Member since" %} {{ user.created_at|date:"F Y" }}</p>
       </div>
 
-      <nav class="profile-nav" aria-label="Navigation profil">
+      <nav class="profile-nav" aria-label="{% trans_text 'Navigation profil' 'Profile navigation' %}">
         <a href="/comptes/profil/" class="profile-nav-item active">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
             <circle cx="12" cy="7" r="4"></circle>
           </svg>
-          Informations personnelles
+          {% trans_text "Informations personnelles" "Personal information" %}
         </a>
         <a href="/comptes/preferences/" class="profile-nav-item">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="3"></circle>
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
           </svg>
-          Préférences
+          {% trans_text "Préférences" "Preferences" %}
         </a>
         <a href="/comptes/preferences/#securite" class="profile-nav-item">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
             <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
           </svg>
-          Sécurité
+          {% trans_text "Sécurité" "Security" %}
         </a>
         <a href="/comptes/preferences/#notifications" class="profile-nav-item">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -60,7 +60,7 @@
     <div class="profile-content">
       <div class="card">
         <div class="card-header">
-          <h2 class="card-title">Informations personnelles</h2>
+          <h2 class="card-title">{% trans_text "Informations personnelles" "Personal information" %}</h2>
         </div>
         <form method="post" action="/comptes/profil/" class="profile-form" id="profile-form" enctype="multipart/form-data">
           {% csrf_token %}
@@ -71,12 +71,12 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label for="id_first_name" class="form-label">Prenom</label>
+              <label for="id_first_name" class="form-label">{% trans_text "Prenom" "First name" %}</label>
               <input type="text" name="first_name" id="id_first_name"
                 class="form-input" value="{{ user.first_name }}" required>
             </div>
             <div class="form-group">
-              <label for="id_last_name" class="form-label">Nom</label>
+              <label for="id_last_name" class="form-label">{% trans_text "Nom" "Last name" %}</label>
               <input type="text" name="last_name" id="id_last_name"
                 class="form-input" value="{{ user.last_name }}" required>
             </div>
@@ -89,13 +89,13 @@
           </div>
 
           <div class="form-group">
-            <label for="id_avatar" class="form-label">Photo de profil (URL)</label>
+            <label for="id_avatar" class="form-label">{% trans_text "Photo de profil (URL)" "Profile photo (URL)" %}</label>
             <input type="url" name="avatar" id="id_avatar"
               class="form-input" value="{{ user.avatar }}" placeholder="https://...">
           </div>
 
           <div class="form-actions">
-            <button type="submit" class="btn btn-primary" id="profile-save">Enregistrer</button>
+            <button type="submit" class="btn btn-primary" id="profile-save">{% trans_text "Enregistrer" "Save" %}</button>
           </div>
         </form>
       </div>
@@ -103,14 +103,14 @@
       <!-- Danger Zone -->
       <div class="card card--danger">
         <div class="card-header">
-          <h2 class="card-title card-title--danger">Zone dangereuse</h2>
+          <h2 class="card-title card-title--danger">{% trans_text "Zone dangereuse" "Danger zone" %}</h2>
         </div>
         <div class="danger-zone-content">
           <div>
-            <p class="danger-zone-label">Supprimer mon compte</p>
-            <p class="danger-zone-desc">Cette action est irreversible. Toutes vos donnees seront supprimees definitivement.</p>
+            <p class="danger-zone-label">{% trans_text "Supprimer mon compte" "Delete my account" %}</p>
+            <p class="danger-zone-desc">{% trans_text "Cette action est irreversible. Toutes vos donnees seront supprimees definitivement." "This action is irreversible. All your data will be permanently deleted." %}</p>
           </div>
-          <button type="button" class="btn btn-danger" id="delete-account-btn">Supprimer le compte</button>
+          <button type="button" class="btn btn-danger" id="delete-account-btn">{% trans_text "Supprimer le compte" "Delete account" %}</button>
         </div>
       </div>
     </div>
@@ -120,15 +120,15 @@
 <!-- Delete Account Modal -->
 <div class="modal-overlay" id="delete-modal" aria-modal="true" role="dialog" aria-labelledby="delete-modal-title" hidden>
   <div class="modal">
-    <h2 id="delete-modal-title" class="modal-title">Supprimer votre compte ?</h2>
-    <p class="modal-body">Cette action est definitvement irreversible. Tous vos souvenirs, photos et analyses IA seront supprimes.</p>
-    <p class="modal-body">Tapez <strong>SUPPRIMER</strong> pour confirmer :</p>
+    <h2 id="delete-modal-title" class="modal-title">{% trans_text "Supprimer votre compte ?" "Delete your account?" %}</h2>
+    <p class="modal-body">{% trans_text "Cette action est definitvement irreversible. Tous vos souvenirs, photos et analyses IA seront supprimes." "This action is permanently irreversible. All your memories, photos and AI analyses will be deleted." %}</p>
+    <p class="modal-body">{% trans_text "Tapez" "Type" %} <strong>SUPPRIMER</strong> {% trans_text "pour confirmer :" "to confirm:" %}</p>
     <input type="text" id="delete-confirm-input" class="form-input" placeholder="SUPPRIMER">
     <div class="modal-actions">
-      <button type="button" class="btn btn-secondary" id="delete-cancel">Annuler</button>
+      <button type="button" class="btn btn-secondary" id="delete-cancel">{% trans_text "Annuler" "Cancel" %}</button>
       <form method="post" action="/comptes/supprimer/" id="delete-account-form">
         {% csrf_token %}
-        <button type="submit" class="btn btn-danger" id="delete-confirm" disabled>Supprimer definitivement</button>
+        <button type="submit" class="btn btn-danger" id="delete-confirm" disabled>{% trans_text "Supprimer definitivement" "Delete permanently" %}</button>
       </form>
     </div>
   </div>

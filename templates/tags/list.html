@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Mes Tags — MemoAI{% endblock %}
+{% block title %}{% trans_text "Mes Tags" "My tags" %} — MemoAI{% endblock %}
 {% block nav_tags %}active{% endblock %}
 
 {% block extra_css %}
@@ -399,8 +399,8 @@
   <!-- Header -->
   <div class="tags-hero">
     <div>
-      <p class="eyebrow">ORGANISATION & CATÉGORISATION</p>
-      <h1 class="page-title">Mes tags</h1>
+      <p class="eyebrow">{% trans_text "ORGANISATION & CATÉGORISATION" "ORGANIZATION & CATEGORIZATION" %}</p>
+      <h1 class="page-title">{% trans_text "Mes tags" "My tags" %}</h1>
     </div>
   </div>
 
@@ -409,19 +409,19 @@
     <div class="tag-editor-card">
       <div class="tag-editor-header">
         <h2 class="tag-editor-title">
-          {% if edit_tag %}Modifier le tag{% else %}Nouveau tag{% endif %}
+          {% if edit_tag %}{% trans_text "Modifier le tag" "Edit tag" %}{% else %}{% trans_text "Nouveau tag" "New tag" %}{% endif %}
         </h2>
         {% if edit_tag %}
-          <a href="/tags/" class="btn btn-ghost btn-sm" style="font-size:12px;">+ Nouveau</a>
+          <a href="/tags/" class="btn btn-ghost btn-sm" style="font-size:12px;">{% trans_text "+ Nouveau" "+ New" %}</a>
         {% endif %}
       </div>
 
       <!-- Live Interactive Tag Preview -->
       <div class="tag-preview-box">
-        <span class="tag-preview-label">Aperçu en direct</span>
+        <span class="tag-preview-label">{% trans_text "Aperçu en direct" "Live preview" %}</span>
         <div id="live-tag-pill" class="tag-pill-preview" style="background: {{ form.color.value|default:'#6366f1' }}18; color: {{ form.color.value|default:'#6366f1' }}; border: 1.5px solid {{ form.color.value|default:'#6366f1' }}40;">
           <span id="preview-emoji">{{ form.icon.value|default:'🏷️' }}</span>
-          <span id="preview-text">{{ form.name.value|default:'Mon tag' }}</span>
+          <span id="preview-text">{% if form.name.value %}{{ form.name.value }}{% else %}{% trans_text "Mon tag" "My tag" %}{% endif %}</span>
         </div>
       </div>
 
@@ -429,14 +429,14 @@
         {% csrf_token %}
 
         <div class="form-group-spaced">
-          <label for="id_name" class="form-label">Nom du tag</label>
+          <label for="id_name" class="form-label">{% trans_text "Nom du tag" "Tag name" %}</label>
           <input type="text" name="name" id="id_name"
-            class="form-input" placeholder="Voyage, Idées, Famille..."
+            class="form-input" placeholder="{% trans_text 'Voyage, Idées, Famille...' 'Travel, Ideas, Family...' %}"
             value="{{ form.name.value|default:'' }}" maxlength="50" required autocomplete="off">
         </div>
 
         <div class="form-group-spaced">
-          <label class="form-label">Emoji / Icône</label>
+          <label class="form-label">{% trans_text "Emoji / Icône" "Emoji / Icon" %}</label>
           <input type="text" name="icon" id="id_icon"
             class="form-input form-input--sm" placeholder="🏷️"
             value="{{ form.icon.value|default:'' }}" maxlength="10">
@@ -454,7 +454,7 @@
         </div>
 
         <div class="form-group-spaced">
-          <label class="form-label">Couleur</label>
+          <label class="form-label">{% trans_text "Couleur" "Color" %}</label>
           <div class="palette-grid">
             {% for color in color_choices %}
               <label class="color-radio-label">
@@ -463,7 +463,7 @@
                 <span class="color-swatch-circle" style="background-color: {{ color }};"></span>
               </label>
             {% endfor %}
-            <div class="custom-color-wrapper" title="Couleur personnalisée">
+            <div class="custom-color-wrapper" title="{% trans_text 'Couleur personnalisée' 'Custom color' %}">
               <input type="color" name="color_custom" id="id_color_custom" class="custom-color-input"
                 value="{{ form.color.value|default:'#6366f1' }}">
             </div>
@@ -472,10 +472,10 @@
 
         <div style="display: flex; gap: 10px; margin-top: 24px;">
           <button type="submit" class="btn btn-primary" id="save-tag" style="flex:1;">
-            {% if edit_tag %}Enregistrer{% else %}Créer le tag{% endif %}
+            {% if edit_tag %}{% trans_text "Enregistrer" "Save" %}{% else %}{% trans_text "Créer le tag" "Create tag" %}{% endif %}
           </button>
           {% if edit_tag %}
-            <a href="/tags/" class="btn btn-secondary">Annuler</a>
+            <a href="/tags/" class="btn btn-secondary">{% trans_text "Annuler" "Cancel" %}</a>
           {% endif %}
         </div>
       </form>
@@ -488,15 +488,15 @@
         <div class="tags-stats-ribbon">
           <div class="tag-stat-pill">
             <span class="tag-stat-value">{{ total_tags }}</span>
-            <span class="tag-stat-label">Tags au total</span>
+            <span class="tag-stat-label">{% trans_text "Tags au total" "Total tags" %}</span>
           </div>
           <div class="tag-stat-pill">
             <span class="tag-stat-value">{{ total_uses }}</span>
-            <span class="tag-stat-label">Utilisations</span>
+            <span class="tag-stat-label">{% trans_text "Utilisations" "Uses" %}</span>
           </div>
           {% if most_used_tag %}
             <div class="tag-stat-pill">
-              <span class="tag-stat-label">Le plus fréquent :</span>
+              <span class="tag-stat-label">{% trans_text "Le plus fréquent :" "Most frequent:" %}</span>
               <span class="tag-stat-value" style="color: {{ most_used_tag.color }};">
                 {% if most_used_tag.icon %}{{ most_used_tag.icon }} {% endif %}{{ most_used_tag.name }}
               </span>
@@ -511,7 +511,7 @@
               <circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.5"/>
               <path d="M11 11L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
             </svg>
-            <input type="text" id="tag-filter-input" class="tags-search-input" placeholder="Rechercher parmi vos tags..." autocomplete="off">
+            <input type="text" id="tag-filter-input" class="tags-search-input" placeholder="{% trans_text 'Rechercher parmi vos tags...' 'Search among your tags...' %}" autocomplete="off">
           </div>
           <span style="font-size:12px; color:var(--color-stone); font-weight:500;" id="tags-count-badge">
             {{ tags|length }} tag{{ tags|length|pluralize }}
@@ -533,15 +533,15 @@
                 </span>
 
                 <div class="tag-actions">
-                  <a href="/tags/{{ tag.id }}/modifier/" class="tag-btn-action" title="Modifier {{ tag.name }}" aria-label="Modifier">
+                  <a href="/tags/{{ tag.id }}/modifier/" class="tag-btn-action" title="{% trans_text 'Modifier' 'Edit' %} {{ tag.name }}" aria-label="{% trans_text 'Modifier' 'Edit' %}">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                       <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                     </svg>
                   </a>
-                  <form method="post" action="/tags/{{ tag.id }}/supprimer/" style="margin:0; display:inline;" onsubmit="return confirm('Supprimer définitivement le tag « {{ tag.name|escapejs }} » ?');">
+                  <form method="post" action="/tags/{{ tag.id }}/supprimer/" style="margin:0; display:inline;" onsubmit="return confirm('{% trans_text 'Supprimer définitivement le tag' 'Permanently delete the tag' %} « {{ tag.name|escapejs }} » ?');">
                     {% csrf_token %}
-                    <button type="submit" class="tag-btn-action tag-btn-action--danger" title="Supprimer {{ tag.name }}" aria-label="Supprimer">
+                    <button type="submit" class="tag-btn-action tag-btn-action--danger" title="{% trans_text 'Supprimer' 'Delete' %} {{ tag.name }}" aria-label="{% trans_text 'Supprimer' 'Delete' %}">
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="3 6 5 6 21 6"></polyline>
                         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -554,12 +554,12 @@
               </div>
 
               <div class="tag-card-footer">
-                <a href="/journal/liste/?search={{ tag.name }}" class="tag-entries-link" title="Voir les entrées associées">
+                <a href="/journal/liste/?search={{ tag.name }}" class="tag-entries-link" title="{% trans_text 'Voir les entrées associées' 'View related entries' %}">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
                     <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
                   </svg>
-                  <span>{{ tag.entry_count }} souvenir{{ tag.entry_count|pluralize }}</span>
+                  <span>{{ tag.entry_count }} {% if tag.entry_count == 1 %}{% trans_text "souvenir" "memory" %}{% else %}{% trans_text "souvenirs" "memories" %}{% endif %}</span>
                   <span style="opacity: 0.6;">&rarr;</span>
                 </a>
               </div>
@@ -574,9 +574,9 @@
               <line x1="7" y1="7" x2="7.01" y2="7"></line>
             </svg>
           </div>
-          <h3 style="font-family: var(--font-primary); font-size: 18px; margin: 0; color: var(--color-ink-black);">Aucun tag créé</h3>
+          <h3 style="font-family: var(--font-primary); font-size: 18px; margin: 0; color: var(--color-ink-black);">{% trans_text "Aucun tag créé" "No tag created" %}</h3>
           <p style="font-size: 14px; color: var(--color-stone); margin: 0; max-width: 320px;">
-            Créez votre premier tag à l'aide du formulaire pour classer vos souvenirs par thématique.
+            {% trans_text "Créez votre premier tag à l'aide du formulaire pour classer vos souvenirs par thématique." "Create your first tag using the form to organize your memories by theme." %}
           </p>
         </div>
       {% endif %}

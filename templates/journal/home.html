@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Tableau de bord — MemoAI{% endblock %}
+{% block title %}{% trans_text "Tableau de bord" "Dashboard" %} — MemoAI{% endblock %}
 {% block nav_journal %}active{% endblock %}
 
 {% block content %}
@@ -15,9 +15,9 @@
       </div>MEMOAI</p>
       <h1 class="display-xl">
         {% if user.is_authenticated %}
-        Bonjour,<br>{{ user.first_name }}
+        {% trans_text "Bonjour," "Hello," %}<br>{{ user.first_name }}
         {% else %}
-        Votre journal<br>intelligent
+        {% trans_text "Votre journal" "Your journal" %}<br>{% trans_text "intelligent" "intelligent" %}
         {% endif %}
       </h1>
       <p class="hero-date">{{ today|date:"l j F Y" }}</p>
@@ -26,19 +26,19 @@
     <div class="dashboard-actions" style="gap: 10px;">
       {% if today_entry %}
       <a href="/journal/{{ today_entry.id }}/" class="btn btn-secondary" id="view-today-entry">
-        Voir mon entree d'aujourd'hui
+        {% trans_text "Voir mon entree d'aujourd'hui" "See today's entry" %}
       </a>
       <a href="/journal/{{ today_entry.id }}/modifier/" class="btn btn-primary" id="edit-today-entry">
-        Continuer a ecrire
+        {% trans_text "Continuer a ecrire" "Keep writing" %}
       </a>
       {% else %}
       <a href="/journal/nouveau/" class="btn btn-primary" id="new-entry-hero">
         <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none">
           <path d="M8 1v14M1 8h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
         </svg>
-        Ecrire aujourd'hui
+        {% trans_text "Ecrire aujourd'hui" "Write today" %}
       </a>
-      <a href="/journal/liste/" class="btn btn-secondary" id="view-all-entries">Voir mes souvenirs</a>
+      <a href="/journal/liste/" class="btn btn-secondary" id="view-all-entries">{% trans_text "Voir mes souvenirs" "See my memories" %}</a>
       {% endif %}
     </div>
   </section>
@@ -48,19 +48,19 @@
   <section class="stats-band">
     <div class="stat-card">
       <span class="stat-value">{{ stats.total_entries }}</span>
-      <span class="stat-label">Entrees totales</span>
+      <span class="stat-label">{% trans_text "Entrees totales" "Total entries" %}</span>
     </div>
     <div class="stat-card">
       <span class="stat-value">{{ stats.streak_days }}</span>
-      <span class="stat-label">Jours consecutifs</span>
+      <span class="stat-label">{% trans_text "Jours consecutifs" "Day streak" %}</span>
     </div>
     <div class="stat-card">
       <span class="stat-value">{{ stats.total_words }}</span>
-      <span class="stat-label">Mots ecrits</span>
+      <span class="stat-label">{% trans_text "Mots ecrits" "Words written" %}</span>
     </div>
     <div class="stat-card">
       <span class="stat-value">{{ stats.entries_this_month }}</span>
-      <span class="stat-label">Ce mois-ci</span>
+      <span class="stat-label">{% trans_text "Ce mois-ci" "This month" %}</span>
     </div>
   </section>
   {% endif %}
@@ -70,15 +70,15 @@
   <section class="section-band">
     <div class="section-header">
       <div>
-        <p class="eyebrow">MEMOIRE</p>
-        <h2 class="section-title">En ce jour</h2>
+        <p class="eyebrow">{% trans_text "MEMOIRE" "MEMORY" %}</p>
+        <h2 class="section-title">{% trans_text "En ce jour" "On this day" %}</h2>
       </div>
       <a href="/journal/ce-jour/" class="text-link">
         <svg aria-hidden="true" width="12" height="12" viewBox="0 0 12 12" fill="none">
           <path d="M2 6h8M7 3l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
             stroke-linejoin="round" />
         </svg>
-        Voir tout
+        {% trans_text "Voir tout" "See all" %}
       </a>
     </div>
     <div class="entries-scroll">
@@ -91,7 +91,7 @@
         {% endif %}
         <div class="entry-card-mini-body">
           <span class="entry-card-mini-date">{{ entry.entry_date|date:"j F Y" }}</span>
-          <h3 class="entry-card-mini-title">{{ entry.title|default:"Sans titre" }}</h3>
+          <h3 class="entry-card-mini-title">{% if entry.title %}{{ entry.title }}{% else %}{% trans_text "Sans titre" "Untitled" %}{% endif %}</h3>
           <p class="entry-card-mini-excerpt">{{ entry.excerpt }}</p>
           {% if entry.mood %}
           <span class="mood-badge mood-badge--{{ entry.mood }}">{{ entry.mood_emoji }} {{ entry.mood }}</span>
@@ -108,14 +108,14 @@
     <div class="section-header">
       <div>
         <p class="eyebrow">JOURNAL</p>
-        <h2 class="section-title">Entrees recentes</h2>
+        <h2 class="section-title">{% trans_text "Entrees recentes" "Recent entries" %}</h2>
       </div>
       <a href="/journal/liste/" class="text-link">
         <svg aria-hidden="true" width="12" height="12" viewBox="0 0 12 12" fill="none">
           <path d="M2 6h8M7 3l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
             stroke-linejoin="round" />
         </svg>
-        Tout voir
+        {% trans_text "Tout voir" "See all" %}
       </a>
     </div>
 
@@ -133,9 +133,9 @@
           <path d="M16 18h16M16 24h10" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
         </svg>
       </div>
-      <h3 class="empty-state-title">Commencez votre journal</h3>
-      <p class="empty-state-body">Ecrivez votre premiere entree et laissez l'IA enrichir vos souvenirs.</p>
-      <a href="/journal/nouveau/" class="btn btn-primary" id="empty-new-entry">Creer ma premiere entree</a>
+      <h3 class="empty-state-title">{% trans_text "Commencez votre journal" "Start your journal" %}</h3>
+      <p class="empty-state-body">{% trans_text "Ecrivez votre premiere entree et laissez l'IA enrichir vos souvenirs." "Write your first entry and let the AI enrich your memories." %}</p>
+      <a href="/journal/nouveau/" class="btn btn-primary" id="empty-new-entry">{% trans_text "Creer ma premiere entree" "Create my first entry" %}</a>
     </div>
     {% endif %}
   </section>
