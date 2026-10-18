@@ -1,86 +1,120 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}Connexion — MemoAI{% endblock %}
+{% block body_class %}auth-page{% endblock %}
+
+{% block extra_css %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/auth.css' %}?v=20261018_2">
+{% endblock %}
+
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
 
 {% block content %}
-<section class="auth-section">
-  <div class="auth-card">
-    <div class="auth-header">
-      <div class="dot-cluster dot-cluster--lg" aria-hidden="true">
-        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-        <span class="dot"></span><span class="dot dot--hidden"></span><span class="dot"></span>
-        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+<div class="auth">
+
+  <!-- ─── Form panel ─────────────────────────────────────────────── -->
+  <section class="auth__panel">
+    <header class="auth__brand">
+      <a href="/" class="auth__logo" aria-label="MemoAI — Accueil">
+        <span class="dot-cluster dot-cluster--lg" aria-hidden="true">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          <span class="dot"></span><span class="dot dot--hidden"></span><span class="dot"></span>
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        </span>
+      </a>
+    </header>
+
+    <main class="auth__main">
+      <div class="auth__box">
+        <header class="auth__head">
+          <h1 class="auth__title">Bon retour</h1>
+          <p class="auth__sub">Pas encore de compte ? <a href="/comptes/inscription/">Créez-en un</a></p>
+        </header>
+
+        <form method="post" action="" id="login-form" class="auth__form" novalidate>
+          {% csrf_token %}
+
+          {% if form.non_field_errors %}
+            <div class="form-error-banner" role="alert">{{ form.non_field_errors }}</div>
+          {% endif %}
+
+          <label class="auth-field {% if form.email.errors %}auth-field--error{% endif %}" for="id_email">
+            <span class="sr-only">Adresse email</span>
+            <input
+              type="email"
+              name="email"
+              id="id_email"
+              class="auth-field__input"
+              placeholder="Votre adresse email"
+              value="{{ form.email.value|default:'' }}"
+              autocomplete="email"
+              required
+            >
+          </label>
+          {% if form.email.errors %}
+            <p class="form-error">{{ form.email.errors|join:", " }}</p>
+          {% endif %}
+
+          <label class="auth-field {% if form.password.errors %}auth-field--error{% endif %}" for="id_password">
+            <span class="sr-only">Mot de passe</span>
+            <input
+              type="password"
+              name="password"
+              id="id_password"
+              class="auth-field__input"
+              placeholder="Votre mot de passe"
+              autocomplete="current-password"
+              required
+            >
+            <button type="button" class="auth-field__peek password-toggle" aria-label="Afficher le mot de passe">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M1.5 8C3 4.5 5.5 3 8 3s5 1.5 6.5 5c-1.5 3.5-4 5-6.5 5S3 11.5 1.5 8z" stroke="currentColor" stroke-width="1.5"/></svg>
+            </button>
+          </label>
+          {% if form.password.errors %}
+            <p class="form-error">{{ form.password.errors|join:", " }}</p>
+          {% endif %}
+
+          <a href="/comptes/mot-de-passe/reinitialiser/" class="auth__forgot">Mot de passe oublié ?</a>
+
+          <button type="submit" class="auth-btn" id="login-submit">Se connecter</button>
+
+          <p class="auth__legal">
+            En continuant, vous acceptez nos <a href="/conditions/">conditions d'utilisation</a>
+            et notre <a href="/confidentialite/">politique de confidentialité</a>.
+          </p>
+        </form>
       </div>
-      <p class="eyebrow">MEMOAI</p>
-      <h1 class="auth-title">Bon retour</h1>
-      <p class="auth-subtitle">Connectez-vous pour retrouver vos souvenirs</p>
+    </main>
+
+    <footer class="auth__wordmark">
+      <a href="/" aria-label="MemoAI">MEMOAI</a>
+    </footer>
+  </section>
+
+  <!-- ─── Visual panel (desktop) ─────────────────────────────────── -->
+  <section class="auth__visual" aria-hidden="true">
+    <div class="auth__scene">
+      <figure class="auth__scene-a"><img src="{% static 'img/tile_notebook.jpg' %}" alt=""></figure>
+      <figure class="auth__scene-b"><img src="{% static 'img/tile_flowers.jpg' %}" alt=""></figure>
+      <figure class="auth__scene-c"><img src="{% static 'img/tile_coffee.jpg' %}" alt=""></figure>
+      <p class="auth__caption">Votre vie, joliment conservée.<br>Par MemoAI</p>
     </div>
+  </section>
 
-    <form method="post" action="" id="login-form" class="auth-form" novalidate>
-      {% csrf_token %}
-
-      {% if form.non_field_errors %}
-        <div class="form-error-banner" role="alert">{{ form.non_field_errors }}</div>
-      {% endif %}
-
-      <div class="form-group">
-        <label for="id_email" class="form-label">Adresse email</label>
-        <input
-          type="email"
-          name="email"
-          id="id_email"
-          class="form-input {% if form.email.errors %}form-input--error{% endif %}"
-          placeholder="vous@exemple.com"
-          value="{{ form.email.value|default:'' }}"
-          autocomplete="email"
-          required
-        >
-        {% if form.email.errors %}
-          <p class="form-error">{{ form.email.errors|join:", " }}</p>
-        {% endif %}
-      </div>
-
-      <div class="form-group">
-        <label for="id_password" class="form-label">
-          Mot de passe
-          <a href="/comptes/mot-de-passe/reinitialiser/" class="form-label-link">Oublie?</a>
-        </label>
-        <div class="input-password-wrapper">
-          <input
-            type="password"
-            name="password"
-            id="id_password"
-            class="form-input {% if form.password.errors %}form-input--error{% endif %}"
-            placeholder="Votre mot de passe"
-            autocomplete="current-password"
-            required
-          >
-          <button type="button" class="password-toggle" aria-label="Afficher le mot de passe">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M1.5 8C3 4.5 5.5 3 8 3s5 1.5 6.5 5c-1.5 3.5-4 5-6.5 5S3 11.5 1.5 8z" stroke="currentColor" stroke-width="1.5"/></svg>
-          </button>
-        </div>
-        {% if form.password.errors %}
-          <p class="form-error">{{ form.password.errors|join:", " }}</p>
-        {% endif %}
-      </div>
-
-      <button type="submit" class="btn btn-primary btn-full" id="login-submit">Se connecter</button>
-    </form>
-
-    <p class="auth-switch">
-      Pas encore de compte ?
-      <a href="/comptes/inscription/" class="auth-switch-link">S'inscrire</a>
-    </p>
-  </div>
-</section>
+</div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', function () {
     var toggle = document.querySelector('.password-toggle');
     var input = document.getElementById('id_password');
     if (toggle && input) {
-      toggle.addEventListener('click', function() {
+      toggle.addEventListener('click', function () {
         input.type = input.type === 'password' ? 'text' : 'password';
       });
     }

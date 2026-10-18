@@ -223,6 +223,7 @@
 </head>
 <body class="{% block body_class %}{% endblock %}">
 
+  {% block header %}
   <header class="nav-wrapper" role="banner">
     <nav class="nav-pill" aria-label="Navigation principale">
 
@@ -358,6 +359,7 @@
 
     </nav>
   </header>
+  {% endblock %}
 
   <!-- ── TOAST NOTIFICATIONS ── -->
   <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true">

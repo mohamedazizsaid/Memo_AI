@@ -1,6 +1,6 @@
 # MemoAi — Journal Personnel Multimodal Intelligent 🧠✨
 
-> **MemoAi** est une plateforme web privée de journal personnel multimodal de niveau SaaS moderne, sublimée par l'intelligence artificielle générative, l'analyse des émotions et la reconnaissance visuelle et vocale.
+> **MemoAi** est une plateforme web privée de journal personnel multimodal de niveau SaaS moderne, sublimée par l'intelligence   artificielle générative, l'analyse des émotions et la reconnaissance visuelle et vocale.
 
 ---
 

@@ -1,224 +1,836 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}MemoAI — Preservez vos souvenirs avec l'IA{% endblock %}
-{% block meta_description %}MemoAI est votre journal personnel intelligent. Ecrivez, analysez vos emotions, retrouvez vos souvenirs.{% endblock %}
+{% block title %}MemoAI — Votre journal, sublimé par l'IA{% endblock %}
+{% block meta_description %}MemoAI est votre journal personnel intelligent. Ecrivez, laissez l'IA analyser vos emotions et retrouvez vos souvenirs.{% endblock %}
 {% block body_class %}landing-page{% endblock %}
-{% block footer %}{% endblock %}
 
+{% block extra_css %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/landing.css' %}?v=20261018_2">
+{% endblock %}
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     NAVIGATION — cosmos.so style
+     ═══════════════════════════════════════════════════════════════════ -->
+{% block header %}
+<header class="cx-nav" role="banner">
+  <div class="cx-nav__fade" aria-hidden="true"></div>
+  <div class="cx-nav__inner">
+
+    <div class="cx-nav__left">
+      <a href="/" class="cx-logo" aria-label="MemoAI — Accueil">
+        <div class="dot-cluster dot-cluster--lg" aria-hidden="true">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          <span class="dot"></span><span class="dot dot--hidden"></span><span class="dot"></span>
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        </div>
+      </a>
+
+      <div class="cx-menu">
+        <button type="button" class="cx-menu__btn" id="cx-menu-btn"
+                aria-expanded="false" aria-controls="cx-menu-panel">
+          Menu
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+            <path d="M2 4.5 6 8.5l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <nav class="cx-menu__panel" id="cx-menu-panel" aria-label="Menu secondaire">
+          <a href="#features">Fonctionnalites</a>
+          <a href="#themes">Themes</a>
+          <a href="#memories">Souvenirs</a>
+          <a href="#contact">Contact</a>
+        </nav>
+      </div>
+    </div>
+
+    <a href="/" class="cx-wordmark">MEMOAI</a>
+
+    <div class="cx-nav__right">
+      <a href="/comptes/connexion/" class="cx-nav__login">Connexion</a>
+      <a href="/comptes/inscription/" class="cx-btn cx-btn--primary cx-btn--sm">Inscription</a>
+    </div>
+
+  </div>
+</header>
+{% endblock %}
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     CONTENT
+     ═══════════════════════════════════════════════════════════════════ -->
 {% block content %}
-<!-- ═══ HERO — cosmos.so style ══════════════════════════════════════ -->
-<section class="cosmos-hero" aria-label="Accueil">
 
-  <!-- Floating tiles — spread across the whole viewport -->
-  <div class="cosmos-tiles" aria-hidden="true" id="cosmos-tiles">
-    <!-- JS will inject tiles dynamically -->
+<!-- ═══ HERO ═════════════════════════════════════════════════════════ -->
+<section class="cx-hero" id="accueil" aria-label="Accueil">
+  <div class="cx-hero__aura" aria-hidden="true"></div>
+  <div class="cx-hero__grain" aria-hidden="true"></div>
+
+  <!-- Circling photo field — the background animation from cosmos.so -->
+  <div class="cx-orbit" aria-hidden="true">
+    <span class="cx-orbit__arm" style="--a:14deg; --dur:104s; --delay:-8s;">
+      <span class="cx-orbit__tile" style="--x:40vw; --y:-26vh; --s:clamp(38px,4.6vw,76px); --tilt:-9deg; --op:.95; --blur:0px;">
+        <img src="{% static 'img/tile_sunset.jpg' %}" alt="" loading="eager" draggable="false">
+      </span>
+    </span>
+    <span class="cx-orbit__arm" style="--a:33deg; --dur:92s; --delay:-31s;">
+      <span class="cx-orbit__tile" style="--x:44vw; --y:-6vh; --s:clamp(34px,4vw,66px); --tilt:7deg; --op:.9; --blur:0px;">
+        <img src="{% static 'img/tile_city.jpg' %}" alt="" loading="lazy" draggable="false">
+      </span>
+    </span>
+    <span class="cx-orbit__arm" style="--a:58deg; --dur:120s; --delay:-64s;">
+      <span class="cx-orbit__tile" style="--x:40vw; --y:16vh; --s:clamp(36px,4.4vw,72px); --tilt:-5deg; --op:.8; --blur:0px;">
+        <img src="{% static 'img/tile_flowers.jpg' %}" alt="" loading="lazy" draggable="false">
+      </span>
+    </span>
+    <span class="cx-orbit__arm" style="--a:74deg; --dur:110s; --delay:-19s;">
+      <span class="cx-orbit__tile" style="--x:32vw; --y:33vh; --s:clamp(30px,3.6vw,58px); --tilt:11deg; --op:.75; --blur:1.5px;">
+        <img src="{% static 'img/tile_coffee.jpg' %}" alt="" loading="lazy" draggable="false">
+      </span>
+    </span>
+    <span class="cx-orbit__arm" style="--a:92deg; --dur:132s; --delay:-81s;">
+      <span class="cx-orbit__tile" style="--x:22vw; --y:41vh; --s:clamp(28px,3.4vw,54px); --tilt:-13deg; --op:.6; --blur:3px;">
+        <img src="{% static 'img/tile_friends.jpg' %}" alt="" loading="lazy" draggable="false">
+      </span>
+    </span>
+    <span class="cx-orbit__arm" style="--a:118deg; --dur:126s; --delay:-44s;">
+      <span class="cx-orbit__tile" style="--x:12vw; --y:-40vh; --s:clamp(26px,3.2vw,50px); --tilt:5deg; --op:.55; --blur:3.5px;">
+        <img src="{% static 'img/tile_notebook.jpg' %}" alt="" loading="lazy" draggable="false">
+      </span>
+    </span>
+    <span class="cx-orbit__arm" style="--a:141deg; --dur:100s; --delay:-57s;">
+      <span class="cx-orbit__tile" style="--x:46vw; --y:32vh; --s:clamp(32px,3.8vw,62px); --tilt:-7deg; --op:.85; --blur:0px;">
+        <img src="{% static 'img/tile_hero.jpg' %}" alt="" loading="lazy" draggable="false">
+      </span>
+    </span>
+    <span class="cx-orbit__arm" style="--a:163deg; --dur:116s; --delay:-12s;">
+      <span class="cx-orbit__tile" style="--x:-41vw; --y:-22vh; --s:clamp(36px,4.4vw,72px); --tilt:8deg; --op:.9; --blur:0px;">
+        <img src="{% static 'img/tile_friends.jpg' %}" alt="" loading="lazy" draggable="false">
+      </span>
+    </span>
+    <span class="cx-orbit__arm" style="--a:187deg; --dur:96s; --delay:-70s;">
+      <span class="cx-orbit__tile" style="--x:-45vw; --y:-2vh; --s:clamp(40px,4.8vw,80px); --tilt:-6deg; --op:1; --blur:0px;">
+        <img src="{% static 'img/tile_sunset.jpg' %}" alt="" loading="lazy" draggable="false">
+      </span>
+    </span>
+    <span class="cx-orbit__arm" style="--a:205deg; --dur:124s; --delay:-35s;">
+      <span class="cx-orbit__tile" style="--x:-40vw; --y:20vh; --s:clamp(34px,4vw,68px); --tilt:10deg; --op:.8; --blur:0px;">
+        <img src="{% static 'img/tile_city.jpg' %}" alt="" loading="lazy" draggable="false">
+      </span>
+    </span>
+    <span class="cx-orbit__arm" style="--a:228deg; --dur:108s; --delay:-88s;">
+      <span class="cx-orbit__tile" style="--x:-31vw; --y:34vh; --s:clamp(30px,3.6vw,58px); --tilt:-11deg; --op:.7; --blur:2px;">
+        <img src="{% static 'img/tile_flowers.jpg' %}" alt="" loading="lazy" draggable="false">
+      </span>
+    </span>
+    <span class="cx-orbit__arm" style="--a:250deg; --dur:136s; --delay:-24s;">
+      <span class="cx-orbit__tile" style="--x:-20vw; --y:41vh; --s:clamp(26px,3.2vw,50px); --tilt:6deg; --op:.55; --blur:3.5px;">
+        <img src="{% static 'img/tile_notebook.jpg' %}" alt="" loading="lazy" draggable="false">
+      </span>
+    </span>
+    <span class="cx-orbit__arm" style="--a:275deg; --dur:118s; --delay:-61s;">
+      <span class="cx-orbit__tile" style="--x:-11vw; --y:-38vh; --s:clamp(28px,3.4vw,54px); --tilt:-4deg; --op:.6; --blur:3px;">
+        <img src="{% static 'img/tile_coffee.jpg' %}" alt="" loading="lazy" draggable="false">
+      </span>
+    </span>
+    <span class="cx-orbit__arm" style="--a:300deg; --dur:102s; --delay:-47s;">
+      <span class="cx-orbit__tile" style="--x:-44vw; --y:30vh; --s:clamp(32px,3.8vw,62px); --tilt:9deg; --op:.85; --blur:0px;">
+        <img src="{% static 'img/tile_hero.jpg' %}" alt="" loading="lazy" draggable="false">
+      </span>
+    </span>
   </div>
 
-  <!-- Center content -->
-  <div class="cosmos-center" id="cosmos-center">
-    <h1 class="cosmos-headline">
-      <span class="cosmos-headline-static">Journalisez</span>
-      <span class="cosmos-headline-flip-wrapper" aria-live="polite">
-        <span class="cosmos-flip-word" id="flip-word">chaque souvenir</span>
+  <div class="cx-hero__inner">
+
+    <h1 class="cx-hero__title">
+      <span class="cx-hero__line1">Retrouvez vos</span>
+
+      <span class="cx-rotator" id="cx-rotator" aria-live="polite">
+
+        <a href="/comptes/inscription/" class="cx-rot is-active">
+          <span class="cx-rot__text">souvenirs precieux</span>
+          <span class="cx-chips" aria-hidden="true">
+            <span class="cx-chip"><img src="{% static 'img/tile_flowers.jpg' %}" alt="" loading="eager" draggable="false"></span>
+            <span class="cx-chip"><img src="{% static 'img/tile_sunset.jpg' %}" alt="" loading="eager" draggable="false"></span>
+          </span>
+        </a>
+
+        <a href="/comptes/inscription/" class="cx-rot" aria-hidden="true">
+          <span class="cx-rot__text">moments du quotidien</span>
+          <span class="cx-chips" aria-hidden="true">
+            <span class="cx-chip"><img src="{% static 'img/tile_coffee.jpg' %}" alt="" loading="lazy" draggable="false"></span>
+            <span class="cx-chip"><img src="{% static 'img/tile_notebook.jpg' %}" alt="" loading="lazy" draggable="false"></span>
+          </span>
+        </a>
+
+        <a href="/comptes/inscription/" class="cx-rot" aria-hidden="true">
+          <span class="cx-rot__text">emotions</span>
+          <span class="cx-chips" aria-hidden="true">
+            <span class="cx-chip"><img src="{% static 'img/tile_friends.jpg' %}" alt="" loading="lazy" draggable="false"></span>
+            <span class="cx-chip"><img src="{% static 'img/tile_hero.jpg' %}" alt="" loading="lazy" draggable="false"></span>
+          </span>
+        </a>
+
+        <a href="/comptes/inscription/" class="cx-rot" aria-hidden="true">
+          <span class="cx-rot__text">petites histoires</span>
+          <span class="cx-chips" aria-hidden="true">
+            <span class="cx-chip"><img src="{% static 'img/tile_city.jpg' %}" alt="" loading="lazy" draggable="false"></span>
+            <span class="cx-chip"><img src="{% static 'img/tile_notebook.jpg' %}" alt="" loading="lazy" draggable="false"></span>
+          </span>
+        </a>
+
       </span>
     </h1>
 
-    <p class="cosmos-sub" id="cosmos-sub">
-      Votre journal personnel enrichi par l'intelligence artificielle
-    </p>
+    <div class="cx-hero__search">
+      <form class="cx-search" action="/journal/liste/" method="get" role="search">
+        <div class="cx-search__field">
+          <svg class="cx-search__icon" width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="10.75" cy="10.75" r="7.5" stroke="currentColor" stroke-width="1.75"/>
+            <path d="M20.25 20.25 16 16" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+          </svg>
+          <label class="sr-only" for="cx-search-input">Rechercher un souvenir</label>
+          <input id="cx-search-input" class="cx-search__input" type="search" name="search"
+                 placeholder="Rechercher un souvenir" autocomplete="off" spellcheck="false">
+        </div>
+        <button type="submit" class="cx-search__spark" aria-label="Rechercher">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 3.2c.42 3.9 1.7 5.2 5.6 5.6-3.9.42-5.18 1.7-5.6 5.6-.42-3.9-1.7-5.18-5.6-5.6 3.9-.4 5.18-1.7 5.6-5.6Z" fill="currentColor"/>
+            <path d="M18.4 14.2c.2 1.9.82 2.5 2.72 2.72-1.9.2-2.52.83-2.72 2.73-.2-1.9-.82-2.52-2.72-2.73 1.9-.2 2.52-.83 2.72-2.72Z" fill="currentColor"/>
+          </svg>
+        </button>
+      </form>
+    </div>
 
-    <div class="cosmos-actions">
-      <a href="/comptes/inscription/" class="cosmos-btn cosmos-btn--primary" id="cosmos-cta-main">
+    <div class="cx-hero__actions">
+      <a href="/comptes/inscription/" class="cx-btn cx-btn--primary cx-btn--md" id="cx-cta-main">
         Commencer gratuitement
       </a>
     </div>
 
-    <a href="#features" class="cosmos-scroll-hint" id="cosmos-scroll">
+    <a href="#features" class="cx-scroll" aria-label="Decouvrir les fonctionnalites">
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
         <path d="M10 4v12M5 11l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </a>
+
   </div>
+
+  <aside class="cx-appcard" aria-label="Application mobile MemoAI">
+    <span class="cx-appcard__label">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path fill="currentColor" d="M20.004 7.158a4.76 4.76 0 0 0-2.274 4.002 4.63 4.63 0 0 0 2.818 4.246 11 11 0 0 1-1.443 2.98c-.898 1.294-1.837 2.587-3.266 2.587s-1.797-.83-3.444-.83c-1.606 0-2.177.857-3.484.857s-2.219-1.198-3.267-2.668a12.9 12.9 0 0 1-2.19-6.955c0-4.083 2.653-6.247 5.266-6.247 1.389 0 2.546.912 3.417.912.83 0 2.123-.966 3.702-.966a4.95 4.95 0 0 1 4.164 2.082m-4.914-3.81A4.7 4.7 0 0 0 16.206.421a2 2 0 0 0-.04-.422 4.7 4.7 0 0 0-3.09 1.592 4.56 4.56 0 0 0-1.157 2.845q0 .193.04.381.142.027.287.027a4.08 4.08 0 0 0 2.844-1.498"/>
+      </svg>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path fill="currentColor" d="M4.91 2.013c.372-.048.75.035 1.067.233l10.846 6.15-2.745 2.77zm-.835.833A2 2 0 0 0 4 3.403v17.192q-.003.284.075.557L13.252 12zm10.012 9.985L4.91 21.985c.372.052.751-.03 1.067-.233l10.846-6.15zm7.108-1.947L17.908 9.02l-3.004 2.979 2.996 2.987 3.287-1.864c1.084-.615 1.084-1.63 0-2.246z"/>
+      </svg>
+      Application
+    </span>
+    <div class="cx-appcard__icon" aria-hidden="true">
+      <div class="dot-cluster" style="grid-template-columns: repeat(3, 13px); gap: 9px;">
+        <span class="dot" style="width:13px;height:13px;"></span><span class="dot" style="width:13px;height:13px;"></span><span class="dot" style="width:13px;height:13px;"></span>
+        <span class="dot" style="width:13px;height:13px;"></span><span class="dot dot--hidden" style="width:13px;height:13px;"></span><span class="dot" style="width:13px;height:13px;"></span>
+        <span class="dot" style="width:13px;height:13px;"></span><span class="dot" style="width:13px;height:13px;"></span><span class="dot" style="width:13px;height:13px;"></span>
+      </div>
+    </div>
+  </aside>
 </section>
 
-<!-- ═══ FEATURES ════════════════════════════════════════════════════ -->
-<section class="lp-features" id="features" aria-label="Fonctionnalites">
-  <div class="container">
-    <div class="lp-features-header">
-      <p class="eyebrow">FONCTIONNALITES</p>
-      <h2 class="lp-features-title">Tout ce dont vous avez besoin<br>pour capturer votre vie</h2>
+<!-- ═══ FEATURES — carousel ══════════════════════════════════════════ -->
+<section class="cx-section" id="features" aria-labelledby="cx-features-title">
+  <div class="cx-section__inner" data-reveal>
+    <h2 class="cx-h2" id="cx-features-title">Votre journal, a votre facon</h2>
+  </div>
+
+  <div class="cx-carousel" role="region" aria-roledescription="carrousel" aria-label="Fonctionnalites">
+
+    <div class="cx-slide" role="group" aria-roledescription="slide" data-reveal>
+      <article class="cx-card">
+        <div class="cx-card__visual">
+          <img src="{% static 'img/tile_notebook.jpg' %}" alt="Carnet de journal ouvert" loading="lazy">
+        </div>
+        <h3 class="cx-card__title">Ecrivez librement</h3>
+        <p class="cx-card__desc">Texte, photos et notes vocales reunis au meme endroit, sans friction.</p>
+      </article>
     </div>
-    <div class="lp-features-grid">
-      <div class="lp-feat-card" id="feat-journal">
-        <div class="lp-feat-img-wrap">
-          <img src="{% static 'img/tile_notebook.jpg' %}" alt="Journal quotidien" class="lp-feat-img">
-        </div>
-        <div class="lp-feat-body">
-          <h3 class="lp-feat-title">Journal quotidien</h3>
-          <p class="lp-feat-desc">Ecrivez librement, ajoutez des photos et des enregistrements audio pour capturer chaque moment.</p>
-        </div>
-      </div>
-      <div class="lp-feat-card lp-feat-card--dark" id="feat-ai">
-        <div class="lp-feat-img-wrap lp-feat-img-wrap--ai">
-          <div class="ai-anim-grid" aria-hidden="true">
-            <span></span><span></span><span></span><span></span><span class="big"></span>
-            <span></span><span></span><span></span><span></span>
+
+    <div class="cx-slide" role="group" aria-roledescription="slide" data-reveal>
+      <article class="cx-card">
+        <div class="cx-card__visual cx-card__visual--dark">
+          <div class="cx-ai" id="cx-ai">
+            <span class="cx-ai__grabber" aria-hidden="true"></span>
+
+            <div class="cx-ai__tabs" role="tablist" aria-label="Visibilite du contenu IA">
+              <span class="cx-ai__indicator" id="cx-ai-indicator" aria-hidden="true"></span>
+              <button type="button" class="cx-ai__tab" role="tab" aria-selected="true" data-mode="show">Afficher</button>
+              <button type="button" class="cx-ai__tab" role="tab" aria-selected="false" data-mode="blur">Flou</button>
+              <button type="button" class="cx-ai__tab" role="tab" aria-selected="false" data-mode="hide">Masquer</button>
+            </div>
+
+            <div class="cx-ai__grid" id="cx-ai-grid">
+              <div>
+                <div class="cx-ai__item" data-ai>
+                  <div class="cx-ai__clip">
+                    <div class="cx-ai__box cx-ai__box--tall">
+                      <img src="{% static 'img/tile_flowers.jpg' %}" alt="" loading="lazy">
+                      <span class="cx-ai__badge" aria-hidden="true"><span>IA</span></span>
+                    </div>
+                  </div>
+                </div>
+                <div class="cx-ai__item">
+                  <div class="cx-ai__clip">
+                    <div class="cx-ai__box cx-ai__box--square">
+                      <img src="{% static 'img/tile_notebook.jpg' %}" alt="" loading="lazy">
+                    </div>
+                  </div>
+                </div>
+                <div class="cx-ai__item" data-ai>
+                  <div class="cx-ai__clip">
+                    <div class="cx-ai__box cx-ai__box--tall">
+                      <img src="{% static 'img/tile_sunset.jpg' %}" alt="" loading="lazy">
+                      <span class="cx-ai__badge" aria-hidden="true"><span>IA</span></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div class="cx-ai__item">
+                  <div class="cx-ai__clip">
+                    <div class="cx-ai__box cx-ai__box--tall">
+                      <img src="{% static 'img/tile_city.jpg' %}" alt="" loading="lazy">
+                    </div>
+                  </div>
+                </div>
+                <div class="cx-ai__item" data-ai>
+                  <div class="cx-ai__clip">
+                    <div class="cx-ai__box cx-ai__box--square">
+                      <img src="{% static 'img/tile_coffee.jpg' %}" alt="" loading="lazy">
+                      <span class="cx-ai__badge" aria-hidden="true"><span>IA</span></span>
+                    </div>
+                  </div>
+                </div>
+                <div class="cx-ai__item">
+                  <div class="cx-ai__clip">
+                    <div class="cx-ai__box cx-ai__box--tall">
+                      <img src="{% static 'img/tile_friends.jpg' %}" alt="" loading="lazy">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="lp-feat-body">
-          <h3 class="lp-feat-title lp-feat-title--light">Analyse IA</h3>
-          <p class="lp-feat-desc lp-feat-desc--light">L'IA analyse vos emotions, genere des resumes et detecte les themes recurrents de votre vie.</p>
+        <h3 class="cx-card__title">Analyse IA</h3>
+        <p class="cx-card__desc">L'IA detecte vos emotions, resume vos journees et repere les themes qui reviennent.</p>
+      </article>
+    </div>
+
+    <div class="cx-slide" role="group" aria-roledescription="slide" data-reveal>
+      <article class="cx-card">
+        <div class="cx-card__visual">
+          <img src="{% static 'img/tile_sunset.jpg' %}" alt="Souvenir du passe" loading="lazy">
         </div>
-      </div>
-      <div class="lp-feat-card" id="feat-memories">
-        <div class="lp-feat-img-wrap">
-          <img src="{% static 'img/tile_sunset.jpg' %}" alt="Souvenirs" class="lp-feat-img">
+        <h3 class="cx-card__title">En ce jour</h3>
+        <p class="cx-card__desc">Revivez ce que vous faisiez il y a un an, cinq ans, dix ans.</p>
+      </article>
+    </div>
+
+    <div class="cx-slide" role="group" aria-roledescription="slide" data-reveal>
+      <article class="cx-card">
+        <div class="cx-card__visual">
+          <img src="{% static 'img/tile_city.jpg' %}" alt="Recherche dans les souvenirs" loading="lazy">
         </div>
-        <div class="lp-feat-body">
-          <h3 class="lp-feat-title">En ce jour</h3>
-          <p class="lp-feat-desc">Retrouvez ce que vous faisiez exactement un an ou cinq ans en arriere.</p>
-        </div>
+        <h3 class="cx-card__title">Recherche intelligente</h3>
+        <p class="cx-card__desc">Retrouvez un souvenir en decrivant simplement ce dont vous vous souvenez.</p>
+      </article>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══ THEMES — list with auto-advancing photo preview ═══════════════ -->
+<section class="cx-section" id="themes" aria-labelledby="cx-themes-title">
+  <div class="cx-section__inner" data-reveal>
+    <h2 class="cx-h2" id="cx-themes-title">Explorez par theme</h2>
+
+    <div class="cx-themes">
+      <ul class="cx-themes__list" id="cx-themes-list">
+        <li>
+          <a class="cx-theme" href="/journal/liste/?search=Voyages" data-theme-item
+             data-images="{% static 'img/tile_sunset.jpg' %}|{% static 'img/tile_city.jpg' %}|{% static 'img/tile_flowers.jpg' %}">
+            <span class="cx-theme__chip" aria-hidden="true"><img src="{% static 'img/tile_sunset.jpg' %}" alt="" loading="lazy"></span>
+            <span class="cx-theme__label">Voyages</span>
+          </a>
+        </li>
+        <li>
+          <a class="cx-theme" href="/journal/liste/?search=Famille" data-theme-item
+             data-images="{% static 'img/tile_friends.jpg' %}|{% static 'img/tile_hero.jpg' %}|{% static 'img/tile_coffee.jpg' %}">
+            <span class="cx-theme__chip" aria-hidden="true"><img src="{% static 'img/tile_friends.jpg' %}" alt="" loading="lazy"></span>
+            <span class="cx-theme__label">Famille</span>
+          </a>
+        </li>
+        <li>
+          <a class="cx-theme" href="/journal/liste/?search=Amis" data-theme-item
+             data-images="{% static 'img/tile_hero.jpg' %}|{% static 'img/tile_friends.jpg' %}|{% static 'img/tile_sunset.jpg' %}">
+            <span class="cx-theme__chip" aria-hidden="true"><img src="{% static 'img/tile_hero.jpg' %}" alt="" loading="lazy"></span>
+            <span class="cx-theme__label">Amis</span>
+          </a>
+        </li>
+        <li>
+          <a class="cx-theme" href="/journal/liste/?search=Nature" data-theme-item
+             data-images="{% static 'img/tile_flowers.jpg' %}|{% static 'img/tile_sunset.jpg' %}|{% static 'img/tile_notebook.jpg' %}">
+            <span class="cx-theme__chip" aria-hidden="true"><img src="{% static 'img/tile_flowers.jpg' %}" alt="" loading="lazy"></span>
+            <span class="cx-theme__label">Nature</span>
+          </a>
+        </li>
+        <li>
+          <a class="cx-theme" href="/journal/liste/?search=Quotidien" data-theme-item
+             data-images="{% static 'img/tile_coffee.jpg' %}|{% static 'img/tile_notebook.jpg' %}|{% static 'img/tile_city.jpg' %}">
+            <span class="cx-theme__chip" aria-hidden="true"><img src="{% static 'img/tile_coffee.jpg' %}" alt="" loading="lazy"></span>
+            <span class="cx-theme__label">Quotidien</span>
+          </a>
+        </li>
+        <li>
+          <a class="cx-theme" href="/journal/liste/?search=Enfance" data-theme-item
+             data-images="{% static 'img/tile_notebook.jpg' %}|{% static 'img/tile_friends.jpg' %}|{% static 'img/tile_sunset.jpg' %}">
+            <span class="cx-theme__chip" aria-hidden="true"><img src="{% static 'img/tile_notebook.jpg' %}" alt="" loading="lazy"></span>
+            <span class="cx-theme__label">Enfance</span>
+          </a>
+        </li>
+        <li>
+          <a class="cx-theme" href="/journal/liste/?search=Ville" data-theme-item
+             data-images="{% static 'img/tile_city.jpg' %}|{% static 'img/tile_hero.jpg' %}|{% static 'img/tile_flowers.jpg' %}">
+            <span class="cx-theme__chip" aria-hidden="true"><img src="{% static 'img/tile_city.jpg' %}" alt="" loading="lazy"></span>
+            <span class="cx-theme__label">Ville</span>
+          </a>
+        </li>
+      </ul>
+
+      <div class="cx-themes__preview" id="cx-themes-preview" aria-hidden="true">
+        <figure class="cx-preview__item"><img src="{% static 'img/tile_sunset.jpg' %}" alt="" loading="lazy"></figure>
+        <figure class="cx-preview__item"><img src="{% static 'img/tile_city.jpg' %}" alt="" loading="lazy"></figure>
+        <figure class="cx-preview__item"><img src="{% static 'img/tile_flowers.jpg' %}" alt="" loading="lazy"></figure>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ═══ CTA ══════════════════════════════════════════════════════════ -->
-<section class="lp-cta" id="contact" aria-label="Appel a l'action">
-  <div class="container">
-    <div class="lp-cta-box">
-      <h2 class="lp-cta-title">Commencez votre journal aujourd'hui</h2>
-      <p class="lp-cta-sub">Gratuit. Prive. Intelligent.</p>
-      <div class="cosmos-actions">
-        <a href="/comptes/inscription/" class="cosmos-btn cosmos-btn--primary" id="cta-signup-bottom">Creer mon journal</a>
-        <a href="/comptes/connexion/" class="cosmos-btn cosmos-btn--secondary" id="cta-login-bottom">Se connecter</a>
-      </div>
+<!-- ═══ MEMORIES ═════════════════════════════════════════════════════ -->
+<section class="cx-section" id="memories" aria-labelledby="cx-memories-title">
+  <div class="cx-section__inner">
+    <div class="cx-section__head" data-reveal>
+      <h2 class="cx-h2" id="cx-memories-title">Revivez vos souvenirs</h2>
+      <a href="/comptes/inscription/" class="cx-btn cx-btn--soft cx-btn--md">Explorer MemoAI</a>
+    </div>
+
+    <div class="cx-memories">
+
+      <article class="cx-memory" data-reveal>
+        <div class="cx-memory__collage">
+          <div class="cx-memory__cell"><img src="{% static 'img/tile_sunset.jpg' %}" alt="" loading="lazy"></div>
+          <div class="cx-memory__col">
+            <div class="cx-memory__cell"><img src="{% static 'img/tile_city.jpg' %}" alt="" loading="lazy"></div>
+            <div class="cx-memory__cell"><img src="{% static 'img/tile_flowers.jpg' %}" alt="" loading="lazy"></div>
+          </div>
+        </div>
+        <div class="cx-memory__body">
+          <div class="cx-memory__meta">
+            <span class="cx-memory__avatar" aria-hidden="true">MA</span>
+            <div class="cx-memory__info">
+              <p class="cx-memory__name">Coucher de soleil a la mer</p>
+              <p class="cx-memory__sub">Il y a 1 an &middot; Ete 2025</p>
+            </div>
+            <span class="cx-memory__tag">Joie</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="cx-memory" data-reveal>
+        <div class="cx-memory__collage">
+          <div class="cx-memory__cell"><img src="{% static 'img/tile_friends.jpg' %}" alt="" loading="lazy"></div>
+          <div class="cx-memory__col">
+            <div class="cx-memory__cell"><img src="{% static 'img/tile_hero.jpg' %}" alt="" loading="lazy"></div>
+            <div class="cx-memory__cell"><img src="{% static 'img/tile_coffee.jpg' %}" alt="" loading="lazy"></div>
+          </div>
+        </div>
+        <div class="cx-memory__body">
+          <div class="cx-memory__meta">
+            <span class="cx-memory__avatar" aria-hidden="true">MA</span>
+            <div class="cx-memory__info">
+              <p class="cx-memory__name">Diner improvise entre amis</p>
+              <p class="cx-memory__sub">Il y a 2 ans &middot; Hiver 2024</p>
+            </div>
+            <span class="cx-memory__tag">Amitie</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="cx-memory" data-reveal>
+        <div class="cx-memory__collage">
+          <div class="cx-memory__cell"><img src="{% static 'img/tile_city.jpg' %}" alt="" loading="lazy"></div>
+          <div class="cx-memory__col">
+            <div class="cx-memory__cell"><img src="{% static 'img/tile_notebook.jpg' %}" alt="" loading="lazy"></div>
+            <div class="cx-memory__cell"><img src="{% static 'img/tile_flowers.jpg' %}" alt="" loading="lazy"></div>
+          </div>
+        </div>
+        <div class="cx-memory__body">
+          <div class="cx-memory__meta">
+            <span class="cx-memory__avatar" aria-hidden="true">MA</span>
+            <div class="cx-memory__info">
+              <p class="cx-memory__name">Premier matin dans une nouvelle ville</p>
+              <p class="cx-memory__sub">Il y a 3 ans &middot; Automne 2023</p>
+            </div>
+            <span class="cx-memory__tag">Voyage</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="cx-memory" data-reveal>
+        <div class="cx-memory__collage">
+          <div class="cx-memory__cell"><img src="{% static 'img/tile_flowers.jpg' %}" alt="" loading="lazy"></div>
+          <div class="cx-memory__col">
+            <div class="cx-memory__cell"><img src="{% static 'img/tile_sunset.jpg' %}" alt="" loading="lazy"></div>
+            <div class="cx-memory__cell"><img src="{% static 'img/tile_coffee.jpg' %}" alt="" loading="lazy"></div>
+          </div>
+        </div>
+        <div class="cx-memory__body">
+          <div class="cx-memory__meta">
+            <span class="cx-memory__avatar" aria-hidden="true">MA</span>
+            <div class="cx-memory__info">
+              <p class="cx-memory__name">Les fleurs du balcon</p>
+              <p class="cx-memory__sub">Il y a 5 ans &middot; Printemps 2021</p>
+            </div>
+            <span class="cx-memory__tag">Calme</span>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══ TRUST / MARQUEE ══════════════════════════════════════════════ -->
+<section class="cx-section" aria-labelledby="cx-trust-lead">
+  <div class="cx-section__inner" data-reveal>
+    <p class="cx-trust__lead" id="cx-trust-lead">
+      Pense pour capturer ce qui compte vraiment, jour apres jour.
+    </p>
+  </div>
+
+  <div class="cx-marquee" aria-hidden="true">
+    <div class="cx-marquee__track">
+      <span class="cx-marquee__item">Gratitude <span class="cx-marquee__dot"></span></span>
+      <span class="cx-marquee__item">Voyages <span class="cx-marquee__dot"></span></span>
+      <span class="cx-marquee__item">Famille <span class="cx-marquee__dot"></span></span>
+      <span class="cx-marquee__item">Premier jour <span class="cx-marquee__dot"></span></span>
+      <span class="cx-marquee__item">Emotions <span class="cx-marquee__dot"></span></span>
+      <span class="cx-marquee__item">Quotidien <span class="cx-marquee__dot"></span></span>
+      <span class="cx-marquee__item">Amities <span class="cx-marquee__dot"></span></span>
+      <span class="cx-marquee__item">Reves <span class="cx-marquee__dot"></span></span>
+      <span class="cx-marquee__item">Inspiration <span class="cx-marquee__dot"></span></span>
+      <span class="cx-marquee__item">Souvenirs <span class="cx-marquee__dot"></span></span>
+    </div>
+    <div class="cx-marquee__track">
+      <span class="cx-marquee__item">Gratitude <span class="cx-marquee__dot"></span></span>
+      <span class="cx-marquee__item">Voyages <span class="cx-marquee__dot"></span></span>
+      <span class="cx-marquee__item">Famille <span class="cx-marquee__dot"></span></span>
+      <span class="cx-marquee__item">Premier jour <span class="cx-marquee__dot"></span></span>
+      <span class="cx-marquee__item">Emotions <span class="cx-marquee__dot"></span></span>
+      <span class="cx-marquee__item">Quotidien <span class="cx-marquee__dot"></span></span>
+      <span class="cx-marquee__item">Amities <span class="cx-marquee__dot"></span></span>
+      <span class="cx-marquee__item">Reves <span class="cx-marquee__dot"></span></span>
+      <span class="cx-marquee__item">Inspiration <span class="cx-marquee__dot"></span></span>
+      <span class="cx-marquee__item">Souvenirs <span class="cx-marquee__dot"></span></span>
     </div>
   </div>
 </section>
 
 {% endblock %}
 
+<!-- ═══════════════════════════════════════════════════════════════════
+     FOOTER — cosmos.so style
+     ═══════════════════════════════════════════════════════════════════ -->
+{% block footer %}
+<footer class="cx-footer" id="contact" role="contentinfo">
+  <div class="cx-footer__grid">
+
+    <div data-reveal>
+      <h2 class="cx-footer__title">Decouvrez ce qui vous attend</h2>
+      <div class="cx-footer__actions">
+        <a href="/comptes/inscription/" class="cx-btn cx-btn--primary cx-btn--lg">Creer mon journal</a>
+        <a href="/comptes/connexion/" class="cx-btn cx-btn--soft cx-btn--lg">Se connecter</a>
+      </div>
+    </div>
+
+    <div class="cx-footer__cols">
+      <nav class="cx-footer__col" aria-labelledby="cx-footer-follow">
+        <h3 id="cx-footer-follow">Suivez-nous</h3>
+        <a href="#">Instagram</a>
+        <a href="#">X</a>
+        <a href="#">TikTok</a>
+      </nav>
+
+      <nav class="cx-footer__col" aria-labelledby="cx-footer-info">
+        <h3 id="cx-footer-info">Informations</h3>
+        <a href="/comptes/inscription/">Fonctionnalites</a>
+        <a href="#">Confidentialite</a>
+        <a href="#">Conditions</a>
+        <a href="mailto:contact@memoai.app">Contact</a>
+      </nav>
+    </div>
+
+    <aside class="cx-appcard cx-appcard--footer" aria-label="Application mobile MemoAI">
+      <span class="cx-appcard__label">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path fill="currentColor" d="M20.004 7.158a4.76 4.76 0 0 0-2.274 4.002 4.63 4.63 0 0 0 2.818 4.246 11 11 0 0 1-1.443 2.98c-.898 1.294-1.837 2.587-3.266 2.587s-1.797-.83-3.444-.83c-1.606 0-2.177.857-3.484.857s-2.219-1.198-3.267-2.668a12.9 12.9 0 0 1-2.19-6.955c0-4.083 2.653-6.247 5.266-6.247 1.389 0 2.546.912 3.417.912.83 0 2.123-.966 3.702-.966a4.95 4.95 0 0 1 4.164 2.082m-4.914-3.81A4.7 4.7 0 0 0 16.206.421a2 2 0 0 0-.04-.422 4.7 4.7 0 0 0-3.09 1.592 4.56 4.56 0 0 0-1.157 2.845q0 .193.04.381.142.027.287.027a4.08 4.08 0 0 0 2.844-1.498"/>
+        </svg>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path fill="currentColor" d="M4.91 2.013c.372-.048.75.035 1.067.233l10.846 6.15-2.745 2.77zm-.835.833A2 2 0 0 0 4 3.403v17.192q-.003.284.075.557L13.252 12zm10.012 9.985L4.91 21.985c.372.052.751-.03 1.067-.233l10.846-6.15zm7.108-1.947L17.908 9.02l-3.004 2.979 2.996 2.987 3.287-1.864c1.084-.615 1.084-1.63 0-2.246z"/>
+        </svg>
+        Application
+      </span>
+      <div class="cx-appcard__icon" aria-hidden="true">
+        <div class="dot-cluster" style="grid-template-columns: repeat(3, 13px); gap: 9px;">
+          <span class="dot" style="width:13px;height:13px;"></span><span class="dot" style="width:13px;height:13px;"></span><span class="dot" style="width:13px;height:13px;"></span>
+          <span class="dot" style="width:13px;height:13px;"></span><span class="dot dot--hidden" style="width:13px;height:13px;"></span><span class="dot" style="width:13px;height:13px;"></span>
+          <span class="dot" style="width:13px;height:13px;"></span><span class="dot" style="width:13px;height:13px;"></span><span class="dot" style="width:13px;height:13px;"></span>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+
+  <p class="cx-footer__legal">Journal intelligent propulse par l'IA &copy; 2026 MemoAI</p>
+</footer>
+{% endblock %}
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SCRIPTS
+     ═══════════════════════════════════════════════════════════════════ -->
 {% block extra_js %}
 <script>
 (function () {
   'use strict';
 
-  /* ─── IMAGE POOL ─────────────────────────────────────────────── */
-  var IMGS = [
-    "{% static 'img/tile_coffee.jpg' %}",
-    "{% static 'img/tile_notebook.jpg' %}",
-    "{% static 'img/tile_sunset.jpg' %}",
-    "{% static 'img/tile_flowers.jpg' %}",
-    "{% static 'img/tile_friends.jpg' %}",
-    "{% static 'img/tile_city.jpg' %}",
-    "{% static 'img/tile_hero.jpg' %}",
-  ];
+  var reduceMotion = window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* ─── TILE CONFIG ────────────────────────────────────────────── */
-  /* Each tile: [left%, top%, width(px), rotate-initial(deg), anim-duration(s), anim-delay(s), rx, ry, rz] */
-  var TILES = [
-    [2,  6,  100, -15, 22, 0,    0.4, 1,   0.2],
-    [8,  55, 90,  12,  28, 2,    0.2, 0.8, 0.5],
-    [5,  30, 110, -8,  25, 5,    0.6, 0.4, 0.3],
-    [14, 72, 85,  20,  30, 1,    0.3, 1.2, 0.1],
-    [0,  85, 95,  -25, 19, 3.5,  0.7, 0.6, 0.4],
-    [18, 10, 105, 8,   24, 0.5,  0.1, 0.9, 0.6],
-    [12, 42, 80,  -12, 26, 4,    0.5, 0.7, 0.2],
-    [22, 88, 100, 18,  21, 2.5,  0.3, 1.1, 0.5],
-    [72, 4,  110, -18, 23, 1,    0.6, 0.8, 0.3],
-    [80, 60, 95,  14,  27, 3,    0.2, 1.0, 0.4],
-    [85, 25, 100, -6,  20, 0.8,  0.8, 0.5, 0.1],
-    [90, 78, 88,  22,  29, 4.5,  0.4, 0.7, 0.6],
-    [76, 88, 105, -20, 18, 2,    0.6, 0.9, 0.2],
-    [68, 48, 90,  10,  25, 1.5,  0.3, 1.2, 0.5],
-    [62, 12, 115, -5,  22, 5,    0.5, 0.6, 0.3],
-    [88, 10, 80,  16,  31, 0.3,  0.7, 0.8, 0.4],
-    [55, 80, 95,  -22, 24, 3,    0.2, 1.0, 0.6],
-    [48, 5,  85,  7,   28, 2.2,  0.4, 0.7, 0.2],
-    [35, 92, 100, -14, 20, 1.8,  0.6, 0.9, 0.5],
-    [42, 20, 90,  19,  26, 4.2,  0.3, 1.1, 0.3],
-  ];
-
-  /* ─── CREATE TILES ───────────────────────────────────────────── */
-  var container = document.getElementById('cosmos-tiles');
-  if (!container) return;
-
-  TILES.forEach(function (cfg, i) {
-    var left = cfg[0], top = cfg[1], width = cfg[2], initRot = cfg[3];
-    var dur = cfg[4], delay = cfg[5], rx = cfg[6], ry = cfg[7], rz = cfg[8];
-    var img = IMGS[i % IMGS.length];
-
-    var tile = document.createElement('div');
-    tile.className = 'ctile';
-    tile.style.cssText = [
-      'left:' + left + 'vw',
-      'top:' + top + 'vh',
-      'width:' + width + 'px',
-      'animation-duration:' + dur + 's',
-      'animation-delay:-' + delay + 's',
-      '--rx:' + rx,
-      '--ry:' + ry,
-      '--rz:' + rz,
-      '--init-rot:' + initRot + 'deg',
-    ].join(';');
-
-    var inner = document.createElement('div');
-    inner.className = 'ctile-inner';
-
-    var imgEl = document.createElement('img');
-    imgEl.src = img;
-    imgEl.alt = '';
-    imgEl.loading = 'lazy';
-    imgEl.className = 'ctile-img';
-    imgEl.draggable = false;
-
-    inner.appendChild(imgEl);
-    tile.appendChild(inner);
-    container.appendChild(tile);
-  });
-
-  /* ─── TEXT FLIP ──────────────────────────────────────────────── */
-  var phrases = [
-    'chaque souvenir',
-    'vos emotions',
-    'vos memoires',
-    'chaque instant',
-    'votre histoire',
-  ];
-  var subTexts = [
-    'Votre journal personnel enrichi par l\u2019intelligence artificielle',
-    'Analysez vos humeurs, detectez vos patterns emotionnels',
-    'Retrouvez vos souvenirs graace a la recherche intelligente',
-    'Capturez chaque moment avec photos, texte et audio',
-    'Votre vie merite d\u2019etre racontee et preservee',
-  ];
-
-  var flipWord = document.getElementById('flip-word');
-  var cosmosSubEl = document.getElementById('cosmos-sub');
-  var current = 0;
-
-  function flipNext() {
-    current = (current + 1) % phrases.length;
-
-    /* Phase 1 — flip out */
-    flipWord.classList.add('flip-out');
-    if (cosmosSubEl) cosmosSubEl.classList.add('fade-out');
-
-    setTimeout(function () {
-      flipWord.textContent = phrases[current];
-      if (cosmosSubEl) cosmosSubEl.textContent = subTexts[current];
-      flipWord.classList.remove('flip-out');
-      flipWord.classList.add('flip-in');
-      if (cosmosSubEl) cosmosSubEl.classList.remove('fade-out');
-
-      setTimeout(function () {
-        flipWord.classList.remove('flip-in');
-      }, 500);
-    }, 350);
+  /* ─── NAV: menu dropdown ───────────────────────────────────────── */
+  var menuBtn = document.getElementById('cx-menu-btn');
+  var menuPanel = document.getElementById('cx-menu-panel');
+  if (menuBtn && menuPanel) {
+    var setMenu = function (open) {
+      menuBtn.setAttribute('aria-expanded', String(open));
+      menuPanel.classList.toggle('is-open', open);
+    };
+    menuBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      setMenu(menuBtn.getAttribute('aria-expanded') !== 'true');
+    });
+    document.addEventListener('click', function () { setMenu(false); });
+    menuPanel.addEventListener('click', function () { setMenu(false); });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') setMenu(false);
+    });
   }
 
-  setInterval(flipNext, 3000);
+  /* ─── HERO: 3D rotating phrase ────────────────────────────────── */
+  var rotator = document.getElementById('cx-rotator');
+  if (rotator) {
+    var slides = Array.prototype.slice.call(rotator.querySelectorAll('.cx-rot'));
+    var index = 0;
+    var timer = null;
+
+    function show(next) {
+      if (next === index || !slides[next]) return;
+      var prev = slides[index];
+      var el = slides[next];
+
+      prev.classList.remove('is-active', 'is-enter');
+      prev.setAttribute('aria-hidden', 'true');
+
+      el.classList.add('is-enter');
+      el.removeAttribute('aria-hidden');
+
+      // Let the browser paint the "enter" state, then animate to active.
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          el.classList.remove('is-enter');
+          el.classList.add('is-active');
+        });
+      });
+
+      index = next;
+    }
+
+    function start() {
+      if (reduceMotion || slides.length < 2) return;
+      timer = window.setInterval(function () {
+        show((index + 1) % slides.length);
+      }, 3600);
+    }
+
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) {
+        if (timer) { window.clearInterval(timer); timer = null; }
+      } else if (!timer) {
+        start();
+      }
+    });
+
+    start();
+  }
+
+  /* ─── AI CARD: segmented control ──────────────────────────────── */
+  var aiGrid = document.getElementById('cx-ai-grid');
+  var aiIndicator = document.getElementById('cx-ai-indicator');
+  var aiTabs = Array.prototype.slice.call(document.querySelectorAll('.cx-ai__tab'));
+
+  function moveIndicator(btn) {
+    if (!aiIndicator || !btn) return;
+    aiIndicator.style.width = btn.offsetWidth + 'px';
+    aiIndicator.style.transform = 'translateX(' + btn.offsetLeft + 'px)';
+  }
+
+  if (aiGrid && aiTabs.length) {
+    aiTabs.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        aiTabs.forEach(function (b) {
+          b.setAttribute('aria-selected', String(b === btn));
+        });
+        aiGrid.classList.remove('is-blur', 'is-hide');
+        if (btn.dataset.mode === 'blur') aiGrid.classList.add('is-blur');
+        if (btn.dataset.mode === 'hide') aiGrid.classList.add('is-hide');
+        moveIndicator(btn);
+      });
+    });
+
+    var syncIndicator = function () {
+      moveIndicator(aiTabs[0]);
+    };
+    if (document.readyState === 'complete') { syncIndicator(); }
+    else { window.addEventListener('load', syncIndicator); }
+    window.addEventListener('resize', function () {
+      moveIndicator(aiTabs.filter(function (b) {
+        return b.getAttribute('aria-selected') === 'true';
+      })[0] || aiTabs[0]);
+    });
+  }
+
+  /* ─── APP CARDS: entrance ─────────────────────────────────────── */
+  var appCards = document.querySelectorAll('.cx-appcard');
+  if (appCards.length && !reduceMotion) {
+    Array.prototype.forEach.call(appCards, function (card) {
+      card.classList.add('is-out');
+    });
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        Array.prototype.forEach.call(appCards, function (card) {
+          card.classList.remove('is-out');
+        });
+      });
+    });
+  }
+
+  /* ─── THEMES: auto-advancing photo preview ────────────────────── */
+  var themesList = document.getElementById('cx-themes-list');
+  var previewHost = document.getElementById('cx-themes-preview');
+  if (themesList && previewHost) {
+    var themeItems = Array.prototype.slice.call(themesList.querySelectorAll('[data-theme-item]'));
+    var previewItems = Array.prototype.slice.call(previewHost.querySelectorAll('.cx-preview__item'));
+    var themeIndex = 0;
+    var themeTimer = null;
+    var swapTimers = [];
+
+    function showTheme(next, animate) {
+      if (!themeItems.length) return;
+      themeIndex = ((next % themeItems.length) + themeItems.length) % themeItems.length;
+
+      themeItems.forEach(function (el, k) {
+        var on = k === themeIndex;
+        el.classList.toggle('is-active', on);
+        if (on) { el.setAttribute('data-active', 'true'); }
+        else { el.removeAttribute('data-active'); }
+      });
+
+      var srcs = (themeItems[themeIndex].getAttribute('data-images') || '')
+        .split('|')
+        .filter(Boolean);
+      if (!srcs.length) return;
+
+      swapTimers.forEach(function (id) { window.clearTimeout(id); });
+      swapTimers = [];
+
+      previewItems.forEach(function (fig, k) {
+        var img = fig.querySelector('img');
+        if (!img) return;
+        var nextSrc = srcs[k % srcs.length];
+        if (!animate) {
+          img.src = nextSrc;
+          fig.classList.remove('is-out');
+          return;
+        }
+        fig.classList.add('is-out');
+        swapTimers.push(window.setTimeout(function () {
+          img.src = nextSrc;
+          fig.classList.remove('is-out');
+        }, 140 + k * 90));
+      });
+    }
+
+    function stopThemes() {
+      if (themeTimer) { window.clearInterval(themeTimer); themeTimer = null; }
+    }
+
+    function startThemes() {
+      stopThemes();
+      if (reduceMotion || themeItems.length < 2) return;
+      themeTimer = window.setInterval(function () {
+        showTheme(themeIndex + 1, true);
+      }, 3200);
+    }
+
+    themeItems.forEach(function (el, k) {
+      el.addEventListener('mouseenter', function () {
+        stopThemes();
+        showTheme(k, true);
+      });
+      el.addEventListener('focus', function () {
+        stopThemes();
+        showTheme(k, true);
+      });
+    });
+
+    themesList.addEventListener('mouseleave', startThemes);
+
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) { stopThemes(); }
+      else { startThemes(); }
+    });
+
+    showTheme(0, false);
+    startThemes();
+  }
+
+  /* ─── REVEAL ON SCROLL ────────────────────────────────────────── */
+  var revealables = document.querySelectorAll('[data-reveal]');
+  if (reduceMotion || !('IntersectionObserver' in window)) {
+    Array.prototype.forEach.call(revealables, function (el) {
+      el.classList.add('is-visible');
+    });
+  } else {
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+
+    Array.prototype.forEach.call(revealables, function (el) { observer.observe(el); });
+  }
 
 })();
 </script>
