@@ -1,0 +1,277 @@
+{% extends 'base.html' %}
+{% load static memo_filters %}
+{% block title %}{% if entry %}Modifier l'entree{% else %}Nouvelle entree{% endif %} — MemoAI{% endblock %}
+{% block nav_journal %}active{% endblock %}
+
+{% block content %}
+<div class="container container--narrow">
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">JOURNAL</p>
+      <h1 class="page-title">{% if entry %}Modifier l'entree{% else %}Nouvelle entree{% endif %}</h1>
+    </div>
+    {% if entry %}
+      <a href="/journal/{{ entry.id }}/" class="btn btn-ghost">Annuler</a>
+    {% else %}
+      <a href="/journal/" class="btn btn-ghost">Annuler</a>
+    {% endif %}
+  </div>
+
+  <form method="post" action="" id="entry-form" enctype="multipart/form-data" class="entry-form" novalidate>
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+      <div class="form-error-banner">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <!-- Date -->
+    <div class="form-group">
+      <label for="id_entry_date" class="form-label">Date de l'entree</label>
+      <input type="date" name="entry_date" id="id_entry_date" class="form-input"
+        value="{{ form.entry_date.value|default:today }}" required>
+    </div>
+
+    <!-- Title -->
+    <div class="form-group">
+      <label for="id_title" class="form-label">
+        Titre <span class="form-optional">(optionnel)</span>
+      </label>
+      <input type="text" name="title" id="id_title" class="form-input"
+        placeholder="Donnez un titre a cette journee..."
+        value="{{ form.title.value|default:'' }}" maxlength="255">
+    </div>
+
+    <!-- Mood selector -->
+    <div class="form-group">
+      <label class="form-label">Humeur</label>
+      <div class="mood-selector" id="mood-selector" role="radiogroup" aria-label="Choisir une humeur">
+        {% for value, label in mood_choices %}
+          <button type="button"
+            class="mood-btn {% if form.mood.value == value %}mood-btn--active{% endif %}"
+            data-mood="{{ value }}"
+            aria-label="{{ label }}"
+            aria-pressed="{% if form.mood.value == value %}true{% else %}false{% endif %}">
+            <span class="mood-emoji">{{ mood_emojis|get_item:value }}</span>
+            <span class="mood-name">{{ label }}</span>
+          </button>
+        {% endfor %}
+        <input type="hidden" name="mood" id="id_mood" value="{{ form.mood.value|default:'' }}">
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="form-group">
+      <label for="id_content" class="form-label">Votre entree</label>
+      <div class="editor-toolbar">
+        <button type="button" class="editor-tool" data-format="bold" title="Gras"><b>B</b></button>
+        <button type="button" class="editor-tool" data-format="italic" title="Italique"><i>I</i></button>
+        <span class="editor-separator"></span>
+        <span class="word-counter" id="word-counter" aria-live="polite">0 mots</span>
+      </div>
+      <textarea name="content" id="id_content" class="form-textarea"
+        placeholder="Que s'est-il passe aujourd'hui ? Comment vous sentez-vous ?"
+        rows="14">{{ form.content.value|default:'' }}</textarea>
+      {% if form.content.errors %}
+        <p class="form-error">{{ form.content.errors|join:", " }}</p>
+      {% endif %}
+    </div>
+
+    <!-- ── MEDIA UPLOAD (Drag & Drop) ── -->
+    <div class="form-group">
+      <label class="form-label">
+        Photos & Audio
+        <span class="form-optional">(optionnel)</span>
+      </label>
+      <div class="dropzone" id="dropzone" role="region" aria-label="Zone de depot de fichiers">
+        <input type="file" name="media_files" id="media-file-input"
+          class="dropzone-input" multiple
+          accept="image/jpeg,image/png,image/webp,image/gif,audio/mpeg,audio/wav,audio/ogg,audio/webm,audio/mp4,audio/m4a">
+        <div class="dropzone-ui" id="dropzone-ui">
+          <div class="dropzone-icon" aria-hidden="true">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+              <path d="M20 8v16M13 15l7-7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M6 28v2a4 4 0 0 0 4 4h20a4 4 0 0 0 4-4v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <p class="dropzone-label">
+            <span class="dropzone-label-strong">Glissez vos fichiers ici</span><br>
+            ou <button type="button" class="dropzone-browse" id="dropzone-browse">choisir des fichiers</button>
+          </p>
+          <p class="dropzone-hint">JPG, PNG, WebP, GIF, MP3, WAV, OGG — max 50 Mo</p>
+        </div>
+        <div class="dropzone-preview" id="dropzone-preview" hidden></div>
+      </div>
+    </div>
+
+    <!-- Location (collapsible) -->
+    <div class="form-group form-group--collapsible">
+      <button type="button" class="form-collapsible-toggle" aria-expanded="{% if form.location.value %}true{% else %}false{% endif %}" aria-controls="location-fields" id="location-toggle">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M7 1a4 4 0 0 1 4 4c0 3-4 8-4 8S3 8 3 5a4 4 0 0 1 4-4z" stroke="currentColor" stroke-width="1.3"/>
+          <circle cx="7" cy="5" r="1.3" stroke="currentColor" stroke-width="1.3"/>
+        </svg>
+        Ajouter un lieu
+      </button>
+      <div id="location-fields" class="form-collapsible-body" {% if not form.location.value %}hidden{% endif %}>
+        <input type="text" name="location" id="id_location" class="form-input"
+          placeholder="Ville, lieu..." value="{{ form.location.value|default:'' }}" maxlength="255">
+      </div>
+    </div>
+
+    <!-- Tags -->
+    <div class="form-group">
+      <label class="form-label">Tags</label>
+      <div class="tags-input-wrapper" id="tags-input-wrapper">
+        {% for tag in user_tags %}
+          <label class="tag-checkbox-label" style="--tag-color: {{ tag.color }}">
+            <input type="checkbox" name="tags" value="{{ tag.id }}"
+              {% if entry and tag in entry.tags.all %}checked{% endif %}>
+            <span class="tag-checkbox-custom">
+              {% if tag.icon %}{{ tag.icon }} {% endif %}{{ tag.name }}
+            </span>
+          </label>
+        {% empty %}
+          <a href="/tags/" class="tag-add-link" id="add-tag-link">Creer des tags</a>
+        {% endfor %}
+        {% if user_tags %}
+          <a href="/tags/" class="tag-add-link" id="add-tag-link">+ Nouveau tag</a>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Submit -->
+    <div class="form-actions form-actions--sticky">
+      <div class="form-actions-left">
+        <span class="autosave-status" id="autosave-status" aria-live="polite"></span>
+      </div>
+      <div class="form-actions-right">
+        <button type="submit" class="btn btn-primary" id="save-entry">
+          {% if entry %}Enregistrer{% else %}Creer l'entree{% endif %}
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // ── Mood selector ──
+  var moodBtns = document.querySelectorAll('.mood-btn');
+  var moodInput = document.getElementById('id_mood');
+  moodBtns.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var same = moodInput.value === this.dataset.mood;
+      moodBtns.forEach(function(b) { b.classList.remove('mood-btn--active'); b.setAttribute('aria-pressed','false'); });
+      if (!same) {
+        this.classList.add('mood-btn--active');
+        this.setAttribute('aria-pressed','true');
+        moodInput.value = this.dataset.mood;
+      } else {
+        moodInput.value = '';
+      }
+    });
+  });
+
+  // ── Word counter ──
+  var ta = document.getElementById('id_content');
+  var counter = document.getElementById('word-counter');
+  function updateCount() {
+    var w = ta.value.trim() ? ta.value.trim().split(/\s+/).length : 0;
+    counter.textContent = w + ' mot' + (w !== 1 ? 's' : '');
+  }
+  if (ta) { ta.addEventListener('input', updateCount); updateCount(); }
+
+  // ── Location collapsible ──
+  var locToggle = document.getElementById('location-toggle');
+  var locFields = document.getElementById('location-fields');
+  if (locToggle && locFields) {
+    locToggle.addEventListener('click', function() {
+      var exp = locToggle.getAttribute('aria-expanded') === 'true';
+      locToggle.setAttribute('aria-expanded', String(!exp));
+      locFields.hidden = exp;
+    });
+  }
+
+  // ── Drag & Drop ──
+  var dz = document.getElementById('dropzone');
+  var dzInput = document.getElementById('media-file-input');
+  var dzBrowse = document.getElementById('dropzone-browse');
+  var dzPreview = document.getElementById('dropzone-preview');
+  var dzUI = document.getElementById('dropzone-ui');
+
+  if (!dz || !dzInput) return;
+
+  dzBrowse.addEventListener('click', function() { dzInput.click(); });
+
+  ['dragenter','dragover'].forEach(function(evt) {
+    dz.addEventListener(evt, function(e) {
+      e.preventDefault();
+      dz.classList.add('dropzone--over');
+    });
+  });
+  ['dragleave','drop'].forEach(function(evt) {
+    dz.addEventListener(evt, function(e) {
+      e.preventDefault();
+      dz.classList.remove('dropzone--over');
+    });
+  });
+  dz.addEventListener('drop', function(e) {
+    e.preventDefault();
+    handleFiles(e.dataTransfer.files);
+  });
+
+  dzInput.addEventListener('change', function() {
+    handleFiles(this.files);
+  });
+
+  function handleFiles(files) {
+    if (!files.length) return;
+    dzPreview.innerHTML = '';
+    dzPreview.hidden = false;
+    dzUI.style.display = 'none';
+
+    Array.from(files).forEach(function(file) {
+      var item = document.createElement('div');
+      item.className = 'preview-item';
+
+      if (file.type.startsWith('image/')) {
+        var img = document.createElement('img');
+        img.className = 'preview-img';
+        var reader = new FileReader();
+        reader.onload = function(e) { img.src = e.target.result; };
+        reader.readAsDataURL(file);
+        item.appendChild(img);
+      } else {
+        var icon = document.createElement('div');
+        icon.className = 'preview-audio-icon';
+        icon.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M9 18V5l12-2v13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3" stroke="currentColor" stroke-width="1.5"/><circle cx="18" cy="16" r="3" stroke="currentColor" stroke-width="1.5"/></svg>';
+        item.appendChild(icon);
+      }
+
+      var name = document.createElement('span');
+      name.className = 'preview-name';
+      name.textContent = file.name.length > 20 ? file.name.substring(0,18)+'...' : file.name;
+      item.appendChild(name);
+
+      var removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.className = 'preview-remove';
+      removeBtn.innerHTML = '&times;';
+      removeBtn.setAttribute('aria-label', 'Supprimer ' + file.name);
+      removeBtn.addEventListener('click', function() {
+        item.remove();
+        if (!dzPreview.children.length) {
+          dzPreview.hidden = true;
+          dzUI.style.display = '';
+          dzInput.value = '';
+        }
+      });
+      item.appendChild(removeBtn);
+      dzPreview.appendChild(item);
+    });
+  }
+});
+</script>
+{% endblock %}

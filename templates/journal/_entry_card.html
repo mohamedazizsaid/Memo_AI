@@ -1,0 +1,57 @@
+<article class="entry-card" id="entry-{{ entry.id }}">
+  <a href="/journal/{{ entry.id }}/" class="entry-card-link" aria-label="{{ entry.title|default:'Entree sans titre' }} - {{ entry.entry_date|date:'j F Y' }}">
+    {% if entry.has_images %}
+      <div class="entry-card-image">
+        <img src="" alt="" loading="lazy" class="entry-card-img">
+      </div>
+    {% elif entry.ai_analysis.generated_image_url %}
+      <div class="entry-card-image">
+        <img src="{{ entry.ai_analysis.generated_image_url }}" alt="Illustration generee" loading="lazy" class="entry-card-img">
+      </div>
+    {% endif %}
+
+    <div class="entry-card-body">
+      <div class="entry-card-meta">
+        <time datetime="{{ entry.entry_date|date:'Y-m-d' }}" class="entry-date">
+          {{ entry.entry_date|date:"j F" }}
+        </time>
+        {% if entry.mood %}
+          <span class="mood-badge mood-badge--{{ entry.mood }}">{{ entry.mood_emoji }}</span>
+        {% endif %}
+        {% if entry.location %}
+          <span class="entry-location">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+              <path d="M6 1a3.5 3.5 0 0 1 3.5 3.5c0 2.5-3.5 6.5-3.5 6.5S2.5 7 2.5 4.5A3.5 3.5 0 0 1 6 1z" stroke="currentColor" stroke-width="1.2"/>
+              <circle cx="6" cy="4.5" r="1" stroke="currentColor" stroke-width="1.2"/>
+            </svg>
+            {{ entry.location }}
+          </span>
+        {% endif %}
+      </div>
+
+      <h3 class="entry-card-title">{{ entry.title|default:"Sans titre" }}</h3>
+      <p class="entry-card-excerpt">{{ entry.excerpt }}</p>
+
+      {% if entry.tags.all %}
+        <div class="entry-tags">
+          {% for tag in entry.tags.all|slice:":3" %}
+            <span class="tag-pill" style="--tag-color: {{ tag.color }}">{{ tag.name }}</span>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <div class="entry-card-footer">
+        <span class="entry-word-count">{{ entry.word_count }} mots</span>
+        {% if entry.ai_status == 'completed' %}
+          <span class="ai-badge">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-label="Analyse IA complete">
+              <circle cx="5" cy="5" r="4" stroke="currentColor" stroke-width="1"/>
+              <path d="M3 5l1.5 1.5L7 3.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            IA
+          </span>
+        {% endif %}
+      </div>
+    </div>
+  </a>
+</article>

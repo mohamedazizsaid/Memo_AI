@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+{% block title %}{{ entry.title|default:"Entree sans titre" }} — MemoAI{% endblock %}
+
+{% block content %}
+<div class="container container--narrow">
+  <!-- Breadcrumb -->
+  <nav class="breadcrumb" aria-label="Fil d'ariane">
+    <a href="/journal/" class="breadcrumb-link">Tableau de bord</a>
+    <span class="breadcrumb-sep" aria-hidden="true">/</span>
+    <a href="/journal/liste/" class="breadcrumb-link">Souvenirs</a>
+    <span class="breadcrumb-sep" aria-hidden="true">/</span>
+    <span class="breadcrumb-current">{{ entry.entry_date|date:"j F Y" }}</span>
+  </nav>
+
+  <article class="entry-detail">
+    <!-- Entry Header -->
+    <header class="entry-detail-header">
+      <div class="entry-detail-meta">
+        <time datetime="{{ entry.entry_date|date:'Y-m-d' }}" class="entry-detail-date">
+          {{ entry.entry_date|date:"l j F Y" }}
+        </time>
+        {% if entry.mood %}
+          <span class="mood-badge mood-badge--lg mood-badge--{{ entry.mood }}">
+            {{ entry.mood_emoji }} {{ entry.get_mood_display }}
+          </span>
+        {% endif %}
+        {% if entry.location %}
+          <span class="entry-detail-location">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+              <path d="M7 1a4 4 0 0 1 4 4c0 3-4 8-4 8S3 8 3 5a4 4 0 0 1 4-4z" stroke="currentColor" stroke-width="1.3"/>
+              <circle cx="7" cy="5" r="1.3" stroke="currentColor" stroke-width="1.3"/>
+            </svg>
+            {{ entry.location }}
+          </span>
+        {% endif %}
+      </div>
+
+      <h1 class="entry-detail-title">{{ entry.title|default:"Sans titre" }}</h1>
+
+      <div class="entry-detail-actions">
+        <a href="/journal/{{ entry.id }}/modifier/" class="btn btn-secondary btn-sm" id="edit-entry">Modifier</a>
+        <button type="button" class="btn btn-ghost btn-sm" id="delete-entry-btn">Supprimer</button>
+      </div>
+    </header>
+
+    <!-- Generated image -->
+    {% if entry.ai_analysis.generated_image_url %}
+      <div class="entry-generated-image">
+        <img src="{{ entry.ai_analysis.generated_image_url }}" alt="Illustration de cette entree" class="entry-hero-image" loading="lazy">
+        <div class="ai-content-overlay" id="ai-overlay">
+          <p class="ai-overlay-title">Contenu IA</p>
+          <p class="ai-overlay-body">Image generee par intelligence artificielle</p>
+          <div class="ai-overlay-actions">
+            <button class="btn-ai-action btn-ai-action--primary" type="button" data-action="show">Afficher</button>
+            <button class="btn-ai-action" type="button" data-action="blur">Flouter</button>
+            <button class="btn-ai-action" type="button" data-action="hide">Masquer</button>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+    <!-- Media gallery -->
+    {% if entry.media.all %}
+      <div class="entry-media-gallery">
+        {% for media in entry.media.all %}
+          {% if media.media_type == 'IMAGE' %}
+            <div class="gallery-item" id="media-{{ media.id }}">
+              <img src="{{ media.file_url }}" alt="{{ media.caption|default:'Photo' }}" loading="lazy" class="gallery-img">
+              {% if media.caption %}<p class="gallery-caption">{{ media.caption }}</p>{% endif %}
+            </div>
+          {% elif media.media_type == 'AUDIO' %}
+            <div class="audio-player-card" id="audio-{{ media.id }}">
+              <div class="audio-player-icon" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path d="M9 18V5l12-2v13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="6" cy="18" r="3" stroke="currentColor" stroke-width="1.5"/>
+                  <circle cx="18" cy="16" r="3" stroke="currentColor" stroke-width="1.5"/>
+                </svg>
+              </div>
+              <div class="audio-player-info">
+                <span class="audio-player-label">Enregistrement audio</span>
+                {% if media.duration %}<span class="audio-player-duration">{{ media.duration }}s</span>{% endif %}
+              </div>
+              <audio controls class="audio-player-control" preload="none">
+                <source src="{{ media.file_url }}" type="{{ media.mime_type }}">
+                Votre navigateur ne supporte pas l'audio.
+              </audio>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <!-- Entry content -->
+    <div class="entry-content prose">
+      {{ entry.content|linebreaks }}
+    </div>
+
+    <!-- AI Analysis -->
+    {% if entry.ai_analysis %}
+      <div class="ai-analysis-panel">
+        <div class="ai-analysis-header">
+          <div class="ai-badge-lg">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M8 1L9.5 6H15L10.5 9L12 14L8 11L4 14L5.5 9L1 6H6.5L8 1Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+            </svg>
+            Analyse IA
+          </div>
+          <span class="ai-status ai-status--{{ entry.ai_status }}">{{ entry.get_ai_status_display }}</span>
+        </div>
+
+        {% if entry.ai_analysis.summary %}
+          <div class="ai-section">
+            <h3 class="ai-section-title">Resume</h3>
+            <p class="ai-section-body">{{ entry.ai_analysis.summary }}</p>
+          </div>
+        {% endif %}
+
+        {% if entry.ai_analysis.sentiment %}
+          <div class="ai-section">
+            <h3 class="ai-section-title">Sentiment</h3>
+            <div class="sentiment-bar">
+              <span class="sentiment-label sentiment-label--{{ entry.ai_analysis.sentiment }}">
+                {% if entry.ai_analysis.sentiment == 'positive' %}Positif{% elif entry.ai_analysis.sentiment == 'negative' %}Negatif{% else %}Neutre{% endif %}
+              </span>
+              {% if entry.ai_analysis.sentiment_score %}
+                <div class="sentiment-meter">
+                  <div class="sentiment-meter-fill" style="width: {{ entry.ai_analysis.sentiment_score|floatformat:0 }}%"></div>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        {% endif %}
+
+        {% if entry.ai_analysis.mood_insight %}
+          <div class="ai-section">
+            <h3 class="ai-section-title">Insight emotionnel</h3>
+            <p class="ai-section-body ai-section-body--italic">{{ entry.ai_analysis.mood_insight }}</p>
+          </div>
+        {% endif %}
+
+        {% if entry.ai_analysis.keywords %}
+          <div class="ai-section">
+            <h3 class="ai-section-title">Mots-cles</h3>
+            <div class="keywords-list">
+              {% for keyword in entry.ai_analysis.keywords %}
+                <span class="keyword-tag">{{ keyword }}</span>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+
+        {% if entry.ai_analysis.transcription %}
+          <div class="ai-section">
+            <h3 class="ai-section-title">Transcription audio</h3>
+            <p class="ai-section-body ai-section-body--transcription">{{ entry.ai_analysis.transcription }}</p>
+          </div>
+        {% endif %}
+
+        {% if entry.ai_status == 'pending' or entry.ai_status == 'failed' %}
+          <form method="post" action="/journal/{{ entry.id }}/analyser/">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-secondary btn-sm" id="trigger-ai">
+              {% if entry.ai_status == 'failed' %}Reanalyser{% else %}Analyser avec l'IA{% endif %}
+            </button>
+          </form>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    <!-- Tags -->
+    {% if entry.tags.all %}
+      <div class="entry-tags-section">
+        <h3 class="entry-tags-title">Tags</h3>
+        <div class="entry-tags">
+          {% for tag in entry.tags.all %}
+            <a href="/journal/?tags={{ tag.id }}" class="tag-pill" style="--tag-color: {{ tag.color }}" id="tag-{{ tag.id }}">
+              {% if tag.icon %}{{ tag.icon }} {% endif %}{{ tag.name }}
+            </a>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+    <!-- Footer meta -->
+    <footer class="entry-detail-footer">
+      <span class="entry-word-count">{{ entry.word_count }} mots</span>
+      <span class="entry-created-at">Cree le {{ entry.created_at|date:"j F Y a H:i" }}</span>
+    </footer>
+  </article>
+</div>
+
+<!-- Delete confirmation modal -->
+<div class="modal-overlay" id="delete-entry-modal" aria-modal="true" role="dialog" hidden>
+  <div class="modal">
+    <h2 class="modal-title">Supprimer cette entree ?</h2>
+    <p class="modal-body">Cette action supprimera l'entree. Vous pourrez la retrouver dans la corbeille.</p>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-secondary" id="delete-entry-cancel">Annuler</button>
+      <form method="post" action="/journal/{{ entry.id }}/supprimer/">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger" id="delete-entry-confirm">Supprimer</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var delBtn = document.getElementById('delete-entry-btn');
+  var modal = document.getElementById('delete-entry-modal');
+  var cancelBtn = document.getElementById('delete-entry-cancel');
+  if (delBtn && modal) {
+    delBtn.addEventListener('click', function() { modal.hidden = false; });
+    cancelBtn.addEventListener('click', function() { modal.hidden = true; });
+    modal.addEventListener('click', function(e) { if (e.target === modal) modal.hidden = true; });
+  }
+
+  // AI overlay actions
+  var overlay = document.getElementById('ai-overlay');
+  var entryImg = document.querySelector('.entry-hero-image');
+  if (overlay) {
+    overlay.querySelectorAll('[data-action]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var action = this.dataset.action;
+        if (action === 'show' && entryImg) entryImg.style.filter = 'none';
+        if (action === 'blur' && entryImg) entryImg.style.filter = 'blur(20px)';
+        if (action === 'hide' && entryImg) entryImg.closest('.entry-generated-image').hidden = true;
+        overlay.hidden = true;
+      });
+    });
+  }
+});
+</script>
+{% endblock %}
