@@ -3,6 +3,11 @@
 {% block title %}{% if entry %}Modifier l'entree{% else %}Nouvelle entree{% endif %} — MemoAI{% endblock %}
 {% block nav_journal %}active{% endblock %}
 
+{% block extra_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/photo-picker.css' %}?v=20261018_1">
+{% endblock %}
+
 {% block content %}
 <div class="container container--narrow">
   <div class="page-header">
@@ -74,6 +79,52 @@
       {% if form.content.errors %}
         <p class="form-error">{{ form.content.errors|join:", " }}</p>
       {% endif %}
+    </div>
+
+    <!-- ── COVER PHOTO (online picker) ── -->
+    <div class="form-group">
+      <label class="form-label">
+        {% trans_text "Photo de couverture" "Cover photo" %}
+        <span class="form-optional">({% trans_text "optionnel" "optional" %})</span>
+      </label>
+      <div class="cover-picker" id="cover-picker">
+        <input type="hidden" name="cover_image_url" id="cover-image-url"
+          value="{{ cover_image_url|default:'' }}">
+        <input type="hidden" name="cover_image_alt" id="cover-image-alt" value="">
+
+        <div class="cover-picker__preview {% if not cover_image_url %}is-empty{% endif %}" id="cover-preview">
+          {% if cover_image_url %}
+            <img src="{{ cover_image_url }}" alt="" id="cover-preview-img">
+          {% else %}
+            <img src="" alt="" id="cover-preview-img" hidden>
+          {% endif %}
+          <div class="cover-picker__placeholder" id="cover-placeholder">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="3"></rect>
+              <circle cx="8.5" cy="8.5" r="1.5"></circle>
+              <path d="m21 15-5-5L5 21"></path>
+            </svg>
+            <span>{% trans_text "Aucune photo choisie" "No photo selected" %}</span>
+          </div>
+        </div>
+
+        <div class="cover-picker__actions">
+          <button type="button" class="btn btn-secondary btn-sm" id="open-photo-picker">
+            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="3"></rect>
+              <circle cx="8.5" cy="8.5" r="1.5"></circle>
+              <path d="m21 15-5-5L5 21"></path>
+            </svg>
+            {% trans_text "Choisir une photo en ligne" "Pick an online photo" %}
+          </button>
+          <button type="button" class="btn btn-ghost btn-sm" id="clear-cover" {% if not cover_image_url %}hidden{% endif %}>
+            {% trans_text "Retirer" "Remove" %}
+          </button>
+          <span class="cover-picker__hint">
+            {% trans_text "Des milliers de photos, sans attendre l'IA." "Thousands of photos, no waiting for the AI." %}
+          </span>
+        </div>
+      </div>
     </div>
 
     <!-- ── MEDIA UPLOAD (Drag & Drop) ── -->
@@ -151,6 +202,54 @@
       </div>
     </div>
   </form>
+
+  <!-- ── ONLINE PHOTO PICKER (Pexels) ── -->
+  <div class="photo-modal" id="photo-modal" role="dialog" aria-modal="true" aria-labelledby="photo-modal-title" hidden>
+    <div class="photo-modal__backdrop" data-close-photo></div>
+    <div class="photo-modal__panel">
+      <header class="photo-modal__head">
+        <h2 class="photo-modal__title" id="photo-modal-title">
+          {% trans_text "Choisir une photo" "Pick a photo" %}
+        </h2>
+        <button type="button" class="photo-modal__close" data-close-photo
+          aria-label="{% trans_text 'Fermer' 'Close' %}">
+          <svg width="16" height="16" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+            <line x1="1" y1="1" x2="13" y2="13"></line>
+            <line x1="13" y1="1" x2="1" y2="13"></line>
+          </svg>
+        </button>
+      </header>
+
+      <form class="photo-modal__search" id="photo-search-form" role="search">
+        <svg class="photo-modal__search-icon" aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M11 11L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <input type="search" id="photo-search-input" class="photo-modal__search-input"
+          placeholder="{% trans_text 'Rechercher (voyage, famille, plage…)' 'Search (travel, family, beach…)' %}"
+          autocomplete="off">
+        <button type="submit" class="btn btn-primary btn-sm">{% trans_text "Chercher" "Search" %}</button>
+      </form>
+
+      <div class="photo-modal__chips" id="photo-chips">
+        <button type="button" class="photo-chip" data-q="voyage">✈️ {% trans_text "Voyage" "Travel" %}</button>
+        <button type="button" class="photo-chip" data-q="famille">👨‍👩‍👧 {% trans_text "Famille" "Family" %}</button>
+        <button type="button" class="photo-chip" data-q="amis">🥂 {% trans_text "Amis" "Friends" %}</button>
+        <button type="button" class="photo-chip" data-q="nature">🌿 {% trans_text "Nature" "Nature" %}</button>
+        <button type="button" class="photo-chip" data-q="café">☕ {% trans_text "Café" "Coffee" %}</button>
+        <button type="button" class="photo-chip" data-q="ville">🌆 {% trans_text "Ville" "City" %}</button>
+      </div>
+
+      <div class="photo-modal__status" id="photo-status" aria-live="polite"></div>
+      <div class="photo-modal__grid" id="photo-grid"></div>
+
+      <div class="photo-modal__foot">
+        <button type="button" class="btn btn-secondary btn-sm" id="photo-more" hidden>
+          {% trans_text "Voir plus" "Load more" %}
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}
 
@@ -270,6 +369,140 @@ document.addEventListener('DOMContentLoaded', function() {
       });
       item.appendChild(removeBtn);
       dzPreview.appendChild(item);
+    });
+  }
+});
+</script>
+<script>
+/* ── Online photo picker (Pexels) ─────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', function () {
+  var modal = document.getElementById('photo-modal');
+  if (!modal) return;
+
+  var openBtn = document.getElementById('open-photo-picker');
+  var grid = document.getElementById('photo-grid');
+  var statusEl = document.getElementById('photo-status');
+  var moreBtn = document.getElementById('photo-more');
+  var searchForm = document.getElementById('photo-search-form');
+  var searchInput = document.getElementById('photo-search-input');
+  var chips = document.getElementById('photo-chips');
+  var hiddenUrl = document.getElementById('cover-image-url');
+  var hiddenAlt = document.getElementById('cover-image-alt');
+  var preview = document.getElementById('cover-preview');
+  var previewImg = document.getElementById('cover-preview-img');
+  var placeholder = document.getElementById('cover-placeholder');
+  var clearBtn = document.getElementById('clear-cover');
+
+  var API = '{% url "journal:pexels-search" %}';
+  var IS_EN = document.documentElement.getAttribute('lang') === 'en';
+  var state = { query: '', page: 1, loading: false, lastCount: 0 };
+
+  var TEXT = {
+    empty: IS_EN ? 'No photo found. Try another search.' : 'Aucune photo trouvée. Essayez une autre recherche.',
+    loading: IS_EN ? 'Loading photos…' : 'Chargement des photos…',
+    error: IS_EN ? 'Could not reach the photo service. Try again.' : 'Service photo injoignable. Réessayez.',
+    missingKey: IS_EN
+      ? 'Add a free PEXELS_API_KEY in your .env to enable the online photo library.'
+      : 'Ajoutez une clé PEXELS_API_KEY (gratuite) dans votre .env pour activer la bibliothèque de photos.',
+    more: IS_EN ? 'Load more' : 'Voir plus'
+  };
+
+  function open() { modal.hidden = false; document.body.classList.add('photo-modal-open'); if (!state.lastCount) load('', 1, true); }
+  function close() { modal.hidden = true; document.body.classList.remove('photo-modal-open'); }
+
+  openBtn && openBtn.addEventListener('click', open);
+  modal.querySelectorAll('[data-close-photo]').forEach(function (el) { el.addEventListener('click', close); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !modal.hidden) close(); });
+
+  function setStatus(msg) { statusEl.textContent = msg || ''; statusEl.hidden = !msg; }
+
+  function render(photos, append) {
+    if (!append) grid.innerHTML = '';
+    photos.forEach(function (p) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'photo-tile';
+      var img = document.createElement('img');
+      img.loading = 'lazy';
+      img.src = p.thumb || p.url;
+      img.alt = p.alt || '';
+      btn.appendChild(img);
+      if (p.photographer) {
+        var credit = document.createElement('span');
+        credit.className = 'photo-tile__credit';
+        credit.textContent = '© ' + p.photographer;
+        btn.appendChild(credit);
+      }
+      btn.addEventListener('click', function () { choose(p); });
+      grid.appendChild(btn);
+    });
+  }
+
+  function choose(p) {
+    hiddenUrl.value = p.url || '';
+    hiddenAlt.value = p.alt || '';
+    if (previewImg) { previewImg.src = p.url || p.thumb; previewImg.hidden = false; }
+    if (placeholder) placeholder.hidden = true;
+    if (preview) preview.classList.remove('is-empty');
+    if (clearBtn) clearBtn.hidden = false;
+    close();
+    if (window.showToast) window.showToast(IS_EN ? 'Cover photo selected.' : 'Photo de couverture sélectionnée.', 'success');
+  }
+
+  function load(query, page, reset) {
+    if (state.loading) return;
+    state.loading = true;
+    moreBtn.disabled = true;
+    setStatus(TEXT.loading);
+    var url = API + '?q=' + encodeURIComponent(query) + '&page=' + page + '&per_page=24';
+    fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+      .then(function (r) { if (!r.ok) throw new Error('http'); return r.json(); })
+      .then(function (data) {
+        state.lastCount = (reset ? 0 : state.lastCount) + data.photos.length;
+        if (data.configured === false) { setStatus(TEXT.missingKey); moreBtn.hidden = true; return; }
+        if (!data.photos.length) { setStatus(TEXT.empty); moreBtn.hidden = true; return; }
+        render(data.photos, !reset);
+        setStatus('');
+        moreBtn.hidden = false;
+        moreBtn.textContent = TEXT.more;
+        state.page = page;
+      })
+      .catch(function () { setStatus(TEXT.error); })
+      .then(function () { state.loading = false; moreBtn.disabled = false; });
+  }
+
+  if (searchForm) {
+    searchForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      state.query = searchInput.value.trim();
+      load(state.query, 1, true);
+    });
+  }
+
+  if (chips) {
+    chips.addEventListener('click', function (e) {
+      var btn = e.target.closest('.photo-chip');
+      if (!btn) return;
+      chips.querySelectorAll('.photo-chip').forEach(function (c) { c.classList.remove('is-active'); });
+      btn.classList.add('is-active');
+      searchInput.value = btn.dataset.q || '';
+      state.query = btn.dataset.q || '';
+      load(state.query, 1, true);
+    });
+  }
+
+  if (moreBtn) {
+    moreBtn.addEventListener('click', function () { load(state.query, (state.page || 1) + 1, false); });
+  }
+
+  if (clearBtn) {
+    clearBtn.addEventListener('click', function () {
+      hiddenUrl.value = '';
+      hiddenAlt.value = '';
+      if (previewImg) { previewImg.src = ''; previewImg.hidden = true; }
+      if (placeholder) placeholder.hidden = false;
+      if (preview) preview.classList.add('is-empty');
+      clearBtn.hidden = true;
     });
   }
 });

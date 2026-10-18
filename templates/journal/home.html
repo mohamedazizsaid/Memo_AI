@@ -84,9 +84,9 @@
     <div class="entries-scroll">
       {% for entry in on_this_day %}
       <a href="/journal/{{ entry.id }}/" class="entry-card-mini" id="otd-entry-{{ entry.id }}">
-        {% if entry.has_images %}
+        {% if entry.cover_image_url %}
         <div class="entry-card-mini-img">
-          <img src="{{ entry.media.filter.0.file_url }}" alt="" loading="lazy">
+          <img src="{{ entry.cover_image_url }}" alt="" loading="lazy">
         </div>
         {% endif %}
         <div class="entry-card-mini-body">

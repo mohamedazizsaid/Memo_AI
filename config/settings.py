@@ -68,8 +68,16 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [BASE_DIR / 'templates'],
-        'APP_DIRS': True,
+        # Django 5.2 wraps the loaders in the cached loader unconditionally when
+        # 'loaders' is omitted, so template edits would not show up until the
+        # server restarts. Listing the loaders explicitly keeps development
+        # instant while still resolving app-level templates.
+        'APP_DIRS': False,
         'OPTIONS': {
+            'loaders': [
+                'django.template.loaders.filesystem.Loader',
+                'django.template.loaders.app_directories.Loader',
+            ],
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',

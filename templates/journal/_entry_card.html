@@ -1,12 +1,8 @@
 <article class="entry-card" id="entry-{{ entry.id }}">
   <a href="/journal/{{ entry.id }}/" class="entry-card-link" aria-label="{{ entry.title|default:'Entree sans titre' }} - {{ entry.entry_date|date:'j F Y' }}">
-    {% if entry.has_images %}
+    {% if entry.cover_image_url %}
       <div class="entry-card-image">
-        <img src="" alt="" loading="lazy" class="entry-card-img">
-      </div>
-    {% elif entry.ai_analysis.generated_image_url %}
-      <div class="entry-card-image">
-        <img src="{{ entry.ai_analysis.generated_image_url }}" alt="Illustration generee" loading="lazy" class="entry-card-img">
+        <img src="{{ entry.cover_image_url }}" alt="{{ entry.title|default:'' }}" loading="lazy" class="entry-card-img">
       </div>
     {% endif %}
 

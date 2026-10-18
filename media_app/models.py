@@ -72,5 +72,10 @@ class Media(TimeStampedModel):
         return self.storage_url
 
     @property
+    def file_url(self):
+        """Public URL used by templates (local /media path or remote CDN URL)."""
+        return self.storage_url
+
+    @property
     def file_size_mb(self):
         return round(self.file_size / (1024 * 1024), 2)

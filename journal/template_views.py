@@ -228,6 +228,11 @@ class EntryCreateView(View):
             tags = Tag.objects.filter(id__in=tag_ids, user=request.user)
             entry.tags.set(tags)
 
+        # Media: uploaded files + a chosen online photo (Pexels cover).
+        _persist_uploaded_media(entry, request.FILES.getlist('media_files'))
+        _attach_cover_image(entry, request.POST.get('cover_image_url', ''),
+                            request.POST.get('cover_image_alt', ''))
+
         # Trigger AI
         if content:
             try:
@@ -284,6 +289,10 @@ class EntryEditView(View):
             entry.tags.set(tags)
         else:
             entry.tags.clear()
+
+        _persist_uploaded_media(entry, request.FILES.getlist('media_files'))
+        _attach_cover_image(entry, request.POST.get('cover_image_url', ''),
+                            request.POST.get('cover_image_alt', ''))
 
         if entry.content:
             try:

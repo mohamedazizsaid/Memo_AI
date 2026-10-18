@@ -115,6 +115,20 @@ class JournalEntry(SoftDeleteModel):
         return self.media.filter(media_type='IMAGE').exists()
 
     @property
+    def cover_image_url(self):
+        """Best image to illustrate the entry: first photo, else AI illustration."""
+        first = self.media.filter(media_type='IMAGE').exclude(storage_url='').first()
+        if first:
+            return first.storage_url
+        try:
+            analysis = self.ai_analysis
+            if analysis and analysis.generated_image_url:
+                return analysis.generated_image_url
+        except Exception:
+            pass
+        return ''
+
+    @property
     def excerpt(self):
         if self.content:
             return self.content[:200] + ('...' if len(self.content) > 200 else '')
