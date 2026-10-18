@@ -1,0 +1,72 @@
+"""
+MemoAi — AI Analysis Model
+Stores results of all AI processing for a journal entry.
+"""
+
+import uuid
+from django.db import models
+from common.models import TimeStampedModel
+
+
+class AIAnalysis(TimeStampedModel):
+    """
+    One-to-one with JournalEntry, stores all AI processing results.
+    Each field is populated independently — a failure in one doesn't block others.
+    """
+    entry = models.OneToOneField(
+        'journal.JournalEntry',
+        on_delete=models.CASCADE,
+        related_name='ai_analysis',
+    )
+
+    # Audio transcription (from Whisper)
+    transcription = models.TextField(blank=True)
+    transcription_language = models.CharField(max_length=10, blank=True)
+    transcription_status = models.CharField(
+        max_length=20,
+        choices=[('pending', 'Pending'), ('completed', 'Completed'), ('failed', 'Failed'), ('skipped', 'Skipped')],
+        default='pending'
+    )
+
+    # Text analysis (from Gemini)
+    summary = models.TextField(blank=True)
+    keywords = models.JSONField(default=list, blank=True)
+    mood_insight = models.TextField(blank=True)
+    summary_status = models.CharField(
+        max_length=20,
+        choices=[('pending', 'Pending'), ('completed', 'Completed'), ('failed', 'Failed'), ('skipped', 'Skipped')],
+        default='pending'
+    )
+
+    # Sentiment (from Hugging Face)
+    sentiment = models.CharField(max_length=20, blank=True)  # positive/neutral/negative
+    sentiment_score = models.FloatField(null=True, blank=True)
+    sentiment_status = models.CharField(
+        max_length=20,
+        choices=[('pending', 'Pending'), ('completed', 'Completed'), ('failed', 'Failed'), ('skipped', 'Skipped')],
+        default='pending'
+    )
+
+    # Generated image URL (from HF + Cloudinary)
+    generated_image_url = models.URLField(max_length=1000, blank=True)
+    image_generation_status = models.CharField(
+        max_length=20,
+        choices=[('pending', 'Pending'), ('completed', 'Completed'), ('failed', 'Failed'), ('skipped', 'Skipped')],
+        default='pending'
+    )
+
+    class Meta:
+        db_table = 'ai_analysis'
+        verbose_name = 'AI Analysis'
+        verbose_name_plural = 'AI Analyses'
+
+    def __str__(self):
+        return f"AIAnalysis(entry={self.entry_id})"
+
+    @property
+    def is_complete(self):
+        completed = ['completed', 'failed', 'skipped']
+        return (
+            self.summary_status in completed
+            and self.sentiment_status in completed
+        )
