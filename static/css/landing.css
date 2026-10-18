@@ -1178,10 +1178,12 @@
   .cx-theme__chip img { width: 52px; height: 52px; }
 
   /* Thin out the orbiting photo field on small screens */
-  .cx-orbit__arm:nth-child(5),
-  .cx-orbit__arm:nth-child(6),
-  .cx-orbit__arm:nth-child(12),
-  .cx-orbit__arm:nth-child(13) { display: none; }
+  .cx-orbit__arm:nth-child(4),
+  .cx-orbit__arm:nth-child(7),
+  .cx-orbit__arm:nth-child(10),
+  .cx-orbit__arm:nth-child(13),
+  .cx-orbit__arm:nth-child(16),
+  .cx-orbit__arm:nth-child(n+19) { display: none; }
 }
 
 /* ═══ REDUCED MOTION ════════════════════════════════════════════════ */

@@ -7,6 +7,7 @@ import logging
 from datetime import date, timedelta
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.utils.decorators import method_decorator
@@ -22,6 +23,79 @@ MOOD_EMOJIS = {
     'stressed': '😤', 'anxious': '😰', 'tired': '😴',
     'angry': '😠', 'excited': '🎉', 'grateful': '🙏',
 }
+
+
+def _persist_uploaded_media(entry, files):
+    """Save dropped/uploaded files to MEDIA_ROOT and link them to the entry."""
+    import os
+    import uuid
+    from django.conf import settings
+    from media_app.models import Media
+
+    saved = 0
+    for f in files:
+        content_type = (getattr(f, 'content_type', '') or '').lower()
+        if content_type.startswith('image/'):
+            media_type = 'IMAGE'
+        elif content_type.startswith('audio/'):
+            media_type = 'AUDIO'
+        else:
+            # Fall back to the file extension.
+            ext = os.path.splitext(f.name)[1].lower()
+            media_type = 'AUDIO' if ext in ('.mp3', '.wav', '.ogg', '.webm', '.m4a', '.mp4') else 'IMAGE'
+
+        subdir = 'images' if media_type == 'IMAGE' else 'audio'
+        target_dir = settings.MEDIA_ROOT / 'journal' / subdir
+        os.makedirs(target_dir, exist_ok=True)
+        ext = os.path.splitext(f.name)[1].lower() or ('.jpg' if media_type == 'IMAGE' else '.mp3')
+        filename = f"{uuid.uuid4().hex}{ext}"
+        with open(target_dir / filename, 'wb+') as dest:
+            for chunk in f.chunks():
+                dest.write(chunk)
+
+        url = f"{settings.MEDIA_URL}journal/{subdir}/{filename}"
+        Media.objects.create(
+            entry=entry,
+            media_type=media_type,
+            storage_url=url,
+            mime_type=content_type,
+            file_size=getattr(f, 'size', 0) or 0,
+            original_filename=f.name[:255],
+            processing_status='completed',
+        )
+        saved += 1
+    return saved
+
+
+def _attach_cover_image(entry, url, alt=''):
+    """Attach a chosen online photo (Pexels) to the entry as its cover image."""
+    if not url:
+        return False
+    from media_app.models import Media
+    Media.objects.create(
+        entry=entry,
+        media_type='IMAGE',
+        storage_url=url.strip(),
+        mime_type='image/jpeg',
+        original_filename=(alt or 'photo')[:255],
+        processing_status='completed',
+    )
+    return True
+
+
+@login_required
+def pexels_search(request):
+    """JSON endpoint powering the online-photo picker in the journal editor."""
+    from common import pexels
+
+    query = request.GET.get('q', '')
+    page = request.GET.get('page', 1)
+    per_page = request.GET.get('per_page', 24)
+    orientation = request.GET.get('orientation', 'landscape')
+    result = pexels.search_photos(query, per_page=per_page, page=page, orientation=orientation)
+    result['thumbnails'] = [pexels.pick_thumbnail(p['url']) for p in result['photos']]
+    return JsonResponse(result)
+
 
 
 @method_decorator(login_required, name='dispatch')

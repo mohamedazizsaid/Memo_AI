@@ -312,11 +312,77 @@ def redirect_to_prefs_notifications(request):
     return redirect('/comptes/preferences/#notifications')
 
 
+def _email_text(request, lang, key):
+    """Small bilingual dictionary for the password-reset email."""
+    table = {
+        'fr': {
+            'subject': 'Réinitialisez votre mot de passe MemoAI',
+            'title': 'Réinitialiser votre mot de passe',
+            'hello': 'Bonjour',
+            'intro': "Vous avez demandé à réinitialiser le mot de passe de votre compte MemoAI.",
+            'cta': 'Choisir un nouveau mot de passe',
+            'expiry': 'Ce lien est valable pendant 2 heures.',
+            'ignore': "Si vous n'êtes pas à l'origine de cette demande, ignorez simplement cet email.",
+            'fallback': "Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :",
+        },
+        'en': {
+            'subject': 'Reset your MemoAI password',
+            'title': 'Reset your password',
+            'hello': 'Hello',
+            'intro': 'You requested to reset the password of your MemoAI account.',
+            'cta': 'Choose a new password',
+            'expiry': 'This link is valid for 2 hours.',
+            'ignore': "If you didn't request this, you can safely ignore this email.",
+            'fallback': "If the button doesn't work, copy this link into your browser:",
+        },
+    }
+    lang = lang if lang in table else 'fr'
+    return table[lang].get(key, '')
+
+
+def _send_password_reset_email(request, user, token):
+    """Render and send the bilingual password-reset email."""
+    from django.conf import settings
+    from django.core.mail import EmailMultiAlternatives
+    from django.template.loader import render_to_string
+    from django.urls import reverse
+
+    try:
+        lang = 'fr'
+        try:
+            lang = user.preferences.language
+        except Exception:
+            pass
+
+        path = reverse('accounts:password-reset-confirm', kwargs={'token': token})
+        reset_url = request.build_absolute_uri(path)
+        keys = ['title', 'hello', 'intro', 'cta', 'expiry', 'ignore', 'fallback']
+        ctx = {
+            'user': user,
+            'reset_url': reset_url,
+            'site_name': 'MemoAI',
+            'lang': lang,
+            'strings': {k: _email_text(request, lang, k) for k in keys},
+        }
+        subject = _email_text(request, lang, 'subject')
+        text_body = render_to_string('accounts/emails/password_reset_email.txt', ctx)
+        html_body = render_to_string('accounts/emails/password_reset_email.html', ctx)
+        from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'MemoAi <noreply@memoai.app>')
+        msg = EmailMultiAlternatives(subject, text_body, from_email, [user.email])
+        msg.attach_alternative(html_body, 'text/html')
+        msg.send(fail_silently=False)
+        logger.info('Password reset email sent to %s', user.email)
+        return True
+    except Exception as exc:  # pragma: no cover - depends on SMTP config
+        logger.error('Password reset email failed for %s: %s', user.email, exc)
+        return False
+
+
 class TemplatePasswordResetView(View):
     """HTML password reset request page."""
 
     def get(self, request):
-        return render(request, 'accounts/password_reset.html', {'form': None})
+        return render(request, 'accounts/password_reset.html', {'form': None, 'sent': False})
 
     def post(self, request):
         import secrets
@@ -325,18 +391,75 @@ class TemplatePasswordResetView(View):
         from .models import PasswordResetToken
 
         email = request.POST.get('email', '').strip()
+        sent = False
         if email:
             try:
                 user = User.objects.get(email=email)
+                # Invalidate previous unused tokens for this user.
+                PasswordResetToken.objects.filter(user=user, used=False).update(used=True)
                 token = secrets.token_urlsafe(32)
                 PasswordResetToken.objects.create(
                     user=user, token=token,
                     expires_at=timezone.now() + timedelta(hours=2),
                 )
-                logger.info(f'Password reset for {email}')
+                sent = _send_password_reset_email(request, user, token)
             except User.DoesNotExist:
                 pass
-        messages.success(request, 'Si ce compte existe, un email de reinitialisation a ete envoye.')
+        # Never reveal whether the account exists.
+        return render(request, 'accounts/password_reset.html', {
+            'form': None,
+            'sent': True,
+            'email': email,
+        })
+
+
+class TemplatePasswordResetConfirmView(View):
+    """Set a new password from a reset token."""
+
+    def _get_token(self, token):
+        from .models import PasswordResetToken
+        try:
+            obj = PasswordResetToken.objects.select_related('user').get(token=token)
+        except PasswordResetToken.DoesNotExist:
+            return None
+        return obj if obj.is_valid else None
+
+    def get(self, request, token):
+        reset = self._get_token(token)
+        return render(request, 'accounts/password_reset_confirm.html', {
+            'token': token,
+            'valid': reset is not None,
+        })
+
+    def post(self, request, token):
+        reset = self._get_token(token)
+        if reset is None:
+            return render(request, 'accounts/password_reset_confirm.html', {
+                'token': token,
+                'valid': False,
+            })
+
+        password1 = request.POST.get('password1', '')
+        password2 = request.POST.get('password2', '')
+
+        if len(password1) < 8:
+            return render(request, 'accounts/password_reset_confirm.html', {
+                'token': token, 'valid': True,
+                'error': 'Le mot de passe doit comporter au moins 8 caracteres.',
+            })
+        if password1 != password2:
+            return render(request, 'accounts/password_reset_confirm.html', {
+                'token': token, 'valid': True,
+                'error': 'Les deux mots de passe ne correspondent pas.',
+            })
+
+        user = reset.user
+        user.set_password(password1)
+        user.save(update_fields=['password'])
+        reset.used = True
+        reset.save(update_fields=['used'])
+
+        messages.success(request, 'Votre mot de passe a ete reinitialise. Vous pouvez maintenant vous connecter.')
         return redirect('accounts:login')
 
 

@@ -582,3 +582,28 @@
     transition: none !important;
   }
 }
+
+/* ═══ STATUS ICON (reset / confirmation screens) ═══════════════════ */
+.auth__status-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 16px;
+  border-radius: 18px;
+  background: var(--au-elevation, #f1f0ee);
+  color: var(--au-ink, #0d0d0d);
+}
+.auth__status-icon--warn {
+  color: var(--au-error, #c0392b);
+  background: rgba(192, 57, 43, 0.08);
+}
+.auth__sent-to {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--au-ink, #0d0d0d);
+  margin: 0 0 18px;
+  word-break: break-all;
+}
