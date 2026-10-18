@@ -3,16 +3,22 @@ MemoAi — Journal Template Views
 HTML interface for journal entries.
 """
 
+import json
 import logging
+import os
+import threading
+import uuid
 from datetime import date, timedelta
-from django.contrib.auth.decorators import login_required
+
+from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.http import JsonResponse
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views import View
-from django.core.paginator import Paginator
 
 from .models import JournalEntry
 
@@ -25,14 +31,69 @@ MOOD_EMOJIS = {
 }
 
 
+# ───────────────────────────────────────────────────────────────────────────
+# Helpers
+# ───────────────────────────────────────────────────────────────────────────
+
+def _prefs_for(user):
+    try:
+        from accounts.models import UserPreferences
+        prefs, _ = UserPreferences.objects.get_or_create(user=user)
+        return prefs
+    except Exception:
+        return None
+
+
+def _run_in_background(func, *args):
+    """Run an eager Celery task off the request thread so the POST returns fast."""
+    def runner():
+        try:
+            func(*args)
+        except Exception as exc:  # pragma: no cover - defensive
+            logger.warning('Background AI task failed: %s', exc)
+        finally:
+            try:
+                from django.db import connection
+                connection.close()
+            except Exception:
+                pass
+
+    thread = threading.Thread(target=runner, daemon=True)
+    thread.start()
+
+
+def _launch_ai(entry):
+    """Kick off the AI pipeline. Non-blocking when Celery runs eagerly."""
+    try:
+        from ai.tasks import analyze_entry
+    except Exception as exc:
+        logger.warning('AI trigger import failed: %s', exc)
+        return
+
+    entry.ai_status = 'processing'
+    entry.ai_error_message = ''
+    entry.save(update_fields=['ai_status', 'ai_error_message'])
+
+    if getattr(settings, 'CELERY_TASK_ALWAYS_EAGER', False):
+        # Eager mode would block the HTTP response for several seconds.
+        _run_in_background(analyze_entry, str(entry.id))
+    else:
+        try:
+            task = analyze_entry.delay(str(entry.id))
+            entry.ai_task_id = getattr(task, 'id', '') or ''
+            entry.save(update_fields=['ai_task_id'])
+        except Exception as exc:
+            logger.warning('AI trigger failed: %s', exc)
+            entry.ai_status = 'failed'
+            entry.ai_error_message = str(exc)
+            entry.save(update_fields=['ai_status', 'ai_error_message'])
+
+
 def _persist_uploaded_media(entry, files):
     """Save dropped/uploaded files to MEDIA_ROOT and link them to the entry."""
-    import os
-    import uuid
-    from django.conf import settings
     from media_app.models import Media
 
-    saved = 0
+    saved = []
     for f in files:
         content_type = (getattr(f, 'content_type', '') or '').lower()
         if content_type.startswith('image/'):
@@ -40,7 +101,6 @@ def _persist_uploaded_media(entry, files):
         elif content_type.startswith('audio/'):
             media_type = 'AUDIO'
         else:
-            # Fall back to the file extension.
             ext = os.path.splitext(f.name)[1].lower()
             media_type = 'AUDIO' if ext in ('.mp3', '.wav', '.ogg', '.webm', '.m4a', '.mp4') else 'IMAGE'
 
@@ -54,16 +114,16 @@ def _persist_uploaded_media(entry, files):
                 dest.write(chunk)
 
         url = f"{settings.MEDIA_URL}journal/{subdir}/{filename}"
-        Media.objects.create(
+        media = Media.objects.create(
             entry=entry,
             media_type=media_type,
             storage_url=url,
             mime_type=content_type,
             file_size=getattr(f, 'size', 0) or 0,
             original_filename=f.name[:255],
-            processing_status='completed',
+            processing_status='pending' if media_type in ('IMAGE', 'AUDIO') else 'completed',
         )
-        saved += 1
+        saved.append(media)
     return saved
 
 
@@ -83,6 +143,107 @@ def _attach_cover_image(entry, url, alt=''):
     return True
 
 
+def _parse_face_data(raw):
+    """Parse the client-side face-api.js payload: {index: {descriptors, boxes}}."""
+    if not raw:
+        return {}
+    try:
+        data = json.loads(raw)
+        if isinstance(data, dict):
+            return {str(k): v for k, v in data.items()}
+    except (ValueError, TypeError):
+        logger.info('Could not parse face_data payload')
+    return {}
+
+
+def _link_client_faces(media, info, user, prefs):
+    """Match client descriptors against known people and record detections."""
+    from ai.services.face_recognition_service import (
+        db_to_embedding, embedding_to_db, find_matching_person,
+    )
+    from persons.models import FaceDetection, Person
+
+    descriptors = (info or {}).get('descriptors') or []
+    boxes = (info or {}).get('boxes') or []
+    if not descriptors:
+        return 0
+
+    known = list(
+        Person.objects.filter(user=user, face_embedding__isnull=False)
+        .exclude(face_embedding='').values('id', 'name', 'face_embedding')
+    )
+    for person in known:
+        person['embedding'] = db_to_embedding(person['face_embedding'])
+
+    auto_delete = bool(getattr(prefs, 'auto_delete_face_embeddings', False))
+    created = 0
+
+    for index, embedding in enumerate(descriptors):
+        if not embedding:
+            continue
+        box = boxes[index] if index < len(boxes) else {}
+        matched = find_matching_person(embedding, known)
+
+        if matched:
+            person = Person.objects.filter(pk=matched['id']).first()
+            confidence = matched['confidence']
+        elif not auto_delete:
+            person = Person.objects.create(
+                user=user, name='Inconnu', face_embedding=embedding_to_db(embedding),
+            )
+            known.append({'id': str(person.id), 'name': person.name, 'embedding': embedding})
+            confidence = 1.0
+        else:
+            person = None
+            confidence = 0.85
+
+        FaceDetection.objects.create(
+            media=media, person=person, confidence=confidence, bounding_box=box,
+        )
+        created += 1
+    return created
+
+
+def _handle_media_processing(entry, media_list, face_data):
+    """Link client-detected faces, or fall back to server-side detection."""
+    prefs = _prefs_for(entry.user)
+    use_faces = bool(getattr(prefs, 'face_recognition_consent', False))
+
+    for index, media in enumerate(media_list):
+        if media.media_type == 'IMAGE':
+            info = face_data.get(str(index))
+            if use_faces and info and info.get('descriptors'):
+                _link_client_faces(media, info, entry.user, prefs)
+                from media_app.models import Media
+                Media.objects.filter(pk=media.pk).update(processing_status='completed')
+            elif getattr(settings, 'CELERY_TASK_ALWAYS_EAGER', False):
+                try:
+                    from ai.tasks import process_image_media
+                    _run_in_background(process_image_media, str(media.id))
+                except Exception as exc:
+                    logger.warning('Face processing trigger failed: %s', exc)
+            else:
+                try:
+                    from ai.tasks import process_image_media
+                    process_image_media.delay(str(media.id))
+                except Exception as exc:
+                    logger.warning('Face processing trigger failed: %s', exc)
+
+        elif media.media_type == 'AUDIO':
+            if getattr(settings, 'CELERY_TASK_ALWAYS_EAGER', False):
+                try:
+                    from ai.tasks import process_audio_media
+                    _run_in_background(process_audio_media, str(media.id))
+                except Exception as exc:
+                    logger.warning('Audio processing trigger failed: %s', exc)
+            else:
+                try:
+                    from ai.tasks import process_audio_media
+                    process_audio_media.delay(str(media.id))
+                except Exception as exc:
+                    logger.warning('Audio processing trigger failed: %s', exc)
+
+
 @login_required
 def pexels_search(request):
     """JSON endpoint powering the online-photo picker in the journal editor."""
@@ -97,6 +258,24 @@ def pexels_search(request):
     return JsonResponse(result)
 
 
+@login_required
+def ai_status(request, pk):
+    """Poll the AI processing state of one entry (used by the detail page)."""
+    entry = get_object_or_404(JournalEntry, pk=pk, user=request.user)
+    analysis = getattr(entry, 'ai_analysis', None)
+    payload = {
+        'status': entry.ai_status,
+        'error': entry.ai_error_message,
+        'summary': getattr(analysis, 'summary', '') if analysis else '',
+        'sentiment': getattr(analysis, 'sentiment', '') if analysis else '',
+        'sentiment_score': getattr(analysis, 'sentiment_score', None) if analysis else None,
+        'mood_insight': getattr(analysis, 'mood_insight', '') if analysis else '',
+        'keywords': getattr(analysis, 'keywords', []) if analysis else [],
+        'generated_image_url': getattr(analysis, 'generated_image_url', '') if analysis else '',
+        'image_generation_status': getattr(analysis, 'image_generation_status', '') if analysis else '',
+    }
+    return JsonResponse(payload)
+
 
 @method_decorator(login_required, name='dispatch')
 class HomeView(View):
@@ -105,24 +284,20 @@ class HomeView(View):
     def get(self, request):
         today = timezone.now().date()
 
-        # Today's entry (most recent if multiple created today)
         today_entry = JournalEntry.objects.filter(
             user=request.user, entry_date=today
         ).order_by('-created_at').first()
 
-        # On this day in past years
         on_this_day = JournalEntry.objects.filter(
             user=request.user,
             entry_date__month=today.month,
             entry_date__day=today.day,
         ).exclude(entry_date=today).order_by('-entry_date')[:5]
 
-        # Recent entries
         recent_entries = JournalEntry.objects.filter(
             user=request.user
         ).prefetch_related('media', 'tags').select_related('ai_analysis').order_by('-entry_date')[:6]
 
-        # Stats
         entries_qs = JournalEntry.objects.filter(user=request.user)
         streak = 0
         check = today
@@ -138,12 +313,22 @@ class HomeView(View):
             'entries_this_month': entries_qs.filter(entry_date__month=today.month, entry_date__year=today.year).count(),
         }
 
+        # Animated hero collage: the user's own covers, newest first.
+        hero_photos = []
+        for e in JournalEntry.objects.filter(user=request.user).prefetch_related('media').order_by('-entry_date')[:40]:
+            url = e.cover_image_url
+            if url and url not in hero_photos:
+                hero_photos.append(url)
+            if len(hero_photos) >= 9:
+                break
+
         return render(request, 'journal/home.html', {
             'today': today,
             'today_entry': today_entry,
             'on_this_day': on_this_day,
             'recent_entries': recent_entries,
             'stats': stats,
+            'hero_photos': hero_photos,
         })
 
 
@@ -156,7 +341,6 @@ class EntryListView(View):
             user=request.user
         ).prefetch_related('media', 'tags').select_related('ai_analysis').order_by('-entry_date')
 
-        # Filters
         search = request.GET.get('search', '').strip()
         mood = request.GET.get('mood', '').strip()
         date_from = request.GET.get('date_from', '').strip()
@@ -228,23 +412,15 @@ class EntryCreateView(View):
             tags = Tag.objects.filter(id__in=tag_ids, user=request.user)
             entry.tags.set(tags)
 
-        # Media: uploaded files + a chosen online photo (Pexels cover).
-        _persist_uploaded_media(entry, request.FILES.getlist('media_files'))
+        media_list = _persist_uploaded_media(entry, request.FILES.getlist('media_files'))
         _attach_cover_image(entry, request.POST.get('cover_image_url', ''),
                             request.POST.get('cover_image_alt', ''))
+        _handle_media_processing(entry, media_list, _parse_face_data(request.POST.get('face_data')))
 
-        # Trigger AI
         if content:
-            try:
-                from ai.tasks import analyze_entry
-                task = analyze_entry.delay(str(entry.id))
-                entry.ai_task_id = task.id
-                entry.ai_status = 'processing'
-                entry.save(update_fields=['ai_task_id', 'ai_status'])
-            except Exception as e:
-                logger.warning(f'AI trigger failed: {e}')
+            _launch_ai(entry)
 
-        messages.success(request, 'Entree creee avec succes !')
+        messages.success(request, 'Entrée créée — l\'IA analyse votre journée.')
         return redirect('journal:detail', pk=entry.pk)
 
 
@@ -290,21 +466,15 @@ class EntryEditView(View):
         else:
             entry.tags.clear()
 
-        _persist_uploaded_media(entry, request.FILES.getlist('media_files'))
+        media_list = _persist_uploaded_media(entry, request.FILES.getlist('media_files'))
         _attach_cover_image(entry, request.POST.get('cover_image_url', ''),
                             request.POST.get('cover_image_alt', ''))
+        _handle_media_processing(entry, media_list, _parse_face_data(request.POST.get('face_data')))
 
         if entry.content:
-            try:
-                from ai.tasks import analyze_entry
-                task = analyze_entry.delay(str(entry.id))
-                entry.ai_task_id = task.id
-                entry.ai_status = 'processing'
-                entry.save(update_fields=['ai_task_id', 'ai_status'])
-            except Exception as e:
-                logger.warning(f'AI trigger failed: {e}')
+            _launch_ai(entry)
 
-        messages.success(request, 'Entree modifiee.')
+        messages.success(request, 'Entrée modifiée — l\'IA réanalyse votre journée.')
         return redirect('journal:detail', pk=entry.pk)
 
 
@@ -313,7 +483,7 @@ def entry_delete(request, pk):
     entry = get_object_or_404(JournalEntry, pk=pk, user=request.user)
     if request.method == 'POST':
         entry.delete()
-        messages.success(request, 'Entree supprimee.')
+        messages.success(request, 'Entrée supprimée.')
         return redirect('journal:list')
     return redirect('journal:detail', pk=pk)
 
@@ -322,14 +492,6 @@ def entry_delete(request, pk):
 def trigger_ai_template(request, pk):
     entry = get_object_or_404(JournalEntry, pk=pk, user=request.user)
     if request.method == 'POST':
-        try:
-            from ai.tasks import analyze_entry
-            task = analyze_entry.delay(str(entry.id))
-            entry.ai_task_id = task.id
-            entry.ai_status = 'processing'
-            entry.save(update_fields=['ai_task_id', 'ai_status'])
-            messages.success(request, 'Analyse IA lancee.')
-        except Exception as e:
-            logger.warning(f'AI trigger failed: {e}')
-            messages.error(request, 'Erreur lors du lancement de l''analyse.')
+        _launch_ai(entry)
+        messages.success(request, 'Analyse IA lancée.')
     return redirect('journal:detail', pk=pk)
