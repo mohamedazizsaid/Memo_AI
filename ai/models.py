@@ -47,8 +47,9 @@ class AIAnalysis(TimeStampedModel):
         default='pending'
     )
 
-    # Generated image URL (from HF + Cloudinary)
-    generated_image_url = models.URLField(max_length=1000, blank=True)
+    # Generated image URL (from Pollinations + local media)
+    generated_image_url = models.CharField(max_length=1000, blank=True)
+    image_prompt = models.TextField(blank=True)
     image_generation_status = models.CharField(
         max_length=20,
         choices=[('pending', 'Pending'), ('completed', 'Completed'), ('failed', 'Failed'), ('skipped', 'Skipped')],

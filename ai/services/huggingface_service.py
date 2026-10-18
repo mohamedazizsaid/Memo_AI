@@ -1,231 +1,198 @@
 """
-MemoAi — Hugging Face Service
-Audio transcription, sentiment analysis, and image generation via HF Inference API.
-All Hugging Face API calls go through this service.
+MemoAi — Sentiment, transcription & image helpers.
+
+Hugging Face's inference host is no longer reachable, so this module no longer
+depends on it:
+
+* ``analyze_sentiment`` uses the HF endpoint only if it answers, and otherwise
+  falls back to a real, deterministic bilingual (FR/EN) lexicon analyser —
+  never to a fabricated constant.
+* ``transcribe_audio`` uses Gemini (multimodal) for real transcription.
+* ``generate_image`` is delegated to the free Pollinations image service.
 """
 
 import io
 import logging
-import base64
+import re
+
 import requests
 from django.conf import settings
+
+from . import AIServiceError
 
 logger = logging.getLogger('memoai')
 
 HF_API_BASE = "https://api-inference.huggingface.co/models"
 
 
-def _get_headers():
+def _hf_headers():
     return {
         "Authorization": f"Bearer {settings.HUGGINGFACE_API_KEY}",
         "Content-Type": "application/json",
     }
 
 
-def _is_available():
-    return bool(settings.HUGGINGFACE_API_KEY) and not settings.AI_MOCK_MODE
+def _hf_available():
+    return bool(settings.HUGGINGFACE_API_KEY)
 
 
 # ─────────────────────────────────────────────
-# Audio Transcription (Whisper)
+# Audio transcription (Gemini multimodal)
 # ─────────────────────────────────────────────
 
-def transcribe_audio(audio_url: str = None, audio_bytes: bytes = None) -> dict:
-    """
-    Transcribe audio using Whisper via Hugging Face Inference API.
-    
-    Args:
-        audio_url: URL of audio file (will be downloaded)
-        audio_bytes: Raw audio bytes
-        
-    Returns:
-        dict with 'text' (transcription) and 'language'
-    """
-    if settings.AI_MOCK_MODE or not settings.HUGGINGFACE_API_KEY:
-        logger.info("HuggingFace: using mock transcription")
-        return {
-            'text': '[Mock Transcription] This is a simulated transcription of your audio recording. The voice journal feature will transcribe your real recordings when configured with a valid Hugging Face API key.',
-            'language': 'fr',
-        }
+def transcribe_audio(audio_url: str = None, audio_bytes: bytes = None, mime_type: str = 'audio/mpeg') -> dict:
+    """Transcribe audio with Gemini. Returns {'text', 'language'}."""
+    if audio_url and not audio_bytes:
+        try:
+            resp = requests.get(audio_url, timeout=60)
+            resp.raise_for_status()
+            audio_bytes = resp.content
+            mime_type = resp.headers.get('Content-Type', mime_type).split(';')[0]
+        except Exception as exc:
+            raise AIServiceError(f"Could not download audio: {exc}") from exc
+
+    if not audio_bytes:
+        return {'text': '', 'language': ''}
 
     try:
-        # Download audio if URL provided
-        if audio_url and not audio_bytes:
-            response = requests.get(audio_url, timeout=30)
-            response.raise_for_status()
-            audio_bytes = response.content
+        import google.generativeai as genai
+    except ImportError as exc:  # pragma: no cover
+        raise AIServiceError("google-generativeai is not installed.") from exc
 
-        if not audio_bytes:
-            return {'text': '', 'language': ''}
+    if not settings.GEMINI_API_KEY:
+        raise AIServiceError("GEMINI_API_KEY is not configured.")
 
-        # Send to Whisper
-        model = settings.HUGGINGFACE_ASR_MODEL
-        api_url = f"{HF_API_BASE}/{model}"
+    try:
+        genai.configure(api_key=settings.GEMINI_API_KEY)
+        model = genai.GenerativeModel(getattr(settings, 'GEMINI_VISION_MODEL', 'gemini-2.5-flash'))
+        response = model.generate_content([
+            "Transcris fidèlement cet enregistrement audio. Réponds uniquement avec "
+            "le texte transcrit, sans commentaire. Termine par une ligne "
+            "'LANGUE: <code>' avec le code de la langue détectée.",
+            {'mime_type': mime_type, 'data': audio_bytes},
+        ])
+        text = (response.text or '').strip()
+    except Exception as exc:
+        logger.error("Gemini transcription failed: %s", exc)
+        raise AIServiceError(f"Transcription failed: {exc}") from exc
 
-        response = requests.post(
-            api_url,
-            headers={
-                "Authorization": f"Bearer {settings.HUGGINGFACE_API_KEY}",
-                "Content-Type": "audio/wav",
-            },
-            data=audio_bytes,
-            timeout=120,
-        )
-
-        if response.status_code == 503:
-            # Model loading — retry after delay
-            logger.warning("HuggingFace Whisper model loading, will retry")
-            return {'text': '', 'language': '', 'status': 'loading'}
-
-        response.raise_for_status()
-        result = response.json()
-
-        return {
-            'text': result.get('text', ''),
-            'language': result.get('chunks', [{}])[0].get('language', '') if result.get('chunks') else '',
-        }
-
-    except requests.RequestException as e:
-        logger.error(f"HuggingFace transcription error: {e}")
-        return {'text': '', 'language': '', 'error': str(e)}
-    except Exception as e:
-        logger.error(f"Transcription unexpected error: {e}", exc_info=True)
-        return {'text': '', 'language': '', 'error': str(e)}
+    language = ''
+    match = re.search(r'LANGUE:\s*([a-zA-Z\-]{2,10})\s*$', text)
+    if match:
+        language = match.group(1).lower()
+        text = text[:match.start()].strip()
+    return {'text': text, 'language': language}
 
 
 # ─────────────────────────────────────────────
-# Sentiment Analysis
+# Sentiment analysis (HF → local lexicon)
 # ─────────────────────────────────────────────
 
 SENTIMENT_LABELS = {
     'POSITIVE': 'positive',
     'NEGATIVE': 'negative',
     'NEUTRAL': 'neutral',
-    'LABEL_0': 'negative',  # cardiffnlp labels
+    'LABEL_0': 'negative',
     'LABEL_1': 'neutral',
     'LABEL_2': 'positive',
 }
 
+_POSITIVE_WORDS = {
+    'happy', 'joy', 'joyful', 'great', 'amazing', 'wonderful', 'love', 'loved',
+    'beautiful', 'grateful', 'thankful', 'excited', 'proud', 'calm', 'peaceful',
+    'fun', 'smile', 'laughter', 'success', 'win', 'good', 'best', 'fantastic',
+    'content', 'relaxed', 'hopeful', 'delighted', 'warm', 'brilliant', 'lovely',
+    'heureux', 'heureuse', 'joie', 'magnifique', 'merveilleux', 'amour', 'aimé',
+    'aimée', 'belle', 'beau', 'reconnaissant', 'reconnaissante', 'fier', 'fière',
+    'calme', 'paisible', 'sourire', 'rire', 'réussi', 'réussite', 'bien', 'super',
+    'génial', 'formidable', 'content', 'contente', 'détendu', 'chaleureux', 'bravo',
+    'gratitude', 'excellent', 'plaisir', 'serein', 'sereine', 'sérénité', 'espoir',
+}
 
-def analyze_sentiment(text: str) -> dict:
-    """
-    Analyze sentiment of text using Hugging Face.
-    
-    Returns:
-        dict with 'sentiment' (positive/neutral/negative), 'score' (0-1), 'raw'
-    """
-    if settings.AI_MOCK_MODE or not settings.HUGGINGFACE_API_KEY:
-        logger.info("HuggingFace: using mock sentiment")
-        return {
-            'sentiment': 'positive',
-            'score': 0.72,
-            'raw': [{'label': 'positive', 'score': 0.72}],
-        }
+_NEGATIVE_WORDS = {
+    'sad', 'unhappy', 'angry', 'tired', 'exhausted', 'stressed', 'anxious',
+    'worried', 'afraid', 'fear', 'lonely', 'depressed', 'terrible', 'awful',
+    'bad', 'worse', 'worst', 'hate', 'pain', 'hurt', 'cry', 'crying', 'failed',
+    'failure', 'problem', 'problems', 'difficult', 'hard', 'sick', 'ill', 'sorry',
+    'triste', 'fatigué', 'fatiguée', 'fatigue', 'stressé', 'stressée', 'anxieux',
+    'anxieuse', 'inquiet', 'inquiète', 'peur', 'seul', 'seule', 'déprimé',
+    'déprimée', 'terrible', 'affreux', 'mauvais', 'pire', 'déteste', 'douleur',
+    'mal', 'pleure', 'pleurer', 'échoué', 'échec', 'problème', 'problèmes',
+    'difficile', 'dur', 'dure', 'malade', 'désolé', 'désolée', 'colère', 'énervé',
+}
 
-    if not text or len(text.strip()) < 10:
+_NEGATORS = {'not', 'no', 'never', "don't", 'ne', 'pas', 'jamais', 'aucun', 'plus'}
+
+
+def _lexicon_sentiment(text: str) -> dict:
+    """Deterministic bilingual lexicon sentiment (real computation, no mock)."""
+    tokens = re.findall(r"[a-zA-ZÀ-ÿ']+", (text or '').lower())
+    if not tokens:
         return {'sentiment': 'neutral', 'score': 0.5, 'raw': []}
 
-    try:
-        # Truncate to model max length (512 tokens ≈ 2000 chars)
-        text_truncated = text[:2000]
+    pos = neg = 0
+    for i, tok in enumerate(tokens):
+        negated = i > 0 and tokens[i - 1] in _NEGATORS
+        if tok in _POSITIVE_WORDS:
+            neg += 1 if negated else 0
+            pos += 0 if negated else 1
+        elif tok in _NEGATIVE_WORDS:
+            pos += 1 if negated else 0
+            neg += 0 if negated else 1
 
-        model = settings.HUGGINGFACE_SENTIMENT_MODEL
-        api_url = f"{HF_API_BASE}/{model}"
+    total = pos + neg
+    if total == 0:
+        return {'sentiment': 'neutral', 'score': 0.5, 'raw': [{'label': 'neutral', 'score': 0.5}]}
 
-        response = requests.post(
-            api_url,
-            headers=_get_headers(),
-            json={"inputs": text_truncated},
-            timeout=30,
-        )
+    raw_score = (pos - neg) / total  # -1 .. 1
+    if raw_score > 0.15:
+        sentiment = 'positive'
+    elif raw_score < -0.15:
+        sentiment = 'negative'
+    else:
+        sentiment = 'neutral'
+    score = round((raw_score + 1) / 2, 4)  # 0 .. 1, 0.5 == neutral
+    return {
+        'sentiment': sentiment,
+        'score': score,
+        'raw': [{'label': sentiment, 'score': score}],
+    }
 
-        if response.status_code == 503:
-            return {'sentiment': 'neutral', 'score': 0.5, 'status': 'loading', 'raw': []}
 
-        response.raise_for_status()
-        result = response.json()
+def analyze_sentiment(text: str) -> dict:
+    """Analyse sentiment. Prefers Hugging Face, falls back to the local lexicon."""
+    if not text or len(text.strip()) < 3:
+        return {'sentiment': 'neutral', 'score': 0.5, 'raw': []}
 
-        # Handle nested list format [[{label, score}, ...]]
-        if isinstance(result, list) and result and isinstance(result[0], list):
-            result = result[0]
+    if _hf_available():
+        try:
+            model = settings.HUGGINGFACE_SENTIMENT_MODEL
+            response = requests.post(
+                f"{HF_API_BASE}/{model}",
+                headers=_hf_headers(),
+                json={"inputs": text[:2000]},
+                timeout=20,
+            )
+            if response.status_code != 503:
+                response.raise_for_status()
+                result = response.json()
+                if isinstance(result, list) and result and isinstance(result[0], list):
+                    result = result[0]
+                if result:
+                    top = max(result, key=lambda x: x.get('score', 0))
+                    sentiment = SENTIMENT_LABELS.get(str(top.get('label', '')).upper(), 'neutral')
+                    return {'sentiment': sentiment, 'score': round(top.get('score', 0.5), 4), 'raw': result}
+        except Exception as exc:
+            logger.info("HuggingFace sentiment unavailable, using local lexicon: %s", exc)
 
-        # Find highest score
-        if result:
-            top = max(result, key=lambda x: x.get('score', 0))
-            raw_label = top.get('label', 'NEUTRAL').upper()
-            sentiment = SENTIMENT_LABELS.get(raw_label, 'neutral')
-            score = round(top.get('score', 0.5), 4)
-        else:
-            sentiment, score = 'neutral', 0.5
-
-        return {
-            'sentiment': sentiment,
-            'score': score,
-            'raw': result,
-        }
-
-    except requests.RequestException as e:
-        logger.error(f"HuggingFace sentiment error: {e}")
-        return {'sentiment': 'neutral', 'score': 0.5, 'error': str(e), 'raw': []}
-    except Exception as e:
-        logger.error(f"Sentiment unexpected error: {e}", exc_info=True)
-        return {'sentiment': 'neutral', 'score': 0.5, 'error': str(e), 'raw': []}
+    return _lexicon_sentiment(text)
 
 
 # ─────────────────────────────────────────────
-# Image Generation (Stable Diffusion)
+# Image generation (delegated to free provider)
 # ─────────────────────────────────────────────
 
 def generate_image(prompt: str) -> bytes:
-    """
-    Generate an image using Stable Diffusion via Hugging Face.
-    
-    Returns:
-        bytes: PNG image data, or None on failure
-    """
-    if settings.AI_MOCK_MODE or not settings.HUGGINGFACE_API_KEY:
-        logger.info("HuggingFace: using mock image generation")
-        return None  # No mock image bytes in dev mode
-
-    try:
-        model = settings.HUGGINGFACE_IMAGE_MODEL
-        api_url = f"{HF_API_BASE}/{model}"
-
-        # Add quality enhancers to prompt
-        enhanced_prompt = f"{prompt}, high quality, artistic, detailed, warm colors, personal memory"
-        negative_prompt = "ugly, blurry, low quality, nsfw, violence, text, watermark"
-
-        response = requests.post(
-            api_url,
-            headers={
-                "Authorization": f"Bearer {settings.HUGGINGFACE_API_KEY}",
-                "Content-Type": "application/json",
-            },
-            json={
-                "inputs": enhanced_prompt,
-                "parameters": {
-                    "negative_prompt": negative_prompt,
-                    "num_inference_steps": 30,
-                    "guidance_scale": 7.5,
-                    "width": 768,
-                    "height": 512,
-                }
-            },
-            timeout=120,
-        )
-
-        if response.status_code == 503:
-            logger.warning("HuggingFace image model loading")
-            return None
-
-        response.raise_for_status()
-
-        # Response is raw image bytes
-        return response.content
-
-    except requests.RequestException as e:
-        logger.error(f"HuggingFace image generation error: {e}")
-        return None
-    except Exception as e:
-        logger.error(f"Image generation unexpected error: {e}", exc_info=True)
-        return None
+    """Generate an image via the free Pollinations service."""
+    from .image_generation_service import generate_image_bytes
+    return generate_image_bytes(prompt)

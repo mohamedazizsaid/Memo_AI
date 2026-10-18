@@ -1,171 +1,154 @@
 """
-MemoAi — Face Recognition Service
-Local face detection, embedding, and matching using face_recognition (dlib).
-All biometric processing stays local — no data sent to external services.
+MemoAi — Face service.
 
-Privacy by design:
-- Embeddings stored as numpy arrays in DB (encrypted in production)
-- User consent required before processing
-- Full deletion support
+Primary detection/recognition happens **client-side with face-api.js**: the
+browser computes 128-d face descriptors that we store on ``Person`` and match
+against journal photos. This module provides the server-side utilities:
+
+* ``detect_faces``    — OpenCV Haar fallback that yields bounding boxes even
+                        when the browser/JS is unavailable (no identity).
+* ``compute_embedding`` / ``compare_embeddings`` / ``find_matching_person``
+                      — euclidean matching over any equal-length descriptors
+                        (face-api.js descriptors are 128-d, like dlib's).
+
+All biometric processing stays local. numpy/OpenCV are imported lazily so the
+app still boots when they are absent.
 """
 
-import logging
 import io
-import numpy as np
-from typing import Optional
+import logging
+
 from django.conf import settings
 
 logger = logging.getLogger('memoai')
 
-# Lazy import to avoid startup crash if not installed
-_face_recognition = None
-_PIL = None
+_np = None
+_cv2 = None
+_cascade = None
+_cascade_loaded = False
 
 
-def _get_face_recognition():
-    global _face_recognition
-    if _face_recognition is None:
+def _get_numpy():
+    global _np
+    if _np is None:
         try:
-            import face_recognition as fr
-            _face_recognition = fr
+            import numpy as np
+            _np = np
         except ImportError:
-            logger.warning(
-                "face_recognition library not installed. "
-                "Install with: pip install face-recognition"
-            )
-    return _face_recognition
+            logger.warning("numpy not installed — face matching disabled.")
+    return _np
 
 
-def is_available():
-    """Check if face recognition is available and enabled."""
-    return (
-        settings.FACE_RECOGNITION_ENABLED
-        and _get_face_recognition() is not None
-        and not settings.AI_MOCK_MODE
-    )
+def _get_cv2():
+    global _cv2
+    if _cv2 is None:
+        try:
+            import cv2
+            _cv2 = cv2
+        except ImportError:
+            logger.warning("opencv not installed — server-side face detection disabled.")
+    return _cv2
+
+
+def _get_cascade():
+    global _cascade, _cascade_loaded
+    if _cascade_loaded:
+        return _cascade
+    _cascade_loaded = True
+    cv2 = _get_cv2()
+    if cv2 is None:
+        return None
+    try:
+        path = cv2.data.haarcascades + 'haarcascade_frontalface_default.xml'
+        _cascade = cv2.CascadeClassifier(path)
+        if _cascade.empty():
+            _cascade = None
+    except Exception as exc:  # pragma: no cover
+        logger.warning("Could not load Haar cascade: %s", exc)
+        _cascade = None
+    return _cascade
+
+
+def is_available() -> bool:
+    """Server-side detection is available when OpenCV + numpy are installed."""
+    return bool(settings.FACE_RECOGNITION_ENABLED) and _get_cv2() is not None and _get_numpy() is not None
 
 
 def detect_faces(image_bytes: bytes) -> list:
     """
-    Detect faces in an image.
-    
-    Args:
-        image_bytes: Raw image bytes (JPEG/PNG)
-        
-    Returns:
-        list of dicts: [{
-            'bounding_box': {'top': int, 'right': int, 'bottom': int, 'left': int},
-            'embedding': list[float] (128-dim),
-            'confidence': float
-        }]
+    Detect faces with OpenCV. Returns a list of
+    ``{'bounding_box': {...}, 'embedding': None, 'confidence': float}``.
+    Identity (embedding) comes from the client-side face-api.js descriptors.
     """
-    if not is_available():
-        if settings.AI_MOCK_MODE:
-            return []  # Mock: no faces detected
+    if not is_available() or not image_bytes:
         return []
 
-    fr = _get_face_recognition()
-    if not fr:
+    cv2 = _get_cv2()
+    np = _get_numpy()
+    cascade = _get_cascade()
+    if cascade is None:
         return []
 
     try:
-        import PIL.Image
-
-        # Convert bytes to numpy array
-        image = PIL.Image.open(io.BytesIO(image_bytes))
-        image = image.convert('RGB')
-        image_array = np.array(image)
-
-        # Detect face locations (using HOG model — faster; use 'cnn' for better accuracy)
-        face_locations = fr.face_locations(image_array, model='hog')
-
-        if not face_locations:
+        arr = np.frombuffer(image_bytes, dtype=np.uint8)
+        img = cv2.imdecode(arr, cv2.IMREAD_COLOR)
+        if img is None:
             return []
-
-        # Generate face encodings (128-dim embeddings)
-        face_encodings = fr.face_encodings(image_array, face_locations)
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        faces = cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(36, 36))
 
         results = []
-        for location, encoding in zip(face_locations, face_encodings):
-            top, right, bottom, left = location
+        for (x, y, w, h) in faces:
             results.append({
                 'bounding_box': {
-                    'top': top,
-                    'right': right,
-                    'bottom': bottom,
-                    'left': left,
+                    'left': int(x), 'top': int(y),
+                    'right': int(x + w), 'bottom': int(y + h),
+                    'x': int(x), 'y': int(y), 'w': int(w), 'h': int(h),
                 },
-                'embedding': encoding.tolist(),  # Convert numpy to list for JSON serialization
-                'confidence': 1.0,  # HOG model doesn't provide confidence; CNN does
+                'embedding': None,
+                'confidence': 0.85,
             })
-
-        logger.info(f"Detected {len(results)} face(s)")
+        logger.info("OpenCV detected %d face(s)", len(results))
         return results
-
-    except Exception as e:
-        logger.error(f"Face detection error: {e}", exc_info=True)
+    except Exception as exc:
+        logger.error("Face detection error: %s", exc, exc_info=True)
         return []
 
 
-def compute_embedding(image_bytes: bytes) -> Optional[list]:
-    """
-    Compute face embedding from a single-face image (e.g., a cropped face).
-    
-    Returns:
-        list[float]: 128-dimensional embedding, or None if no face found
-    """
+def compute_embedding(image_bytes: bytes):
+    """Convenience wrapper returning the first available descriptor (or None)."""
     faces = detect_faces(image_bytes)
-    if faces:
-        return faces[0]['embedding']
+    for face in faces:
+        if face.get('embedding'):
+            return face['embedding']
     return None
 
 
-def compare_embeddings(
-    embedding1: list,
-    embedding2: list,
-    threshold: float = None
-) -> tuple:
-    """
-    Compare two face embeddings.
-    
-    Args:
-        embedding1: First face embedding (list of 128 floats)
-        embedding2: Second face embedding
-        threshold: Match threshold (default from settings)
-        
-    Returns:
-        (is_match: bool, distance: float)
-    """
+def compare_embeddings(embedding1, embedding2, threshold: float = None):
+    """Euclidean distance between two descriptors → (is_match, distance)."""
+    np = _get_numpy()
+    if np is None:
+        return False, 1.0
     if threshold is None:
         threshold = settings.FACE_RECOGNITION_CONFIDENCE_THRESHOLD
-
     try:
-        enc1 = np.array(embedding1)
-        enc2 = np.array(embedding2)
-
-        # Euclidean distance between embeddings
-        distance = np.linalg.norm(enc1 - enc2)
-        is_match = distance <= threshold
-
-        return bool(is_match), float(distance)
-
-    except Exception as e:
-        logger.error(f"Embedding comparison error: {e}")
+        a = np.asarray(embedding1, dtype=float)
+        b = np.asarray(embedding2, dtype=float)
+        if a.shape != b.shape or a.size == 0:
+            return False, 1.0
+        distance = float(np.linalg.norm(a - b))
+        return bool(distance <= threshold), distance
+    except Exception as exc:
+        logger.error("Embedding comparison error: %s", exc)
         return False, 1.0
 
 
-def find_matching_person(embedding: list, known_persons: list) -> Optional[dict]:
+def find_matching_person(embedding, known_persons: list):
     """
-    Find the closest matching person from a list of known persons.
-    
-    Args:
-        embedding: New face embedding to match
-        known_persons: List of dicts with 'id', 'name', 'embedding'
-        
-    Returns:
-        dict: Best matching person with 'id', 'name', 'distance', or None
+    Return the closest known person for ``embedding`` or ``None``.
+    ``known_persons``: list of dicts with 'id', 'name' and 'embedding'.
     """
-    if not known_persons or not embedding:
+    if not embedding or not known_persons:
         return None
 
     best_match = None
@@ -176,28 +159,30 @@ def find_matching_person(embedding: list, known_persons: list) -> Optional[dict]
         person_embedding = person.get('embedding')
         if not person_embedding:
             continue
-
         is_match, distance = compare_embeddings(embedding, person_embedding, threshold)
-
         if is_match and distance < best_distance:
             best_distance = distance
             best_match = {
                 'id': person['id'],
-                'name': person['name'],
+                'name': person.get('name', ''),
                 'distance': distance,
-                'confidence': max(0, 1 - (distance / threshold)),
+                'confidence': max(0.0, 1.0 - (distance / threshold)) if threshold else 0.0,
             }
-
     return best_match
 
 
-def embedding_to_db(embedding: list) -> str:
-    """Convert embedding list to a string for database storage."""
-    return ','.join(map(str, embedding))
+def embedding_to_db(embedding) -> str:
+    """Serialise a descriptor list into a comma-separated string."""
+    if not embedding:
+        return ''
+    return ','.join(f"{float(x):.6f}" for x in embedding)
 
 
-def db_to_embedding(db_string: str) -> list:
-    """Convert database string back to embedding list."""
+def db_to_embedding(db_string) -> list:
+    """Parse a comma-separated descriptor string back into a float list."""
     if not db_string:
         return []
-    return [float(x) for x in db_string.split(',')]
+    try:
+        return [float(x) for x in str(db_string).split(',') if x != '']
+    except (TypeError, ValueError):
+        return []

@@ -2,45 +2,58 @@
 MemoAi — AI Celery Tasks
 Asynchronous AI processing pipeline.
 Each task fails independently — a failure doesn't block others.
+
+No mock results are ever produced: when a provider is unavailable the affected
+status becomes ``failed`` and the entry surfaces the real error state.
 """
 
 import logging
+
 from celery import shared_task
 from django.utils import timezone
+
+from ai.services import AIServiceError
 
 logger = logging.getLogger('memoai')
 
 
+def _prefs_for(user):
+    try:
+        from accounts.models import UserPreferences
+        prefs, _ = UserPreferences.objects.get_or_create(user=user)
+        return prefs
+    except Exception:
+        return None
+
+
 @shared_task(
     bind=True,
-    max_retries=3,
+    max_retries=2,
     default_retry_delay=60,
     name='ai.tasks.analyze_entry',
 )
 def analyze_entry(self, entry_id: str):
     """
-    Main AI pipeline for a journal entry.
-    Runs: sentiment analysis + Gemini summary + keywords + image generation.
-    
-    Audio transcription is handled separately via process_audio_media task.
+    Main AI pipeline for a journal entry:
+    sentiment + Gemini summary + keywords + (free) image generation.
     """
     from journal.models import JournalEntry
     from ai.models import AIAnalysis
 
-    logger.info(f"Starting AI analysis for entry {entry_id}")
+    logger.info("Starting AI analysis for entry %s", entry_id)
 
     try:
         entry = JournalEntry.objects.get(pk=entry_id)
     except JournalEntry.DoesNotExist:
-        logger.error(f"Entry {entry_id} not found")
+        logger.error("Entry %s not found", entry_id)
         return
 
-    # Get or create AI analysis record
     analysis, _ = AIAnalysis.objects.get_or_create(entry=entry)
+    prefs = _prefs_for(entry.user)
 
-    content = entry.content
-    if not content or not content.strip():
-        logger.info(f"Entry {entry_id} has no content — skipping text analysis")
+    content = (entry.content or '').strip()
+    if not content:
+        logger.info("Entry %s has no content — skipping text analysis", entry_id)
         analysis.summary_status = 'skipped'
         analysis.sentiment_status = 'skipped'
         analysis.save(update_fields=['summary_status', 'sentiment_status'])
@@ -48,64 +61,85 @@ def analyze_entry(self, entry_id: str):
         entry.save(update_fields=['ai_status'])
         return
 
-    # Get user preferences
     try:
         lang = entry.user.preferences.language
     except Exception:
         lang = 'fr'
 
+    summaries_enabled = getattr(prefs, 'ai_summaries_enabled', True)
+    sentiment_enabled = getattr(prefs, 'sentiment_analysis_enabled', True)
+
     errors = []
 
-    # ── Step 1: Sentiment Analysis ───────────────────────────────────────
-    try:
-        from ai.services.huggingface_service import analyze_sentiment
-        sentiment_result = analyze_sentiment(content)
+    if summaries_enabled:
+        # ── Gemini: summary + keywords + sentiment + image prompt ──────────
+        try:
+            from ai.services.gemini_service import summarize_entry
+            result = summarize_entry(content, language=lang)
 
-        analysis.sentiment = sentiment_result.get('sentiment', 'neutral')
-        analysis.sentiment_score = sentiment_result.get('score', 0.5)
-        analysis.sentiment_status = 'completed'
-        analysis.save(update_fields=['sentiment', 'sentiment_score', 'sentiment_status'])
-        logger.info(f"Sentiment for {entry_id}: {analysis.sentiment} ({analysis.sentiment_score})")
+            analysis.summary = result.get('summary', '')
+            analysis.keywords = result.get('keywords', [])
+            analysis.mood_insight = result.get('mood_insight', '')
+            analysis.image_prompt = result.get('image_prompt', '')
+            analysis.summary_status = 'completed' if analysis.summary else 'failed'
+            update_fields = ['summary', 'keywords', 'mood_insight', 'image_prompt', 'summary_status']
 
-    except Exception as e:
-        logger.error(f"Sentiment analysis failed for {entry_id}: {e}")
-        analysis.sentiment_status = 'failed'
-        analysis.save(update_fields=['sentiment_status'])
-        errors.append(f"sentiment: {str(e)}")
+            if sentiment_enabled and result.get('sentiment'):
+                analysis.sentiment = result['sentiment']
+                analysis.sentiment_score = result.get('sentiment_score')
+                analysis.sentiment_status = 'completed'
+                update_fields += ['sentiment', 'sentiment_score', 'sentiment_status']
+            elif not sentiment_enabled:
+                analysis.sentiment_status = 'skipped'
+                update_fields.append('sentiment_status')
 
-    # ── Step 2: Gemini Summary + Keywords ───────────────────────────────
-    try:
-        from ai.services.gemini_service import summarize_entry
-        gemini_result = summarize_entry(content, language=lang)
-
-        analysis.summary = gemini_result.get('summary', '')
-        analysis.keywords = gemini_result.get('keywords', [])
-        analysis.mood_insight = gemini_result.get('mood_insight', '')
-        analysis.summary_status = 'completed'
-        analysis.save(update_fields=['summary', 'keywords', 'mood_insight', 'summary_status'])
-        logger.info(f"Gemini summary completed for {entry_id}")
-
-    except Exception as e:
-        logger.error(f"Gemini summary failed for {entry_id}: {e}")
-        analysis.summary_status = 'failed'
+            analysis.save(update_fields=update_fields)
+            logger.info("Gemini analysis completed for %s", entry_id)
+        except AIServiceError as exc:
+            logger.error("Gemini analysis failed for %s: %s", entry_id, exc)
+            analysis.summary_status = 'failed'
+            fields = ['summary_status']
+            if sentiment_enabled:
+                analysis.sentiment_status = 'failed'
+                fields.append('sentiment_status')
+            analysis.save(update_fields=fields)
+            errors.append(f"summary: {exc}")
+    else:
+        analysis.summary_status = 'skipped'
         analysis.save(update_fields=['summary_status'])
-        errors.append(f"summary: {str(e)}")
 
-    # ── Step 3: Image Generation (async sub-task) ────────────────────────
-    try:
-        prefs = entry.user.preferences
-        if prefs.image_generation_enabled and prefs.ai_summaries_enabled:
+        # Sentiment can still be computed locally (no Gemini call needed).
+        if sentiment_enabled:
+            try:
+                from ai.services.huggingface_service import analyze_sentiment
+                s = analyze_sentiment(content)
+                analysis.sentiment = s.get('sentiment', 'neutral')
+                analysis.sentiment_score = s.get('score', 0.5)
+                analysis.sentiment_status = 'completed'
+                analysis.save(update_fields=['sentiment', 'sentiment_score', 'sentiment_status'])
+            except Exception as exc:
+                logger.error("Sentiment analysis failed for %s: %s", entry_id, exc)
+                analysis.sentiment_status = 'failed'
+                analysis.save(update_fields=['sentiment_status'])
+                errors.append(f"sentiment: {exc}")
+        else:
+            analysis.sentiment_status = 'skipped'
+            analysis.save(update_fields=['sentiment_status'])
+
+    # ── Free image generation ───────────────────────────────────────────────
+    if getattr(prefs, 'image_generation_enabled', True):
+        try:
             generate_entry_image_task.delay(entry_id)
-    except Exception as e:
-        logger.warning(f"Could not trigger image generation for {entry_id}: {e}")
+        except Exception as exc:
+            logger.warning("Could not trigger image generation for %s: %s", entry_id, exc)
+    else:
+        analysis.image_generation_status = 'skipped'
+        analysis.save(update_fields=['image_generation_status'])
 
-    # ── Mark entry as completed ──────────────────────────────────────────
-    entry.ai_status = 'completed' if not errors else 'completed'  # partial success is still "completed"
-    if errors:
-        entry.ai_error_message = '; '.join(errors)
+    entry.ai_status = 'failed' if errors else 'completed'
+    entry.ai_error_message = '; '.join(errors)
     entry.save(update_fields=['ai_status', 'ai_error_message'])
-
-    logger.info(f"AI analysis completed for entry {entry_id}")
+    logger.info("AI analysis finished for entry %s (status=%s)", entry_id, entry.ai_status)
 
 
 @shared_task(
@@ -115,31 +149,22 @@ def analyze_entry(self, entry_id: str):
     name='ai.tasks.process_audio_media',
 )
 def process_audio_media(self, media_id: str):
-    """
-    Process an audio media file:
-    1. Download from Cloudinary
-    2. Transcribe via Whisper (HuggingFace)
-    3. Run sentiment on transcription
-    4. Run Gemini summary on transcription
-    5. Store in AIAnalysis
-    """
+    """Transcribe an audio media file with Gemini, then analyse the entry."""
     from media_app.models import Media
     from ai.models import AIAnalysis
 
-    logger.info(f"Processing audio media {media_id}")
+    logger.info("Processing audio media %s", media_id)
 
     try:
         media = Media.objects.select_related('entry', 'entry__user').get(pk=media_id)
     except Media.DoesNotExist:
-        logger.error(f"Media {media_id} not found")
+        logger.error("Media %s not found", media_id)
         return
 
     entry = media.entry
-
     try:
-        # Transcribe
         from ai.services.huggingface_service import transcribe_audio
-        result = transcribe_audio(audio_url=media.storage_url)
+        result = transcribe_audio(audio_url=media.storage_url, mime_type=media.mime_type or 'audio/mpeg')
         transcription = result.get('text', '')
 
         if not transcription:
@@ -147,7 +172,6 @@ def process_audio_media(self, media_id: str):
             media.save(update_fields=['processing_status'])
             return
 
-        # Save transcription
         analysis, _ = AIAnalysis.objects.get_or_create(entry=entry)
         analysis.transcription = transcription
         analysis.transcription_language = result.get('language', '')
@@ -157,165 +181,122 @@ def process_audio_media(self, media_id: str):
         media.processing_status = 'completed'
         media.save(update_fields=['processing_status'])
 
-        logger.info(f"Transcription completed for media {media_id}")
-
-        # Trigger full text analysis on the transcription
-        # If entry has no text content, use transcription as content
         if not entry.content:
             entry.content = transcription
             entry.save(update_fields=['content'])
 
         analyze_entry.delay(str(entry.id))
 
-    except Exception as e:
-        logger.error(f"Audio processing failed for {media_id}: {e}", exc_info=True)
+    except Exception as exc:
+        logger.error("Audio processing failed for %s: %s", media_id, exc, exc_info=True)
         media.processing_status = 'failed'
-        media.processing_error = str(e)
+        media.processing_error = str(exc)
         media.save(update_fields=['processing_status', 'processing_error'])
-
-        try:
-            self.retry(exc=e)
-        except self.MaxRetriesExceededError:
-            pass
 
 
 @shared_task(
     bind=True,
-    max_retries=2,
+    max_retries=1,
     default_retry_delay=30,
     name='ai.tasks.process_image_media',
 )
-def process_image_media(self, media_id: str):
+def process_image_media(self, media_id: str, descriptors=None):
     """
-    Process an image media file:
-    1. Download image from Cloudinary
-    2. Run face detection
-    3. Match or create Person records
-    4. Store FaceDetection records
+    Detect faces in an image media file and match/create Person records.
+
+    ``descriptors`` (optional) is a list of ``{'embedding': [...], 'box': {...}}``
+    computed client-side with face-api.js. When absent we fall back to OpenCV
+    bounding boxes (detection without identity).
     """
     from media_app.models import Media
 
-    logger.info(f"Processing image media {media_id}")
+    logger.info("Processing image media %s", media_id)
 
     try:
         media = Media.objects.select_related('entry', 'entry__user').get(pk=media_id)
     except Media.DoesNotExist:
-        logger.error(f"Media {media_id} not found")
+        logger.error("Media %s not found", media_id)
         return
 
     user = media.entry.user
-
-    # Check if user has granted face recognition consent
-    try:
-        if not user.preferences.face_recognition_consent:
-            logger.info(f"Face recognition disabled for user {user.id}")
-            media.processing_status = 'completed'
-            media.save(update_fields=['processing_status'])
-            return
-    except Exception:
+    prefs = _prefs_for(user)
+    if prefs is not None and not prefs.face_recognition_consent:
+        logger.info("Face recognition disabled for user %s", user.id)
         media.processing_status = 'completed'
         media.save(update_fields=['processing_status'])
         return
 
     try:
-        from ai.services.face_recognition_service import detect_faces, find_matching_person, db_to_embedding
+        from ai.services.face_recognition_service import (
+            detect_faces, find_matching_person, embedding_to_db, db_to_embedding,
+        )
         from persons.models import Person, FaceDetection
-
-        # Download image
         import requests
-        response = requests.get(media.storage_url, timeout=30)
-        response.raise_for_status()
-        image_bytes = response.content
 
-        # Detect faces
-        faces = detect_faces(image_bytes)
-        logger.info(f"Detected {len(faces)} face(s) in media {media_id}")
+        faces = descriptors or []
+        if not faces:
+            response = requests.get(media.storage_url, timeout=30)
+            response.raise_for_status()
+            faces = detect_faces(response.content)
+            logger.info("Server-side detection found %d face(s) for media %s", len(faces), media_id)
 
-        # Get all known persons for this user (with embeddings)
         known_persons = list(
             Person.objects.filter(user=user, face_embedding__isnull=False)
-            .values('id', 'name', 'face_embedding')
+            .exclude(face_embedding='').values('id', 'name', 'face_embedding')
         )
-
-        # Convert DB embeddings to lists
         for person in known_persons:
-            if isinstance(person['face_embedding'], str):
-                from ai.services.face_recognition_service import db_to_embedding
-                person['embedding'] = db_to_embedding(person['face_embedding'])
-            else:
-                person['embedding'] = person['face_embedding'] or []
+            person['embedding'] = db_to_embedding(person['face_embedding'])
 
-        for face_data in faces:
-            embedding = face_data['embedding']
-            bounding_box = face_data['bounding_box']
+        auto_delete = bool(getattr(prefs, 'auto_delete_face_embeddings', False))
 
-            # Try to match with known person
-            matched = find_matching_person(embedding, known_persons)
+        for face in faces:
+            embedding = face.get('embedding')
+            bounding_box = face.get('box') or face.get('bounding_box') or {}
+            matched = find_matching_person(embedding, known_persons) if embedding else None
 
             if matched:
                 person = Person.objects.get(pk=matched['id'])
                 confidence = matched['confidence']
-            else:
-                # Create new unknown person
-                from ai.services.face_recognition_service import embedding_to_db
+            elif embedding and not auto_delete:
                 person = Person.objects.create(
-                    user=user,
-                    name='Unknown',
-                    face_embedding=embedding_to_db(embedding),
+                    user=user, name='Inconnu', face_embedding=embedding_to_db(embedding),
                 )
-                known_persons.append({
-                    'id': str(person.id),
-                    'name': person.name,
-                    'embedding': embedding,
-                })
+                known_persons.append({'id': str(person.id), 'name': person.name, 'embedding': embedding})
                 confidence = 1.0
+            else:
+                person = None
+                confidence = face.get('confidence', 0.85)
 
-            # Record detection
             FaceDetection.objects.create(
-                media=media,
-                person=person,
-                confidence=confidence,
-                bounding_box=bounding_box,
+                media=media, person=person, confidence=confidence, bounding_box=bounding_box,
             )
 
         media.processing_status = 'completed'
         media.save(update_fields=['processing_status'])
-        logger.info(f"Face detection completed for media {media_id}")
+        logger.info("Face processing completed for media %s", media_id)
 
-    except Exception as e:
-        logger.error(f"Image processing failed for {media_id}: {e}", exc_info=True)
+    except Exception as exc:
+        logger.error("Image processing failed for %s: %s", media_id, exc, exc_info=True)
         media.processing_status = 'failed'
-        media.processing_error = str(e)
+        media.processing_error = str(exc)
         media.save(update_fields=['processing_status', 'processing_error'])
-
-        try:
-            self.retry(exc=e)
-        except self.MaxRetriesExceededError:
-            pass
 
 
 @shared_task(name='ai.tasks.generate_entry_image_task')
 def generate_entry_image_task(entry_id: str):
-    """Generate an AI illustration for a journal entry."""
+    """Generate a free AI illustration for a journal entry."""
     from ai.services.image_generation_service import generate_entry_image
     generate_entry_image(entry_id)
 
 
 @shared_task(name='ai.tasks.cleanup_stale_tasks')
 def cleanup_stale_tasks():
-    """
-    Clean up AI analyses that have been stuck in 'processing' state for too long.
-    Runs every 6 hours via Celery Beat.
-    """
-    from django.utils import timezone
+    """Mark AI analyses stuck in 'processing' for too long as failed."""
     from datetime import timedelta
     from journal.models import JournalEntry
 
     cutoff = timezone.now() - timedelta(hours=2)
-    stale = JournalEntry.objects.filter(
-        ai_status='processing',
-        updated_at__lt=cutoff
-    )
+    stale = JournalEntry.objects.filter(ai_status='processing', updated_at__lt=cutoff)
     count = stale.count()
     stale.update(ai_status='failed', ai_error_message='Task timed out')
-    logger.info(f"Cleaned up {count} stale AI tasks")
+    logger.info("Cleaned up %s stale AI tasks", count)

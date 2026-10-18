@@ -322,12 +322,33 @@ CELERY_BEAT_SCHEDULE = {
 # AI Services
 # ─────────────────────────────────────────────
 GEMINI_API_KEY = config('GEMINI_API_KEY', default='')
-GEMINI_MODEL = config('GEMINI_MODEL', default='gemini-1.5-flash')
+# gemini-1.5-* has been retired by Google — gemini-2.5-flash is the current
+# fast general-purpose model that returns our structured JSON summary.
+GEMINI_MODEL = config('GEMINI_MODEL', default='gemini-2.5-flash')
+GEMINI_VISION_MODEL = config('GEMINI_VISION_MODEL', default='gemini-2.5-flash')
 
 HUGGINGFACE_API_KEY = config('HUGGINGFACE_API_KEY', default='')
 HUGGINGFACE_ASR_MODEL = config('HUGGINGFACE_ASR_MODEL', default='openai/whisper-large-v3')
 HUGGINGFACE_SENTIMENT_MODEL = config('HUGGINGFACE_SENTIMENT_MODEL', default='cardiffnlp/twitter-roberta-base-sentiment-latest')
 HUGGINGFACE_IMAGE_MODEL = config('HUGGINGFACE_IMAGE_MODEL', default='stabilityai/stable-diffusion-xl-base-1.0')
+
+# ─────────────────────────────────────────────
+# Image generation — Pollinations (100% free, key-less)
+# ─────────────────────────────────────────────
+# Pollinations renders an image from the URL of a prompt: no API key, no quota.
+# https://image.pollinations.ai/prompt/<url-encoded prompt>
+POLLINATIONS_BASE_URL = config('POLLINATIONS_BASE_URL', default='https://image.pollinations.ai/prompt')
+IMAGE_GENERATION_MODEL = config('IMAGE_GENERATION_MODEL', default='flux')
+IMAGE_GENERATION_WIDTH = config('IMAGE_GENERATION_WIDTH', default=896, cast=int)
+IMAGE_GENERATION_HEIGHT = config('IMAGE_GENERATION_HEIGHT', default=576, cast=int)
+
+# ─────────────────────────────────────────────
+# Face recognition — face-api.js assets served locally
+# ─────────────────────────────────────────────
+# Models are downloaded to static/vendor/face-api/weights and loaded by the
+# browser (client-side detection). The threshold below is the euclidean
+# distance below which two 128-d descriptors are considered the same person.
+FACE_API_WEIGHTS_URL = config('FACE_API_WEIGHTS_URL', default='/static/vendor/face-api/weights')
 
 # Face Recognition
 FACE_RECOGNITION_ENABLED = config('FACE_RECOGNITION_ENABLED', default=True, cast=bool)
