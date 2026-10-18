@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="container">
-  <div class="page-header">
+  <div class="page-header reveal">
     <div>
       <p class="eyebrow">{% trans_text "INTELLIGENCE ARTIFICIELLE" "ARTIFICIAL INTELLIGENCE" %}</p>
       <h1 class="page-title">{% trans_text "Vos insights" "Your insights" %}</h1>
@@ -13,7 +13,7 @@
       <form method="get" action="" id="period-form">
         <select name="period" class="form-select" onchange="this.form.submit()" id="period-select">
           <option value="7" {% if period == '7' %}selected{% endif %}>{% trans_text "7 derniers jours" "Last 7 days" %}</option>
-          <option value="30" {% if period == '30' or not period %}selected{% endif %}>{% trans_text "30 derniers jours" "Last 30 days" %}</option>
+          <option value="30" {% if period == '30' %}selected{% endif %}>{% trans_text "30 derniers jours" "Last 30 days" %}</option>
           <option value="90" {% if period == '90' %}selected{% endif %}>{% trans_text "3 derniers mois" "Last 3 months" %}</option>
           <option value="365" {% if period == '365' %}selected{% endif %}>{% trans_text "Cette annee" "This year" %}</option>
         </select>
@@ -21,18 +21,19 @@
     </div>
   </div>
 
+  {% if stats.total_entries %}
   <!-- Stats overview -->
-  <div class="insights-stats">
+  <div class="insights-stats reveal-stagger">
     <div class="insight-stat-card">
-      <span class="insight-stat-value">{{ stats.total_entries|default:0 }}</span>
+      <span class="insight-stat-value">{{ stats.total_entries }}</span>
       <span class="insight-stat-label">{% trans_text "Entrees" "Entries" %}</span>
     </div>
     <div class="insight-stat-card">
-      <span class="insight-stat-value">{{ stats.total_words|default:0 }}</span>
+      <span class="insight-stat-value">{{ stats.total_words }}</span>
       <span class="insight-stat-label">{% trans_text "Mots ecrits" "Words written" %}</span>
     </div>
     <div class="insight-stat-card">
-      <span class="insight-stat-value">{{ stats.streak_days|default:0 }}</span>
+      <span class="insight-stat-value">{{ stats.streak_days }}</span>
       <span class="insight-stat-label">{% trans_text "Jours consecutifs" "Day streak" %}</span>
     </div>
     <div class="insight-stat-card">
@@ -41,9 +42,24 @@
     </div>
   </div>
 
-  <!-- Mood distribution -->
   <div class="insights-grid">
-    <div class="insight-card insight-card--wide">
+    <!-- Writing activity (real, last 12 weeks) -->
+    <div class="insight-card insight-card--wide reveal">
+      <div class="insight-card-header">
+        <h2 class="insight-card-title">{% trans_text "Rythme d'ecriture (12 semaines)" "Writing rhythm (12 weeks)" %}</h2>
+      </div>
+      <div class="trend-chart" role="img" aria-label="{% trans_text 'Entrees par semaine' 'Entries per week' %}">
+        {% for week in stats.activity %}
+          <div class="trend-bar-wrap">
+            <div class="trend-bar" style="height: {{ week.height }}%;" title="{{ week.count }} {% trans_text 'entree(s)' 'entry(ies)' %}"></div>
+            <span class="trend-bar-label">{{ week.label }}</span>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Mood distribution -->
+    <div class="insight-card insight-card--wide reveal">
       <div class="insight-card-header">
         <h2 class="insight-card-title">{% trans_text "Distribution des humeurs" "Mood distribution" %}</h2>
       </div>
@@ -66,7 +82,7 @@
                 {{ mood }}
               </span>
               <div class="mood-bar-track">
-                <div class="mood-bar-fill mood-bar-fill--{{ mood }}" style="width: {{ count|default:0 }}%" aria-valuenow="{{ count }}" role="progressbar"></div>
+                <div class="mood-bar-fill mood-bar-fill--{{ mood }}" style="width: {% widthratio count stats.max_mood 100 %}%" aria-valuenow="{{ count }}" role="progressbar"></div>
               </div>
               <span class="mood-bar-count">{{ count }}</span>
             </div>
@@ -77,8 +93,58 @@
       </div>
     </div>
 
+    <!-- Sentiment from the AI analysis (real) -->
+    <div class="insight-card reveal">
+      <div class="insight-card-header">
+        <h2 class="insight-card-title">{% trans_text "Tonalite des analyses IA" "AI sentiment breakdown" %}</h2>
+      </div>
+      {% if stats.sentiment_dist.positive or stats.sentiment_dist.neutral or stats.sentiment_dist.negative %}
+        <div class="sentiment-ring">
+          <span class="sentiment-ring__value">
+            {% if stats.avg_sentiment is not None %}{{ stats.avg_sentiment|floatformat:2 }}{% else %}—{% endif %}
+          </span>
+          <span class="insight-stat-label">{% trans_text "Score moyen (0-1)" "Average score (0-1)" %}</span>
+        </div>
+        <div class="mood-chart" style="margin-top:12px;">
+          <div class="mood-bar-row">
+            <span class="mood-bar-label">{% trans_text "Positif" "Positive" %}</span>
+            <div class="mood-bar-track"><div class="mood-bar-fill" style="width: {% widthratio stats.sentiment_dist.positive stats.sentiment_total 100 %}%; background: linear-gradient(90deg,#34d399,#0f9d6b);"></div></div>
+            <span class="mood-bar-count">{{ stats.sentiment_dist.positive }}</span>
+          </div>
+          <div class="mood-bar-row">
+            <span class="mood-bar-label">{% trans_text "Neutre" "Neutral" %}</span>
+            <div class="mood-bar-track"><div class="mood-bar-fill" style="width: {% widthratio stats.sentiment_dist.neutral stats.sentiment_total 100 %}%; background: linear-gradient(90deg,#d4d4d8,#a1a1aa);"></div></div>
+            <span class="mood-bar-count">{{ stats.sentiment_dist.neutral }}</span>
+          </div>
+          <div class="mood-bar-row">
+            <span class="mood-bar-label">{% trans_text "Negatif" "Negative" %}</span>
+            <div class="mood-bar-track"><div class="mood-bar-fill" style="width: {% widthratio stats.sentiment_dist.negative stats.sentiment_total 100 %}%; background: linear-gradient(90deg,#f87171,#dc2626);"></div></div>
+            <span class="mood-bar-count">{{ stats.sentiment_dist.negative }}</span>
+          </div>
+        </div>
+      {% else %}
+        <p class="insight-empty">{% trans_text "L'IA n'a pas encore analyse d'entree sur cette periode." "The AI hasn't analysed an entry in this period yet." %}</p>
+      {% endif %}
+    </div>
+
+    <!-- Keywords extracted by the AI (real) -->
+    <div class="insight-card reveal">
+      <div class="insight-card-header">
+        <h2 class="insight-card-title">{% trans_text "Mots-cles de vos journees" "Keywords from your days" %}</h2>
+      </div>
+      {% if stats.keyword_cloud %}
+        <div class="keyword-cloud">
+          {% for kw in stats.keyword_cloud %}
+            <span class="keyword-tag" style="font-size: {{ kw.weight }}2%;">{{ kw.word }} <small>· {{ kw.count }}</small></span>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="insight-empty">{% trans_text "Aucun mot-cle extrait pour l'instant." "No keyword extracted yet." %}</p>
+      {% endif %}
+    </div>
+
     <!-- Top tags -->
-    <div class="insight-card">
+    <div class="insight-card reveal">
       <div class="insight-card-header">
         <h2 class="insight-card-title">{% trans_text "Tags les plus utilises" "Most used tags" %}</h2>
       </div>
@@ -97,49 +163,88 @@
     </div>
 
     <!-- Writing frequency -->
-    <div class="insight-card">
+    <div class="insight-card reveal">
       <div class="insight-card-header">
         <h2 class="insight-card-title">{% trans_text "Frequence d'ecriture" "Writing frequency" %}</h2>
       </div>
       <div class="freq-stats">
         <div class="freq-stat">
-          <span class="freq-value">{{ stats.entries_this_week|default:0 }}</span>
+          <span class="freq-value">{{ stats.entries_this_week }}</span>
           <span class="freq-label">{% trans_text "Cette semaine" "This week" %}</span>
         </div>
         <div class="freq-stat">
-          <span class="freq-value">{{ stats.entries_this_month|default:0 }}</span>
+          <span class="freq-value">{{ stats.entries_this_month }}</span>
           <span class="freq-label">{% trans_text "Ce mois-ci" "This month" %}</span>
+        </div>
+        <div class="freq-stat">
+          <span class="freq-value">{{ stats.avg_words }}</span>
+          <span class="freq-label">{% trans_text "Mots / entree" "Words / entry" %}</span>
         </div>
       </div>
     </div>
+
+    <!-- People recognised in photos (real) -->
+    {% if stats.top_persons %}
+    <div class="insight-card reveal">
+      <div class="insight-card-header">
+        <h2 class="insight-card-title">{% trans_text "Vos proches en photos" "Your people in photos" %}</h2>
+      </div>
+      <div class="top-tags-list">
+        {% for person in stats.top_persons %}
+          <div class="top-tag-item">
+            <a href="/personnes/{{ person.id }}/" class="tag-pill" style="--tag-color:#c8963e;">{{ person.name }}</a>
+            <span class="top-tag-count">{{ person.detections }} {% trans_text "photo(s)" "photo(s)" %}</span>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
   </div>
 
-  <!-- AI Insights list -->
+  <!-- AI Insights list (real summaries) -->
   {% if insights %}
-    <section class="section-band">
+    <section class="section-band reveal">
       <div class="section-header">
         <div>
           <p class="eyebrow">{% trans_text "ANALYSE" "ANALYSIS" %}</p>
           <h2 class="section-title">{% trans_text "Insights recents" "Recent insights" %}</h2>
         </div>
       </div>
-      <div class="insights-list">
+      <div class="insights-list reveal-stagger">
         {% for insight in insights %}
-          <div class="insight-item" id="insight-{{ insight.id }}">
+          <a class="insight-item" id="insight-{{ insight.id }}" href="/journal/{{ insight.entry.id }}/" style="text-decoration:none;color:inherit;">
             <div class="insight-item-icon" aria-hidden="true">
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                 <path d="M10 2L12 8H18L13 12L15 18L10 14L5 18L7 12L2 8H8L10 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
               </svg>
             </div>
             <div class="insight-item-body">
-              <h3 class="insight-item-title">{{ insight.title }}</h3>
-              <p class="insight-item-body-text">{{ insight.content }}</p>
-              <span class="insight-item-date">{{ insight.created_at|date:"j F Y" }}</span>
+              <h3 class="insight-item-title">{{ insight.entry.title|default:insight.entry.entry_date }}</h3>
+              <p class="insight-item-body-text">{{ insight.summary }}</p>
+              <span class="insight-item-date">{{ insight.entry.entry_date|date:"j F Y" }}
+                {% if insight.sentiment %}· {{ insight.sentiment }}{% endif %}
+              </span>
             </div>
-          </div>
+            {% if insight.generated_image_url %}
+              <img src="{{ insight.generated_image_url }}" alt="" loading="lazy" style="width:64px;height:64px;object-fit:cover;border-radius:14px;flex-shrink:0;">
+            {% endif %}
+          </a>
         {% endfor %}
       </div>
     </section>
+  {% endif %}
+  {% else %}
+    <!-- Empty state -->
+    <div class="empty-state reveal" id="empty-insights">
+      <div class="empty-state-icon" aria-hidden="true">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+        </svg>
+      </div>
+      <h3 class="empty-state-title">{% trans_text "Pas encore d'insights" "No insights yet" %}</h3>
+      <p class="empty-state-body">{% trans_text "Ecrivez votre premiere entree : l'IA generera un resume, un sentiment et des mots-cles qui alimenteront cette page." "Write your first entry: the AI will generate a summary, sentiment and keywords that feed this page." %}</p>
+      <a href="/journal/nouveau/" class="btn btn-primary">{% trans_text "Creer une entree" "Create an entry" %}</a>
+    </div>
   {% endif %}
 </div>
 {% endblock %}
