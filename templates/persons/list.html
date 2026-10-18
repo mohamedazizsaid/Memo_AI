@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block title %}Personnes — MemoAI{% endblock %}
+{% block nav_persons %}active{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">MEMOIRE</p>
+      <h1 class="page-title">Personnes</h1>
+    </div>
+    <a href="/personnes/nouveau/" class="btn btn-primary" id="add-person">
+      <svg aria-hidden="true" width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      Ajouter
+    </a>
+  </div>
+
+  {% if not consent_granted %}
+    <div class="consent-banner" id="face-consent-banner">
+      <div class="consent-banner-icon" aria-hidden="true">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="consent-banner-text">
+        <h3 class="consent-banner-title">Reconnaissance faciale desactivee</h3>
+        <p class="consent-banner-body">Activez la reconnaissance faciale pour identifier automatiquement les personnes dans vos photos. Vos donnees restent sur nos serveurs et ne sont jamais partagees.</p>
+      </div>
+      <form method="post" action="/comptes/reconnaissance-faciale/consentement/" class="consent-banner-action">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary btn-sm" id="grant-consent">Activer</button>
+      </form>
+    </div>
+  {% endif %}
+
+  {% if persons %}
+    <div class="persons-grid" id="persons-grid">
+      {% for person in persons %}
+        <a href="/personnes/{{ person.id }}/" class="person-card" id="person-{{ person.id }}">
+          {% if person.avatar_url %}
+            <div class="person-avatar">
+              <img src="{{ person.avatar_url }}" alt="{{ person.name }}" class="person-avatar-img">
+            </div>
+          {% else %}
+            <div class="person-avatar person-avatar--placeholder">
+              <span>{{ person.name|first|upper }}</span>
+            </div>
+          {% endif %}
+          <div class="person-card-body">
+            <h3 class="person-name">{{ person.name }}</h3>
+            <p class="person-meta">
+              {{ person.memory_count }} souvenir{{ person.memory_count|pluralize }}
+              {% if person.is_confirmed %}
+                <span class="person-confirmed-badge">
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-label="Confirme">
+                    <circle cx="5" cy="5" r="4" stroke="currentColor" stroke-width="1"/>
+                    <path d="M3 5l1.5 1.5L7 3.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+              {% endif %}
+            </p>
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state" id="no-persons">
+      <div class="empty-state-icon" aria-hidden="true">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+          <circle cx="24" cy="18" r="8" stroke="currentColor" stroke-width="2"/>
+          <path d="M6 42c0-9.94 8.06-18 18-18s18 8.06 18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <h3 class="empty-state-title">Aucune personne</h3>
+      <p class="empty-state-body">Ajoutez des personnes pour les retrouver dans vos souvenirs.</p>
+      <a href="/personnes/nouveau/" class="btn btn-primary" id="add-first-person">Ajouter une personne</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

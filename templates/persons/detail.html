@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block title %}{{ person.name }} — MemoAI{% endblock %}
+
+{% block content %}
+<div class="container">
+  <nav class="breadcrumb" aria-label="Fil d'ariane">
+    <a href="/personnes/" class="breadcrumb-link">Personnes</a>
+    <span class="breadcrumb-sep" aria-hidden="true">/</span>
+    <span class="breadcrumb-current">{{ person.name }}</span>
+  </nav>
+
+  <div class="person-detail-header">
+    {% if person.avatar_url %}
+      <img src="{{ person.avatar_url }}" alt="{{ person.name }}" class="person-detail-avatar">
+    {% else %}
+      <div class="person-detail-avatar person-detail-avatar--placeholder">
+        <span>{{ person.name|first|upper }}</span>
+      </div>
+    {% endif %}
+
+    <div class="person-detail-info">
+      <h1 class="person-detail-name">{{ person.name }}</h1>
+      <p class="person-detail-meta">
+        {{ person.memory_count }} souvenir{{ person.memory_count|pluralize }}
+        {% if person.is_confirmed %}
+          <span class="person-confirmed-badge">Confirme</span>
+        {% endif %}
+      </p>
+      {% if person.notes %}
+        <p class="person-notes">{{ person.notes }}</p>
+      {% endif %}
+    </div>
+
+    <div class="person-detail-actions">
+      <a href="/personnes/{{ person.id }}/modifier/" class="btn btn-secondary" id="edit-person">Modifier</a>
+      <button type="button" class="btn btn-ghost" id="delete-person-btn">Supprimer</button>
+    </div>
+  </div>
+
+  <!-- Memories featuring this person -->
+  <section class="section-band">
+    <div class="section-header">
+      <div>
+        <p class="eyebrow">SOUVENIRS</p>
+        <h2 class="section-title">Apparitions de {{ person.name }}</h2>
+      </div>
+    </div>
+
+    {% if entries %}
+      <div class="entries-grid">
+        {% for entry in entries %}
+          {% include 'journal/_entry_card.html' with entry=entry %}
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <p class="empty-state-body">{{ person.name }} n'apparait dans aucune entree pour le moment.</p>
+      </div>
+    {% endif %}
+  </section>
+</div>
+
+<div class="modal-overlay" id="delete-person-modal" aria-modal="true" role="dialog" hidden>
+  <div class="modal">
+    <h2 class="modal-title">Supprimer {{ person.name }} ?</h2>
+    <p class="modal-body">Cette action supprimera la personne. Les entrees associees ne seront pas supprimees.</p>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-secondary" id="delete-person-cancel">Annuler</button>
+      <form method="post" action="/personnes/{{ person.id }}/supprimer/">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Supprimer</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var btn = document.getElementById('delete-person-btn');
+  var modal = document.getElementById('delete-person-modal');
+  var cancel = document.getElementById('delete-person-cancel');
+  if (btn) btn.addEventListener('click', function() { modal.hidden = false; });
+  if (cancel) cancel.addEventListener('click', function() { modal.hidden = true; });
+  if (modal) modal.addEventListener('click', function(e) { if (e.target === modal) modal.hidden = true; });
+});
+</script>
+{% endblock %}
