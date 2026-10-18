@@ -5,12 +5,12 @@
 
 {% block extra_css %}
 {{ block.super }}
-<link rel="stylesheet" href="{% static 'css/photo-picker.css' %}?v=20261018_1">
+<link rel="stylesheet" href="{% static 'css/photo-picker.css' %}?v=20261019_1">
 {% endblock %}
 
 {% block content %}
 <div class="container container--narrow">
-  <div class="page-header">
+  <div class="page-header reveal">
     <div>
       <p class="eyebrow">JOURNAL</p>
       <h1 class="page-title">{% if entry %}{% trans_text "Modifier l'entree" "Edit entry" %}{% else %}{% trans_text "Nouvelle entree" "New entry" %}{% endif %}</h1>
@@ -22,185 +22,221 @@
     {% endif %}
   </div>
 
-  <form method="post" action="" id="entry-form" enctype="multipart/form-data" class="entry-form" novalidate>
+  <form method="post" action="" id="entry-form" enctype="multipart/form-data" class="entry-form wizard" data-step="1" novalidate>
     {% csrf_token %}
+    <input type="hidden" name="face_data" id="face-data" value="">
 
     {% if form.non_field_errors %}
       <div class="form-error-banner">{{ form.non_field_errors }}</div>
     {% endif %}
 
-    <!-- Date -->
-    <div class="form-group">
-      <label for="id_entry_date" class="form-label">{% trans_text "Date de l'entree" "Entry date" %}</label>
-      <input type="date" name="entry_date" id="id_entry_date" class="form-input"
-        value="{{ form.entry_date.value|default:today }}" required>
-    </div>
-
-    <!-- Title -->
-    <div class="form-group">
-      <label for="id_title" class="form-label">
-        {% trans_text "Titre" "Title" %} <span class="form-optional">({% trans_text "optionnel" "optional" %})</span>
-      </label>
-      <input type="text" name="title" id="id_title" class="form-input"
-        placeholder="{% trans_text 'Donnez un titre a cette journee...' 'Give a title to this day...' %}"
-        value="{{ form.title.value|default:'' }}" maxlength="255">
-    </div>
-
-    <!-- Mood selector -->
-    <div class="form-group">
-      <label class="form-label">{% trans_text "Humeur" "Mood" %}</label>
-      <div class="mood-selector" id="mood-selector" role="radiogroup" aria-label="{% trans_text 'Choisir une humeur' 'Choose a mood' %}">
-        {% for value, label in mood_choices %}
-          <button type="button"
-            class="mood-btn {% if form.mood.value == value %}mood-btn--active{% endif %}"
-            data-mood="{{ value }}"
-            aria-label="{{ label }}"
-            aria-pressed="{% if form.mood.value == value %}true{% else %}false{% endif %}">
-            <span class="mood-emoji">{{ mood_emojis|get_item:value }}</span>
-            <span class="mood-name">{{ label }}</span>
-          </button>
-        {% endfor %}
-        <input type="hidden" name="mood" id="id_mood" value="{{ form.mood.value|default:'' }}">
-      </div>
-    </div>
-
-    <!-- Content -->
-    <div class="form-group">
-      <label for="id_content" class="form-label">{% trans_text "Votre entree" "Your entry" %}</label>
-      <div class="editor-toolbar">
-        <button type="button" class="editor-tool" data-format="bold" title="{% trans_text 'Gras' 'Bold' %}"><b>B</b></button>
-        <button type="button" class="editor-tool" data-format="italic" title="{% trans_text 'Italique' 'Italic' %}"><i>I</i></button>
-        <span class="editor-separator"></span>
-        <span class="word-counter" id="word-counter" aria-live="polite">0 {% trans_text "mots" "words" %}</span>
-      </div>
-      <textarea name="content" id="id_content" class="form-textarea"
-        placeholder="{% trans_text 'Que s\'est-il passe aujourd\'hui ? Comment vous sentez-vous ?' 'What happened today? How do you feel?' %}"
-        rows="14">{{ form.content.value|default:'' }}</textarea>
-      {% if form.content.errors %}
-        <p class="form-error">{{ form.content.errors|join:", " }}</p>
-      {% endif %}
-    </div>
-
-    <!-- ── COVER PHOTO (online picker) ── -->
-    <div class="form-group">
-      <label class="form-label">
-        {% trans_text "Photo de couverture" "Cover photo" %}
-        <span class="form-optional">({% trans_text "optionnel" "optional" %})</span>
-      </label>
-      <div class="cover-picker" id="cover-picker">
-        <input type="hidden" name="cover_image_url" id="cover-image-url"
-          value="{{ cover_image_url|default:'' }}">
-        <input type="hidden" name="cover_image_alt" id="cover-image-alt" value="">
-
-        <div class="cover-picker__preview {% if not cover_image_url %}is-empty{% endif %}" id="cover-preview">
-          {% if cover_image_url %}
-            <img src="{{ cover_image_url }}" alt="" id="cover-preview-img">
-          {% else %}
-            <img src="" alt="" id="cover-preview-img" hidden>
-          {% endif %}
-          <div class="cover-picker__placeholder" id="cover-placeholder">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="3" width="18" height="18" rx="3"></rect>
-              <circle cx="8.5" cy="8.5" r="1.5"></circle>
-              <path d="m21 15-5-5L5 21"></path>
-            </svg>
-            <span>{% trans_text "Aucune photo choisie" "No photo selected" %}</span>
-          </div>
-        </div>
-
-        <div class="cover-picker__actions">
-          <button type="button" class="btn btn-secondary btn-sm" id="open-photo-picker">
-            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="3" width="18" height="18" rx="3"></rect>
-              <circle cx="8.5" cy="8.5" r="1.5"></circle>
-              <path d="m21 15-5-5L5 21"></path>
-            </svg>
-            {% trans_text "Choisir une photo en ligne" "Pick an online photo" %}
-          </button>
-          <button type="button" class="btn btn-ghost btn-sm" id="clear-cover" {% if not cover_image_url %}hidden{% endif %}>
-            {% trans_text "Retirer" "Remove" %}
-          </button>
-          <span class="cover-picker__hint">
-            {% trans_text "Des milliers de photos, sans attendre l'IA." "Thousands of photos, no waiting for the AI." %}
-          </span>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── MEDIA UPLOAD (Drag & Drop) ── -->
-    <div class="form-group">
-      <label class="form-label">
-        Photos & Audio
-        <span class="form-optional">({% trans_text "optionnel" "optional" %})</span>
-      </label>
-      <div class="dropzone" id="dropzone" role="region" aria-label="{% trans_text 'Zone de depot de fichiers' 'File drop zone' %}">
-        <input type="file" name="media_files" id="media-file-input"
-          class="dropzone-input" multiple
-          accept="image/jpeg,image/png,image/webp,image/gif,audio/mpeg,audio/wav,audio/ogg,audio/webm,audio/mp4,audio/m4a">
-        <div class="dropzone-ui" id="dropzone-ui">
-          <div class="dropzone-icon" aria-hidden="true">
-            <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-              <path d="M20 8v16M13 15l7-7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M6 28v2a4 4 0 0 0 4 4h20a4 4 0 0 0 4-4v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-          </div>
-          <p class="dropzone-label">
-            <span class="dropzone-label-strong">{% trans_text "Glissez vos fichiers ici" "Drag your files here" %}</span><br>
-            {% trans_text "ou" "or" %} <button type="button" class="dropzone-browse" id="dropzone-browse">{% trans_text "choisir des fichiers" "choose files" %}</button>
-          </p>
-          <p class="dropzone-hint">{% trans_text "JPG, PNG, WebP, GIF, MP3, WAV, OGG — max 50 Mo" "JPG, PNG, WebP, GIF, MP3, WAV, OGG — max 50 MB" %}</p>
-        </div>
-        <div class="dropzone-preview" id="dropzone-preview" hidden></div>
-      </div>
-    </div>
-
-    <!-- Location (collapsible) -->
-    <div class="form-group form-group--collapsible">
-      <button type="button" class="form-collapsible-toggle" aria-expanded="{% if form.location.value %}true{% else %}false{% endif %}" aria-controls="location-fields" id="location-toggle">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-          <path d="M7 1a4 4 0 0 1 4 4c0 3-4 8-4 8S3 8 3 5a4 4 0 0 1 4-4z" stroke="currentColor" stroke-width="1.3"/>
-          <circle cx="7" cy="5" r="1.3" stroke="currentColor" stroke-width="1.3"/>
-        </svg>
-        {% trans_text "Ajouter un lieu" "Add a location" %}
+    <!-- ── Stepper ── -->
+    <div class="wizard-steps" role="tablist" aria-label="{% trans_text 'Etapes' 'Steps' %}">
+      <button type="button" class="wizard-step is-active" data-goto="1" role="tab" aria-selected="true">
+        <span class="wizard-step__num">1</span>
+        <span class="wizard-step__label">{% trans_text "Raconter" "Tell the story" %}</span>
       </button>
-      <div id="location-fields" class="form-collapsible-body" {% if not form.location.value %}hidden{% endif %}>
-        <input type="text" name="location" id="id_location" class="form-input"
-          placeholder="{% trans_text 'Ville, lieu...' 'City, place...' %}" value="{{ form.location.value|default:'' }}" maxlength="255">
-      </div>
+      <span class="wizard-step__line" aria-hidden="true"><span id="wizard-progress"></span></span>
+      <button type="button" class="wizard-step" data-goto="2" role="tab" aria-selected="false">
+        <span class="wizard-step__num">2</span>
+        <span class="wizard-step__label">{% trans_text "Illustrer" "Illustrate" %}</span>
+      </button>
     </div>
 
-    <!-- Tags -->
-    <div class="form-group">
-      <label class="form-label">Tags</label>
-      <div class="tags-input-wrapper" id="tags-input-wrapper">
-        {% for tag in user_tags %}
-          <label class="tag-checkbox-label" style="--tag-color: {{ tag.color }}">
-            <input type="checkbox" name="tags" value="{{ tag.id }}"
-              {% if entry and tag in entry.tags.all %}checked{% endif %}>
-            <span class="tag-checkbox-custom">
-              {% if tag.icon %}{{ tag.icon }} {% endif %}{{ tag.name }}
-            </span>
+    <!-- ═══════════ STEP 1 ═══════════ -->
+    <section class="wizard-panel is-active" data-panel="1">
+      <div class="wizard-card">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="id_entry_date" class="form-label">{% trans_text "Date de l'entree" "Entry date" %}</label>
+            <input type="date" name="entry_date" id="id_entry_date" class="form-input"
+              value="{{ form.entry_date.value|default:today }}" required>
+          </div>
+          <div class="form-group">
+            <label for="id_title" class="form-label">
+              {% trans_text "Titre" "Title" %} <span class="form-optional">({% trans_text "optionnel" "optional" %})</span>
+            </label>
+            <input type="text" name="title" id="id_title" class="form-input"
+              placeholder="{% trans_text 'Titre de la journee...' 'Title of the day...' %}"
+              value="{{ form.title.value|default:'' }}" maxlength="255">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">{% trans_text "Humeur" "Mood" %}</label>
+          <div class="mood-selector" id="mood-selector" role="radiogroup" aria-label="{% trans_text 'Choisir une humeur' 'Choose a mood' %}">
+            {% for value, label in mood_choices %}
+              <button type="button"
+                class="mood-btn {% if form.mood.value == value %}mood-btn--active{% endif %}"
+                data-mood="{{ value }}"
+                aria-label="{{ label }}"
+                aria-pressed="{% if form.mood.value == value %}true{% else %}false{% endif %}">
+                <span class="mood-emoji">{{ mood_emojis|get_item:value }}</span>
+                <span class="mood-name">{{ label }}</span>
+              </button>
+            {% endfor %}
+            <input type="hidden" name="mood" id="id_mood" value="{{ form.mood.value|default:'' }}">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="id_content" class="form-label">{% trans_text "Votre entree" "Your entry" %}</label>
+          <div class="editor-toolbar">
+            <button type="button" class="editor-tool" data-format="bold" title="{% trans_text 'Gras' 'Bold' %}"><b>B</b></button>
+            <button type="button" class="editor-tool" data-format="italic" title="{% trans_text 'Italique' 'Italic' %}"><i>I</i></button>
+            <span class="editor-separator"></span>
+            <span class="word-counter" id="word-counter" aria-live="polite">0 {% trans_text "mots" "words" %}</span>
+          </div>
+          <textarea name="content" id="id_content" class="form-textarea"
+            placeholder="{% trans_text 'Que s\'est-il passe aujourd\'hui ? Comment vous sentez-vous ?' 'What happened today? How do you feel?' %}"
+            rows="12">{{ form.content.value|default:'' }}</textarea>
+          <p class="form-hint" id="ai-hint">
+            <svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4"/></svg>
+            {% trans_text "L'IA analysera votre texte: resume, sentiment et mots-cles." "The AI will analyse your text: summary, sentiment and keywords." %}
+          </p>
+          {% if form.content.errors %}
+            <p class="form-error">{{ form.content.errors|join:", " }}</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="wizard-nav">
+        <span class="wizard-nav__spacer"></span>
+        <button type="button" class="btn btn-primary" data-next="2">
+          {% trans_text "Suivant" "Next" %}
+          <svg aria-hidden="true" width="13" height="13" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- ═══════════ STEP 2 ═══════════ -->
+    <section class="wizard-panel" data-panel="2" hidden>
+      <div class="wizard-card">
+        <!-- Cover photo (Pexels) -->
+        <div class="form-group">
+          <label class="form-label">
+            {% trans_text "Photo de couverture" "Cover photo" %}
+            <span class="form-optional">({% trans_text "optionnel" "optional" %})</span>
           </label>
-        {% empty %}
-          <a href="/tags/" class="tag-add-link" id="add-tag-link">{% trans_text "Creer des tags" "Create tags" %}</a>
-        {% endfor %}
-        {% if user_tags %}
-          <a href="/tags/" class="tag-add-link" id="add-tag-link">{% trans_text "+ Nouveau tag" "+ New tag" %}</a>
-        {% endif %}
-      </div>
-    </div>
+          <div class="cover-picker" id="cover-picker">
+            <input type="hidden" name="cover_image_url" id="cover-image-url" value="{{ cover_image_url|default:'' }}">
+            <input type="hidden" name="cover_image_alt" id="cover-image-alt" value="">
 
-    <!-- Submit -->
-    <div class="form-actions form-actions--sticky">
-      <div class="form-actions-left">
-        <span class="autosave-status" id="autosave-status" aria-live="polite"></span>
+            <div class="cover-picker__preview {% if not cover_image_url %}is-empty{% endif %}" id="cover-preview">
+              {% if cover_image_url %}
+                <img src="{{ cover_image_url }}" alt="" id="cover-preview-img">
+              {% else %}
+                <img src="" alt="" id="cover-preview-img" hidden>
+              {% endif %}
+              <div class="cover-picker__placeholder" id="cover-placeholder">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="3"></rect>
+                  <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                  <path d="m21 15-5-5L5 21"></path>
+                </svg>
+                <span>{% trans_text "Aucune photo choisie" "No photo selected" %}</span>
+              </div>
+            </div>
+
+            <div class="cover-picker__actions">
+              <button type="button" class="btn btn-secondary btn-sm" id="open-photo-picker">
+                <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="3"></rect>
+                  <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                  <path d="m21 15-5-5L5 21"></path>
+                </svg>
+                {% trans_text "Choisir une photo en ligne" "Pick an online photo" %}
+              </button>
+              <button type="button" class="btn btn-ghost btn-sm" id="clear-cover" {% if not cover_image_url %}hidden{% endif %}>
+                {% trans_text "Retirer" "Remove" %}
+              </button>
+              <span class="cover-picker__hint">
+                {% trans_text "Des milliers de photos, sans attendre l'IA." "Thousands of photos, no waiting for the AI." %}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Media upload -->
+        <div class="form-group">
+          <label class="form-label">
+            Photos & Audio
+            <span class="form-optional">({% trans_text "optionnel" "optional" %})</span>
+          </label>
+          <div class="dropzone" id="dropzone" role="region" aria-label="{% trans_text 'Zone de depot de fichiers' 'File drop zone' %}">
+            <input type="file" name="media_files" id="media-file-input"
+              class="dropzone-input" multiple
+              accept="image/jpeg,image/png,image/webp,image/gif,audio/mpeg,audio/wav,audio/ogg,audio/webm,audio/mp4,audio/m4a">
+            <div class="dropzone-ui" id="dropzone-ui">
+              <div class="dropzone-icon" aria-hidden="true">
+                <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                  <path d="M20 8v16M13 15l7-7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M6 28v2a4 4 0 0 0 4 4h20a4 4 0 0 0 4-4v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <p class="dropzone-label">
+                <span class="dropzone-label-strong">{% trans_text "Glissez vos fichiers ici" "Drag your files here" %}</span><br>
+                {% trans_text "ou" "or" %} <button type="button" class="dropzone-browse" id="dropzone-browse">{% trans_text "choisir des fichiers" "choose files" %}</button>
+              </p>
+              <p class="dropzone-hint">{% trans_text "JPG, PNG, WebP, GIF, MP3, WAV, OGG — max 50 Mo" "JPG, PNG, WebP, GIF, MP3, WAV, OGG — max 50 MB" %}</p>
+              <p class="dropzone-hint dropzone-hint--faces" id="face-hint">
+                <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="9" r="3"/><circle cx="17" cy="10" r="2.4"/><path d="M3 20c0-3 3-5 6-5s6 2 6 5"/></svg>
+                {% trans_text "Les visages de vos photos seront détectés automatiquement." "Faces in your photos will be detected automatically." %}
+              </p>
+            </div>
+            <div class="dropzone-preview" id="dropzone-preview" hidden></div>
+          </div>
+        </div>
+
+        <!-- Location -->
+        <div class="form-group form-group--collapsible">
+          <button type="button" class="form-collapsible-toggle" aria-expanded="{% if form.location.value %}true{% else %}false{% endif %}" aria-controls="location-fields" id="location-toggle">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+              <path d="M7 1a4 4 0 0 1 4 4c0 3-4 8-4 8S3 8 3 5a4 4 0 0 1 4-4z" stroke="currentColor" stroke-width="1.3"/>
+              <circle cx="7" cy="5" r="1.3" stroke="currentColor" stroke-width="1.3"/>
+            </svg>
+            {% trans_text "Ajouter un lieu" "Add a location" %}
+          </button>
+          <div id="location-fields" class="form-collapsible-body" {% if not form.location.value %}hidden{% endif %}>
+            <input type="text" name="location" id="id_location" class="form-input"
+              placeholder="{% trans_text 'Ville, lieu...' 'City, place...' %}" value="{{ form.location.value|default:'' }}" maxlength="255">
+          </div>
+        </div>
+
+        <!-- Tags -->
+        <div class="form-group">
+          <label class="form-label">Tags</label>
+          <div class="tags-input-wrapper" id="tags-input-wrapper">
+            {% for tag in user_tags %}
+              <label class="tag-checkbox-label" style="--tag-color: {{ tag.color }}">
+                <input type="checkbox" name="tags" value="{{ tag.id }}"
+                  {% if entry and tag in entry.tags.all %}checked{% endif %}>
+                <span class="tag-checkbox-custom">
+                  {% if tag.icon %}{{ tag.icon }} {% endif %}{{ tag.name }}
+                </span>
+              </label>
+            {% empty %}
+              <a href="/tags/" class="tag-add-link" id="add-tag-link">{% trans_text "Creer des tags" "Create tags" %}</a>
+            {% endfor %}
+            {% if user_tags %}
+              <a href="/tags/" class="tag-add-link" id="add-tag-link">{% trans_text "+ Nouveau tag" "+ New tag" %}</a>
+            {% endif %}
+          </div>
+        </div>
       </div>
-      <div class="form-actions-right">
+
+      <div class="wizard-nav">
+        <button type="button" class="btn btn-secondary" data-prev="1">
+          <svg aria-hidden="true" width="13" height="13" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6l4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          {% trans_text "Precedent" "Back" %}
+        </button>
+        <span class="wizard-nav__spacer"></span>
+        <span class="autosave-status" id="autosave-status" aria-live="polite"></span>
         <button type="submit" class="btn btn-primary" id="save-entry">
           {% if entry %}{% trans_text "Enregistrer" "Save" %}{% else %}{% trans_text "Creer l'entree" "Create entry" %}{% endif %}
         </button>
       </div>
-    </div>
+    </section>
   </form>
 
   <!-- ── ONLINE PHOTO PICKER (Pexels) ── -->
@@ -254,18 +290,71 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static 'vendor/face-api/face-api.min.js' %}"></script>
+<script>window.MEMO_FACE_WEIGHTS = "{% static 'vendor/face-api/weights' %}";</script>
+<script src="{% static 'js/face-detect.js' %}"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  // ── Mood selector ──
+document.addEventListener('DOMContentLoaded', function () {
+  /* ── Wizard steps ── */
+  var form = document.getElementById('entry-form');
+  var panels = form.querySelectorAll('.wizard-panel');
+  var steps = form.querySelectorAll('.wizard-step');
+  var progress = document.getElementById('wizard-progress');
+  var contentField = document.getElementById('id_content');
+
+  function showStep(n) {
+    form.dataset.step = String(n);
+    panels.forEach(function (p) {
+      var active = p.dataset.panel === String(n);
+      p.hidden = !active;
+      p.classList.toggle('is-active', active);
+    });
+    steps.forEach(function (s) {
+      var active = s.dataset.goto === String(n);
+      s.classList.toggle('is-active', active);
+      s.setAttribute('aria-selected', String(active));
+    });
+    if (progress) progress.style.width = n === '1' ? '0%' : '100%';
+  }
+
+  form.querySelectorAll('[data-next]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var target = btn.dataset.next;
+      if (form.dataset.step === '1' && (!contentField.value.trim())) {
+        if (window.showToast) window.showToast('{% trans_text "Ecrivez quelques mots pour que l\\'IA puisse analyser votre journee." "Write a few words so the AI can analyse your day." %}', 'warning');
+        contentField.focus();
+        return;
+      }
+      showStep(target);
+      window.scrollTo({ top: form.offsetTop - 90, behavior: 'smooth' });
+    });
+  });
+  form.querySelectorAll('[data-prev]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      showStep(btn.dataset.prev);
+      window.scrollTo({ top: form.offsetTop - 90, behavior: 'smooth' });
+    });
+  });
+  steps.forEach(function (s) {
+    s.addEventListener('click', function () {
+      if (s.dataset.goto === '2' && !contentField.value.trim()) {
+        if (window.showToast) window.showToast('{% trans_text "Ecrivez d\\'abord votre journee." "Write your day first." %}', 'warning');
+        return;
+      }
+      showStep(s.dataset.goto);
+    });
+  });
+
+  /* ── Mood selector ── */
   var moodBtns = document.querySelectorAll('.mood-btn');
   var moodInput = document.getElementById('id_mood');
-  moodBtns.forEach(function(btn) {
-    btn.addEventListener('click', function() {
+  moodBtns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
       var same = moodInput.value === this.dataset.mood;
-      moodBtns.forEach(function(b) { b.classList.remove('mood-btn--active'); b.setAttribute('aria-pressed','false'); });
+      moodBtns.forEach(function (b) { b.classList.remove('mood-btn--active'); b.setAttribute('aria-pressed', 'false'); });
       if (!same) {
         this.classList.add('mood-btn--active');
-        this.setAttribute('aria-pressed','true');
+        this.setAttribute('aria-pressed', 'true');
         moodInput.value = this.dataset.mood;
       } else {
         moodInput.value = '';
@@ -273,75 +362,79 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // ── Word counter ──
+  /* ── Word counter ── */
   var ta = document.getElementById('id_content');
   var counter = document.getElementById('word-counter');
   function updateCount() {
     var w = ta.value.trim() ? ta.value.trim().split(/\s+/).length : 0;
-    counter.textContent = w + ' mot' + (w !== 1 ? 's' : '');
+    counter.textContent = w + ' {% trans_text "mot" "word" %}' + (w !== 1 ? 's' : '');
   }
   if (ta) { ta.addEventListener('input', updateCount); updateCount(); }
 
-  // ── Location collapsible ──
+  /* ── Location collapsible ── */
   var locToggle = document.getElementById('location-toggle');
   var locFields = document.getElementById('location-fields');
   if (locToggle && locFields) {
-    locToggle.addEventListener('click', function() {
+    locToggle.addEventListener('click', function () {
       var exp = locToggle.getAttribute('aria-expanded') === 'true';
       locToggle.setAttribute('aria-expanded', String(!exp));
       locFields.hidden = exp;
     });
   }
 
-  // ── Drag & Drop ──
+  /* ── Drag & Drop with face detection ── */
   var dz = document.getElementById('dropzone');
   var dzInput = document.getElementById('media-file-input');
   var dzBrowse = document.getElementById('dropzone-browse');
   var dzPreview = document.getElementById('dropzone-preview');
   var dzUI = document.getElementById('dropzone-ui');
+  var faceDataInput = document.getElementById('face-data');
 
-  if (!dz || !dzInput) return;
+  var pendingFiles = [];
+  var faceMap = new Map();  // File -> {descriptors, boxes}
 
-  dzBrowse.addEventListener('click', function() { dzInput.click(); });
+  function rebuildInput() {
+    try {
+      var dt = new DataTransfer();
+      pendingFiles.forEach(function (f) { dt.items.add(f); });
+      dzInput.files = dt.files;
+    } catch (e) { /* older browsers: keep native list */ }
+  }
 
-  ['dragenter','dragover'].forEach(function(evt) {
-    dz.addEventListener(evt, function(e) {
-      e.preventDefault();
-      dz.classList.add('dropzone--over');
-    });
-  });
-  ['dragleave','drop'].forEach(function(evt) {
-    dz.addEventListener(evt, function(e) {
-      e.preventDefault();
-      dz.classList.remove('dropzone--over');
-    });
-  });
-  dz.addEventListener('drop', function(e) {
-    e.preventDefault();
-    handleFiles(e.dataTransfer.files);
-  });
+  function detectFaces(file, badge) {
+    if (!file.type || file.type.indexOf('image/') !== 0) return;
+    if (!window.MemoFace) return;
+    badge.textContent = '…';
+    window.MemoFace.detectFromFile(file).then(function (res) {
+      faceMap.set(file, res);
+      badge.textContent = res.descriptors.length ? ('👤 ' + res.descriptors.length) : '';
+    }).catch(function () { badge.textContent = ''; });
+  }
 
-  dzInput.addEventListener('change', function() {
-    handleFiles(this.files);
-  });
-
-  function handleFiles(files) {
-    if (!files.length) return;
+  function renderPreviews() {
     dzPreview.innerHTML = '';
+    if (!pendingFiles.length) {
+      dzPreview.hidden = true;
+      dzUI.style.display = '';
+      return;
+    }
     dzPreview.hidden = false;
     dzUI.style.display = 'none';
 
-    Array.from(files).forEach(function(file) {
+    pendingFiles.forEach(function (file, idx) {
       var item = document.createElement('div');
       item.className = 'preview-item';
 
-      if (file.type.startsWith('image/')) {
+      if (file.type.indexOf('image/') === 0) {
         var img = document.createElement('img');
         img.className = 'preview-img';
-        var reader = new FileReader();
-        reader.onload = function(e) { img.src = e.target.result; };
-        reader.readAsDataURL(file);
+        img.src = URL.createObjectURL(file);
         item.appendChild(img);
+        var badge = document.createElement('span');
+        badge.className = 'preview-face-badge';
+        item.appendChild(badge);
+        if (!faceMap.has(file)) detectFaces(file, badge);
+        else if (faceMap.get(file).descriptors.length) badge.textContent = '👤 ' + faceMap.get(file).descriptors.length;
       } else {
         var icon = document.createElement('div');
         icon.className = 'preview-audio-icon';
@@ -351,26 +444,57 @@ document.addEventListener('DOMContentLoaded', function() {
 
       var name = document.createElement('span');
       name.className = 'preview-name';
-      name.textContent = file.name.length > 20 ? file.name.substring(0,18)+'...' : file.name;
+      name.textContent = file.name.length > 20 ? file.name.substring(0, 18) + '...' : file.name;
       item.appendChild(name);
 
       var removeBtn = document.createElement('button');
       removeBtn.type = 'button';
       removeBtn.className = 'preview-remove';
       removeBtn.innerHTML = '&times;';
-      removeBtn.setAttribute('aria-label', 'Supprimer ' + file.name);
-      removeBtn.addEventListener('click', function() {
-        item.remove();
-        if (!dzPreview.children.length) {
-          dzPreview.hidden = true;
-          dzUI.style.display = '';
-          dzInput.value = '';
-        }
+      removeBtn.setAttribute('aria-label', 'Remove ' + file.name);
+      removeBtn.addEventListener('click', function () {
+        pendingFiles.splice(idx, 1);
+        rebuildInput();
+        renderPreviews();
       });
       item.appendChild(removeBtn);
       dzPreview.appendChild(item);
     });
   }
+
+  function addFiles(fileList) {
+    Array.prototype.forEach.call(fileList, function (f) { pendingFiles.push(f); });
+    rebuildInput();
+    renderPreviews();
+  }
+
+  if (dzBrowse && dz) {
+    dzBrowse.addEventListener('click', function () { dzInput.click(); });
+    ['dragenter', 'dragover'].forEach(function (evt) {
+      dz.addEventListener(evt, function (e) { e.preventDefault(); dz.classList.add('dropzone--over'); });
+    });
+    ['dragleave', 'drop'].forEach(function (evt) {
+      dz.addEventListener(evt, function (e) { e.preventDefault(); dz.classList.remove('dropzone--over'); });
+    });
+    dz.addEventListener('drop', function (e) { addFiles(e.dataTransfer.files); });
+    dzInput.addEventListener('change', function () {
+      // Only add files that are not already queued (native picker replaces the list).
+      addFiles(this.files);
+    });
+  }
+
+  /* Build the face_data payload right before submit. */
+  form.addEventListener('submit', function () {
+    rebuildInput();
+    var payload = {};
+    pendingFiles.forEach(function (file, idx) {
+      var info = faceMap.get(file);
+      if (info && info.descriptors && info.descriptors.length) {
+        payload[idx] = info;
+      }
+    });
+    faceDataInput.value = JSON.stringify(payload);
+  });
 });
 </script>
 <script>
@@ -398,12 +522,12 @@ document.addEventListener('DOMContentLoaded', function () {
   var state = { query: '', page: 1, loading: false, lastCount: 0 };
 
   var TEXT = {
-    empty: IS_EN ? 'No photo found. Try another search.' : 'Aucune photo trouvée. Essayez une autre recherche.',
-    loading: IS_EN ? 'Loading photos…' : 'Chargement des photos…',
-    error: IS_EN ? 'Could not reach the photo service. Try again.' : 'Service photo injoignable. Réessayez.',
+    empty: IS_EN ? 'No photo found. Try another search.' : 'Aucune photo trouvee. Essayez une autre recherche.',
+    loading: IS_EN ? 'Loading photos...' : 'Chargement des photos...',
+    error: IS_EN ? 'Could not reach the photo service. Try again.' : 'Service photo injoignable. Reessayez.',
     missingKey: IS_EN
       ? 'Add a free PEXELS_API_KEY in your .env to enable the online photo library.'
-      : 'Ajoutez une clé PEXELS_API_KEY (gratuite) dans votre .env pour activer la bibliothèque de photos.',
+      : 'Ajoutez une cle PEXELS_API_KEY (gratuite) dans votre .env pour activer la bibliotheque de photos.',
     more: IS_EN ? 'Load more' : 'Voir plus'
   };
 
@@ -446,7 +570,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (preview) preview.classList.remove('is-empty');
     if (clearBtn) clearBtn.hidden = false;
     close();
-    if (window.showToast) window.showToast(IS_EN ? 'Cover photo selected.' : 'Photo de couverture sélectionnée.', 'success');
+    if (window.showToast) window.showToast(IS_EN ? 'Cover photo selected.' : 'Photo de couverture selectionnee.', 'success');
   }
 
   function load(query, page, reset) {

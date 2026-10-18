@@ -85,6 +85,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'notifications.context_processors.notifications_context',
                 'accounts.context_processors.language_context',
+                'accounts.context_processors.user_experience_context',
             ],
             'builtins': [
                 'accounts.templatetags.memoai_i18n',

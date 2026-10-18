@@ -1,19 +1,22 @@
 {% extends 'base.html' %}
-{% block title %}{% if person %}{% trans_text "Modifier" "Edit" %}{% else %}{% trans_text "Ajouter" "Add" %}{% endif %} {% trans_text "une personne" "a person" %} — MemoAI{% endblock %}
+{% load static %}
+{% block title %}{% if person %}{% trans_text "Modifier" "Edit" %}{% else %}{% trans_text "Ajouter" "Add" %}{% endif %} {{ person.name|default:'' }} — MemoAI{% endblock %}
 
 {% block content %}
 <div class="container container--narrow">
-  <div class="page-header">
+  <div class="page-header reveal">
     <div>
       <p class="eyebrow">{% trans_text "PERSONNES" "PEOPLE" %}</p>
       <h1 class="page-title">{% if person %}{% trans_text "Modifier" "Edit" %} {{ person.name }}{% else %}{% trans_text "Ajouter une personne" "Add a person" %}{% endif %}</h1>
     </div>
-    <a href="/personnes/" class="btn btn-ghost">{% trans_text "Annuler" "Cancel" %}</a>
+    <a href="{% if person %}/personnes/{{ person.id }}/{% else %}/personnes/{% endif %}" class="btn btn-ghost">{% trans_text "Annuler" "Cancel" %}</a>
   </div>
 
-  <div class="card">
-    <form method="post" action="" id="person-form" class="auth-form">
+  <div class="card reveal">
+    <form method="post" action="" id="person-form" enctype="multipart/form-data" class="auth-form">
       {% csrf_token %}
+      <input type="hidden" name="face_descriptor" id="face-descriptor" value="">
+      <input type="hidden" name="avatar_url" id="avatar-url-hidden" value="{{ person.avatar_url|default:'' }}">
 
       <div class="form-group">
         <label for="id_name" class="form-label">{% trans_text "Nom" "Name" %}</label>
@@ -22,9 +25,30 @@
       </div>
 
       <div class="form-group">
-        <label for="id_avatar_url" class="form-label">Photo (URL) <span class="form-optional">({% trans_text "optionnel" "optional" %})</span></label>
-        <input type="url" name="avatar_url" id="id_avatar_url" class="form-input"
-          placeholder="https://..." value="{{ person.avatar_url|default:'' }}">
+        <label class="form-label">{% trans_text "Photo du visage" "Face photo" %}</label>
+        <div class="face-upload" id="face-upload">
+          <div class="face-upload__preview" id="face-preview">
+            {% if person.avatar_url %}
+              <img src="{{ person.avatar_url }}" alt="" id="face-preview-img">
+            {% else %}
+              <div class="face-upload__placeholder" id="face-placeholder">
+                <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                <span>{% trans_text "Glissez une photo ici" "Drag a photo here" %}</span>
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="face-upload__body">
+            <input type="file" name="avatar_file" id="avatar-file-input" class="dropzone-input" accept="image/*">
+            <p class="face-upload__hint">{% trans_text "ou" "or" %}
+              <button type="button" class="dropzone-browse" id="face-browse">{% trans_text "choisir un fichier" "choose a file" %}</button>
+            </p>
+            <div class="face-status" id="face-status" aria-live="polite"></div>
+          </div>
+        </div>
       </div>
 
       <div class="form-group">
@@ -41,4 +65,87 @@
     </form>
   </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'vendor/face-api/face-api.min.js' %}"></script>
+<script>window.MEMO_FACE_WEIGHTS = "{% static 'vendor/face-api/weights' %}";</script>
+<script src="{% static 'js/face-detect.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var LANG = document.documentElement.getAttribute('lang') === 'en' ? 'en' : 'fr';
+  var T = {
+    reading: LANG === 'en' ? 'Scanning the face…' : 'Analyse du visage…',
+    none: LANG === 'en' ? 'No face detected — you can still save the photo.' : 'Aucun visage détecté — vous pouvez quand même enregistrer la photo.',
+    found: LANG === 'en' ? 'Face detected ✓ Recognition is ready.' : 'Visage détecté ✓ Reconnaissance prête.',
+    error: LANG === 'en' ? 'Face scan unavailable.' : 'Analyse du visage indisponible.'
+  };
+
+  var input = document.getElementById('avatar-file-input');
+  var browse = document.getElementById('face-browse');
+  var zone = document.getElementById('face-upload');
+  var preview = document.getElementById('face-preview');
+  var placeholder = document.getElementById('face-placeholder');
+  var status = document.getElementById('face-status');
+  var hidden = document.getElementById('face-descriptor');
+
+  if (!input) return;
+
+  function setStatus(msg, kind) {
+    status.textContent = msg || '';
+    status.className = 'face-status' + (kind ? ' face-status--' + kind : '');
+  }
+
+  function showPreview(file) {
+    var url = URL.createObjectURL(file);
+    var img = preview.querySelector('img');
+    if (!img) {
+      img = document.createElement('img');
+      img.id = 'face-preview-img';
+      if (placeholder) placeholder.remove();
+      preview.appendChild(img);
+    }
+    img.src = url;
+  }
+
+  function analyse(file) {
+    if (!file || !file.type || file.type.indexOf('image/') !== 0) return;
+    showPreview(file);
+    if (!window.MemoFace) { setStatus(T.error, 'error'); return; }
+    setStatus(T.reading, 'loading');
+    window.MemoFace.detectFromFile(file).then(function (result) {
+      if (result.descriptors && result.descriptors.length) {
+        hidden.value = JSON.stringify(result.descriptors[0]);
+        setStatus(T.found, 'ok');
+      } else {
+        hidden.value = '';
+        setStatus(T.none, 'warn');
+      }
+    }).catch(function () {
+      hidden.value = '';
+      setStatus(T.error, 'error');
+    });
+  }
+
+  if (browse) browse.addEventListener('click', function () { input.click(); });
+  input.addEventListener('change', function () { if (this.files[0]) analyse(this.files[0]); });
+
+  ['dragenter', 'dragover'].forEach(function (evt) {
+    zone.addEventListener(evt, function (e) { e.preventDefault(); zone.classList.add('face-upload--over'); });
+  });
+  ['dragleave', 'drop'].forEach(function (evt) {
+    zone.addEventListener(evt, function (e) { e.preventDefault(); zone.classList.remove('face-upload--over'); });
+  });
+  zone.addEventListener('drop', function (e) {
+    var file = e.dataTransfer.files && e.dataTransfer.files[0];
+    if (!file) return;
+    try {
+      var dt = new DataTransfer();
+      dt.items.add(file);
+      input.files = dt.files;
+    } catch (err) { /* ignore */ }
+    analyse(file);
+  });
+});
+</script>
 {% endblock %}

@@ -225,7 +225,16 @@
   </style>
   {% block extra_css %}{% endblock %}
 </head>
-<body class="{% block body_class %}{% endblock %}">
+<body class="{% block body_class %}{% endblock %}{% if reduce_motion %} reduce-motion{% endif %}">
+
+  {% if user.is_authenticated %}
+  <div class="app-aurora" aria-hidden="true">
+    <span class="app-aurora__blob app-aurora__blob--1"></span>
+    <span class="app-aurora__blob app-aurora__blob--2"></span>
+    <span class="app-aurora__blob app-aurora__blob--3"></span>
+    <span class="app-aurora__grain"></span>
+  </div>
+  {% endif %}
 
   {% block header %}
   <header class="nav-wrapper" role="banner">
@@ -483,7 +492,7 @@
 
   <script>
     (function(){
-      var s = localStorage.getItem("memo-theme");
+      var s = localStorage.getItem("memo-theme") || "{{ user_theme|default:'system' }}";
       if(s === "dark"){ document.documentElement.setAttribute("data-theme","dark"); }
       else if(s === "light"){ document.documentElement.setAttribute("data-theme","light"); }
       else if(s === "system" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches){

@@ -1,18 +1,54 @@
 """
 MemoAi — Persons Template Views
-HTML interface for people management.
+HTML interface for people management, with photo upload + face descriptors.
 """
 
+import json
 import logging
-from django.contrib.auth.decorators import login_required
+import os
+import uuid
+
+from django.conf import settings
 from django.contrib import messages
-from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.decorators import method_decorator
 from django.views import View
 
 from .models import Person
 
 logger = logging.getLogger('memoai')
+
+
+def _save_avatar(user, avatar_file):
+    """Persist an uploaded portrait under MEDIA_ROOT and return its /media URL."""
+    ext = os.path.splitext(avatar_file.name)[1].lower() or '.jpg'
+    target_dir = settings.MEDIA_ROOT / 'persons'
+    os.makedirs(target_dir, exist_ok=True)
+    filename = f"person_{user.id}_{uuid.uuid4().hex[:8]}{ext}"
+    with open(target_dir / filename, 'wb+') as dest:
+        for chunk in avatar_file.chunks():
+            dest.write(chunk)
+    return f"{settings.MEDIA_URL}persons/{filename}"
+
+
+def _extract_descriptor(request):
+    """Read the client-side face-api.js descriptor for the uploaded photo."""
+    raw = request.POST.get('face_descriptor', '').strip()
+    if not raw:
+        return ''
+    try:
+        data = json.loads(raw)
+    except (ValueError, TypeError):
+        return ''
+    if isinstance(data, dict):
+        data = data.get('descriptor') or data.get('descriptors') or []
+        if data and isinstance(data[0], list):
+            data = data[0]
+    if isinstance(data, list) and data:
+        from ai.services.face_recognition_service import embedding_to_db
+        return embedding_to_db(data)
+    return ''
 
 
 @method_decorator(login_required, name='dispatch')
@@ -37,16 +73,18 @@ class PersonDetailView(View):
     def get(self, request, pk):
         person = get_object_or_404(Person, pk=pk, user=request.user)
 
-        # Find journal entries where this person appears
         from journal.models import JournalEntry
         entries = JournalEntry.objects.filter(
             user=request.user,
             media__face_detections__person=person
         ).distinct().prefetch_related('media', 'tags').select_related('ai_analysis')[:12]
 
+        face_detections = person.face_detections.select_related('media', 'media__entry').order_by('-created_at')[:8]
+
         return render(request, 'persons/detail.html', {
             'person': person,
             'entries': entries,
+            'face_detections': face_detections,
         })
 
 
@@ -59,8 +97,19 @@ class PersonCreateView(View):
         name = request.POST.get('name', '').strip() or 'Inconnu'
         notes = request.POST.get('notes', '').strip()
         avatar_url = request.POST.get('avatar_url', '').strip()
-        person = Person.objects.create(user=request.user, name=name, notes=notes, avatar_url=avatar_url)
-        messages.success(request, f'Personne "{name}" ajoutee.')
+
+        avatar_file = request.FILES.get('avatar_file')
+        if avatar_file:
+            avatar_url = _save_avatar(request.user, avatar_file)
+
+        person = Person.objects.create(
+            user=request.user, name=name, notes=notes, avatar_url=avatar_url,
+            face_embedding=_extract_descriptor(request) or None,
+        )
+        if person.face_embedding:
+            messages.success(request, f'Personne « {name} » ajoutée avec sa reconnaissance faciale.')
+        else:
+            messages.success(request, f'Personne « {name} » ajoutée.')
         return redirect('persons:detail', pk=person.pk)
 
 
@@ -74,9 +123,19 @@ class PersonEditView(View):
         person = get_object_or_404(Person, pk=pk, user=request.user)
         person.name = request.POST.get('name', person.name).strip()
         person.notes = request.POST.get('notes', person.notes).strip()
-        person.avatar_url = request.POST.get('avatar_url', person.avatar_url).strip()
-        person.save()
-        messages.success(request, 'Personne modifiee.')
+
+        avatar_file = request.FILES.get('avatar_file')
+        if avatar_file:
+            person.avatar_url = _save_avatar(request.user, avatar_file)
+
+        descriptor = _extract_descriptor(request)
+        if descriptor:
+            person.face_embedding = descriptor
+            person.save(update_fields=['name', 'notes', 'avatar_url', 'face_embedding'])
+            messages.success(request, 'Personne modifiée avec sa reconnaissance faciale.')
+        else:
+            person.save()
+            messages.success(request, 'Personne modifiée.')
         return redirect('persons:detail', pk=person.pk)
 
 
@@ -86,6 +145,6 @@ def person_delete(request, pk):
     if request.method == 'POST':
         name = person.name
         person.delete()
-        messages.success(request, f'"{name}" a ete supprime.')
+        messages.success(request, f'« {name} » a été supprimé.')
         return redirect('persons:list')
     return redirect('persons:detail', pk=pk)
