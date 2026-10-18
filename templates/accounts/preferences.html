@@ -255,8 +255,8 @@
 
             <div class="pref-item">
               <div class="pref-info">
-                <span class="pref-label">{{ t.prefs_ai_image_label|default:"Génération d'illustrations (Stable Diffusion)" }}</span>
-                <span class="pref-desc">{{ t.prefs_ai_image_desc|default:"Crée une œuvre visuelle abstraite inspirée de votre entrée" }}</span>
+                <span class="pref-label">{{ t.prefs_ai_image_label|default:"Génération d'illustrations (IA gratuite)" }}</span>
+                <span class="pref-desc">{% trans_text "Crée automatiquement une illustration inspirée de votre entrée (service gratuit)." "Automatically creates an illustration inspired by your entry (free service)." %}</span>
               </div>
               <label class="toggle-switch">
                 <input type="checkbox" name="image_generation_enabled" {% if preferences.image_generation_enabled %}checked{% endif %}>

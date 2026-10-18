@@ -1,13 +1,13 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Connexion — MemoAI{% endblock %}
+{% block title %}{% trans_text "Connexion" "Log in" %} — MemoAI{% endblock %}
 {% block body_class %}auth-page{% endblock %}
 
 {% block extra_css %}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{% static 'css/auth.css' %}?v=20261018_2">
+<link rel="stylesheet" href="{% static 'css/auth.css' %}?v=20261019_1">
 {% endblock %}
 
 {% block app_css %}{% endblock %}
@@ -20,7 +20,7 @@
   <!-- ─── Form panel ─────────────────────────────────────────────── -->
   <section class="auth__panel">
     <header class="auth__brand">
-      <a href="/" class="auth__logo" aria-label="MemoAI — Accueil">
+      <a href="/" class="auth__logo" aria-label="MemoAI — {% trans_text 'Accueil' 'Home' %}">
         <span class="dot-cluster dot-cluster--lg" aria-hidden="true">
           <span class="dot"></span><span class="dot"></span><span class="dot"></span>
           <span class="dot"></span><span class="dot dot--hidden"></span><span class="dot"></span>
@@ -32,8 +32,8 @@
     <main class="auth__main">
       <div class="auth__box">
         <header class="auth__head">
-          <h1 class="auth__title">Bon retour</h1>
-          <p class="auth__sub">Pas encore de compte ? <a href="/comptes/inscription/">Créez-en un</a></p>
+          <h1 class="auth__title">{% trans_text "Bon retour" "Welcome back" %}</h1>
+          <p class="auth__sub">{% trans_text "Pas encore de compte ?" "No account yet?" %} <a href="/comptes/inscription/">{% trans_text "Créez-en un" "Create one" %}</a></p>
         </header>
 
         <form method="post" action="" id="login-form" class="auth__form" novalidate>
@@ -44,13 +44,13 @@
           {% endif %}
 
           <label class="auth-field {% if form.email.errors %}auth-field--error{% endif %}" for="id_email">
-            <span class="sr-only">Adresse email</span>
+            <span class="sr-only">{% trans_text "Adresse email" "Email address" %}</span>
             <input
               type="email"
               name="email"
               id="id_email"
               class="auth-field__input"
-              placeholder="Votre adresse email"
+              placeholder="{% trans_text 'Votre adresse email' 'Your email address' %}"
               value="{{ form.email.value|default:'' }}"
               autocomplete="email"
               required
@@ -61,17 +61,17 @@
           {% endif %}
 
           <label class="auth-field {% if form.password.errors %}auth-field--error{% endif %}" for="id_password">
-            <span class="sr-only">Mot de passe</span>
+            <span class="sr-only">{% trans_text "Mot de passe" "Password" %}</span>
             <input
               type="password"
               name="password"
               id="id_password"
               class="auth-field__input"
-              placeholder="Votre mot de passe"
+              placeholder="{% trans_text 'Votre mot de passe' 'Your password' %}"
               autocomplete="current-password"
               required
             >
-            <button type="button" class="auth-field__peek password-toggle" aria-label="Afficher le mot de passe">
+            <button type="button" class="auth-field__peek password-toggle" aria-label="{% trans_text 'Afficher le mot de passe' 'Show password' %}">
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M1.5 8C3 4.5 5.5 3 8 3s5 1.5 6.5 5c-1.5 3.5-4 5-6.5 5S3 11.5 1.5 8z" stroke="currentColor" stroke-width="1.5"/></svg>
             </button>
           </label>
@@ -79,13 +79,20 @@
             <p class="form-error">{{ form.password.errors|join:", " }}</p>
           {% endif %}
 
-          <a href="/comptes/mot-de-passe/reinitialiser/" class="auth__forgot">Mot de passe oublié ?</a>
+          <div class="remember-row">
+            <label class="remember-label" for="id_remember_me">
+              <input type="checkbox" name="remember_me" id="id_remember_me" value="1" checked>
+              {% trans_text "Se souvenir de moi" "Remember me" %}
+            </label>
+          </div>
 
-          <button type="submit" class="auth-btn" id="login-submit">Se connecter</button>
+          <a href="/comptes/mot-de-passe/reinitialiser/" class="auth__forgot">{% trans_text "Mot de passe oublié ?" "Forgot password?" %}</a>
+
+          <button type="submit" class="auth-btn" id="login-submit">{% trans_text "Se connecter" "Log in" %}</button>
 
           <p class="auth__legal">
-            En continuant, vous acceptez nos <a href="/conditions/">conditions d'utilisation</a>
-            et notre <a href="/confidentialite/">politique de confidentialité</a>.
+            {% trans_text "En continuant, vous acceptez nos" "By continuing, you agree to our" %} <a href="/conditions/">{% trans_text "conditions d'utilisation" "terms of use" %}</a>
+            {% trans_text "et notre" "and our" %} <a href="/confidentialite/">{% trans_text "politique de confidentialité" "privacy policy" %}</a>.
           </p>
         </form>
       </div>
@@ -102,7 +109,7 @@
       <figure class="auth__scene-a"><img src="{% static 'img/tile_notebook.jpg' %}" alt=""></figure>
       <figure class="auth__scene-b"><img src="{% static 'img/tile_flowers.jpg' %}" alt=""></figure>
       <figure class="auth__scene-c"><img src="{% static 'img/tile_coffee.jpg' %}" alt=""></figure>
-      <p class="auth__caption">Votre vie, joliment conservée.<br>Par MemoAI</p>
+      <p class="auth__caption">{% trans_text "Votre vie, joliment conservée." "Your life, beautifully kept." %}<br>Par MemoAI</p>
     </div>
   </section>
 

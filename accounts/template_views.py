@@ -79,6 +79,13 @@ class TemplateLoginView(View):
             )
             if user and user.is_active:
                 login(request, user)
+                # "Remember me" → 2-week persistent session; otherwise the
+                # session cookie dies when the browser closes.
+                from django.conf import settings as _settings
+                if request.POST.get('remember_me'):
+                    request.session.set_expiry(_settings.SESSION_COOKIE_AGE)
+                else:
+                    request.session.set_expiry(0)
                 messages.success(request, f'Bienvenue, {user.first_name} !')
                 return redirect(request.GET.get('next', 'journal:home'))
             else:
