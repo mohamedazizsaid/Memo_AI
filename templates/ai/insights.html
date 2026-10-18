@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% block title %}Insights IA — MemoAI{% endblock %}
+{% block nav_insights %}active{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">INTELLIGENCE ARTIFICIELLE</p>
+      <h1 class="page-title">Vos insights</h1>
+    </div>
+    <div class="header-period-selector">
+      <form method="get" action="" id="period-form">
+        <select name="period" class="form-select" onchange="this.form.submit()" id="period-select">
+          <option value="7" {% if period == '7' %}selected{% endif %}>7 derniers jours</option>
+          <option value="30" {% if period == '30' or not period %}selected{% endif %}>30 derniers jours</option>
+          <option value="90" {% if period == '90' %}selected{% endif %}>3 derniers mois</option>
+          <option value="365" {% if period == '365' %}selected{% endif %}>Cette annee</option>
+        </select>
+      </form>
+    </div>
+  </div>
+
+  <!-- Stats overview -->
+  <div class="insights-stats">
+    <div class="insight-stat-card">
+      <span class="insight-stat-value">{{ stats.total_entries|default:0 }}</span>
+      <span class="insight-stat-label">Entrees</span>
+    </div>
+    <div class="insight-stat-card">
+      <span class="insight-stat-value">{{ stats.total_words|default:0 }}</span>
+      <span class="insight-stat-label">Mots ecrits</span>
+    </div>
+    <div class="insight-stat-card">
+      <span class="insight-stat-value">{{ stats.streak_days|default:0 }}</span>
+      <span class="insight-stat-label">Jours consecutifs</span>
+    </div>
+    <div class="insight-stat-card">
+      <span class="insight-stat-value">{{ stats.most_used_mood|default:"—" }}</span>
+      <span class="insight-stat-label">Humeur dominante</span>
+    </div>
+  </div>
+
+  <!-- Mood distribution -->
+  <div class="insights-grid">
+    <div class="insight-card insight-card--wide">
+      <div class="insight-card-header">
+        <h2 class="insight-card-title">Distribution des humeurs</h2>
+      </div>
+      <div class="mood-chart" id="mood-chart" aria-label="Graphique des humeurs">
+        {% if stats.entries_by_mood %}
+          {% for mood, count in stats.entries_by_mood.items %}
+            <div class="mood-bar-row">
+              <span class="mood-bar-label">
+                {% if mood == 'amazing' %}🤩
+                {% elif mood == 'good' %}😊
+                {% elif mood == 'neutral' %}😐
+                {% elif mood == 'sad' %}😢
+                {% elif mood == 'stressed' %}😤
+                {% elif mood == 'anxious' %}😰
+                {% elif mood == 'tired' %}😴
+                {% elif mood == 'angry' %}😠
+                {% elif mood == 'excited' %}🎉
+                {% elif mood == 'grateful' %}🙏
+                {% endif %}
+                {{ mood }}
+              </span>
+              <div class="mood-bar-track">
+                <div class="mood-bar-fill mood-bar-fill--{{ mood }}" style="width: {{ count|default:0 }}%" aria-valuenow="{{ count }}" role="progressbar"></div>
+              </div>
+              <span class="mood-bar-count">{{ count }}</span>
+            </div>
+          {% endfor %}
+        {% else %}
+          <p class="insight-empty">Pas encore assez de donnees.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Top tags -->
+    <div class="insight-card">
+      <div class="insight-card-header">
+        <h2 class="insight-card-title">Tags les plus utilises</h2>
+      </div>
+      {% if stats.most_used_tags %}
+        <div class="top-tags-list">
+          {% for tag in stats.most_used_tags %}
+            <div class="top-tag-item">
+              <span class="tag-pill" style="--tag-color: {{ tag.color }}">{{ tag.name }}</span>
+              <span class="top-tag-count">{{ tag.entry_count }} entree{{ tag.entry_count|pluralize }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="insight-empty">Aucun tag encore utilise.</p>
+      {% endif %}
+    </div>
+
+    <!-- Writing frequency -->
+    <div class="insight-card">
+      <div class="insight-card-header">
+        <h2 class="insight-card-title">Frequence d'ecriture</h2>
+      </div>
+      <div class="freq-stats">
+        <div class="freq-stat">
+          <span class="freq-value">{{ stats.entries_this_week|default:0 }}</span>
+          <span class="freq-label">Cette semaine</span>
+        </div>
+        <div class="freq-stat">
+          <span class="freq-value">{{ stats.entries_this_month|default:0 }}</span>
+          <span class="freq-label">Ce mois-ci</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Insights list -->
+  {% if insights %}
+    <section class="section-band">
+      <div class="section-header">
+        <div>
+          <p class="eyebrow">ANALYSE</p>
+          <h2 class="section-title">Insights recents</h2>
+        </div>
+      </div>
+      <div class="insights-list">
+        {% for insight in insights %}
+          <div class="insight-item" id="insight-{{ insight.id }}">
+            <div class="insight-item-icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M10 2L12 8H18L13 12L15 18L10 14L5 18L7 12L2 8H8L10 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="insight-item-body">
+              <h3 class="insight-item-title">{{ insight.title }}</h3>
+              <p class="insight-item-body-text">{{ insight.content }}</p>
+              <span class="insight-item-date">{{ insight.created_at|date:"j F Y" }}</span>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+</div>
+{% endblock %}

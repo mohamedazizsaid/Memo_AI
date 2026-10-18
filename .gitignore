@@ -50,7 +50,6 @@ Thumbs.db
 
 
 test
-templates/ai
 templates/journal
 templates/notifications
 templates/tags
