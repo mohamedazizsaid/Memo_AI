@@ -494,6 +494,23 @@ document.addEventListener('DOMContentLoaded', function() {
       window.location.href = targetUrl;
     });
   }
+
+  // Apply "reduce animations" live and remember it locally
+  var motionToggle = document.querySelector('input[name="reduce_motion"]');
+  function applyMotion() {
+    var on = motionToggle && motionToggle.checked;
+    document.body.classList.toggle('reduce-motion', !!on);
+    try { localStorage.setItem('memo-reduce-motion', on ? '1' : '0'); } catch (e) {}
+  }
+  if (motionToggle) {
+    motionToggle.addEventListener('change', function() {
+      applyMotion();
+      if (window.showToast) {
+        var isEn = '{{ current_lang }}' === 'en';
+        window.showToast(isEn ? 'Animation preference updated.' : 'Préférence d\\'animation mise à jour.', 'info');
+      }
+    });
+  }
 });
 </script>
 {% endblock %}
