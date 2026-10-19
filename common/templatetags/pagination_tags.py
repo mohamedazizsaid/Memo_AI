@@ -29,10 +29,10 @@ def page_url(context, page, param='page', anchor=''):
         params[param] = str(page)
 
     query = params.urlencode()
-    url = ('?' + query) if query else '?'
+    url = ('?' + query) if query else ''
     if anchor:
         url += '#' + anchor.lstrip('#')
-    return url
+    return url or '?'
 
 
 @register.filter
