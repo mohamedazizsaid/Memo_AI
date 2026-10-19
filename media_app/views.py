@@ -37,21 +37,10 @@ def validate_file(file, media_type):
 
 
 def upload_to_cloudinary(file, media_type, user_id):
-    """Upload file to Cloudinary and return URL and public_id."""
-    import cloudinary.uploader
+    """Upload file to Cloudinary and return URL and public_id (no local disk)."""
+    from common.cloud_media import upload_media
 
-    folder = f"memoai/{user_id}/{'images' if media_type == 'IMAGE' else 'audio'}"
-    resource_type = 'image' if media_type == 'IMAGE' else 'video'
-
-    result = cloudinary.uploader.upload(
-        file,
-        folder=folder,
-        resource_type=resource_type,
-        overwrite=False,
-        use_filename=True,
-        unique_filename=True,
-    )
-    return result['secure_url'], result['public_id']
+    return upload_media(file, media_type, user_id, kind=None)
 
 
 @api_view(['POST'])

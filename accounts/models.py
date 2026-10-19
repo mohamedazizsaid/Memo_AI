@@ -83,6 +83,16 @@ class UserPreferences(models.Model):
         ('fr', 'Français'),
         ('en', 'English'),
     ]
+    GENDER_CHOICES = [
+        ('female', 'Femme'),
+        ('male', 'Homme'),
+        ('non_binary', 'Non-binaire'),
+        ('undisclosed', 'Préfère ne pas préciser'),
+    ]
+    PROFILE_VISIBILITY_CHOICES = [
+        ('private', 'Privé — visible par moi uniquement'),
+        ('public', 'Public — visible par les autres utilisateurs'),
+    ]
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='preferences')
 
@@ -90,6 +100,16 @@ class UserPreferences(models.Model):
     theme = models.CharField(max_length=10, choices=THEME_CHOICES, default='system')
     language = models.CharField(max_length=5, choices=LANGUAGE_CHOICES, default='fr')
     reduce_motion = models.BooleanField(default=False)
+
+    # Profile identity & privacy (chosen during onboarding)
+    gender = models.CharField(max_length=20, choices=GENDER_CHOICES, blank=True)
+    profile_visibility = models.CharField(
+        max_length=10, choices=PROFILE_VISIBILITY_CHOICES, default='private'
+    )
+
+    # Onboarding
+    onboarding_completed = models.BooleanField(default=False)
+    onboarding_completed_at = models.DateTimeField(null=True, blank=True)
 
     # Notifications
     daily_reminder_enabled = models.BooleanField(default=True)

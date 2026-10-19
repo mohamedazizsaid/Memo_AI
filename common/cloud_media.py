@@ -112,11 +112,11 @@ def upload_file(
     return url, result.get('public_id', '')
 
 
-def upload_media(file, media_type: str, user_id, kind: str = 'journal') -> tuple[str, str]:
+def upload_media(file, media_type: str, user_id, kind: str | None = 'journal') -> tuple[str, str]:
     """Upload a journal photo/audio note and return ``(url, public_id)``."""
     is_audio = str(media_type).upper() == 'AUDIO'
     subfolder = 'audio' if is_audio else 'images'
-    folder = f'{kind}/{user_id}/{subfolder}'
+    folder = f'{kind}/{user_id}/{subfolder}' if kind else f'{user_id}/{subfolder}'
     return upload_file(
         file,
         folder,

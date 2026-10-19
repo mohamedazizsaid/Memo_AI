@@ -19,6 +19,21 @@ logger = logging.getLogger('memoai')
 User = get_user_model()
 
 
+def _upload_avatar(user, avatar_file):
+    """Upload a profile photo to Cloudinary and return its secure URL."""
+    from common.cloud_media import upload_avatar
+
+    return upload_avatar(avatar_file, user.id, kind='avatars')
+
+
+def _avatar_warning(request):
+    is_en = str(getattr(request, 'LANGUAGE_CODE', 'fr')).lower().startswith('en')
+    return ('Your photo could not be uploaded to Cloudinary. '
+            'Your account is still saved without it.') if is_en else (
+        "Votre photo n'a pas pu être envoyée vers Cloudinary. "
+        "Votre compte est enregistré sans photo.")
+
+
 def _with_welcome(target):
     """Append `?welcome=1` to a redirect target without breaking anchors.
 
@@ -120,22 +135,15 @@ class TemplateRegisterView(View):
         if form.is_valid():
             user = form.save()
 
-            # Handle avatar file upload
+            # Handle avatar file upload — Cloudinary only, never local disk.
             avatar_file = request.FILES.get('avatar_file')
             if avatar_file:
-                import os
-                import uuid
-                from django.conf import settings
-                avatars_dir = settings.MEDIA_ROOT / 'avatars'
-                os.makedirs(avatars_dir, exist_ok=True)
-                ext = os.path.splitext(avatar_file.name)[1].lower() or '.jpg'
-                filename = f"avatar_{user.id}_{uuid.uuid4().hex[:8]}{ext}"
-                file_path = avatars_dir / filename
-                with open(file_path, 'wb+') as destination:
-                    for chunk in avatar_file.chunks():
-                        destination.write(chunk)
-                user.avatar = f"/media/avatars/{filename}"
-                user.save(update_fields=['avatar'])
+                try:
+                    user.avatar = _upload_avatar(user, avatar_file)
+                    user.save(update_fields=['avatar'])
+                except Exception as exc:
+                    logger.warning('Cloudinary avatar upload failed: %s', exc)
+                    messages.warning(request, _avatar_warning(request))
             elif request.POST.get('avatar_url'):
                 user.avatar = request.POST.get('avatar_url').strip()
                 user.save(update_fields=['avatar'])
@@ -175,18 +183,11 @@ class TemplateProfileView(View):
 
         avatar_file = request.FILES.get('avatar_file')
         if avatar_file:
-            import os
-            import uuid
-            from django.conf import settings
-            avatars_dir = settings.MEDIA_ROOT / 'avatars'
-            os.makedirs(avatars_dir, exist_ok=True)
-            ext = os.path.splitext(avatar_file.name)[1].lower() or '.jpg'
-            filename = f"avatar_{user.id}_{uuid.uuid4().hex[:8]}{ext}"
-            file_path = avatars_dir / filename
-            with open(file_path, 'wb+') as destination:
-                for chunk in avatar_file.chunks():
-                    destination.write(chunk)
-            user.avatar = f"/media/avatars/{filename}"
+            try:
+                user.avatar = _upload_avatar(user, avatar_file)
+            except Exception as exc:
+                logger.warning('Cloudinary avatar upload failed: %s', exc)
+                messages.warning(request, _avatar_warning(request))
         elif request.POST.get('avatar'):
             user.avatar = request.POST.get('avatar')
 

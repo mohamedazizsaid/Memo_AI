@@ -252,7 +252,17 @@ CLOUDINARY_STORAGE = {
     'API_SECRET': config('CLOUDINARY_API_SECRET', default=''),
 }
 
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+# Django 5.1+ removed DEFAULT_FILE_STORAGE; STORAGES is the supported API.
+# The default backend keeps Cloudinary as the only storage for user files,
+# while `common.cloud_media` uploads explicitly (and never falls back to disk).
+STORAGES = {
+    'default': {
+        'BACKEND': 'cloudinary_storage.storage.MediaCloudinaryStorage',
+    },
+    'staticfiles': {
+        'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage',
+    },
+}
 
 # Folder root used for every asset MemoAI pushes to Cloudinary
 # (generated illustrations, etc.).
@@ -264,7 +274,6 @@ CLOUDINARY_MEDIA_FOLDER = config('CLOUDINARY_MEDIA_FOLDER', default='memoai')
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'mediafiles'

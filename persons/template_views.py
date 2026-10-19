@@ -5,10 +5,7 @@ HTML interface for people management, with photo upload + face descriptors.
 
 import json
 import logging
-import os
-import uuid
 
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
@@ -24,15 +21,27 @@ PERSONS_PER_PAGE = 12
 
 
 def _save_avatar(user, avatar_file):
-    """Persist an uploaded portrait under MEDIA_ROOT and return its /media URL."""
-    ext = os.path.splitext(avatar_file.name)[1].lower() or '.jpg'
-    target_dir = settings.MEDIA_ROOT / 'persons'
-    os.makedirs(target_dir, exist_ok=True)
-    filename = f"person_{user.id}_{uuid.uuid4().hex[:8]}{ext}"
-    with open(target_dir / filename, 'wb+') as dest:
-        for chunk in avatar_file.chunks():
-            dest.write(chunk)
-    return f"{settings.MEDIA_URL}persons/{filename}"
+    """Upload an uploaded portrait to Cloudinary and return its secure URL.
+
+    The local disk is never touched (see ``common.cloud_media``). Raises on
+    provider/configuration errors so the view can keep the old photo.
+    """
+    from common.cloud_media import upload_avatar
+
+    return upload_avatar(avatar_file, user.id, kind='persons')
+
+
+def _avatar_warning(request, editing=False):
+    is_en = str(getattr(request, 'LANGUAGE_CODE', 'fr')).lower().startswith('en')
+    if editing:
+        return ('The new photo could not be uploaded to Cloudinary. '
+                'The previous photo was kept.') if is_en else (
+            "La nouvelle photo n'a pas pu être envoyée vers Cloudinary. "
+            "L'ancienne photo a été conservée.")
+    return ('The photo could not be uploaded to Cloudinary. '
+            'The person was saved without a photo.') if is_en else (
+        "La photo n'a pas pu être envoyée vers Cloudinary. "
+        "La personne a été enregistrée sans photo.")
 
 
 def _extract_descriptor(request):
@@ -124,7 +133,11 @@ class PersonCreateView(View):
         avatar_url = ''
         avatar_file = request.FILES.get('avatar_file')
         if avatar_file:
-            avatar_url = _save_avatar(request.user, avatar_file)
+            try:
+                avatar_url = _save_avatar(request.user, avatar_file)
+            except Exception as exc:
+                logger.warning('Cloudinary portrait upload failed: %s', exc)
+                messages.warning(request, _avatar_warning(request))
 
         person = Person.objects.create(
             user=request.user, name=name, notes=notes, avatar_url=avatar_url,
@@ -161,7 +174,11 @@ class PersonEditView(View):
 
         avatar_file = request.FILES.get('avatar_file')
         if avatar_file:
-            person.avatar_url = _save_avatar(request.user, avatar_file)
+            try:
+                person.avatar_url = _save_avatar(request.user, avatar_file)
+            except Exception as exc:
+                logger.warning('Cloudinary portrait upload failed: %s', exc)
+                messages.warning(request, _avatar_warning(request, editing=True))
 
         descriptor = _extract_descriptor(request)
         if descriptor:
