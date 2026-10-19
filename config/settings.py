@@ -253,6 +253,10 @@ CLOUDINARY_STORAGE = {
 
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
+# Folder root used for every asset MemoAI pushes to Cloudinary
+# (generated illustrations, etc.).
+CLOUDINARY_MEDIA_FOLDER = config('CLOUDINARY_MEDIA_FOLDER', default='memoai')
+
 # ─────────────────────────────────────────────
 # Static & Media Files
 # ─────────────────────────────────────────────
