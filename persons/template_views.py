@@ -11,6 +11,7 @@ import uuid
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.decorators import method_decorator
 from django.views import View
@@ -18,6 +19,8 @@ from django.views import View
 from .models import Person
 
 logger = logging.getLogger('memoai')
+
+PERSONS_PER_PAGE = 12
 
 
 def _save_avatar(user, avatar_file):
@@ -54,7 +57,7 @@ def _extract_descriptor(request):
 @method_decorator(login_required, name='dispatch')
 class PersonListView(View):
     def get(self, request):
-        persons = Person.objects.filter(user=request.user)
+        persons = Person.objects.filter(user=request.user).order_by('name')
         try:
             from accounts.models import UserPreferences
             prefs, _ = UserPreferences.objects.get_or_create(user=request.user)
@@ -62,8 +65,13 @@ class PersonListView(View):
         except Exception:
             consent_granted = False
 
+        paginator = Paginator(persons, PERSONS_PER_PAGE)
+        page_obj = paginator.get_page(request.GET.get('page', 1))
+
         return render(request, 'persons/list.html', {
-            'persons': persons,
+            'persons': page_obj,
+            'page_obj': page_obj,
+            'is_paginated': paginator.num_pages > 1,
             'consent_granted': consent_granted,
         })
 

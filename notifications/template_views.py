@@ -5,6 +5,7 @@ MemoAi — Notifications Template Views
 import logging
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views import View
@@ -13,12 +14,20 @@ from .models import Notification
 
 logger = logging.getLogger('memoai')
 
+NOTIFICATIONS_PER_PAGE = 20
+
 
 @method_decorator(login_required, name='dispatch')
 class NotificationListView(View):
     def get(self, request):
-        notifications = Notification.objects.filter(user=request.user).order_by('-created_at')[:50]
-        return render(request, 'notifications/list.html', {'notifications': notifications})
+        notifications = Notification.objects.filter(user=request.user).order_by('-created_at')
+        paginator = Paginator(notifications, NOTIFICATIONS_PER_PAGE)
+        page_obj = paginator.get_page(request.GET.get('page', 1))
+        return render(request, 'notifications/list.html', {
+            'notifications': page_obj,
+            'page_obj': page_obj,
+            'is_paginated': paginator.num_pages > 1,
+        })
 
 
 @login_required

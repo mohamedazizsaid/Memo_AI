@@ -425,14 +425,17 @@
         </div>
       </div>
 
-      <form method="post" action="" id="tag-form">
+      <form method="post" action="" id="tag-form" data-validate novalidate>
         {% csrf_token %}
 
         <div class="form-group-spaced">
           <label for="id_name" class="form-label">{% trans_text "Nom du tag" "Tag name" %}</label>
           <input type="text" name="name" id="id_name"
             class="form-input" placeholder="{% trans_text 'Voyage, Idées, Famille...' 'Travel, Ideas, Family...' %}"
-            value="{{ form.name.value|default:'' }}" maxlength="50" required autocomplete="off">
+            value="{{ form.name.value|default:'' }}" maxlength="50" minlength="2" required
+            autocomplete="off"
+            data-msg-required="{% trans_text 'Donnez un nom à votre tag.' 'Give your tag a name.' %}"
+            data-msg-minlength="{% trans_text 'Le nom doit contenir au moins 2 caractères.' 'The name must be at least 2 characters long.' %}">
         </div>
 
         <div class="form-group-spaced">
@@ -484,7 +487,7 @@
     <!-- Right: Tags Cards Grid -->
     <div class="tags-content-panel reveal">
       <!-- Stats Ribbon -->
-      {% if tags %}
+      {% if total_tags %}
         <div class="tags-stats-ribbon">
           <div class="tag-stat-pill">
             <span class="tag-stat-value">{{ total_tags }}</span>
@@ -504,19 +507,22 @@
           {% endif %}
         </div>
 
-        <!-- Search Bar -->
-        <div class="tags-toolbar">
+        <!-- Search Bar (Enter filters every page, server-side) -->
+        <form class="tags-toolbar" method="get" action="/tags/" role="search">
           <div class="tags-search-input-wrapper">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="color:var(--color-stone);">
               <circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.5"/>
               <path d="M11 11L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
             </svg>
-            <input type="text" id="tag-filter-input" class="tags-search-input" placeholder="{% trans_text 'Rechercher parmi vos tags...' 'Search among your tags...' %}" autocomplete="off">
+            <input type="text" name="q" id="tag-filter-input" class="tags-search-input" value="{{ search }}" placeholder="{% trans_text 'Rechercher parmi vos tags...' 'Search among your tags...' %}" autocomplete="off">
           </div>
           <span style="font-size:12px; color:var(--color-stone); font-weight:500;" id="tags-count-badge">
-            {{ tags|length }} tag{{ tags|length|pluralize }}
+            {{ page_obj.paginator.count }} tag{{ page_obj.paginator.count|pluralize }}
           </span>
-        </div>
+          {% if search %}
+            <a href="/tags/" class="btn btn-ghost btn-sm" id="clear-tag-search">{% trans_text "Effacer" "Clear" %}</a>
+          {% endif %}
+        </form>
       {% endif %}
 
       <!-- Grid of Cards -->
@@ -566,6 +572,7 @@
             </div>
           {% endfor %}
         </div>
+        {% include 'partials/pagination.html' with page_obj=page_obj param='page' anchor='tags-cards-container' %}
       {% else %}
         <div class="tags-empty-state">
           <div class="tags-empty-icon">
@@ -574,10 +581,18 @@
               <line x1="7" y1="7" x2="7.01" y2="7"></line>
             </svg>
           </div>
-          <h3 style="font-family: var(--font-primary); font-size: 18px; margin: 0; color: var(--color-ink-black);">{% trans_text "Aucun tag créé" "No tag created" %}</h3>
-          <p style="font-size: 14px; color: var(--color-stone); margin: 0; max-width: 320px;">
-            {% trans_text "Créez votre premier tag à l'aide du formulaire pour classer vos souvenirs par thématique." "Create your first tag using the form to organize your memories by theme." %}
-          </p>
+          {% if search %}
+            <h3 style="font-family: var(--font-primary); font-size: 18px; margin: 0; color: var(--color-ink-black);">{% trans_text "Aucun tag trouvé" "No tag found" %}</h3>
+            <p style="font-size: 14px; color: var(--color-stone); margin: 0; max-width: 320px;">
+              {% trans_text "Aucun tag ne correspond à" "No tag matches" %} « {{ search }} ».
+            </p>
+            <a href="/tags/" class="btn btn-secondary btn-sm">{% trans_text "Réinitialiser la recherche" "Reset search" %}</a>
+          {% else %}
+            <h3 style="font-family: var(--font-primary); font-size: 18px; margin: 0; color: var(--color-ink-black);">{% trans_text "Aucun tag créé" "No tag created" %}</h3>
+            <p style="font-size: 14px; color: var(--color-stone); margin: 0; max-width: 320px;">
+              {% trans_text "Créez votre premier tag à l'aide du formulaire pour classer vos souvenirs par thématique." "Create your first tag using the form to organize your memories by theme." %}
+            </p>
+          {% endif %}
         </div>
       {% endif %}
     </div>

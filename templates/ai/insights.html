@@ -210,7 +210,7 @@
           <h2 class="section-title">{% trans_text "Insights recents" "Recent insights" %}</h2>
         </div>
       </div>
-      <div class="insights-list reveal-stagger">
+      <div class="insights-list reveal-stagger" id="insights-list">
         {% for insight in insights %}
           <a class="insight-item" id="insight-{{ insight.id }}" href="/journal/{{ insight.entry.id }}/" style="text-decoration:none;color:inherit;">
             <div class="insight-item-icon" aria-hidden="true">
@@ -231,6 +231,7 @@
           </a>
         {% endfor %}
       </div>
+      {% include 'partials/pagination.html' with page_obj=page_obj param='page' anchor='insights-list' %}
     </section>
   {% endif %}
   {% else %}

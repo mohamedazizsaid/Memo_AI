@@ -9,6 +9,7 @@ from collections import Counter
 from datetime import timedelta
 
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.db.models import Avg, Count, Sum
 from django.shortcuts import render
 from django.utils import timezone
@@ -148,14 +149,18 @@ class InsightsView(View):
         }
 
         # ── Recent AI insights (real summaries) ────────────────────────────
-        insights = list(
+        insights_qs = (
             analysis_qs.filter(summary__gt='')
-            .select_related('entry').order_by('-entry__entry_date')[:12]
+            .select_related('entry').order_by('-entry__entry_date')
         )
+        insights_paginator = Paginator(insights_qs, 6)
+        insights_page = insights_paginator.get_page(request.GET.get('page', 1))
 
         return render(request, 'ai/insights.html', {
             'stats': stats,
-            'insights': insights,
+            'insights': insights_page,
+            'page_obj': insights_page,
+            'is_paginated': insights_paginator.num_pages > 1,
             'period': period,
-            'has_ai_data': bool(insights) or keyword_counter,
+            'has_ai_data': insights_paginator.count > 0 or bool(keyword_counter),
         })

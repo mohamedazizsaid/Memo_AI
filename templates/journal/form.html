@@ -24,7 +24,7 @@
     {% endif %}
   </div>
 
-  <form method="post" action="" id="entry-form" enctype="multipart/form-data" class="entry-form wizard" data-step="1" novalidate>
+  <form method="post" action="" id="entry-form" enctype="multipart/form-data" class="entry-form wizard" data-step="1" data-validate novalidate>
     {% csrf_token %}
     <input type="hidden" name="face_data" id="face-data" value="">
 
@@ -52,7 +52,9 @@
           <div class="form-group">
             <label for="id_entry_date" class="form-label">{% trans_text "Date de l'entree" "Entry date" %}</label>
             <input type="date" name="entry_date" id="id_entry_date" class="form-input"
-              value="{{ form.entry_date.value|default:today }}" required>
+              value="{{ form.entry_date.value|default:today }}" required
+              data-msg-required="{% trans_text 'Choisissez la date de l’entrée.' 'Choose the entry date.' %}"
+              data-msg-date="{% trans_text 'Saisissez une date valide.' 'Enter a valid date.' %}">
           </div>
           <div class="form-group">
             <label for="id_title" class="form-label">
@@ -91,7 +93,9 @@
           </div>
           <textarea name="content" id="id_content" class="form-textarea"
             placeholder="{% trans_text 'Que s\'est-il passe aujourd\'hui ? Comment vous sentez-vous ?' 'What happened today? How do you feel?' %}"
-            rows="12">{{ form.content.value|default:'' }}</textarea>
+            rows="12" minlength="10" required
+            data-msg-required="{% trans_text 'Racontez votre journée avant de créer l’entrée.' 'Tell your day before creating the entry.' %}"
+            data-msg-minlength="{% trans_text 'Écrivez au moins 10 caractères pour que l’IA puisse analyser votre journée.' 'Write at least 10 characters so the AI can analyse your day.' %}">{{ form.content.value|default:'' }}</textarea>
           <p class="form-hint" id="ai-hint">
             <svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4"/></svg>
             {% trans_text "L'IA analysera votre texte: resume, sentiment et mots-cles." "The AI will analyse your text: summary, sentiment and keywords." %}
@@ -168,6 +172,8 @@
           <div class="dropzone" id="dropzone" role="region" aria-label="{% trans_text 'Zone de depot de fichiers' 'File drop zone' %}">
             <input type="file" name="media_files" id="media-file-input"
               class="dropzone-input" multiple
+              data-max-size="50"
+              data-msg-size="{% trans_text 'Chaque fichier doit faire moins de 50 Mo.' 'Each file must be under 50 MB.' %}"
               accept="image/jpeg,image/png,image/webp,image/gif,audio/mpeg,audio/wav,audio/ogg,audio/webm,audio/mp4,audio/m4a">
             <div class="dropzone-ui" id="dropzone-ui">
               <div class="dropzone-icon" aria-hidden="true">
@@ -365,6 +371,23 @@ document.addEventListener('DOMContentLoaded', function () {
   var steps = form.querySelectorAll('.wizard-step');
   var progress = document.getElementById('wizard-progress');
   var contentField = document.getElementById('id_content');
+  var dateField = document.getElementById('id_entry_date');
+
+  /* Step 1 is the only step with required fields, so both the "Next" button
+     and the "2" tab validate it through the shared inline validator. */
+  function validateStoryStep() {
+    if (form.dataset.step !== '1') return true;
+    var fields = [dateField, contentField].filter(Boolean);
+    if (window.MemoValidate) {
+      return window.MemoValidate.validateFields(fields, { summary: true });
+    }
+    if (!contentField.value.trim()) {
+      if (window.showToast) window.showToast('{% trans_text "Ecrivez quelques mots pour que l\\'IA puisse analyser votre journee." "Write a few words so the AI can analyse your day." %}', 'warning');
+      contentField.focus();
+      return false;
+    }
+    return true;
+  }
 
   function showStep(n) {
     form.dataset.step = String(n);
@@ -383,13 +406,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   form.querySelectorAll('[data-next]').forEach(function (btn) {
     btn.addEventListener('click', function () {
-      var target = btn.dataset.next;
-      if (form.dataset.step === '1' && (!contentField.value.trim())) {
-        if (window.showToast) window.showToast('{% trans_text "Ecrivez quelques mots pour que l\\'IA puisse analyser votre journee." "Write a few words so the AI can analyse your day." %}', 'warning');
-        contentField.focus();
-        return;
-      }
-      showStep(target);
+      if (!validateStoryStep()) return;
+      showStep(btn.dataset.next);
       window.scrollTo({ top: form.offsetTop - 90, behavior: 'smooth' });
     });
   });
@@ -401,10 +419,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
   steps.forEach(function (s) {
     s.addEventListener('click', function () {
-      if (s.dataset.goto === '2' && !contentField.value.trim()) {
-        if (window.showToast) window.showToast('{% trans_text "Ecrivez d\\'abord votre journee." "Write your day first." %}', 'warning');
-        return;
-      }
+      if (s.dataset.goto === '2' && !validateStoryStep()) return;
       showStep(s.dataset.goto);
     });
   });

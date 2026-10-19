@@ -59,6 +59,7 @@
         </li>
       {% endfor %}
     </ul>
+    {% include 'partials/pagination.html' with page_obj=page_obj param='page' anchor='notifications-list' %}
   {% else %}
     <div class="empty-state reveal" id="no-notifications">
       <div class="empty-state-icon" aria-hidden="true">

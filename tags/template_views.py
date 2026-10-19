@@ -6,6 +6,7 @@ HTML interface for tag management.
 import logging
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views import View
@@ -13,6 +14,8 @@ from django.views import View
 from .models import Tag
 
 logger = logging.getLogger('memoai')
+
+TAGS_PER_PAGE = 18
 
 COLOR_CHOICES = [
     '#6366f1', '#8b5cf6', '#ec4899', '#ef4444', '#f97316',
@@ -23,19 +26,32 @@ COLOR_CHOICES = [
 @method_decorator(login_required, name='dispatch')
 class TagListView(View):
     def get(self, request, pk=None):
-        tags = Tag.objects.filter(user=request.user)
         from django.db.models import Count
-        tags = tags.annotate(entry_count=Count('entries'))
+
+        search = request.GET.get('q', '').strip()
+
+        all_tags = Tag.objects.filter(user=request.user).annotate(entry_count=Count('entries'))
+        total_tags = all_tags.count()
+        most_used_tag = all_tags.order_by('-entry_count', 'name').first() if total_tags else None
+        total_uses = sum(tag.entry_count for tag in all_tags)
+
+        tags = all_tags
+        if search:
+            tags = tags.filter(name__icontains=search)
+        tags = tags.order_by('name')
+
+        paginator = Paginator(tags, TAGS_PER_PAGE)
+        page_obj = paginator.get_page(request.GET.get('page', 1))
+
         edit_tag = None
         if pk:
             edit_tag = get_object_or_404(Tag, pk=pk, user=request.user)
 
-        total_tags = tags.count()
-        most_used_tag = tags.order_by('-entry_count').first() if total_tags else None
-        total_uses = sum(t.entry_count for t in tags)
-
         return render(request, 'tags/list.html', {
-            'tags': tags,
+            'tags': page_obj,
+            'page_obj': page_obj,
+            'is_paginated': paginator.num_pages > 1,
+            'search': search,
             'edit_tag': edit_tag,
             'total_tags': total_tags,
             'most_used_tag': most_used_tag,

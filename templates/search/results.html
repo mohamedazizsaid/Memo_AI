@@ -46,14 +46,14 @@
     </div>
   {% else %}
     {% for group in groups %}
-      <section class="section-band search-group reveal">
+      <section class="section-band search-group reveal" id="{{ group.key }}">
         <div class="section-header">
           <h2 class="section-title">
             {% if group.key == 'entries' %}{% trans_text "Entrées" "Entries" %}
             {% elif group.key == 'persons' %}{% trans_text "Personnes" "People" %}
             {% else %}{{ t.nav_tags }}{% endif %}
           </h2>
-          <span class="search-group__count">{{ group.items|length }}</span>
+          <span class="search-group__count">{{ group.total }}</span>
         </div>
 
         <div class="search-results">
@@ -86,6 +86,7 @@
             </a>
           {% endfor %}
         </div>
+        {% include 'partials/pagination.html' with page_obj=group.page_obj param=group.param anchor=group.key %}
       </section>
     {% endfor %}
   {% endif %}

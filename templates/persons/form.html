@@ -13,14 +13,17 @@
   </div>
 
   <div class="card reveal">
-    <form method="post" action="" id="person-form" enctype="multipart/form-data" class="auth-form">
+    <form method="post" action="" id="person-form" enctype="multipart/form-data" class="auth-form" data-validate novalidate>
       {% csrf_token %}
       <input type="hidden" name="face_descriptor" id="face-descriptor" value="">
 
       <div class="form-group">
         <label for="id_name" class="form-label">{% trans_text "Nom" "Name" %}</label>
         <input type="text" name="name" id="id_name" class="form-input"
-          placeholder="{% trans_text 'Nom de la personne' 'Name of the person' %}" value="{{ person.name|default:'' }}" required>
+          placeholder="{% trans_text 'Nom de la personne' 'Name of the person' %}" value="{{ person.name|default:'' }}"
+          minlength="2" maxlength="60" required autocomplete="off"
+          data-msg-required="{% trans_text 'Indiquez le nom de la personne.' 'Enter the person’s name.' %}"
+          data-msg-minlength="{% trans_text 'Le nom doit contenir au moins 2 caractères.' 'The name must be at least 2 characters long.' %}">
       </div>
 
       <div class="form-group">
@@ -29,6 +32,8 @@
         <div class="face-drop" id="face-upload">
           <input type="file" name="avatar_file" id="avatar-file-input" class="face-drop__input"
             accept="image/jpeg,image/png,image/webp,image/gif"
+            data-max-size="8"
+            data-msg-size="{% trans_text 'L’image dépasse 8 Mo.' 'The image is larger than 8 MB.' %}"
             aria-labelledby="face-label" aria-describedby="face-hint">
 
           <div class="face-drop__preview" id="face-preview">
@@ -58,7 +63,7 @@
 
       <div class="form-group">
         <label for="id_notes" class="form-label">Notes <span class="form-optional">({% trans_text "optionnel" "optional" %})</span></label>
-        <textarea name="notes" id="id_notes" class="form-textarea" rows="4"
+        <textarea name="notes" id="id_notes" class="form-textarea" rows="4" maxlength="2000"
           placeholder="{% trans_text 'Notes sur cette personne...' 'Notes about this person...' %}">{{ person.notes|default:'' }}</textarea>
       </div>
 

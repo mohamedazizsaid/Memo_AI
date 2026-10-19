@@ -61,7 +61,7 @@
 
   <!-- Results info -->
   <div class="results-info reveal">
-    <span class="results-count">{{ page_obj.paginator.count|default:entries.count }} {% if entries.count == 1 %}{% trans_text "entree" "entry" %}{% else %}{% trans_text "entrees" "entries" %}{% endif %}</span>
+    <span class="results-count">{{ page_obj.paginator.count }} {% if page_obj.paginator.count == 1 %}{% trans_text "entree" "entry" %}{% else %}{% trans_text "entrees" "entries" %}{% endif %}</span>
   </div>
 
   <!-- Entries grid -->
@@ -73,17 +73,7 @@
     </div>
 
     <!-- Pagination -->
-    {% if is_paginated %}
-      <nav class="pagination reveal" aria-label="Pagination">
-        {% if page_obj.has_previous %}
-          <a href="?{% if request.GET.search %}search={{ request.GET.search }}&{% endif %}page={{ page_obj.previous_page_number }}" class="pagination-btn" id="prev-page">{% trans_text "Precedent" "Previous" %}</a>
-        {% endif %}
-        <span class="pagination-info">Page {{ page_obj.number }} {% trans_text "sur" "of" %} {{ page_obj.paginator.num_pages }}</span>
-        {% if page_obj.has_next %}
-          <a href="?{% if request.GET.search %}search={{ request.GET.search }}&{% endif %}page={{ page_obj.next_page_number }}" class="pagination-btn" id="next-page">{% trans_text "Suivant" "Next" %}</a>
-        {% endif %}
-      </nav>
-    {% endif %}
+    {% include 'partials/pagination.html' with page_obj=page_obj param='page' anchor='entries-grid' %}
   {% else %}
     <div class="empty-state reveal" id="no-entries-found">
       <div class="empty-state-icon" aria-hidden="true">
