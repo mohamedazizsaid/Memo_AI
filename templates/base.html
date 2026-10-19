@@ -20,9 +20,13 @@
 
     /* Splash gate — decides before the first paint whether the intro loader
        runs, so returning visitors never see it flash. `?welcome=1` is set by
-       the sign-in redirect and always plays the intro. */
+       the sign-in redirect and always plays the intro.
+       Pages can opt into `always` (the site entry at "/"): the intro then
+       plays on every fresh visit, but stands down when the visitor arrives
+       from inside the app so "Accueil" stays usable. */
     (function () {
       var doc = document.documentElement;
+      var policy = "{% block splash_policy %}auto{% endblock %}";
       var skip = false;
       try {
         var reduced = {% if reduce_motion %}true{% else %}false{% endif %} ||
@@ -31,7 +35,20 @@
         var forced = params.has('welcome') || params.has('splash');
         var seen = false;
         try { seen = sessionStorage.getItem('memo-splash') === '1'; } catch (e) { seen = false; }
-        skip = reduced || (seen && !forced);
+
+        var internal = false;
+        try {
+          internal = !!document.referrer &&
+            new URL(document.referrer).origin === window.location.origin;
+        } catch (e) { internal = false; }
+
+        if (reduced) {
+          skip = true;
+        } else if (policy === 'always') {
+          skip = !forced && internal;
+        } else {
+          skip = seen && !forced;
+        }
       } catch (e) {
         skip = true;
       }

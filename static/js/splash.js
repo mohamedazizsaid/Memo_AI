@@ -121,12 +121,12 @@
     storeSeen();
     clearTriggerParams();
 
+    /* Move focus off the skip control before it disappears. */
+    if (skipEl && document.activeElement === skipEl) skipEl.blur();
+
     /* Content rises while the shutter closes over the reel. */
     document.body.classList.add('splash-reveal');
     el.classList.add('is-exiting');
-
-    /* Move focus off the skip control before it disappears. */
-    if (skipEl && document.activeElement === skipEl) skipEl.blur();
 
     window.setTimeout(function () {
       if (el.parentNode) el.parentNode.removeChild(el);
