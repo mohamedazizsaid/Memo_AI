@@ -23,7 +23,8 @@
       searchError: root.dataset.searchError || '',
       empty: root.dataset.empty || '',
       searching: root.dataset.searching || '',
-      locating: root.dataset.locating || ''
+      locating: root.dataset.locating || '',
+      locateError: root.dataset.locateError || ''
     };
 
     var input = document.getElementById('place-search-input');
@@ -296,6 +297,27 @@
       if (!root.contains(event.target)) closeResults();
     });
 
+    /* ── "Use my location" (browser geolocation, no API key) ── */
+    var locateBtn = document.getElementById('place-locate');
+    if (locateBtn) {
+      locateBtn.addEventListener('click', function () {
+        if (!navigator.geolocation) { setStatus(T.locateError); return; }
+        locateBtn.disabled = true;
+        setStatus(T.locating);
+        navigator.geolocation.getCurrentPosition(function (pos) {
+          locateBtn.disabled = false;
+          var lat = pos.coords.latitude, lon = pos.coords.longitude;
+          apply(lat, lon, '');
+          ensureMap();
+          if (map) { map.setView([lat, lon], 16); placeMarker(lat, lon, false); }
+          reverse(lat, lon);
+        }, function () {
+          locateBtn.disabled = false;
+          setStatus(T.locateError);
+        }, { enableHighAccuracy: false, timeout: 9000, maximumAge: 300000 });
+      });
+    }
+
     /* The map only gets a real size once the section is expanded. */
     function onOpen() { ensureMap(); }
     if (toggle) {
@@ -306,6 +328,15 @@
       });
     }
     if (fields && !fields.hidden) onOpen();
+
+    /* Wizard pages keep this section hidden until step 2 is opened: re-measure
+       the map when the panel shows up, otherwise Leaflet keeps a 0×0 canvas. */
+    var panel = root.closest ? root.closest('.wizard-panel') : null;
+    if (panel && 'MutationObserver' in window) {
+      new MutationObserver(function () {
+        if (!panel.hidden) ensureMap();
+      }).observe(panel, { attributes: true, attributeFilter: ['hidden'] });
+    }
 
     /* Restore an existing location (edit mode). */
     var savedLat = parseFloat(latInput.value), savedLon = parseFloat(lonInput.value);

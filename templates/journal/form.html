@@ -7,7 +7,7 @@
 {{ block.super }}
 <link rel="stylesheet" href="{% static 'css/photo-picker.css' %}?v=20261019_1">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<link rel="stylesheet" href="{% static 'css/place-picker.css' %}?v=20261019_1">
+<link rel="stylesheet" href="{% static 'css/place-picker.css' %}?v=20261019_3">
 {% endblock %}
 
 {% block content %}
@@ -213,7 +213,8 @@
                  data-empty="{% trans_text 'Aucun lieu trouvé.' 'No place found.' %}"
                  data-searching="{% trans_text 'Recherche…' 'Searching…' %}"
                  data-locating="{% trans_text 'Localisation…' 'Locating…' %}"
-                 data-hint="{% trans_text 'Cherchez un lieu, ou cliquez directement sur la carte.' 'Search for a place, or click directly on the map.' %}">
+                 data-hint="{% trans_text 'Cherchez un lieu, ou cliquez directement sur la carte.' 'Search for a place, or click directly on the map.' %}"
+                 data-locate-error="{% trans_text 'Position indisponible. Autorisez la localisation dans votre navigateur.' 'Location unavailable. Allow location access in your browser.' %}">
 
               <div class="place-search">
                 <svg class="place-search__icon" aria-hidden="true" width="15" height="15" viewBox="0 0 16 16" fill="none">
@@ -232,6 +233,16 @@
               </div>
 
               <div class="place-results" id="place-results" role="listbox" hidden></div>
+
+              <div class="place-tools">
+                <button type="button" class="place-locate" id="place-locate">
+                  <svg aria-hidden="true" width="13" height="13" viewBox="0 0 16 16" fill="none">
+                    <circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M8 1v2.2M8 12.8V15M1 8h2.2M12.8 8H15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                  </svg>
+                  {% trans_text "Utiliser ma position" "Use my location" %}
+                </button>
+              </div>
 
               <div class="place-map" id="place-map" hidden></div>
 
@@ -342,7 +353,7 @@
 
 {% block extra_js %}
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
-<script src="{% static 'js/place-picker.js' %}?v=20261019_1" defer></script>
+<script src="{% static 'js/place-picker.js' %}?v=20261019_3" defer></script>
 <script src="{% static 'vendor/face-api/face-api.min.js' %}"></script>
 <script>window.MEMO_FACE_WEIGHTS = "{% static 'vendor/face-api/weights' %}";</script>
 <script src="{% static 'js/face-detect.js' %}"></script>

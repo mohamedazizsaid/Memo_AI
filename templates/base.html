@@ -291,6 +291,8 @@
 
   {% block splash %}{% endblock %}
 
+  {% if user.is_authenticated %}{% include 'partials/tour.html' %}{% endif %}
+
   {% if user.is_authenticated %}
   <div class="app-aurora" aria-hidden="true">
     <span class="app-aurora__blob app-aurora__blob--1"></span>
@@ -1014,6 +1016,7 @@
       });
     })();
   </script>
+  {% if user.is_authenticated %}<script src="{% static 'js/tour.js' %}?v=20261019_5" defer></script>{% endif %}
   {% block extra_js %}{% endblock %}
 </body>
 </html>

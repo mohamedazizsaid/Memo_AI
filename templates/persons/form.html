@@ -25,8 +25,7 @@
 
       <div class="form-group">
         <span class="form-label" id="face-label">{% trans_text "Photo du visage" "Face photo" %}</span>
-        {# The file input is clipped to this zone only (it used to escape the
-           box and swallow every click on the page). #}
+        {% comment %}The file input is clipped to this zone only (it used to escape the box and swallow every click on the page).{% endcomment %}
         <div class="face-drop" id="face-upload">
           <input type="file" name="avatar_file" id="avatar-file-input" class="face-drop__input"
             accept="image/jpeg,image/png,image/webp,image/gif"
