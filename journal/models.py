@@ -130,6 +130,8 @@ class JournalEntry(SoftDeleteModel):
 
     @property
     def excerpt(self):
-        if self.content:
-            return self.content[:200] + ('...' if len(self.content) > 200 else '')
-        return ''
+        if not self.content:
+            return ''
+        # Drop the editor's markdown markers so cards show clean prose.
+        text = self.content.replace('**', '').replace('*', '')
+        return text[:200] + ('...' if len(text) > 200 else '')

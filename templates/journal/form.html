@@ -371,6 +371,97 @@ document.addEventListener('DOMContentLoaded', function () {
   }
   if (ta) { ta.addEventListener('input', updateCount); updateCount(); }
 
+  /* ── Inline formatting: bold & italic ─────────────────────────────
+     The editor stays a plain <textarea> (the AI analyses raw text), so the
+     buttons write a tiny markdown subset — **bold** and *italic* — around
+     the selection. The rich_text filter renders it on the detail page. */
+  var FORMATS = { bold: ['**', '**'], italic: ['*', '*'] };
+  var toolButtons = document.querySelectorAll('.editor-tool[data-format]');
+
+  function pairFor(button) { return FORMATS[button.dataset.format] || null; }
+
+  function toggleFormat(format) {
+    var pair = FORMATS[format];
+    if (!pair || !ta) return;
+
+    var value = ta.value;
+    var start = ta.selectionStart;
+    var end = ta.selectionEnd;
+    var open = pair[0];
+    var close = pair[1];
+    var selected = value.slice(start, end);
+
+    var before = value.slice(Math.max(0, start - open.length), start);
+    var after = value.slice(end, end + close.length);
+    var wrapped = before === open && after === close;
+
+    // A single "*" also matches inside "**bold**": ignore that case.
+    if (format === 'italic') {
+      if (value.charAt(start - open.length - 1) === '*' || value.charAt(end + close.length) === '*') {
+        wrapped = false;
+      }
+    }
+
+    if (wrapped) {
+      ta.value = value.slice(0, start - open.length) + selected + value.slice(end + close.length);
+      ta.selectionStart = start - open.length;
+      ta.selectionEnd = Math.max(start - open.length, end - open.length);
+    } else {
+      ta.value = value.slice(0, start) + open + selected + close + value.slice(end);
+      if (selected) {
+        ta.selectionStart = start + open.length;
+        ta.selectionEnd = end + open.length;
+      } else {
+        ta.selectionStart = ta.selectionEnd = start + open.length;
+      }
+    }
+
+    ta.focus();
+    ta.dispatchEvent(new Event('input', { bubbles: true }));
+    reflectToolbar();
+  }
+
+  function reflectToolbar() {
+    if (!ta) return;
+    var value = ta.value;
+    var start = ta.selectionStart;
+    var end = ta.selectionEnd;
+
+    toolButtons.forEach(function (button) {
+      var pair = pairFor(button);
+      if (!pair) return;
+      var open = pair[0];
+      var close = pair[1];
+      var inside = value.slice(Math.max(0, start - open.length), start) === open
+                && value.slice(end, end + close.length) === close;
+      if (button.dataset.format === 'italic') {
+        if (value.charAt(start - open.length - 1) === '*' || value.charAt(end + close.length) === '*') {
+          inside = false;
+        }
+      }
+      button.classList.toggle('is-active', inside);
+      button.setAttribute('aria-pressed', String(inside));
+    });
+  }
+
+  toolButtons.forEach(function (button) {
+    button.setAttribute('aria-pressed', 'false');
+    button.addEventListener('mousedown', function (e) { e.preventDefault(); });
+    button.addEventListener('click', function () { toggleFormat(button.dataset.format); });
+  });
+
+  if (ta) {
+    ['keyup', 'mouseup', 'click', 'focus', 'input'].forEach(function (evt) {
+      ta.addEventListener(evt, reflectToolbar);
+    });
+    ta.addEventListener('keydown', function (e) {
+      if (!(e.ctrlKey || e.metaKey)) return;
+      var key = e.key.toLowerCase();
+      if (key === 'b') { e.preventDefault(); toggleFormat('bold'); }
+      else if (key === 'i') { e.preventDefault(); toggleFormat('italic'); }
+    });
+  }
+
   /* ── Location collapsible ── */
   var locToggle = document.getElementById('location-toggle');
   var locFields = document.getElementById('location-fields');

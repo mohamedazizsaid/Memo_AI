@@ -89,6 +89,7 @@ TEMPLATES = [
             ],
             'builtins': [
                 'accounts.templatetags.memoai_i18n',
+                'common.templatetags.memo_filters',
             ],
         },
     },

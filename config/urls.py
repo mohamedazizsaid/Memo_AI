@@ -33,6 +33,9 @@ urlpatterns = [
     path('tags/', include('tags.template_urls')),
     path('notifications/', include('notifications.template_urls')),
     path('insights/', include('ai.template_urls')),
+
+    # ── Platform-wide search (navbar omnibox + results page) ───────
+    path('recherche/', include('common.search_urls')),
 ]
 
 if settings.DEBUG:

@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block title %}{% trans_text "Recherche" "Search" %} — MemoAI{% endblock %}
+
+{% block content %}
+<div class="container search-page">
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">{% trans_text "RECHERCHE" "SEARCH" %}</p>
+      <h1 class="page-title">
+        {% if query %}« {{ query }} »{% else %}{% trans_text "Rechercher partout" "Search everywhere" %}{% endif %}
+      </h1>
+      {% if query %}
+        <p class="page-subtitle">
+          {% if total %}
+            {{ total }} {% if total == 1 %}{% trans_text "résultat" "result" %}{% else %}{% trans_text "résultats" "results" %}{% endif %}
+            {% trans_text "dans toute la plateforme" "across the whole platform" %}
+          {% else %}
+            {% trans_text "Aucun résultat dans toute la plateforme" "No result across the whole platform" %}
+          {% endif %}
+        </p>
+      {% endif %}
+    </div>
+    {% if query %}
+      <a href="/recherche/" class="btn btn-ghost btn-sm" id="search-new">
+        {% trans_text "Nouvelle recherche" "New search" %}
+      </a>
+    {% endif %}
+  </div>
+
+  {% if not query %}
+    <div class="empty-state">
+      <div class="empty-state-icon">
+        <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+      </div>
+      <h2 class="empty-state-title">{% trans_text "Que cherchez-vous ?" "What are you looking for?" %}</h2>
+      <p class="empty-state-body">{% trans_text "Entrées, personnes, tags… la recherche couvre toute la plateforme." "Entries, people, tags… search covers the whole platform." %}</p>
+    </div>
+  {% elif total == 0 %}
+    <div class="empty-state">
+      <div class="empty-state-icon">
+        <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path><path d="M8 11h6"></path></svg>
+      </div>
+      <h2 class="empty-state-title">{% trans_text "Aucun résultat" "No results" %}</h2>
+      <p class="empty-state-body">{% trans_text "Essayez un autre mot-clé ou créez une nouvelle entrée." "Try another keyword or write a new entry." %}</p>
+      <a href="/journal/nouveau/" class="btn btn-primary btn-sm">{% trans_text "Nouvelle entrée" "New entry" %}</a>
+    </div>
+  {% else %}
+    {% for group in groups %}
+      <section class="section-band search-group">
+        <div class="section-header">
+          <h2 class="section-title">
+            {% if group.key == 'entries' %}{% trans_text "Entrées" "Entries" %}
+            {% elif group.key == 'persons' %}{% trans_text "Personnes" "People" %}
+            {% else %}{{ t.nav_tags }}{% endif %}
+          </h2>
+          <span class="search-group__count">{{ group.items|length }}</span>
+        </div>
+
+        <div class="search-results">
+          {% for item in group.items %}
+            <a href="{{ item.url }}" class="search-result search-result--{{ item.type }}">
+              <span class="search-result__media">
+                {% if item.type == 'entry' and item.image %}
+                  <img src="{{ item.image }}" alt="" loading="lazy">
+                {% elif item.type == 'person' and item.image %}
+                  <img src="{{ item.image }}" alt="" loading="lazy">
+                {% elif item.type == 'tag' %}
+                  <span class="search-result__tag" style="--tag-color: {{ item.color }};">{{ item.icon }}</span>
+                {% else %}
+                  <span class="search-result__glyph">
+                    {% if item.type == 'entry' %}
+                      <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v14H4z"></path><path d="M8 9h8M8 13h5"></path></svg>
+                    {% else %}
+                      <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"></circle><path d="M5 20a7 7 0 0114 0"></path></svg>
+                    {% endif %}
+                  </span>
+                {% endif %}
+              </span>
+
+              <span class="search-result__body">
+                <span class="search-result__title">{{ item.title }}</span>
+                {% if item.subtitle %}<span class="search-result__subtitle">{{ item.subtitle }}</span>{% endif %}
+              </span>
+
+              {% if item.badge %}<span class="search-result__badge">{{ item.badge }}</span>{% endif %}
+            </a>
+          {% endfor %}
+        </div>
+      </section>
+    {% endfor %}
+  {% endif %}
+</div>
+{% endblock %}

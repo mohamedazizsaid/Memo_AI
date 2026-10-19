@@ -261,15 +261,30 @@
           <a href="/tags/" class="nav-link {% block nav_tags %}{% endblock %}">{{ t.nav_tags }}</a>
         </div>
 
-        <div class="nav-search">
-          <form action="/journal/liste/" method="get" role="search">
-            <label for="nav-search-input" class="sr-only">{{ t.search|default:"Rechercher" }}</label>
+        <div class="nav-search" id="nav-search">
+          <form action="/recherche/" method="get" role="search" id="nav-search-form" autocomplete="off">
+            <label for="nav-search-input" class="sr-only">{{ t.nav_search_placeholder }}</label>
             <div class="search-wrapper">
               <svg class="search-icon" aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.5"/>
                 <path d="M11 11L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
               </svg>
-              <input id="nav-search-input" type="search" name="search" class="search-input" placeholder="{{ t.nav_search_placeholder }}" autocomplete="off">
+              <input id="nav-search-input" type="search" name="q" class="search-input"
+                     placeholder="{% trans_text 'Rechercher partout…' 'Search everywhere…' %}"
+                     autocomplete="off" spellcheck="false" role="combobox"
+                     aria-expanded="false" aria-autocomplete="list" aria-controls="nav-search-results">
+              <button type="button" class="search-clear" id="nav-search-clear" hidden
+                      aria-label="{% trans_text 'Effacer la recherche' 'Clear search' %}">
+                <svg aria-hidden="true" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1.5 1.5l9 9M10.5 1.5l-9 9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+              </button>
+            </div>
+            <div class="nav-search-results" id="nav-search-results" role="listbox" hidden
+                 data-label-entries="{% trans_text 'Entrées' 'Entries' %}"
+                 data-label-persons="{% trans_text 'Personnes' 'People' %}"
+                 data-label-tags="{{ t.nav_tags }}"
+                 data-empty="{% trans_text 'Aucun résultat' 'No results' %}"
+                 data-error="{% trans_text 'Recherche indisponible' 'Search unavailable' %}"
+                 data-hint="{% trans_text 'Voir tous les résultats' 'See all results' %}">
             </div>
           </form>
         </div>
@@ -690,6 +705,182 @@
           ticking = false;
         });
       }, { passive: true });
+    })();
+
+    /* ── Navbar omnibox: live, platform-wide search ── */
+    (function () {
+      var input = document.getElementById('nav-search-input');
+      var panel = document.getElementById('nav-search-results');
+      var form = document.getElementById('nav-search-form');
+      var wrap = document.getElementById('nav-search');
+      var clearBtn = document.getElementById('nav-search-clear');
+      if (!input || !panel || !form || !wrap) return;
+
+      var API = '/recherche/api/';
+      var DEBOUNCE = 200;
+      var controller = null;
+      var timer = null;
+      var activeIndex = -1;
+      var lastQuery = null;
+
+      function escapeHtml(value) {
+        return String(value == null ? '' : value).replace(/[&<>"']/g, function (ch) {
+          return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
+        });
+      }
+
+      function label(key) {
+        var name = 'label' + key.charAt(0).toUpperCase() + key.slice(1);
+        return panel.dataset[name] || key;
+      }
+
+      function close() {
+        panel.hidden = true;
+        panel.innerHTML = '';
+        input.setAttribute('aria-expanded', 'false');
+        activeIndex = -1;
+      }
+
+      function nodes() {
+        return panel.querySelectorAll('.nav-search-item');
+      }
+
+      function setActive(index) {
+        var list = nodes();
+        if (!list.length) { activeIndex = -1; return; }
+        if (index < 0) index = list.length - 1;
+        if (index >= list.length) index = 0;
+        activeIndex = index;
+        for (var i = 0; i < list.length; i++) {
+          list[i].classList.toggle('is-active', i === activeIndex);
+        }
+        if (list[activeIndex].scrollIntoView) {
+          list[activeIndex].scrollIntoView({ block: 'nearest' });
+        }
+      }
+
+      var GLYPH_ENTRY = '<svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v14H4z"></path><path d="M8 9h8M8 13h5"></path></svg>';
+      var GLYPH_PERSON = '<svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"></circle><path d="M5 20a7 7 0 0114 0"></path></svg>';
+
+      function mediaHtml(item) {
+        if (item.image) {
+          return '<span class="nav-search-item__media"><img src="' + escapeHtml(item.image) + '" alt="" loading="lazy"></span>';
+        }
+        if (item.type === 'tag') {
+          return '<span class="nav-search-item__media nav-search-item__media--tag" style="--tag-color:' + escapeHtml(item.color || '#6366f1') + '">' + escapeHtml(item.icon || '🏷️') + '</span>';
+        }
+        return '<span class="nav-search-item__media nav-search-item__media--glyph">' + (item.type === 'person' ? GLYPH_PERSON : GLYPH_ENTRY) + '</span>';
+      }
+
+      function render(data) {
+        var query = (data.query || '').trim();
+        if (!query) { close(); return; }
+
+        var html = '';
+        if (!data.total) {
+          html = '<div class="nav-search-empty">' + escapeHtml(panel.dataset.empty || '') + '</div>';
+        } else {
+          data.groups.forEach(function (group) {
+            html += '<div class="nav-search-group"><span class="nav-search-group__label">' + escapeHtml(label(group.key)) + '</span>';
+            group.items.forEach(function (item) {
+              html += '<a class="nav-search-item" role="option" href="' + escapeHtml(item.url) + '">' +
+                mediaHtml(item) +
+                '<span class="nav-search-item__body">' +
+                  '<span class="nav-search-item__title">' + escapeHtml(item.title) + '</span>' +
+                  (item.subtitle ? '<span class="nav-search-item__sub">' + escapeHtml(item.subtitle) + '</span>' : '') +
+                '</span>' +
+                (item.badge ? '<span class="nav-search-item__badge">' + escapeHtml(item.badge) + '</span>' : '') +
+                '</a>';
+            });
+            html += '</div>';
+          });
+          html += '<a class="nav-search-more" href="/recherche/?q=' + encodeURIComponent(query) + '">' +
+            escapeHtml(panel.dataset.hint || '') +
+            '<svg aria-hidden="true" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M7 3l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+            '</a>';
+        }
+
+        panel.innerHTML = html;
+        panel.hidden = false;
+        input.setAttribute('aria-expanded', 'true');
+        activeIndex = -1;
+      }
+
+      function fetchResults(query) {
+        if (controller) controller.abort();
+        controller = ('AbortController' in window) ? new AbortController() : null;
+        var options = { headers: { 'X-Requested-With': 'XMLHttpRequest' } };
+        if (controller) options.signal = controller.signal;
+
+        fetch(API + '?q=' + encodeURIComponent(query), options)
+          .then(function (response) { return response.ok ? response.json() : null; })
+          .then(function (data) { if (data) render(data); })
+          .catch(function () { /* aborted or offline — keep the previous panel */ });
+      }
+
+      input.addEventListener('input', function () {
+        var query = input.value.trim();
+        if (clearBtn) clearBtn.hidden = !query;
+        if (timer) clearTimeout(timer);
+        if (!query) { lastQuery = null; close(); return; }
+        if (query === lastQuery) return;
+        lastQuery = query;
+        timer = setTimeout(function () { fetchResults(query); }, DEBOUNCE);
+      });
+
+      input.addEventListener('focus', function () {
+        if (input.value.trim() && panel.innerHTML) panel.hidden = false;
+      });
+
+      input.addEventListener('keydown', function (event) {
+        if (event.key === 'ArrowDown') {
+          if (panel.hidden) return;
+          event.preventDefault();
+          setActive(activeIndex + 1);
+        } else if (event.key === 'ArrowUp') {
+          if (panel.hidden) return;
+          event.preventDefault();
+          setActive(activeIndex - 1);
+        } else if (event.key === 'Escape') {
+          close();
+        } else if (event.key === 'Enter') {
+          var list = nodes();
+          if (!panel.hidden && activeIndex >= 0 && list[activeIndex]) {
+            event.preventDefault();
+            window.location.href = list[activeIndex].getAttribute('href');
+          }
+        }
+      });
+
+      panel.addEventListener('mousemove', function (event) {
+        var item = event.target.closest ? event.target.closest('.nav-search-item') : null;
+        if (!item) return;
+        var list = nodes();
+        for (var i = 0; i < list.length; i++) {
+          if (list[i] === item) { setActive(i); return; }
+        }
+      });
+
+      if (clearBtn) {
+        clearBtn.addEventListener('click', function () {
+          input.value = '';
+          clearBtn.hidden = true;
+          lastQuery = null;
+          close();
+          input.focus();
+        });
+      }
+
+      document.addEventListener('click', function (event) {
+        if (!wrap.contains(event.target)) close();
+      });
+
+      form.addEventListener('submit', function (event) {
+        if (!input.value.trim()) {
+          event.preventDefault();
+          close();
+        }
+      });
     })();
   </script>
   {% block extra_js %}{% endblock %}
