@@ -132,14 +132,15 @@
   </section>
   {% endif %}
 
-  <!-- Recent entries -->
-  <section class="section-band reveal">
-    <div class="section-header">
+  <!-- Memory wall — every photo of the account, same collage as the film.
+       Scrolling loads more tiles; the "See all" link stays. -->
+  <section class="section-band">
+    <div class="section-header reveal">
       <div>
-        <p class="eyebrow">JOURNAL</p>
-        <h2 class="section-title">{% trans_text "Entrees recentes" "Recent entries" %}</h2>
+        <p class="eyebrow">{% trans_text "MES SOUVENIRS" "MY MEMORIES" %}</p>
+        <h2 class="section-title">{% trans_text "Vos souvenirs en images" "Your memories in pictures" %}</h2>
       </div>
-      <a href="/journal/liste/" class="text-link">
+      <a href="/journal/liste/" class="text-link" id="wall-see-all">
         <svg aria-hidden="true" width="12" height="12" viewBox="0 0 12 12" fill="none">
           <path d="M2 6h8M7 3l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
             stroke-linejoin="round" />
@@ -148,11 +149,31 @@
       </a>
     </div>
 
-    {% if recent_entries %}
-    <div class="entries-grid reveal-stagger">
-      {% for entry in recent_entries %}
-      {% include 'journal/_entry_card.html' with entry=entry %}
-      {% endfor %}
+    {% if wall_columns %}
+    <div class="photo-wall" id="photo-wall"
+         data-endpoint="{% url 'journal:memory-photos' %}"
+         data-next-page="{{ wall_next_page }}"
+         data-has-more="{% if wall_has_more %}true{% else %}false{% endif %}"
+         data-total="{{ wall_count }}">
+      <div class="photo-wall__cols">
+        {% for column in wall_columns %}
+        <div class="photo-wall__col photo-wall__col--{{ forloop.counter }}" data-photo-column="{{ forloop.counter0 }}">
+          {% for photo in column %}
+          {% include 'journal/_photo_wall_tile.html' with photo=photo %}
+          {% endfor %}
+        </div>
+        {% endfor %}
+      </div>
+      <div class="photo-wall__sentinel" data-photo-wall-sentinel aria-hidden="true"></div>
+      <div class="photo-wall__loader" data-photo-wall-loader hidden>
+        <span></span><span></span><span></span>
+        <span class="visually-hidden">{% trans_text "Chargement de photos" "Loading photos" %}</span>
+      </div>
+      <p class="photo-wall__end" data-photo-wall-end hidden>
+        <span class="photo-wall__end-line" aria-hidden="true"></span>
+        {% trans_text "Vous avez revu tous vos souvenirs" "You have seen all your memories" %}
+        <span class="photo-wall__end-line" aria-hidden="true"></span>
+      </p>
     </div>
     {% else %}
     <div class="empty-state" id="empty-journal">
@@ -162,11 +183,25 @@
           <path d="M16 18h16M16 24h10" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
         </svg>
       </div>
+      {% if wall_entries %}
+      <h3 class="empty-state-title">{% trans_text "Ajoutez des photos a vos souvenirs" "Add photos to your memories" %}</h3>
+      <p class="empty-state-body">{% trans_text "Une photo dans une entree et elle rejoint ce mur anime." "One photo in an entry and it joins this animated wall." %}</p>
+      <a href="/journal/liste/" class="btn btn-primary" id="empty-add-photo">{% trans_text "Voir mes entrees" "See my entries" %}</a>
+      {% else %}
       <h3 class="empty-state-title">{% trans_text "Commencez votre journal" "Start your journal" %}</h3>
       <p class="empty-state-body">{% trans_text "Ecrivez votre premiere entree et laissez l'IA enrichir vos souvenirs." "Write your first entry and let the AI enrich your memories." %}</p>
       <a href="/journal/nouveau/" class="btn btn-primary" id="empty-new-entry">{% trans_text "Creer ma premiere entree" "Create my first entry" %}</a>
+      {% endif %}
     </div>
     {% endif %}
   </section>
 </div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/photo-wall.css' %}?v=20261020_1">
+{% endblock %}
+
+{% block extra_js %}
+<script defer src="{% static 'js/photo-wall.js' %}?v=20261020_1"></script>
 {% endblock %}

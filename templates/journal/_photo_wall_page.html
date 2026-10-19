@@ -1,0 +1,5 @@
+{% comment %}
+A page of memory-wall tiles returned as HTML to the infinite scroll. Each tile
+carries its target column (data-column) so the client appends it to the right
+staggered column of templates/journal/home.html.
+{% endcomment %}{% for photo in photos %}{% include 'journal/_photo_wall_tile.html' with photo=photo %}{% endfor %}

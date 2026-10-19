@@ -1,0 +1,26 @@
+{% comment %}
+One animated tile of the home page memory wall. Kept in its own partial so the
+initial page and the infinite-scroll JSON endpoint render the exact same markup.
+{% endcomment %}
+<figure class="photo-tile photo-tile--{{ photo.wall_tile }}{% if photo.wall_tagged %} is-tagged{% endif %}"
+        data-column="{{ photo.wall_column }}"
+        data-photo-index="{{ photo.wall_index }}"
+        style="--tile-delay: {{ photo.wall_delay }}ms;">
+  <span class="photo-tile__media">
+    <img src="{{ photo.thumb_url }}" alt="{{ photo.title|default:photo.date_label }}" loading="lazy" decoding="async">
+  </span>
+  <span class="photo-tile__shine" aria-hidden="true"></span>
+  {% if photo.kind != 'photo' %}
+  <span class="photo-tile__kind">
+    {% if photo.kind == 'illustration' %}{% trans_text "Illustration IA" "AI illustration" %}{% else %}{% trans_text "Portrait" "Portrait" %}{% endif %}
+  </span>
+  {% endif %}
+  <figcaption class="photo-tile__tag">
+    <span>N° {{ photo.number }}</span>
+    <span>{{ photo.date_label }}</span>
+  </figcaption>
+  {% if photo.entry_id %}
+  <a class="photo-tile__link" href="/journal/{{ photo.entry_id }}/"
+     aria-label="{% trans_text 'Ouvrir le souvenir' 'Open the memory' %} : {{ photo.title|default:photo.date_label }}"></a>
+  {% endif %}
+</figure>

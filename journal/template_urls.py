@@ -11,6 +11,7 @@ urlpatterns = [
     path('', template_views.HomeView.as_view(), name='home'),
     path('liste/', template_views.EntryListView.as_view(), name='list'),
     path('souvenirs/', template_views.MemoryExperienceView.as_view(), name='memory-experience'),
+    path('souvenirs/photos/', template_views.MemoryPhotoWallView.as_view(), name='memory-photos'),
     path('api/pexels/', template_views.pexels_search, name='pexels-search'),
     path('api/lieux/', template_views.place_search, name='place-search'),
     path('api/lieux/reverse/', template_views.place_reverse, name='place-reverse'),

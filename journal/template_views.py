@@ -14,6 +14,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views import View
@@ -67,6 +68,9 @@ _MEMORY_TILE_LAYOUT = (
 
 _MEMORY_GRID_CLASSES = ('tall', 'wide', 'square', 'portrait', 'wide', 'square', 'tall', 'wide')
 
+# The home page wall shows tiles in pages; the infinite scroll asks for more.
+_WALL_PAGE_SIZE = 9
+
 
 def _memory_image_variant(url, width):
     """Ask Cloudinary for a light, auto-formatted version of a stored image.
@@ -80,6 +84,111 @@ def _memory_image_variant(url, width):
         head, tail = url.split('/image/upload/', 1)
         return f'{head}/image/upload/c_limit,w_{int(width)},q_auto,f_auto/{tail}'
     return url
+
+
+def _collect_memory_photos(user):
+    """Every real image of the account: uploads, AI illustrations, portraits.
+
+    Returns ``(photos, entries, lang)`` where the photos are deduplicated,
+    newest first and numbered. Shared by the immersive film and the home page
+    photo wall so both always agree on what a "memory photo" is.
+    """
+    from persons.models import Person
+
+    prefs = getattr(user, 'preferences', None)
+    lang = 'en' if str(getattr(prefs, 'language', 'fr') or 'fr').lower().startswith('en') else 'fr'
+    months = _MEMORY_MONTHS[lang]
+
+    entries = list(
+        JournalEntry.objects.filter(user=user)
+        .select_related('ai_analysis')
+        .prefetch_related('media')
+        .order_by('-entry_date', '-created_at')
+    )
+
+    photos = []
+    seen = set()
+
+    def add_photo(url, *, title='', date_value=None, sort_dt=None, kind='photo', entry_id=None):
+        url = (url or '').strip()
+        if not url or url in seen:
+            return
+        seen.add(url)
+        when = date_value or timezone.localdate()
+        photos.append({
+            'url': url,
+            'large_url': _memory_image_variant(url, 1700),
+            'thumb_url': _memory_image_variant(url, 800),
+            'title': (title or '').strip(),
+            'date': when,
+            'sort_dt': sort_dt or timezone.now(),
+            'date_label': f'{months[when.month - 1]} {when.year}',
+            'year': when.year,
+            'kind': kind,
+            'entry_id': str(entry_id) if entry_id else '',
+        })
+
+    for entry in entries:
+        for media in entry.media.all():
+            if media.media_type not in ('IMAGE', 'GENERATED_IMAGE'):
+                continue
+            add_photo(
+                media.storage_url,
+                title=entry.title,
+                date_value=entry.entry_date,
+                sort_dt=entry.created_at,
+                kind='illustration' if media.media_type == 'GENERATED_IMAGE' else 'photo',
+                entry_id=entry.pk,
+            )
+
+        analysis = getattr(entry, 'ai_analysis', None)
+        if analysis and analysis.generated_image_url:
+            add_photo(
+                analysis.generated_image_url,
+                title=entry.title,
+                date_value=entry.entry_date,
+                sort_dt=entry.created_at,
+                kind='illustration',
+                entry_id=entry.pk,
+            )
+
+    for person in (
+        Person.objects.filter(user=user)
+        .exclude(avatar_url='')
+        .order_by('-created_at')
+    ):
+        add_photo(
+            person.avatar_url,
+            title=person.name,
+            date_value=person.created_at.date(),
+            sort_dt=person.created_at,
+            kind='portrait',
+        )
+
+    photos.sort(key=lambda item: (item['date'], item['sort_dt']), reverse=True)
+    for index, photo in enumerate(photos, 1):
+        photo['number'] = f'{index:03d}'
+        photo['grid_class'] = _MEMORY_GRID_CLASSES[(index - 1) % len(_MEMORY_GRID_CLASSES)]
+    return photos, entries, lang
+
+
+def _wall_columns(photos, start=0):
+    """Split one page of photos into the three staggered wall columns.
+
+    Each tile keeps its global index so the collage rhythm (column, tile
+    shape, label visibility, entrance delay) stays stable across pages.
+    """
+    columns = [[], [], []]
+    for offset, photo in enumerate(photos):
+        index = start + offset
+        tile = dict(photo)
+        tile['wall_index'] = index
+        tile['wall_column'] = index % 3
+        tile['wall_tile'] = _MEMORY_TILE_LAYOUT[index % 3][(index // 3) % 3]
+        tile['wall_tagged'] = index < 3
+        tile['wall_delay'] = (index % 9) * 55
+        columns[index % 3].append(tile)
+    return columns
 
 
 # ───────────────────────────────────────────────────────────────────────────
@@ -392,10 +501,6 @@ class HomeView(View):
             entry_date__day=today.day,
         ).exclude(entry_date=today).order_by('-entry_date')[:5]
 
-        recent_entries = JournalEntry.objects.filter(
-            user=request.user
-        ).prefetch_related('media', 'tags').select_related('ai_analysis').order_by('-entry_date')[:6]
-
         entries_qs = JournalEntry.objects.filter(user=request.user)
         streak = 0
         check = today
@@ -420,13 +525,22 @@ class HomeView(View):
             if len(hero_photos) >= 9:
                 break
 
+        # Memory wall: every image of the account (uploads, AI illustrations,
+        # portraits), exactly like the immersive film, loaded page by page.
+        wall_photos, _, _ = _collect_memory_photos(request.user)
+        wall_columns = _wall_columns(wall_photos[:_WALL_PAGE_SIZE])
+
         return render(request, 'journal/home.html', {
             'today': today,
             'today_entry': today_entry,
             'on_this_day': on_this_day,
-            'recent_entries': recent_entries,
             'stats': stats,
             'hero_photos': hero_photos,
+            'wall_columns': wall_columns,
+            'wall_count': len(wall_photos),
+            'wall_has_more': len(wall_photos) > _WALL_PAGE_SIZE,
+            'wall_next_page': 2,
+            'wall_entries': stats['total_entries'],
         })
 
 
@@ -440,82 +554,7 @@ class MemoryExperienceView(View):
     """
 
     def get(self, request):
-        from persons.models import Person
-
-        prefs = getattr(request.user, 'preferences', None)
-        lang = 'en' if str(getattr(prefs, 'language', 'fr') or 'fr').lower().startswith('en') else 'fr'
-        months = _MEMORY_MONTHS[lang]
-
-        entries = list(
-            JournalEntry.objects.filter(user=request.user)
-            .select_related('ai_analysis')
-            .prefetch_related('media')
-            .order_by('-entry_date', '-created_at')
-        )
-
-        photos = []
-        seen = set()
-
-        def add_photo(url, *, title='', date_value=None, sort_dt=None, kind='photo', entry_id=None):
-            url = (url or '').strip()
-            if not url or url in seen:
-                return
-            seen.add(url)
-            when = date_value or timezone.localdate()
-            photos.append({
-                'url': url,
-                'large_url': _memory_image_variant(url, 1700),
-                'thumb_url': _memory_image_variant(url, 800),
-                'title': (title or '').strip(),
-                'date': when,
-                'sort_dt': sort_dt or timezone.now(),
-                'date_label': f'{months[when.month - 1]} {when.year}',
-                'year': when.year,
-                'kind': kind,
-                'entry_id': str(entry_id) if entry_id else '',
-            })
-
-        for entry in entries:
-            for media in entry.media.all():
-                if media.media_type not in ('IMAGE', 'GENERATED_IMAGE'):
-                    continue
-                add_photo(
-                    media.storage_url,
-                    title=entry.title,
-                    date_value=entry.entry_date,
-                    sort_dt=entry.created_at,
-                    kind='illustration' if media.media_type == 'GENERATED_IMAGE' else 'photo',
-                    entry_id=entry.pk,
-                )
-
-            analysis = getattr(entry, 'ai_analysis', None)
-            if analysis and analysis.generated_image_url:
-                add_photo(
-                    analysis.generated_image_url,
-                    title=entry.title,
-                    date_value=entry.entry_date,
-                    sort_dt=entry.created_at,
-                    kind='illustration',
-                    entry_id=entry.pk,
-                )
-
-        for person in (
-            Person.objects.filter(user=request.user)
-            .exclude(avatar_url='')
-            .order_by('-created_at')
-        ):
-            add_photo(
-                person.avatar_url,
-                title=person.name,
-                date_value=person.created_at.date(),
-                sort_dt=person.created_at,
-                kind='portrait',
-            )
-
-        photos.sort(key=lambda item: (item['date'], item['sort_dt']), reverse=True)
-        for index, photo in enumerate(photos, 1):
-            photo['number'] = f'{index:03d}'
-            photo['grid_class'] = _MEMORY_GRID_CLASSES[(index - 1) % len(_MEMORY_GRID_CLASSES)]
+        photos, entries, lang = _collect_memory_photos(request.user)
 
         # Screenshot-like hero wall: three staggered columns, mixed tile sizes.
         hero_photos = photos[:9]
@@ -559,6 +598,39 @@ class MemoryExperienceView(View):
             'period': period,
             'final_quote': _MEMORY_FINAL_QUOTES[lang],
             'memory_mode': True,
+        })
+
+
+@method_decorator(login_required, name='dispatch')
+class MemoryPhotoWallView(View):
+    """JSON page of memory-wall tiles for the home page's infinite scroll.
+
+    The client appends the returned tiles to the matching staggered column and
+    stops when ``has_more`` turns false — the "See all" button remains the way
+    to reach the paginated journal.
+    """
+
+    def get(self, request):
+        try:
+            page = int(request.GET.get('page', '2'))
+        except (TypeError, ValueError):
+            page = 2
+        page = max(1, page)
+
+        photos, _, _ = _collect_memory_photos(request.user)
+        start = (page - 1) * _WALL_PAGE_SIZE
+        chunk = photos[start:start + _WALL_PAGE_SIZE]
+
+        columns = _wall_columns(chunk, start=start)
+        tiles = [tile for column in columns for tile in column]
+        tiles.sort(key=lambda item: item['wall_index'])
+
+        html = render_to_string('journal/_photo_wall_page.html', {'photos': tiles}, request=request)
+        return JsonResponse({
+            'html': html,
+            'has_more': start + _WALL_PAGE_SIZE < len(photos),
+            'next_page': page + 1,
+            'total': len(photos),
         })
 
 
