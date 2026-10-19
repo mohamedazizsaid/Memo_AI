@@ -132,6 +132,7 @@
     idle: root.getAttribute('data-status-idle') || '',
     playing: root.getAttribute('data-status-playing') || '',
     paused: root.getAttribute('data-status-paused') || '',
+    manual: root.getAttribute('data-status-manual') || '',
     end: root.getAttribute('data-status-end') || ''
   };
 
@@ -167,7 +168,9 @@
     if (status) {
       status.classList.toggle('is-playing', playing);
       if (statusText) {
-        if (endReached) {
+        if (reduceMotion) {
+          statusText.textContent = labels.manual;
+        } else if (endReached) {
           statusText.textContent = labels.end;
         } else if (playing) {
           statusText.textContent = labels.playing;

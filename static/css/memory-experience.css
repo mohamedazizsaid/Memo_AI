@@ -367,7 +367,7 @@
   font-family: var(--m-font-display);
   font-size: clamp(3.3rem, 7vw, 8.5rem);
   font-weight: 400;
-  line-height: 0.855;
+  line-height: 0.94;
   letter-spacing: -0.018em;
   text-transform: uppercase;
   color: var(--m-ink);
@@ -451,10 +451,7 @@
 }
 
 .memory-play.is-hidden {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transform: translateY(5px);
+  display: none;
 }
 
 .memory-play__icon {

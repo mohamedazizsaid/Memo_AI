@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{% static 'css/memory-experience.css' %}?v=20261019_1">
+<link rel="stylesheet" href="{% static 'css/memory-experience.css' %}?v=20261019_2">
 {% endblock %}
 
 {% block content %}
@@ -19,6 +19,7 @@
      data-status-playing='{% trans_text "Le film défile doucement" "The film is gently playing" %}'
      data-status-paused='{% trans_text "Le film est en pause" "The film is paused" %}'
      data-status-idle='{% trans_text "Auto-scroll · musique douce" "Auto-scroll · soft score" %}'
+     data-status-manual='{% trans_text "Défilement manuel" "Manual scroll" %}'
      data-status-end='{% trans_text "Fin du film" "End of the film" %}'>
 
   <div class="memory__progress" aria-hidden="true"><span id="memory-progress"></span></div>
@@ -103,7 +104,7 @@
           <span class="memory-tile__media">
             <img src="{{ photo.thumb_url }}"
                  alt="{% if photo.title %}{{ photo.title }}{% else %}{% trans_text 'Souvenir' 'Memory' %}{% endif %} — {{ photo.date_label }}"
-                 loading="{% if forloop.parentloop.first and forloop.first %}eager{% else %}lazy{% endif %}"
+                 loading="eager"
                  decoding="async">
           </span>
           <figcaption class="memory-tile__tag">
@@ -263,5 +264,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/memory-experience.js' %}?v=20261019_1" defer></script>
+<script src="{% static 'js/memory-experience.js' %}?v=20261019_3" defer></script>
 {% endblock %}
