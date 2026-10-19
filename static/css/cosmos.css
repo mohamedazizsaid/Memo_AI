@@ -601,28 +601,9 @@ ul, ol { list-style: none; }
   display: block;
 }
 
-/* Toggle switch */
-.toggle-switch { position: relative; cursor: pointer; }
-.toggle-switch input { position: absolute; opacity: 0; pointer-events: none; }
-.toggle-track {
-  display: block;
-  width: 40px; height: 22px;
-  background: var(--color-pebble);
-  border-radius: var(--r-pill);
-  position: relative;
-  transition: background var(--t-fast);
-}
-.toggle-track::after {
-  content: '';
-  position: absolute;
-  top: 3px; left: 3px;
-  width: 16px; height: 16px;
-  background: white;
-  border-radius: 50%;
-  transition: left var(--t-fast);
-}
-.toggle-switch input:checked + .toggle-track { background: var(--color-ink-black); }
-.toggle-switch input:checked + .toggle-track::after { left: calc(100% - 19px); }
+/* Toggle switch â€” single source of truth lives in the Preferences block
+   (`.toggle-track::before`). The old `::after` variant was still loaded and
+   painted a second knob inside every switch. */
 
 /* Collapsible form group */
 .form-collapsible-toggle {
@@ -2700,7 +2681,7 @@ ul, ol { list-style: none; }
 
 
 /* -------------------------------------------------------------------
-   SCROLL REVEAL — applied at runtime by base.html to elements that are
+   SCROLL REVEAL ï¿½ applied at runtime by base.html to elements that are
    still below the fold, so every page gets a modern staged entrance
    instead of dumping all the content at once.
    ------------------------------------------------------------------- */
@@ -2721,7 +2702,7 @@ html.js .scroll-reveal.is-revealed { opacity: 1; transform: none; }
 .reduce-motion .scroll-reveal { opacity: 1 !important; transform: none !important; }
 
 /* -------------------------------------------------------------------
-   REVEAL — shared by every page (cosmos.css is loaded everywhere, so the
+   REVEAL ï¿½ shared by every page (cosmos.css is loaded everywhere, so the
    public auth screens get the same staged entrance as the app).
    ------------------------------------------------------------------- */
 html.js .reveal {

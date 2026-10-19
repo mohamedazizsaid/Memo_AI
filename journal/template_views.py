@@ -5,9 +5,7 @@ HTML interface for journal entries.
 
 import json
 import logging
-import os
 import threading
-import uuid
 from datetime import date, timedelta
 
 from django.conf import settings
@@ -99,11 +97,24 @@ def _launch_ai(entry):
             entry.save(update_fields=['ai_status', 'ai_error_message'])
 
 
+def _upload_warning(request, count):
+    is_en = str(getattr(request, 'LANGUAGE_CODE', 'fr')).lower().startswith('en')
+    if is_en:
+        return f"{count} file(s) could not be uploaded to Cloudinary. Please try again."
+    return f"{count} fichier(s) n'ont pas pu être envoyés vers Cloudinary. Réessayez."
+
+
 def _persist_uploaded_media(entry, files):
-    """Save dropped/uploaded files to MEDIA_ROOT and link them to the entry."""
+    """Upload dropped/uploaded files to Cloudinary and link them to the entry.
+
+    Local disk is never used. Returns ``(saved_media, failure_count)`` so the
+    caller can warn the user when the provider rejects a file.
+    """
+    from common.cloud_media import upload_media
     from media_app.models import Media
 
     saved = []
+    failed = 0
     for f in files:
         content_type = (getattr(f, 'content_type', '') or '').lower()
         if content_type.startswith('image/'):
@@ -111,30 +122,28 @@ def _persist_uploaded_media(entry, files):
         elif content_type.startswith('audio/'):
             media_type = 'AUDIO'
         else:
-            ext = os.path.splitext(f.name)[1].lower()
-            media_type = 'AUDIO' if ext in ('.mp3', '.wav', '.ogg', '.webm', '.m4a', '.mp4') else 'IMAGE'
+            ext = str(getattr(f, 'name', '')).lower().rsplit('.', 1)[-1]
+            media_type = 'AUDIO' if ext in ('mp3', 'wav', 'ogg', 'webm', 'm4a', 'mp4') else 'IMAGE'
 
-        subdir = 'images' if media_type == 'IMAGE' else 'audio'
-        target_dir = settings.MEDIA_ROOT / 'journal' / subdir
-        os.makedirs(target_dir, exist_ok=True)
-        ext = os.path.splitext(f.name)[1].lower() or ('.jpg' if media_type == 'IMAGE' else '.mp3')
-        filename = f"{uuid.uuid4().hex}{ext}"
-        with open(target_dir / filename, 'wb+') as dest:
-            for chunk in f.chunks():
-                dest.write(chunk)
+        try:
+            url, public_id = upload_media(f, media_type, entry.user_id)
+        except Exception as exc:
+            failed += 1
+            logger.warning('Cloudinary media upload failed for entry %s: %s', entry.pk, exc)
+            continue
 
-        url = f"{settings.MEDIA_URL}journal/{subdir}/{filename}"
         media = Media.objects.create(
             entry=entry,
             media_type=media_type,
             storage_url=url,
+            cloudinary_public_id=public_id,
             mime_type=content_type,
             file_size=getattr(f, 'size', 0) or 0,
-            original_filename=f.name[:255],
+            original_filename=getattr(f, 'name', '')[:255],
             processing_status='pending' if media_type in ('IMAGE', 'AUDIO') else 'completed',
         )
         saved.append(media)
-    return saved
+    return saved, failed
 
 
 def _attach_cover_image(entry, url, alt=''):
@@ -452,10 +461,13 @@ class EntryCreateView(View):
             tags = Tag.objects.filter(id__in=tag_ids, user=request.user)
             entry.tags.set(tags)
 
-        media_list = _persist_uploaded_media(entry, request.FILES.getlist('media_files'))
+        media_list, upload_failures = _persist_uploaded_media(entry, request.FILES.getlist('media_files'))
         _attach_cover_image(entry, request.POST.get('cover_image_url', ''),
                             request.POST.get('cover_image_alt', ''))
         _handle_media_processing(entry, media_list, _parse_face_data(request.POST.get('face_data')))
+
+        if upload_failures:
+            messages.warning(request, _upload_warning(request, upload_failures))
 
         if content:
             _launch_ai(entry)
@@ -516,10 +528,13 @@ class EntryEditView(View):
         else:
             entry.tags.clear()
 
-        media_list = _persist_uploaded_media(entry, request.FILES.getlist('media_files'))
+        media_list, upload_failures = _persist_uploaded_media(entry, request.FILES.getlist('media_files'))
         _attach_cover_image(entry, request.POST.get('cover_image_url', ''),
                             request.POST.get('cover_image_alt', ''))
         _handle_media_processing(entry, media_list, _parse_face_data(request.POST.get('face_data')))
+
+        if upload_failures:
+            messages.warning(request, _upload_warning(request, upload_failures))
 
         if entry.content:
             _launch_ai(entry)

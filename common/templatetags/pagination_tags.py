@@ -29,10 +29,21 @@ def page_url(context, page, param='page', anchor=''):
         params[param] = str(page)
 
     query = params.urlencode()
-    url = ('?' + query) if query else ''
+
+    # Always return an absolute path. Returning only ``#anchor`` for page 1
+    # (when the query string became empty) made the browser scroll to the
+    # anchor without reloading, so "Previous" looked dead on the last step
+    # back to the first page.
+    if request is not None:
+        url = request.path or '/'
+        if query:
+            url = f'{url}?{query}'
+    else:
+        url = f'?{query}' if query else '?'
+
     if anchor:
         url += '#' + anchor.lstrip('#')
-    return url or '?'
+    return url
 
 
 @register.filter
