@@ -592,7 +592,7 @@
         if(stored !== "light" && stored !== "dark") return;
         var opt = document.querySelector('.theme-option[data-theme="' + stored + '"]');
         if(!opt || opt.classList.contains('theme-option--active')) return;
-        document.querySelectorAll('.theme-option').forEach(function(o){ o.classList.remove('theme-option--active'); });
+        document.querySelectorAll('.theme-option[data-theme]').forEach(function(o){ o.classList.remove('theme-option--active'); });
         opt.classList.add('theme-option--active');
         var idTheme = document.getElementById('id_theme');
         if(idTheme) idTheme.value = stored;
@@ -610,7 +610,7 @@
           // Sync with preferences theme buttons if on that page
           var opt = document.querySelector('.theme-option[data-theme="' + nextTheme + '"]');
           if(opt) {
-            document.querySelectorAll('.theme-option').forEach(function(o){ o.classList.remove('theme-option--active'); });
+            document.querySelectorAll('.theme-option[data-theme]').forEach(function(o){ o.classList.remove('theme-option--active'); });
             opt.classList.add('theme-option--active');
             var idTheme = document.getElementById('id_theme');
             if(idTheme) idTheme.value = nextTheme;

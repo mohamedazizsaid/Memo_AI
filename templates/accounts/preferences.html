@@ -497,7 +497,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   // Theme selector live switching
-  var options = document.querySelectorAll('.theme-option');
+  var options = document.querySelectorAll('.theme-option[data-theme]');
   var input = document.getElementById('id_theme');
 
   options.forEach(function(opt) {
@@ -505,7 +505,7 @@ document.addEventListener('DOMContentLoaded', function() {
       options.forEach(function(o) { o.classList.remove('theme-option--active'); });
       opt.classList.add('theme-option--active');
       var selected = opt.dataset.theme;
-      input.value = selected;
+      if (input) input.value = selected;
 
       // Live preview immediately
       if (selected === 'system') {
