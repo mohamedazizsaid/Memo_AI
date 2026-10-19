@@ -1077,6 +1077,27 @@ html.js .reveal-stagger.is-visible > * { opacity: 1; transform: none; }
 }
 .ai-processing__text { font-size: 14px; color: var(--app-secondary); }
 .ai-processing__text strong { color: var(--app-ink); font-weight: 600; }
+
+/* Honest error state (e.g. the illustration could not reach Cloudinary) */
+.ai-notice {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 16px 18px;
+  margin-bottom: var(--app-gap-section);
+  border: 1px solid var(--app-line);
+  border-radius: 18px;
+  background: var(--app-paper);
+}
+.ai-notice__icon {
+  display: grid; place-items: center;
+  width: 30px; height: 30px; flex-shrink: 0;
+  border-radius: 10px;
+  background: var(--app-elevation);
+  color: var(--app-secondary);
+}
+.ai-notice__text { font-size: 13.5px; line-height: 1.55; color: var(--app-secondary); }
+.ai-notice__text strong { color: var(--app-ink); font-weight: 600; }
+.ai-notice--error .ai-notice__icon { color: #b4541f; background: color-mix(in srgb, #b4541f 14%, transparent); }
+[data-theme="dark"] .ai-notice--error .ai-notice__icon { color: #f0a878; background: rgba(240, 168, 120, 0.14); }
 .ai-shimmer {
   display: inline-block; min-width: 120px;
   background: linear-gradient(90deg, var(--app-elevation) 25%, color-mix(in srgb, var(--app-ink) 12%, var(--app-elevation)) 50%, var(--app-elevation) 75%);

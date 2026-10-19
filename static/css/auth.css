@@ -213,6 +213,59 @@
 
 .auth-page .input-password-wrapper { position: relative; }
 .auth-page .input-password-wrapper .form-input { padding-right: 46px; }
+
+/* ── Native controls dressed by the design system ───────────────────
+   The browser must never draw its own checkbox / picker chrome here. */
+.auth-page { color-scheme: light; }
+[data-theme="dark"] .auth-page { color-scheme: dark; }
+
+.auth-page input,
+.auth-page select,
+.auth-page textarea { font-family: var(--au-font); }
+
+.auth-page input[type="checkbox"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  margin: 1px 0 0;
+  border: 1.5px solid var(--au-line);
+  border-radius: 6px;
+  background: var(--au-paper);
+  cursor: pointer;
+  position: relative;
+  transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+}
+.auth-page input[type="checkbox"]:hover { border-color: color-mix(in srgb, var(--au-ink) 38%, transparent); }
+.auth-page input[type="checkbox"]:checked { background: var(--au-ink); border-color: var(--au-ink); }
+.auth-page input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  width: 4px;
+  height: 8px;
+  border: solid var(--au-paper);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+.auth-page input[type="checkbox"]:focus { outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--au-ink) 14%, transparent); }
+
+.auth-page select {
+  -webkit-appearance: none;
+  appearance: none;
+  border: 1px solid var(--au-line);
+  border-radius: 12px;
+  background: var(--au-paper);
+  color: var(--au-ink);
+  padding: 10px 14px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.auth-page select:focus { outline: none; border-color: var(--au-ink); box-shadow: 0 0 0 3px color-mix(in srgb, var(--au-ink) 12%, transparent); }
+
+.auth-page input[type="file"] { font-family: var(--au-font); color: var(--au-secondary); }
 .auth-page .password-toggle {
   position: absolute;
   top: 50%;

@@ -14,7 +14,7 @@
   <link rel="stylesheet" href="{% static 'css/cosmos.css' %}?v=20261010_15">
   {% block app_css %}{% if user.is_authenticated %}
   <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20261019_3">
+  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20261019_4">
   {% endif %}{% endblock %}
   <style>
     /* Critical Toast Styling — Guarantees floating top-right display regardless of browser cache */
@@ -517,6 +517,20 @@
     })();
 
     document.addEventListener("DOMContentLoaded", function(){
+      // Keep the preferences theme selector in sync with the theme actually
+      // applied: the nav toggle only writes to localStorage, so without this
+      // the settings page could highlight a theme different from the visible one.
+      (function(){
+        var stored = localStorage.getItem("memo-theme");
+        if(stored !== "light" && stored !== "dark") return;
+        var opt = document.querySelector('.theme-option[data-theme="' + stored + '"]');
+        if(!opt || opt.classList.contains('theme-option--active')) return;
+        document.querySelectorAll('.theme-option').forEach(function(o){ o.classList.remove('theme-option--active'); });
+        opt.classList.add('theme-option--active');
+        var idTheme = document.getElementById('id_theme');
+        if(idTheme) idTheme.value = stored;
+      })();
+
       // Theme toggle in nav
       var themeBtn = document.getElementById("theme-toggle");
       if(themeBtn){
