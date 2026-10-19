@@ -1,0 +1,369 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{% trans_text "Bienvenue" "Welcome" %} — MemoAI{% endblock %}
+{% block body_class %}onboarding-page{% endblock %}
+
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/onboarding.css' %}?v=20261019_1">
+{% endblock %}
+
+{% block content %}
+<div class="ob" id="ob"
+     data-lang="{{ current_lang }}"
+     data-finish="{{ is_en|yesno:'1,0' }}">
+  <div class="ob__bg" aria-hidden="true">
+    <span class="ob__blob ob__blob--1"></span>
+    <span class="ob__blob ob__blob--2"></span>
+    <span class="ob__blob ob__blob--3"></span>
+    <span class="ob__grid"></span>
+  </div>
+
+  <header class="ob__top">
+    <a class="ob__brand" href="/" aria-label="MemoAI">
+      <span class="dot-cluster dot-cluster--sm" aria-hidden="true">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span class="dot"></span><span class="dot dot--hidden"></span><span class="dot"></span>
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      </span>
+      <span class="ob__brand-name">MemoAI</span>
+    </a>
+
+    <div class="ob__top-right">
+      <span class="ob__counter" aria-hidden="true">
+        <span id="ob-step-now">01</span><span class="ob__counter-sep">/</span><span id="ob-step-total">07</span>
+      </span>
+      <button type="submit" form="ob-form" name="skip" value="1" class="ob__skip" id="ob-skip">
+        <span data-i18n="skip">Passer</span>
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+          <path d="M2 6h8M7 3l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="ob__progress" role="progressbar" aria-valuemin="1" aria-valuemax="7" aria-valuenow="1" id="ob-progress-bar">
+    <span class="ob__progress-fill" id="ob-progress"></span>
+  </div>
+
+  <form method="post" action="{% url 'accounts:onboarding' %}" id="ob-form" class="ob__form" novalidate>
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ next_url }}">
+    <input type="hidden" name="gender" id="ob-gender" value="{{ preferences.gender }}">
+    <input type="hidden" name="profile_visibility" id="ob-visibility" value="{{ preferences.profile_visibility|default:'private' }}">
+    <input type="hidden" name="theme" id="ob-theme" value="{{ preferences.theme|default:'system' }}">
+    <input type="hidden" name="language" id="ob-language" value="{{ current_lang }}">
+
+    <main class="ob__stage" id="ob-stage">
+
+      <!-- 0 · Welcome ---------------------------------------------------- -->
+      <section class="ob-step is-active" data-step="0" aria-labelledby="ob-title-0" tabindex="-1">
+        <div class="ob-hero">
+          <div class="ob-hero__orbit" aria-hidden="true">
+            <span class="ob-hero__ring ob-hero__ring--1"></span>
+            <span class="ob-hero__ring ob-hero__ring--2"></span>
+            <span class="ob-hero__core">
+              <span class="dot-cluster dot-cluster--lg">
+                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                <span class="dot"></span><span class="dot dot--hidden"></span><span class="dot"></span>
+                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+              </span>
+            </span>
+            <span class="ob-hero__sat ob-hero__sat--1"></span>
+            <span class="ob-hero__sat ob-hero__sat--2"></span>
+            <span class="ob-hero__sat ob-hero__sat--3"></span>
+          </div>
+
+          <p class="ob-eyebrow" data-i18n="hero_eyebrow">VOTRE ESPACE, À VOTRE IMAGE</p>
+          <h1 class="ob-hero__title" id="ob-title-0">
+            <span data-i18n="hero_hello">Bonjour</span>,
+            <em>{{ user.first_name|default:user.email }}</em>
+          </h1>
+          <p class="ob-hero__sub" data-i18n="hero_sub">
+            Six petits choix pour façonner un journal qui vous ressemble vraiment.
+          </p>
+          <p class="ob-hero__meta">
+            <span class="ob-hero__pulse" aria-hidden="true"></span>
+            <span data-i18n="hero_meta">Moins d'une minute · Modifiable à tout moment</span>
+          </p>
+          <button type="button" class="ob-btn ob-btn--next ob-hero__cta" data-ob-next>
+            <span data-i18n="start">Commencer</span>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </section>
+
+      <!-- 1 · Gender ----------------------------------------------------- -->
+      <section class="ob-step" data-step="1" aria-labelledby="ob-title-1" tabindex="-1">
+        <header class="ob-step__head">
+          <p class="ob-eyebrow" data-i18n="step_1_eyebrow">ÉTAPE 1 · À PROPOS DE VOUS</p>
+          <h2 class="ob-step__title" id="ob-title-1" data-i18n="gender_title">Comment souhaitez-vous être désigné·e ?</h2>
+          <p class="ob-step__sub" data-i18n="gender_sub">Cette information reste privée et personnalise votre expérience.</p>
+        </header>
+
+        <div class="ob-choices ob-choices--4" role="group" aria-labelledby="ob-title-1">
+          <button type="button" class="ob-choice{% if preferences.gender == 'female' %} is-selected{% endif %}"
+                  data-group="gender" data-value="female" aria-pressed="{% if preferences.gender == 'female' %}true{% else %}false{% endif %}">
+            <span class="ob-choice__icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="5"></circle><path d="M12 14v8M8.5 18.5h7"></path></svg>
+            </span>
+            <span class="ob-choice__label" data-i18n="gender_female">Femme</span>
+            <span class="ob-choice__check" aria-hidden="true"></span>
+          </button>
+          <button type="button" class="ob-choice{% if preferences.gender == 'male' %} is-selected{% endif %}"
+                  data-group="gender" data-value="male" aria-pressed="{% if preferences.gender == 'male' %}true{% else %}false{% endif %}">
+            <span class="ob-choice__icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="14" r="5"></circle><path d="M13.5 10.5L20 4M15 4h5v5"></path></svg>
+            </span>
+            <span class="ob-choice__label" data-i18n="gender_male">Homme</span>
+            <span class="ob-choice__check" aria-hidden="true"></span>
+          </button>
+          <button type="button" class="ob-choice{% if preferences.gender == 'non_binary' %} is-selected{% endif %}"
+                  data-group="gender" data-value="non_binary" aria-pressed="{% if preferences.gender == 'non_binary' %}true{% else %}false{% endif %}">
+            <span class="ob-choice__icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><path d="M12 2v5M12 17v5M2 12h5M17 12h5"></path></svg>
+            </span>
+            <span class="ob-choice__label" data-i18n="gender_non_binary">Non-binaire</span>
+            <span class="ob-choice__check" aria-hidden="true"></span>
+          </button>
+          <button type="button" class="ob-choice{% if preferences.gender == 'undisclosed' %} is-selected{% endif %}"
+                  data-group="gender" data-value="undisclosed" aria-pressed="{% if preferences.gender == 'undisclosed' %}true{% else %}false{% endif %}">
+            <span class="ob-choice__icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M9.5 9.5a2.5 2.5 0 114 2c-.8.7-1.5 1.2-1.5 2.5M12 17.5h.01"></path></svg>
+            </span>
+            <span class="ob-choice__label" data-i18n="gender_undisclosed">Préfère ne pas préciser</span>
+            <span class="ob-choice__check" aria-hidden="true"></span>
+          </button>
+        </div>
+        <p class="ob-step__hint ob-step__hint--error" id="ob-gender-error" hidden data-i18n="gender_error">
+          Choisissez une option pour continuer (ou passez cette étape).
+        </p>
+      </section>
+
+      <!-- 2 · Privacy ---------------------------------------------------- -->
+      <section class="ob-step" data-step="2" aria-labelledby="ob-title-2" tabindex="-1">
+        <header class="ob-step__head">
+          <p class="ob-eyebrow" data-i18n="step_2_eyebrow">ÉTAPE 2 · CONFIDENTIALITÉ</p>
+          <h2 class="ob-step__title" id="ob-title-2" data-i18n="visibility_title">Votre journal, votre intimité.</h2>
+          <p class="ob-step__sub" data-i18n="visibility_sub">Décidez qui peut découvrir votre profil MemoAI.</p>
+        </header>
+
+        <div class="ob-choices ob-choices--2" role="group" aria-labelledby="ob-title-2">
+          <button type="button" class="ob-choice ob-choice--wide{% if preferences.profile_visibility == 'private' or not preferences.profile_visibility %} is-selected{% endif %}"
+                  data-group="visibility" data-value="private" aria-pressed="{% if preferences.profile_visibility == 'private' or not preferences.profile_visibility %}true{% else %}false{% endif %}">
+            <span class="ob-choice__badge">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2.5"></rect><path d="M8 10V7a4 4 0 018 0v3"></path></svg>
+            </span>
+            <span class="ob-choice__body">
+              <span class="ob-choice__label" data-i18n="visibility_private">Privé</span>
+              <span class="ob-choice__desc" data-i18n="visibility_private_desc">Vous seul·e pouvez voir vos souvenirs. Le choix le plus intime.</span>
+            </span>
+            <span class="ob-choice__check" aria-hidden="true"></span>
+          </button>
+          <button type="button" class="ob-choice ob-choice--wide{% if preferences.profile_visibility == 'public' %} is-selected{% endif %}"
+                  data-group="visibility" data-value="public" aria-pressed="{% if preferences.profile_visibility == 'public' %}true{% else %}false{% endif %}">
+            <span class="ob-choice__badge">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c2.5 2.5 4 5.7 4 9s-1.5 6.5-4 9c-2.5-2.5-4-5.7-4-9s1.5-6.5 4-9z"></path></svg>
+            </span>
+            <span class="ob-choice__body">
+              <span class="ob-choice__label" data-i18n="visibility_public">Public</span>
+              <span class="ob-choice__desc" data-i18n="visibility_public_desc">Votre profil peut être découvert par les autres membres.</span>
+            </span>
+            <span class="ob-choice__check" aria-hidden="true"></span>
+          </button>
+        </div>
+      </section>
+
+      <!-- 3 · Theme ------------------------------------------------------ -->
+      <section class="ob-step" data-step="3" aria-labelledby="ob-title-3" tabindex="-1">
+        <header class="ob-step__head">
+          <p class="ob-eyebrow" data-i18n="step_3_eyebrow">ÉTAPE 3 · APPARENCE</p>
+          <h2 class="ob-step__title" id="ob-title-3" data-i18n="theme_title">Quelle lumière vous inspire ?</h2>
+          <p class="ob-step__sub" data-i18n="theme_sub">L'aperçu est instantané — essayez, vous verrez.</p>
+        </header>
+
+        <div class="ob-themes" role="group" aria-labelledby="ob-title-3">
+          <button type="button" class="ob-theme{% if preferences.theme == 'light' or not preferences.theme %} is-selected{% endif %}"
+                  data-group="theme" data-value="light" aria-pressed="{% if preferences.theme == 'light' or not preferences.theme %}true{% else %}false{% endif %}">
+            <span class="ob-theme__preview ob-theme__preview--light" aria-hidden="true">
+              <span class="ob-theme__preview-nav"></span>
+              <span class="ob-theme__preview-line"></span>
+              <span class="ob-theme__preview-line ob-theme__preview-line--short"></span>
+              <span class="ob-theme__preview-card"></span>
+            </span>
+            <span class="ob-theme__meta">
+              <span class="ob-theme__icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+              </span>
+              <span class="ob-theme__name" data-i18n="theme_light">Clair</span>
+            </span>
+          </button>
+
+          <button type="button" class="ob-theme{% if preferences.theme == 'dark' %} is-selected{% endif %}"
+                  data-group="theme" data-value="dark" aria-pressed="{% if preferences.theme == 'dark' %}true{% else %}false{% endif %}">
+            <span class="ob-theme__preview ob-theme__preview--dark" aria-hidden="true">
+              <span class="ob-theme__preview-nav"></span>
+              <span class="ob-theme__preview-line"></span>
+              <span class="ob-theme__preview-line ob-theme__preview-line--short"></span>
+              <span class="ob-theme__preview-card"></span>
+            </span>
+            <span class="ob-theme__meta">
+              <span class="ob-theme__icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3 7 7 0 0021 12.8z"></path></svg>
+              </span>
+              <span class="ob-theme__name" data-i18n="theme_dark">Sombre</span>
+            </span>
+          </button>
+
+          <button type="button" class="ob-theme{% if preferences.theme == 'system' %} is-selected{% endif %}"
+                  data-group="theme" data-value="system" aria-pressed="{% if preferences.theme == 'system' %}true{% else %}false{% endif %}">
+            <span class="ob-theme__preview ob-theme__preview--system" aria-hidden="true">
+              <span class="ob-theme__preview-nav"></span>
+              <span class="ob-theme__preview-line"></span>
+              <span class="ob-theme__preview-line ob-theme__preview-line--short"></span>
+              <span class="ob-theme__preview-card"></span>
+            </span>
+            <span class="ob-theme__meta">
+              <span class="ob-theme__icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"></rect><path d="M8 21h8M12 17v4"></path></svg>
+              </span>
+              <span class="ob-theme__name" data-i18n="theme_system">Système</span>
+            </span>
+          </button>
+        </div>
+      </section>
+
+      <!-- 4 · Language --------------------------------------------------- -->
+      <section class="ob-step" data-step="4" aria-labelledby="ob-title-4" tabindex="-1">
+        <header class="ob-step__head">
+          <p class="ob-eyebrow" data-i18n="step_4_eyebrow">ÉTAPE 4 · LANGUE</p>
+          <h2 class="ob-step__title" id="ob-title-4" data-i18n="language_title">Dans quelle langue écrivez-vous ?</h2>
+          <p class="ob-step__sub" data-i18n="language_sub">L'interface et les analyses IA s'adaptent immédiatement.</p>
+        </header>
+
+        <div class="ob-choices ob-choices--2" role="group" aria-labelledby="ob-title-4">
+          <button type="button" class="ob-choice ob-choice--lang{% if current_lang == 'fr' %} is-selected{% endif %}"
+                  data-group="language" data-value="fr" aria-pressed="{{ is_fr|yesno:'true,false' }}">
+            <span class="ob-choice__flag">FR</span>
+            <span class="ob-choice__body">
+              <span class="ob-choice__label">Français</span>
+              <span class="ob-choice__desc" data-i18n="language_fr_desc">Menus, analyses et souvenirs en français.</span>
+            </span>
+            <span class="ob-choice__check" aria-hidden="true"></span>
+          </button>
+          <button type="button" class="ob-choice ob-choice--lang{% if current_lang == 'en' %} is-selected{% endif %}"
+                  data-group="language" data-value="en" aria-pressed="{{ is_en|yesno:'true,false' }}">
+            <span class="ob-choice__flag">EN</span>
+            <span class="ob-choice__body">
+              <span class="ob-choice__label">English</span>
+              <span class="ob-choice__desc" data-i18n="language_en_desc">Menus, insights and memories in English.</span>
+            </span>
+            <span class="ob-choice__check" aria-hidden="true"></span>
+          </button>
+        </div>
+      </section>
+
+      <!-- 5 · Comfort & reminder ---------------------------------------- -->
+      <section class="ob-step" data-step="5" aria-labelledby="ob-title-5" tabindex="-1">
+        <header class="ob-step__head">
+          <p class="ob-eyebrow" data-i18n="step_5_eyebrow">ÉTAPE 5 · CONFORT</p>
+          <h2 class="ob-step__title" id="ob-title-5" data-i18n="comfort_title">Un journal à votre rythme.</h2>
+          <p class="ob-step__sub" data-i18n="comfort_sub">Ajustez le mouvement et choisissez votre moment d'écriture.</p>
+        </header>
+
+        <div class="ob-panel">
+          <div class="ob-toggle-row">
+            <div class="ob-toggle-row__text">
+              <h3 data-i18n="motion_title">Réduire les animations</h3>
+              <p data-i18n="motion_desc">Supprime les rotations 3D et les transitions appuyées.</p>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" name="reduce_motion" id="ob-reduce" value="1"{% if preferences.reduce_motion %} checked{% endif %}>
+              <span class="toggle-track"></span>
+              <span class="sr-only" data-i18n="motion_title">Réduire les animations</span>
+            </label>
+          </div>
+          <div class="ob-motion-preview" id="ob-motion-preview" aria-hidden="true">
+            <span class="ob-motion-preview__card"><span></span><span></span><span></span></span>
+            <span class="ob-motion-preview__orbit"></span>
+            <span class="ob-motion-preview__label" data-i18n="motion_preview">Aperçu du mouvement</span>
+          </div>
+        </div>
+
+        <div class="ob-panel">
+          <div class="ob-toggle-row">
+            <div class="ob-toggle-row__text">
+              <h3 data-i18n="reminder_title">Rappel quotidien</h3>
+              <p data-i18n="reminder_desc">Une notification douce pour prendre un instant pour vous.</p>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" name="daily_reminder_enabled" id="ob-reminder" value="1"{% if preferences.daily_reminder_enabled %} checked{% endif %}>
+              <span class="toggle-track"></span>
+              <span class="sr-only" data-i18n="reminder_title">Rappel quotidien</span>
+            </label>
+          </div>
+          <div class="ob-time" id="ob-time-wrap">
+            <label for="ob-reminder-time" data-i18n="reminder_time">Heure du rappel</label>
+            <input type="time" name="daily_reminder_time" id="ob-reminder-time"
+                   value="{{ preferences.daily_reminder_time|time:'H:i'|default:'20:00' }}">
+          </div>
+        </div>
+      </section>
+
+      <!-- 6 · Finish ----------------------------------------------------- -->
+      <section class="ob-step" data-step="6" aria-labelledby="ob-title-6" tabindex="-1">
+        <div class="ob-finish">
+          <div class="ob-finish__mark" aria-hidden="true">
+            <span class="ob-finish__halo"></span>
+            <span class="ob-finish__check">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"></path></svg>
+            </span>
+            <span class="ob-finish__spark ob-finish__spark--1"></span>
+            <span class="ob-finish__spark ob-finish__spark--2"></span>
+            <span class="ob-finish__spark ob-finish__spark--3"></span>
+          </div>
+
+          <h2 class="ob-step__title ob-finish__title" id="ob-title-6" data-i18n="finish_title">Votre journal est prêt.</h2>
+          <p class="ob-step__sub ob-finish__sub" data-i18n="finish_sub">Tout est enregistré. Vous pourrez tout ajuster depuis vos préférences.</p>
+
+          <div class="ob-finish__summary" id="ob-summary" aria-live="polite"></div>
+
+          <button type="submit" class="ob-btn ob-btn--next ob-btn--final" id="ob-finish-btn">
+            <span data-i18n="finish_cta">Entrer dans mon journal</span>
+            <svg width="15" height="15" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <p class="ob-finish__hint" data-i18n="finish_hint">Astuce : appuyez sur ← ou → pour naviguer.</p>
+        </div>
+        <div class="ob-confetti" id="ob-confetti" aria-hidden="true"></div>
+      </section>
+
+    </main>
+
+    <footer class="ob__footer">
+      <button type="button" class="ob-btn ob-btn--ghost" id="ob-back">
+        <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M12 7H2M6 3L2 7l4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span data-i18n="back">Retour</span>
+      </button>
+
+      <div class="ob__dots" id="ob-dots" aria-label="{% trans_text 'Progression' 'Progress' %}"></div>
+
+      <button type="button" class="ob-btn ob-btn--next" id="ob-next">
+        <span data-i18n="next">Continuer</span>
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </footer>
+  </form>
+
+  <p class="ob__footnote">
+    <span data-i18n="footnote">Vos données restent les vôtres. Toujours.</span>
+    <span class="ob__footnote-dot" aria-hidden="true"></span>
+    <span>MemoAI © 2026</span>
+  </p>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/onboarding.js' %}?v=20261019_1" defer></script>
+{% endblock %}

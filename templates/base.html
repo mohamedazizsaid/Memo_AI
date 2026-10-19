@@ -291,7 +291,7 @@
 
   {% block splash %}{% endblock %}
 
-  {% if user.is_authenticated %}{% include 'partials/tour.html' %}{% endif %}
+  {% if user.is_authenticated and not onboarding_mode %}{% include 'partials/tour.html' %}{% endif %}
 
   {% if user.is_authenticated %}
   <div class="app-aurora" aria-hidden="true">

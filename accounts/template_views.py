@@ -4,13 +4,17 @@ HTML interface for authentication and profile management.
 """
 
 import logging
+from datetime import datetime
+
 from django import forms
 from django.contrib.auth import get_user_model, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views import View
 
 from .models import UserPreferences
@@ -45,6 +49,32 @@ def _with_welcome(target):
     separator = '&' if '?' in path else '?'
     url = f'{path}{separator}welcome=1'
     return f'{url}#{fragment}' if fragment else url
+
+
+def _needs_onboarding(user):
+    try:
+        return not user.preferences.onboarding_completed
+    except Exception:
+        return False
+
+
+def _post_login_target(user):
+    """Send new accounts to the onboarding before the dashboard."""
+    if _needs_onboarding(user):
+        return reverse('accounts:onboarding')
+    return reverse('journal:home')
+
+
+def _safe_next(request):
+    """Return a validated local ``next`` target, or an empty string."""
+    target = request.POST.get('next') or request.GET.get('next') or ''
+    if target and url_has_allowed_host_and_scheme(
+        target,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure(),
+    ):
+        return target
+    return ''
 
 
 class LoginForm(forms.Form):
@@ -94,7 +124,7 @@ class TemplateLoginView(View):
 
     def get(self, request):
         if request.user.is_authenticated:
-            return redirect('journal:home')
+            return redirect(_post_login_target(request.user))
         return render(request, 'accounts/login.html', {'form': LoginForm()})
 
     def post(self, request):
@@ -116,6 +146,11 @@ class TemplateLoginView(View):
                 else:
                     request.session.set_expiry(0)
                 messages.success(request, f'Bienvenue, {user.first_name} !')
+                if _needs_onboarding(user):
+                    target = _safe_next(request)
+                    return redirect(
+                        f"{reverse('accounts:onboarding')}?next={target}" if target else 'accounts:onboarding'
+                    )
                 return redirect(_with_welcome(request.GET.get('next') or reverse('journal:home')))
             else:
                 form.add_error(None, 'Email ou mot de passe incorrect.')
@@ -127,7 +162,7 @@ class TemplateRegisterView(View):
 
     def get(self, request):
         if request.user.is_authenticated:
-            return redirect('journal:home')
+            return redirect(_post_login_target(request.user))
         return render(request, 'accounts/register.html', {'form': RegisterForm()})
 
     def post(self, request):
@@ -150,8 +185,83 @@ class TemplateRegisterView(View):
 
             login(request, user)
             messages.success(request, f'Compte cree avec succes ! Bienvenue, {user.first_name} !')
-            return redirect(_with_welcome(reverse('journal:home')))
+            # New accounts always meet the animated onboarding first.
+            return redirect('accounts:onboarding')
         return render(request, 'accounts/register.html', {'form': form})
+
+
+@method_decorator(login_required, name='dispatch')
+class TemplateOnboardingView(View):
+    """Animated, multi-step welcome flow shown once right after registration."""
+
+    template_name = 'accounts/onboarding.html'
+
+    def get(self, request):
+        prefs, _ = UserPreferences.objects.get_or_create(user=request.user)
+        replay = request.GET.get('replay') == '1'
+        if prefs.onboarding_completed and not replay:
+            return redirect('journal:home')
+        return render(request, self.template_name, {
+            'preferences': prefs,
+            'onboarding_mode': True,
+            'replay': replay,
+            'next_url': _safe_next(request),
+        })
+
+    def post(self, request):
+        prefs, _ = UserPreferences.objects.get_or_create(user=request.user)
+
+        if request.POST.get('skip') == '1':
+            prefs.onboarding_completed = True
+            prefs.onboarding_completed_at = timezone.now()
+            prefs.save(update_fields=['onboarding_completed', 'onboarding_completed_at'])
+            messages.info(request, 'Vous pourrez modifier ces choix dans vos préférences.'
+                          if not str(getattr(request, 'LANGUAGE_CODE', 'fr')).startswith('en')
+                          else 'You can change these choices anytime in your preferences.')
+            return redirect(_with_welcome(reverse('journal:home')))
+
+        gender = request.POST.get('gender', '').strip()
+        if gender in dict(UserPreferences.GENDER_CHOICES):
+            prefs.gender = gender
+
+        visibility = request.POST.get('profile_visibility', '').strip()
+        if visibility in dict(UserPreferences.PROFILE_VISIBILITY_CHOICES):
+            prefs.profile_visibility = visibility
+
+        theme = request.POST.get('theme', '').strip()
+        if theme in dict(UserPreferences.THEME_CHOICES):
+            prefs.theme = theme
+
+        lang = request.POST.get('language', '').strip()
+        if lang in dict(UserPreferences.LANGUAGE_CHOICES):
+            prefs.language = lang
+            request.session['django_language'] = lang
+
+        prefs.reduce_motion = 'reduce_motion' in request.POST
+        prefs.daily_reminder_enabled = 'daily_reminder_enabled' in request.POST
+
+        daily_time = request.POST.get('daily_reminder_time', '').strip()
+        if daily_time:
+            try:
+                prefs.daily_reminder_time = datetime.strptime(daily_time, '%H:%M').time()
+            except ValueError:
+                pass
+
+        prefs.onboarding_completed = True
+        prefs.onboarding_completed_at = timezone.now()
+        prefs.save()
+
+        target = _safe_next(request)
+        messages.success(
+            request,
+            'Tout est prêt — bienvenue dans votre journal intelligent !'
+            if prefs.language != 'en' else
+            'All set — welcome to your intelligent journal!',
+        )
+
+        response = redirect(target) if target else redirect(_with_welcome(reverse('journal:home')))
+        response.set_cookie('django_language', prefs.language, max_age=365 * 24 * 3600)
+        return response
 
 
 @method_decorator(login_required, name='dispatch')
@@ -239,6 +349,14 @@ class TemplatePreferencesView(View):
             translation.activate(new_lang)
 
         prefs.reduce_motion = 'reduce_motion' in request.POST
+
+        # Identity & privacy (also chosen during onboarding)
+        gender = request.POST.get('gender', '').strip()
+        if gender in dict(UserPreferences.GENDER_CHOICES):
+            prefs.gender = gender
+        visibility = request.POST.get('profile_visibility', '').strip()
+        if visibility in dict(UserPreferences.PROFILE_VISIBILITY_CHOICES):
+            prefs.profile_visibility = visibility
 
         # AI Preferences
         prefs.ai_summaries_enabled = 'ai_summaries_enabled' in request.POST

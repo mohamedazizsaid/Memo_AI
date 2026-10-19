@@ -10,6 +10,7 @@ app_name = 'accounts'
 urlpatterns = [
     path('connexion/', template_views.TemplateLoginView.as_view(), name='login'),
     path('inscription/', template_views.TemplateRegisterView.as_view(), name='register'),
+    path('bienvenue/', template_views.TemplateOnboardingView.as_view(), name='onboarding'),
     path('deconnexion/', template_views.TemplateLogoutView.as_view(), name='logout'),
     path('profil/', template_views.TemplateProfileView.as_view(), name='profile'),
     path('preferences/', template_views.TemplatePreferencesView.as_view(), name='preferences'),
