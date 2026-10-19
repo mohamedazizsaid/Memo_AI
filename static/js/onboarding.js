@@ -51,7 +51,7 @@
       hero_sub: 'Six petits choix pour façonner un journal qui vous ressemble vraiment.',
       hero_meta: "Moins d'une minute · Modifiable à tout moment",
       start: 'Commencer',
-      step_1_eyebrow: 'ÉTAPE 1 · À PROPOS DE VOUS',
+      step_1_eyebrow: 'ÉTAPE 2 · À PROPOS DE VOUS',
       gender_title: 'Comment souhaitez-vous être désigné·e ?',
       gender_sub: 'Cette information reste privée et personnalise votre expérience.',
       gender_female: 'Femme',
@@ -59,25 +59,25 @@
       gender_non_binary: 'Non-binaire',
       gender_undisclosed: 'Préfère ne pas préciser',
       gender_error: 'Choisissez une option pour continuer (ou passez cette étape).',
-      step_2_eyebrow: 'ÉTAPE 2 · CONFIDENTIALITÉ',
+      step_2_eyebrow: 'ÉTAPE 3 · CONFIDENTIALITÉ',
       visibility_title: 'Votre journal, votre intimité.',
       visibility_sub: 'Décidez qui peut découvrir votre profil MemoAI.',
       visibility_private: 'Privé',
       visibility_private_desc: 'Vous seul·e pouvez voir vos souvenirs. Le choix le plus intime.',
       visibility_public: 'Public',
       visibility_public_desc: 'Votre profil peut être découvert par les autres membres.',
-      step_3_eyebrow: 'ÉTAPE 3 · APPARENCE',
+      step_3_eyebrow: 'ÉTAPE 4 · APPARENCE',
       theme_title: 'Quelle lumière vous inspire ?',
       theme_sub: "L'aperçu est instantané — essayez, vous verrez.",
       theme_light: 'Clair',
       theme_dark: 'Sombre',
       theme_system: 'Système',
-      step_4_eyebrow: 'ÉTAPE 4 · LANGUE',
+      step_4_eyebrow: 'ÉTAPE 5 · LANGUE',
       language_title: 'Dans quelle langue écrivez-vous ?',
       language_sub: "L'interface et les analyses IA s'adaptent immédiatement.",
       language_fr_desc: 'Menus, analyses et souvenirs en français.',
       language_en_desc: 'Menus, analyses et souvenirs en anglais.',
-      step_5_eyebrow: 'ÉTAPE 5 · CONFORT',
+      step_5_eyebrow: 'ÉTAPE 6 · CONFORT',
       comfort_title: 'Un journal à votre rythme.',
       comfort_sub: "Ajustez le mouvement et choisissez votre moment d'écriture.",
       motion_title: 'Réduire les animations',
@@ -109,7 +109,7 @@
       hero_sub: 'Six small choices to shape a journal that truly feels like you.',
       hero_meta: 'Under a minute · Change it anytime',
       start: 'Get started',
-      step_1_eyebrow: 'STEP 1 · ABOUT YOU',
+      step_1_eyebrow: 'STEP 2 · ABOUT YOU',
       gender_title: 'How would you like to be addressed?',
       gender_sub: 'This stays private and personalises your experience.',
       gender_female: 'Woman',
@@ -117,25 +117,25 @@
       gender_non_binary: 'Non-binary',
       gender_undisclosed: 'Prefer not to say',
       gender_error: 'Pick an option to continue (or skip this step).',
-      step_2_eyebrow: 'STEP 2 · PRIVACY',
+      step_2_eyebrow: 'STEP 3 · PRIVACY',
       visibility_title: 'Your journal, your privacy.',
       visibility_sub: 'Decide who can discover your MemoAI profile.',
       visibility_private: 'Private',
       visibility_private_desc: 'Only you can see your memories. The most intimate choice.',
       visibility_public: 'Public',
       visibility_public_desc: 'Your profile can be discovered by other members.',
-      step_3_eyebrow: 'STEP 3 · APPEARANCE',
+      step_3_eyebrow: 'STEP 4 · APPEARANCE',
       theme_title: 'Which light inspires you?',
       theme_sub: 'The preview is instant — try it and see.',
       theme_light: 'Light',
       theme_dark: 'Dark',
       theme_system: 'System',
-      step_4_eyebrow: 'STEP 4 · LANGUAGE',
+      step_4_eyebrow: 'STEP 5 · LANGUAGE',
       language_title: 'Which language do you write in?',
       language_sub: 'The interface and AI insights adapt instantly.',
       language_fr_desc: 'Menus, insights and memories in French.',
       language_en_desc: 'Menus, insights and memories in English.',
-      step_5_eyebrow: 'STEP 5 · COMFORT',
+      step_5_eyebrow: 'STEP 6 · COMFORT',
       comfort_title: 'A journal at your own pace.',
       comfort_sub: 'Tune the motion and choose your writing moment.',
       motion_title: 'Reduce animations',
@@ -204,7 +204,7 @@
 
   // ── Choice cards ───────────────────────────────────────────────────────
   function markChoice(group, value) {
-    var buttons = document.querySelectorAll('.ob-choice[data-group="' + group + '"]');
+    var buttons = document.querySelectorAll('[data-group="' + group + '"]');
     for (var i = 0; i < buttons.length; i++) {
       var on = buttons[i].getAttribute('data-value') === value;
       buttons[i].classList.toggle('is-selected', on);
@@ -221,7 +221,7 @@
     buildSummary();
   }
 
-  var choices = document.querySelectorAll('.ob-choice[data-group]');
+  var choices = document.querySelectorAll('[data-group]');
   for (var c = 0; c < choices.length; c++) {
     choices[c].addEventListener('click', function () {
       var group = this.getAttribute('data-group');
@@ -276,7 +276,9 @@
       backBtn.style.visibility = current === 0 ? 'hidden' : 'visible';
     }
     if (nextBtn) {
-      nextBtn.style.visibility = current === total - 1 ? 'hidden' : 'visible';
+      // Step 0 has its own big hero CTA, so the footer button stays out of
+      // the way until the first real choice.
+      nextBtn.style.visibility = (current === 0 || current === total - 1) ? 'hidden' : 'visible';
     }
     renderDots();
   }

@@ -12,8 +12,7 @@
 
 {% block content %}
 <div class="ob" id="ob"
-     data-lang="{{ current_lang }}"
-     data-finish="{{ is_en|yesno:'1,0' }}">
+     data-lang="{{ current_lang }}">
   <div class="ob__bg" aria-hidden="true">
     <span class="ob__blob ob__blob--1"></span>
     <span class="ob__blob ob__blob--2"></span>
@@ -98,7 +97,7 @@
       <!-- 1 · Gender ----------------------------------------------------- -->
       <section class="ob-step" data-step="1" aria-labelledby="ob-title-1" tabindex="-1">
         <header class="ob-step__head">
-          <p class="ob-eyebrow" data-i18n="step_1_eyebrow">ÉTAPE 1 · À PROPOS DE VOUS</p>
+          <p class="ob-eyebrow" data-i18n="step_1_eyebrow">ÉTAPE 2 · À PROPOS DE VOUS</p>
           <h2 class="ob-step__title" id="ob-title-1" data-i18n="gender_title">Comment souhaitez-vous être désigné·e ?</h2>
           <p class="ob-step__sub" data-i18n="gender_sub">Cette information reste privée et personnalise votre expérience.</p>
         </header>
@@ -145,7 +144,7 @@
       <!-- 2 · Privacy ---------------------------------------------------- -->
       <section class="ob-step" data-step="2" aria-labelledby="ob-title-2" tabindex="-1">
         <header class="ob-step__head">
-          <p class="ob-eyebrow" data-i18n="step_2_eyebrow">ÉTAPE 2 · CONFIDENTIALITÉ</p>
+          <p class="ob-eyebrow" data-i18n="step_2_eyebrow">ÉTAPE 3 · CONFIDENTIALITÉ</p>
           <h2 class="ob-step__title" id="ob-title-2" data-i18n="visibility_title">Votre journal, votre intimité.</h2>
           <p class="ob-step__sub" data-i18n="visibility_sub">Décidez qui peut découvrir votre profil MemoAI.</p>
         </header>
@@ -179,7 +178,7 @@
       <!-- 3 · Theme ------------------------------------------------------ -->
       <section class="ob-step" data-step="3" aria-labelledby="ob-title-3" tabindex="-1">
         <header class="ob-step__head">
-          <p class="ob-eyebrow" data-i18n="step_3_eyebrow">ÉTAPE 3 · APPARENCE</p>
+          <p class="ob-eyebrow" data-i18n="step_3_eyebrow">ÉTAPE 4 · APPARENCE</p>
           <h2 class="ob-step__title" id="ob-title-3" data-i18n="theme_title">Quelle lumière vous inspire ?</h2>
           <p class="ob-step__sub" data-i18n="theme_sub">L'aperçu est instantané — essayez, vous verrez.</p>
         </header>
@@ -238,14 +237,14 @@
       <!-- 4 · Language --------------------------------------------------- -->
       <section class="ob-step" data-step="4" aria-labelledby="ob-title-4" tabindex="-1">
         <header class="ob-step__head">
-          <p class="ob-eyebrow" data-i18n="step_4_eyebrow">ÉTAPE 4 · LANGUE</p>
+          <p class="ob-eyebrow" data-i18n="step_4_eyebrow">ÉTAPE 5 · LANGUE</p>
           <h2 class="ob-step__title" id="ob-title-4" data-i18n="language_title">Dans quelle langue écrivez-vous ?</h2>
           <p class="ob-step__sub" data-i18n="language_sub">L'interface et les analyses IA s'adaptent immédiatement.</p>
         </header>
 
         <div class="ob-choices ob-choices--2" role="group" aria-labelledby="ob-title-4">
           <button type="button" class="ob-choice ob-choice--lang{% if current_lang == 'fr' %} is-selected{% endif %}"
-                  data-group="language" data-value="fr" aria-pressed="{{ is_fr|yesno:'true,false' }}">
+                  data-group="language" data-value="fr" aria-pressed="{% if current_lang == 'fr' %}true{% else %}false{% endif %}">
             <span class="ob-choice__flag">FR</span>
             <span class="ob-choice__body">
               <span class="ob-choice__label">Français</span>
@@ -254,7 +253,7 @@
             <span class="ob-choice__check" aria-hidden="true"></span>
           </button>
           <button type="button" class="ob-choice ob-choice--lang{% if current_lang == 'en' %} is-selected{% endif %}"
-                  data-group="language" data-value="en" aria-pressed="{{ is_en|yesno:'true,false' }}">
+                  data-group="language" data-value="en" aria-pressed="{% if current_lang == 'en' %}true{% else %}false{% endif %}">
             <span class="ob-choice__flag">EN</span>
             <span class="ob-choice__body">
               <span class="ob-choice__label">English</span>
@@ -268,7 +267,7 @@
       <!-- 5 · Comfort & reminder ---------------------------------------- -->
       <section class="ob-step" data-step="5" aria-labelledby="ob-title-5" tabindex="-1">
         <header class="ob-step__head">
-          <p class="ob-eyebrow" data-i18n="step_5_eyebrow">ÉTAPE 5 · CONFORT</p>
+          <p class="ob-eyebrow" data-i18n="step_5_eyebrow">ÉTAPE 6 · CONFORT</p>
           <h2 class="ob-step__title" id="ob-title-5" data-i18n="comfort_title">Un journal à votre rythme.</h2>
           <p class="ob-step__sub" data-i18n="comfort_sub">Ajustez le mouvement et choisissez votre moment d'écriture.</p>
         </header>
@@ -365,5 +364,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/onboarding.js' %}?v=20261019_1" defer></script>
+<script src="{% static 'js/onboarding.js' %}?v=20261019_3" defer></script>
 {% endblock %}
