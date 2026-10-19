@@ -70,11 +70,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,350;0,9..144,400;0,9..144,500;1,9..144,350&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <meta name="csrf-token" content="{{ csrf_token }}">
   {% load static %}
-  <link rel="stylesheet" href="{% static 'css/cosmos.css' %}?v=20261010_15">
+  <link rel="stylesheet" href="{% static 'css/cosmos.css' %}?v=20261019_6">
   {% block app_css %}{% if user.is_authenticated %}
   <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20261019_5">
-  <link rel="stylesheet" href="{% static 'css/tour.css' %}?v=20261019_5">
+  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20261019_6">
+  <link rel="stylesheet" href="{% static 'css/tour.css' %}?v=20261019_6">
   {% endif %}{% endblock %}
   <style>
     /* Critical Toast Styling — Guarantees floating top-right display regardless of browser cache */
@@ -762,7 +762,9 @@
       }
       var observer = new IntersectionObserver(function (entries) {
         entries.forEach(function (entry) {
-          if (entry.isIntersecting) {
+          /* `top < 0` covers fast scrolls / anchor jumps: an element the user
+             has already scrolled past is revealed instead of staying blank. */
+          if (entry.isIntersecting || entry.boundingClientRect.top < 0) {
             entry.target.classList.add('is-visible');
             observer.unobserve(entry.target);
           }
@@ -821,7 +823,7 @@
 
       var observer = new IntersectionObserver(function (entries) {
         entries.forEach(function (entry) {
-          if (!entry.isIntersecting) return;
+          if (!entry.isIntersecting && entry.boundingClientRect.top > 0) return;
           entry.target.classList.add('is-revealed');
           observer.unobserve(entry.target);
         });
@@ -1023,7 +1025,7 @@
       });
     })();
   </script>
-  {% if user.is_authenticated %}<script src="{% static 'js/tour.js' %}?v=20261019_5" defer></script>{% endif %}
+  {% if user.is_authenticated %}<script src="{% static 'js/tour.js' %}?v=20261019_6" defer></script>{% endif %}
   {% block extra_js %}{% endblock %}
 </body>
 </html>
