@@ -85,13 +85,18 @@ class PersonDetailView(View):
         entries = JournalEntry.objects.filter(
             user=request.user,
             media__face_detections__person=person
-        ).distinct().prefetch_related('media', 'tags').select_related('ai_analysis')[:12]
+        ).distinct().prefetch_related('media', 'tags').select_related('ai_analysis').order_by('-entry_date')
+
+        paginator = Paginator(entries, PERSONS_PER_PAGE)
+        page_obj = paginator.get_page(request.GET.get('page', 1))
 
         face_detections = person.face_detections.select_related('media', 'media__entry').order_by('-created_at')[:8]
 
         return render(request, 'persons/detail.html', {
             'person': person,
-            'entries': entries,
+            'entries': page_obj,
+            'page_obj': page_obj,
+            'is_paginated': paginator.num_pages > 1,
             'face_detections': face_detections,
         })
 
@@ -102,8 +107,17 @@ class PersonCreateView(View):
         return render(request, 'persons/form.html', {'person': None})
 
     def post(self, request):
-        name = request.POST.get('name', '').strip() or 'Inconnu'
+        name = request.POST.get('name', '').strip()
         notes = request.POST.get('notes', '').strip()
+
+        # Server-side guard mirroring the inline validation (JS can be off).
+        if len(name) < 2:
+            return render(request, 'persons/form.html', {
+                'person': None,
+                'entered_name': name,
+                'entered_notes': notes,
+                'name_error': True,
+            }, status=400)
 
         # The portrait can only come from the drag & drop zone now — the old
         # "paste a photo URL" field is gone.
@@ -131,8 +145,19 @@ class PersonEditView(View):
 
     def post(self, request, pk):
         person = get_object_or_404(Person, pk=pk, user=request.user)
-        person.name = request.POST.get('name', person.name).strip()
-        person.notes = request.POST.get('notes', person.notes).strip()
+        new_name = request.POST.get('name', '').strip()
+        new_notes = request.POST.get('notes', person.notes).strip()
+
+        if len(new_name) < 2:
+            return render(request, 'persons/form.html', {
+                'person': person,
+                'entered_name': new_name,
+                'entered_notes': new_notes,
+                'name_error': True,
+            }, status=400)
+
+        person.name = new_name
+        person.notes = new_notes
 
         avatar_file = request.FILES.get('avatar_file')
         if avatar_file:

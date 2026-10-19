@@ -69,8 +69,8 @@ class TagListView(View):
         color = request.POST.get('color', '').strip() or request.POST.get('color_custom', '#6366f1').strip()
         icon = request.POST.get('icon', '').strip()
 
-        if not name:
-            messages.error(request, 'Le nom du tag est requis.')
+        if len(name) < 2:
+            messages.error(request, 'Le nom du tag doit contenir au moins 2 caractères.')
             return redirect('tags:list')
 
         if pk:

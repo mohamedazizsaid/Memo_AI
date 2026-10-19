@@ -47,11 +47,12 @@
     </div>
 
     {% if entries %}
-      <div class="entries-grid">
+      <div class="entries-grid" id="person-entries">
         {% for entry in entries %}
           {% include 'journal/_entry_card.html' with entry=entry %}
         {% endfor %}
       </div>
+      {% include 'partials/pagination.html' with page_obj=page_obj param='page' anchor='person-entries' %}
     {% else %}
       <div class="empty-state reveal">
         <p class="empty-state-body">{{ person.name }} {% trans_text "n'apparait dans aucune entree pour le moment." "does not appear in any entry yet." %}</p>

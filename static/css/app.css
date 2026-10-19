@@ -424,11 +424,14 @@ textarea::placeholder { color: var(--app-tertiary); opacity: 1; }
 }
 .field-error:empty { display: none; }
 
+/* `!important` is deliberate: the "boxed fields" rule above wins on
+   specificity for typed inputs (input[type="text"]:not()…), and the focus
+   ring must never override an invalid state. */
 .form-input.is-invalid,
 .form-select.is-invalid,
 .form-textarea.is-invalid {
-  border-color: #d14343;
-  box-shadow: 0 0 0 3px rgba(209, 67, 67, 0.14);
+  border-color: #d14343 !important;
+  box-shadow: 0 0 0 3px rgba(209, 67, 67, 0.14) !important;
 }
 
 .form-error-summary {
@@ -471,8 +474,8 @@ textarea::placeholder { color: var(--app-tertiary); opacity: 1; }
 [data-theme="dark"] .form-input.is-invalid,
 [data-theme="dark"] .form-select.is-invalid,
 [data-theme="dark"] .form-textarea.is-invalid {
-  border-color: #f87171;
-  box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.16);
+  border-color: #f87171 !important;
+  box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.16) !important;
 }
 
 /* ─── Empty state ──────────────────────────────────────────────────── */
