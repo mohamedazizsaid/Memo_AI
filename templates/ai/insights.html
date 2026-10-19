@@ -25,19 +25,19 @@
   <!-- Stats overview -->
   <div class="insights-stats reveal-stagger">
     <div class="insight-stat-card">
-      <span class="insight-stat-value">{{ stats.total_entries }}</span>
+      <span class="insight-stat-value" data-count="{{ stats.total_entries }}">{{ stats.total_entries }}</span>
       <span class="insight-stat-label">{% trans_text "Entrees" "Entries" %}</span>
     </div>
     <div class="insight-stat-card">
-      <span class="insight-stat-value">{{ stats.total_words }}</span>
+      <span class="insight-stat-value" data-count="{{ stats.total_words }}">{{ stats.total_words }}</span>
       <span class="insight-stat-label">{% trans_text "Mots ecrits" "Words written" %}</span>
     </div>
     <div class="insight-stat-card">
-      <span class="insight-stat-value">{{ stats.streak_days }}</span>
+      <span class="insight-stat-value" data-count="{{ stats.streak_days }}">{{ stats.streak_days }}</span>
       <span class="insight-stat-label">{% trans_text "Jours consecutifs" "Day streak" %}</span>
     </div>
     <div class="insight-stat-card">
-      <span class="insight-stat-value">{{ stats.most_used_mood|default:"—" }}</span>
+      <span class="insight-stat-value">{{ stats.most_used_mood_label|default:"—" }}</span>
       <span class="insight-stat-label">{% trans_text "Humeur dominante" "Dominant mood" %}</span>
     </div>
   </div>
@@ -50,8 +50,11 @@
       </div>
       <div class="trend-chart" role="img" aria-label="{% trans_text 'Entrees par semaine' 'Entries per week' %}">
         {% for week in stats.activity %}
-          <div class="trend-bar-wrap">
-            <div class="trend-bar" style="height: {{ week.height }}%;" title="{{ week.count }} {% trans_text 'entree(s)' 'entry(ies)' %}"></div>
+          <div class="trend-bar-wrap{% if week.is_peak %} is-peak{% endif %}{% if week.is_empty %} is-empty{% endif %}"
+               style="--bar-i: {{ forloop.counter0 }};"
+               title="{{ week.count }} {% trans_text 'entree(s)' 'entry(ies)' %}">
+            <span class="trend-bar-value">{{ week.count }}</span>
+            <div class="trend-bar" style="height: {{ week.bar_px }}px;"></div>
             <span class="trend-bar-label">{{ week.label }}</span>
           </div>
         {% endfor %}
@@ -64,27 +67,16 @@
         <h2 class="insight-card-title">{% trans_text "Distribution des humeurs" "Mood distribution" %}</h2>
       </div>
       <div class="mood-chart" id="mood-chart" aria-label="{% trans_text 'Graphique des humeurs' 'Mood chart' %}">
-        {% if stats.entries_by_mood %}
-          {% for mood, count in stats.entries_by_mood.items %}
-            <div class="mood-bar-row">
+        {% if stats.mood_rows %}
+          {% for mood in stats.mood_rows %}
+            <div class="mood-bar-row" style="--mood-hue: {{ mood.hue }}; --bar-i: {{ forloop.counter0 }};">
               <span class="mood-bar-label">
-                {% if mood == 'amazing' %}🤩
-                {% elif mood == 'good' %}😊
-                {% elif mood == 'neutral' %}😐
-                {% elif mood == 'sad' %}😢
-                {% elif mood == 'stressed' %}😤
-                {% elif mood == 'anxious' %}😰
-                {% elif mood == 'tired' %}😴
-                {% elif mood == 'angry' %}😠
-                {% elif mood == 'excited' %}🎉
-                {% elif mood == 'grateful' %}🙏
-                {% endif %}
-                {{ mood }}
+                {% if mood.emoji %}<span class="mood-bar-emoji" aria-hidden="true">{{ mood.emoji }}</span>{% endif %}{{ mood.label }}
               </span>
               <div class="mood-bar-track">
-                <div class="mood-bar-fill mood-bar-fill--{{ mood }}" style="width: {% widthratio count stats.max_mood 100 %}%" aria-valuenow="{{ count }}" role="progressbar"></div>
+                <div class="mood-bar-fill" style="width: {{ mood.percent }}%" aria-valuenow="{{ mood.count }}" role="progressbar"></div>
               </div>
-              <span class="mood-bar-count">{{ count }}</span>
+              <span class="mood-bar-count">{{ mood.count }}</span>
             </div>
           {% endfor %}
         {% else %}
@@ -99,27 +91,25 @@
         <h2 class="insight-card-title">{% trans_text "Tonalite des analyses IA" "AI sentiment breakdown" %}</h2>
       </div>
       {% if stats.sentiment_dist.positive or stats.sentiment_dist.neutral or stats.sentiment_dist.negative %}
-        <div class="sentiment-ring">
-          <span class="sentiment-ring__value">
-            {% if stats.avg_sentiment is not None %}{{ stats.avg_sentiment|floatformat:2 }}{% else %}—{% endif %}
-          </span>
-          <span class="insight-stat-label">{% trans_text "Score moyen (0-1)" "Average score (0-1)" %}</span>
-        </div>
-        <div class="mood-chart" style="margin-top:12px;">
-          <div class="mood-bar-row">
-            <span class="mood-bar-label">{% trans_text "Positif" "Positive" %}</span>
-            <div class="mood-bar-track"><div class="mood-bar-fill" style="width: {% widthratio stats.sentiment_dist.positive stats.sentiment_total 100 %}%; background: linear-gradient(90deg,#34d399,#0f9d6b);"></div></div>
-            <span class="mood-bar-count">{{ stats.sentiment_dist.positive }}</span>
+        <div class="sentiment-panel">
+          <div class="sentiment-gauge"
+               data-score="{% if stats.avg_sentiment is not None %}{{ stats.avg_sentiment }}{% endif %}"
+               style="--score: {% if stats.avg_sentiment is not None %}{{ stats.avg_sentiment }}{% else %}0{% endif %};">
+            <span class="sentiment-gauge__inner">
+              <strong>{% if stats.avg_sentiment is not None %}{{ stats.avg_sentiment|floatformat:2 }}{% else %}—{% endif %}</strong>
+              <small>{% trans_text "score moyen" "average" %}</small>
+            </span>
           </div>
-          <div class="mood-bar-row">
-            <span class="mood-bar-label">{% trans_text "Neutre" "Neutral" %}</span>
-            <div class="mood-bar-track"><div class="mood-bar-fill" style="width: {% widthratio stats.sentiment_dist.neutral stats.sentiment_total 100 %}%; background: linear-gradient(90deg,#d4d4d8,#a1a1aa);"></div></div>
-            <span class="mood-bar-count">{{ stats.sentiment_dist.neutral }}</span>
-          </div>
-          <div class="mood-bar-row">
-            <span class="mood-bar-label">{% trans_text "Negatif" "Negative" %}</span>
-            <div class="mood-bar-track"><div class="mood-bar-fill" style="width: {% widthratio stats.sentiment_dist.negative stats.sentiment_total 100 %}%; background: linear-gradient(90deg,#f87171,#dc2626);"></div></div>
-            <span class="mood-bar-count">{{ stats.sentiment_dist.negative }}</span>
+          <div class="sentiment-bars">
+            {% for row in stats.sentiment_rows %}
+              <div class="sentiment-row" style="--mood-hue: {{ row.hue }}; --bar-i: {{ forloop.counter0 }};">
+                <span class="sentiment-row__label">{{ row.label }}</span>
+                <span class="sentiment-row__track">
+                  <span class="sentiment-row__fill" style="width: {{ row.percent }}%;"></span>
+                </span>
+                <span class="sentiment-row__value">{{ row.count }}<em>{{ row.percent }}%</em></span>
+              </div>
+            {% endfor %}
           </div>
         </div>
       {% else %}
@@ -135,7 +125,7 @@
       {% if stats.keyword_cloud %}
         <div class="keyword-cloud">
           {% for kw in stats.keyword_cloud %}
-            <span class="keyword-tag" style="font-size: {{ kw.weight }}2%;">{{ kw.word }} <small>· {{ kw.count }}</small></span>
+            <span class="keyword-tag" style="--i: {{ forloop.counter0 }}; font-size: {{ kw.size }}px;">{{ kw.word }} <small>· {{ kw.count }}</small></span>
           {% endfor %}
         </div>
       {% else %}
@@ -185,16 +175,24 @@
 
     <!-- People recognised in photos (real) -->
     {% if stats.top_persons %}
-    <div class="insight-card reveal">
+    <div class="insight-card insight-card--wide reveal">
       <div class="insight-card-header">
         <h2 class="insight-card-title">{% trans_text "Vos proches en photos" "Your people in photos" %}</h2>
       </div>
-      <div class="top-tags-list">
+      <div class="people-orbit">
         {% for person in stats.top_persons %}
-          <div class="top-tag-item">
-            <a href="/personnes/{{ person.id }}/" class="tag-pill" style="--tag-color:#c8963e;">{{ person.name }}</a>
-            <span class="top-tag-count">{{ person.detections }} {% trans_text "photo(s)" "photo(s)" %}</span>
-          </div>
+          <a class="people-orbit__item" href="/personnes/{{ person.id }}/" style="--i: {{ forloop.counter0 }};"
+             title="{{ person.name }} — {{ person.detections }} {% trans_text 'photo(s)' 'photo(s)' %}">
+            <span class="people-orbit__ring">
+              {% if person.avatar_thumb %}
+                <img src="{{ person.avatar_thumb }}" alt="{{ person.name }}" loading="lazy" decoding="async">
+              {% else %}
+                <span class="people-orbit__initial" aria-hidden="true">{{ person.initial }}</span>
+              {% endif %}
+              <span class="people-orbit__count">{{ person.detections }}</span>
+            </span>
+            <span class="people-orbit__name">{{ person.name }}</span>
+          </a>
         {% endfor %}
       </div>
     </div>
@@ -248,4 +246,48 @@
     </div>
   {% endif %}
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var reduce = document.body.classList.contains('reduce-motion') || !!(
+    window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  );
+  if (reduce) return;
+
+  var locale = document.documentElement.getAttribute('lang') || undefined;
+
+  // Count-up on the overview numbers.
+  document.querySelectorAll('.insight-stat-value[data-count]').forEach(function (el) {
+    var target = parseInt(el.getAttribute('data-count'), 10);
+    if (isNaN(target) || target <= 0) return;
+    var started = null;
+    var duration = 900;
+    el.textContent = '0';
+    function step(now) {
+      if (started === null) started = now;
+      var t = Math.min(1, (now - started) / duration);
+      var eased = 1 - Math.pow(1 - t, 3);
+      el.textContent = Math.round(target * eased).toLocaleString(locale);
+      if (t < 1) window.requestAnimationFrame(step);
+      else el.textContent = target.toLocaleString(locale);
+    }
+    window.requestAnimationFrame(step);
+  });
+
+  // Sentiment ring: the CSS custom property drives a conic-gradient and
+  // transitions from 0 to the real score (supported browsers animate it).
+  document.querySelectorAll('.sentiment-gauge[data-score]').forEach(function (gauge) {
+    var score = parseFloat(gauge.getAttribute('data-score'));
+    if (isNaN(score)) return;
+    gauge.style.setProperty('--score', '0');
+    window.requestAnimationFrame(function () {
+      window.requestAnimationFrame(function () {
+        gauge.style.setProperty('--score', String(Math.max(0, Math.min(1, score))));
+      });
+    });
+  });
+});
+</script>
 {% endblock %}

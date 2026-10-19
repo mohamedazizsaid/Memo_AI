@@ -1324,3 +1324,361 @@ html.js .reveal-stagger.is-visible > * { opacity: 1; transform: none; }
   .hero-collage__item { opacity: 1 !important; }
   .ai-processing__pulse::after, .ai-shimmer { animation: none !important; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   INSIGHTS — "pro" pass. Bars now have deterministic pixel heights, the
+   sentiment score animates as a ring, your people appear as photo orbits
+   and every block uses the same radius / hover language as the rest of
+   the platform. `translate` (not `transform`) keeps the scroll-reveal
+   transform untouched.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.insight-card, .insight-stat-card {
+  transition: translate 0.45s var(--app-ease), box-shadow 0.45s var(--app-ease),
+              border-color 0.3s ease;
+}
+
+.insight-card:hover, .insight-stat-card:hover {
+  translate: 0 -3px;
+  border-color: color-mix(in srgb, var(--app-ink) 14%, var(--app-line));
+  box-shadow: var(--app-shadow-md);
+}
+
+/* ── Writing rhythm ────────────────────────────────────────────────── */
+
+.trend-chart {
+  height: 176px;
+  gap: 6px;
+  align-items: stretch;
+  padding-bottom: 2px;
+}
+
+.trend-bar-wrap {
+  height: 100%;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.trend-bar { animation: none; }
+
+.insight-card.reveal.is-visible .trend-bar,
+.insight-card.reveal-stagger.is-visible .trend-bar {
+  animation: barGrow 0.8s var(--app-ease) both;
+  animation-delay: calc(var(--bar-i, 0) * 45ms);
+}
+
+.trend-bar-wrap.is-empty .trend-bar { opacity: 0.32; }
+.trend-bar-wrap.is-peak .trend-bar {
+  background: linear-gradient(180deg, var(--app-ink), color-mix(in srgb, var(--app-ink) 52%, transparent));
+}
+
+.trend-bar-value {
+  font-family: var(--app-font);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--app-tertiary);
+  opacity: 0;
+  translate: 0 4px;
+  transition: opacity 0.25s ease, translate 0.3s var(--app-ease);
+}
+
+.trend-bar-wrap:hover .trend-bar-value,
+.trend-bar-wrap.is-peak .trend-bar-value { opacity: 1; translate: 0 0; }
+
+/* ── Mood distribution ─────────────────────────────────────────────── */
+
+.mood-bar-track { height: 9px; background: var(--app-elevation); }
+
+.mood-bar-label {
+  min-width: 128px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.mood-bar-emoji { margin-right: 7px; font-size: 13px; }
+
+.mood-bar-fill {
+  min-width: 6px;
+  background: var(--mood-hue, var(--app-ink));
+  transform-origin: left center;
+}
+
+.insight-card.reveal.is-visible .mood-bar-fill,
+.insight-card.reveal-stagger.is-visible .mood-bar-fill {
+  animation: moodFill 0.9s var(--app-ease) both;
+  animation-delay: calc(var(--bar-i, 0) * 70ms);
+}
+
+@keyframes moodFill {
+  from { transform: scaleX(0); }
+}
+
+/* ── Sentiment ─────────────────────────────────────────────────────── */
+
+@property --score {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0;
+}
+
+.sentiment-panel {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  flex-wrap: wrap;
+}
+
+.sentiment-gauge {
+  --score: 0;
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 108px;
+  height: 108px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: conic-gradient(var(--app-ink) calc(var(--score) * 360deg), var(--app-elevation) 0);
+  transition: --score 1.3s var(--app-ease);
+}
+
+.sentiment-gauge::after {
+  content: "";
+  position: absolute;
+  inset: 10px;
+  border-radius: 50%;
+  background: var(--app-paper);
+}
+
+.sentiment-gauge__inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+
+.sentiment-gauge__inner strong {
+  font-family: var(--app-font);
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.sentiment-gauge__inner small {
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--app-tertiary);
+}
+
+.sentiment-bars {
+  flex: 1;
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+.sentiment-row { display: flex; align-items: center; gap: 12px; }
+
+.sentiment-row__label {
+  min-width: 68px;
+  font-size: 12.5px;
+  color: var(--app-secondary);
+}
+
+.sentiment-row__track {
+  flex: 1;
+  height: 9px;
+  border-radius: 999px;
+  background: var(--app-elevation);
+  overflow: hidden;
+}
+
+.sentiment-row__fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--mood-hue, var(--app-ink));
+  transform-origin: left center;
+}
+
+.insight-card.reveal.is-visible .sentiment-row__fill,
+.insight-card.reveal-stagger.is-visible .sentiment-row__fill {
+  animation: moodFill 0.9s var(--app-ease) both;
+  animation-delay: calc(var(--bar-i, 0) * 90ms);
+}
+
+.sentiment-row__value {
+  min-width: 74px;
+  text-align: right;
+  font-size: 12px;
+  color: var(--app-secondary);
+}
+
+.sentiment-row__value em {
+  font-style: normal;
+  margin-left: 6px;
+  color: var(--app-tertiary);
+}
+
+/* ── Keyword cloud ─────────────────────────────────────────────────── */
+
+.keyword-cloud .keyword-tag {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  line-height: 1.2;
+  background: var(--app-paper);
+  border-color: var(--app-line);
+  color: var(--app-secondary);
+}
+
+.keyword-cloud .keyword-tag small { color: var(--app-tertiary); font-size: 0.72em; }
+
+.insight-card.reveal.is-visible .keyword-cloud .keyword-tag,
+.insight-card.reveal-stagger.is-visible .keyword-cloud .keyword-tag {
+  animation: keywordIn 0.55s var(--app-ease) both;
+  animation-delay: calc(var(--i, 0) * 40ms);
+}
+
+@keyframes keywordIn {
+  from { opacity: 0; translate: 0 8px; }
+}
+
+/* ── Frequency ─────────────────────────────────────────────────────── */
+
+.freq-stats { grid-template-columns: repeat(3, 1fr); }
+
+@media (max-width: 560px) {
+  .freq-stats { grid-template-columns: 1fr 1fr; }
+}
+
+/* ── People orbit ──────────────────────────────────────────────────── */
+
+.people-orbit {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px 30px;
+}
+
+.people-orbit__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 96px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.people-orbit__ring {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 88px;
+  height: 88px;
+  padding: 3px;
+  border-radius: 50%;
+  background: linear-gradient(140deg, color-mix(in srgb, var(--app-ink) 18%, var(--app-elevation)), var(--app-elevation) 62%);
+  transition: transform 0.5s var(--app-ease), box-shadow 0.5s var(--app-ease);
+}
+
+.people-orbit__ring img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.people-orbit__initial {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--app-paper);
+  font-family: var(--app-font);
+  font-size: 27px;
+  font-weight: 700;
+  color: var(--app-secondary);
+}
+
+.people-orbit__item:hover .people-orbit__ring {
+  transform: translateY(-4px) scale(1.04);
+  box-shadow: var(--app-shadow-md);
+}
+
+.people-orbit__count {
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  display: grid;
+  place-items: center;
+  min-width: 25px;
+  height: 25px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--app-ink);
+  color: var(--app-paper);
+  font-size: 11px;
+  font-weight: 600;
+  border: 2px solid var(--app-paper);
+}
+
+.people-orbit__name {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--app-ink);
+}
+
+html.js .insight-card.reveal .people-orbit__item { opacity: 0; }
+
+html.js .insight-card.reveal.is-visible .people-orbit__item {
+  opacity: 1;
+  animation: orbitIn 0.7s var(--app-ease) both;
+  animation-delay: calc(var(--i, 0) * 80ms);
+}
+
+@keyframes orbitIn {
+  from { opacity: 0; translate: 0 16px; }
+}
+
+/* ── Recent insight rows ───────────────────────────────────────────── */
+
+.insight-item {
+  transition: translate 0.4s var(--app-ease), box-shadow 0.4s var(--app-ease),
+              border-color 0.3s ease;
+}
+
+.insight-item:hover {
+  translate: 0 -3px;
+  border-color: color-mix(in srgb, var(--app-ink) 14%, var(--app-line));
+  box-shadow: var(--app-shadow-md);
+}
+
+/* ── Calm mode ─────────────────────────────────────────────────────── */
+
+.reduce-motion .people-orbit__item,
+.reduce-motion html.js .insight-card.reveal .people-orbit__item { opacity: 1 !important; }
+
+.reduce-motion .trend-bar,
+.reduce-motion .mood-bar-fill,
+.reduce-motion .sentiment-row__fill,
+.reduce-motion .keyword-tag,
+.reduce-motion .people-orbit__item { animation: none !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  .trend-bar, .mood-bar-fill, .sentiment-row__fill, .keyword-tag, .people-orbit__item {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+
+  html.js .insight-card.reveal .people-orbit__item { opacity: 1; }
+}

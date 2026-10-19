@@ -78,12 +78,8 @@ def _memory_image_variant(url, width):
     Pexels/other remote URLs are returned untouched; the original is already
     compressed and may be transformed by its own query string.
     """
-    if not url:
-        return ''
-    if 'res.cloudinary.com' in url and '/image/upload/' in url:
-        head, tail = url.split('/image/upload/', 1)
-        return f'{head}/image/upload/c_limit,w_{int(width)},q_auto,f_auto/{tail}'
-    return url
+    from common.cloud_media import image_variant
+    return image_variant(url, width)
 
 
 def _collect_memory_photos(user):

@@ -225,6 +225,15 @@
     border-radius: 14px;
     padding: 8px 14px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+    transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+    cursor: text;
+  }
+
+  /* Keep the frame visible while typing: the toolbar itself lights up
+     instead of losing its border. */
+  .tags-toolbar:focus-within {
+    border-color: color-mix(in srgb, var(--color-ink-black) 34%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-ink-black) 8%, transparent);
   }
 
   .tags-search-input-wrapper {
@@ -234,12 +243,20 @@
     flex: 1;
   }
 
+  /* app.css draws its ring on this inner wrapper, which has no visible
+     border on this page — neutralise it so the toolbar stays in charge. */
+  .tags-search-input-wrapper:focus-within {
+    border-color: transparent;
+    box-shadow: none;
+  }
+
   .tags-search-input {
     border: none;
     background: transparent;
     outline: none;
     font-size: 14px;
     color: var(--color-ink-black);
+    caret-color: var(--color-ink-black);
     width: 100%;
   }
 
@@ -662,6 +679,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Real-time search filter for tags
   var filterInput = document.getElementById('tag-filter-input');
+  var toolbar = document.querySelector('.tags-toolbar');
+
+  // Clicking anywhere on the toolbar frame lands in the input.
+  if (toolbar && filterInput) {
+    toolbar.addEventListener('click', function(event) {
+      if (event.target.closest('a, button, input')) return;
+      filterInput.focus();
+    });
+  }
+
   if (filterInput) {
     filterInput.addEventListener('input', function() {
       var query = filterInput.value.toLowerCase().trim();

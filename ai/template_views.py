@@ -16,11 +16,33 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views import View
 
+from common.cloud_media import image_variant
 from journal.models import JournalEntry
 
 logger = logging.getLogger('memoai')
 
 PERIOD_LABELS = {'7': '7', '30': '30', '90': '90', '365': '365'}
+
+# Mood keys are stored in English in the database; the dashboard shows a
+# readable, localized label with a hue used by the mood bars.
+MOOD_META = {
+    'amazing': {'fr': 'Incroyable', 'en': 'Amazing', 'emoji': '🤩', 'hue': '#f59e0b'},
+    'good': {'fr': 'Bien', 'en': 'Good', 'emoji': '😊', 'hue': '#10b981'},
+    'neutral': {'fr': 'Neutre', 'en': 'Neutral', 'emoji': '😐', 'hue': '#a1a1aa'},
+    'sad': {'fr': 'Triste', 'en': 'Sad', 'emoji': '😢', 'hue': '#60a5fa'},
+    'stressed': {'fr': 'Stresse', 'en': 'Stressed', 'emoji': '😤', 'hue': '#f97316'},
+    'anxious': {'fr': 'Anxieux', 'en': 'Anxious', 'emoji': '😰', 'hue': '#8b5cf6'},
+    'tired': {'fr': 'Fatigue', 'en': 'Tired', 'emoji': '😴', 'hue': '#64748b'},
+    'angry': {'fr': 'En colere', 'en': 'Angry', 'emoji': '😠', 'hue': '#ef4444'},
+    'excited': {'fr': 'Excité', 'en': 'Excited', 'emoji': '🎉', 'hue': '#ec4899'},
+    'grateful': {'fr': 'Reconnaissant', 'en': 'Grateful', 'emoji': '🙏', 'hue': '#14b8a6'},
+}
+
+SENTIMENT_META = (
+    ('positive', {'fr': 'Positif', 'en': 'Positive', 'hue': '#10b981'}),
+    ('neutral', {'fr': 'Neutre', 'en': 'Neutral', 'hue': '#a1a1aa'}),
+    ('negative', {'fr': 'Negatif', 'en': 'Negative', 'hue': '#ef4444'}),
+)
 
 
 @method_decorator(login_required, name='dispatch')
@@ -38,6 +60,9 @@ class InsightsView(View):
         today = timezone.now().date()
         since = today - timedelta(days=days)
         user = request.user
+
+        prefs = getattr(user, 'preferences', None)
+        lang = 'en' if str(getattr(prefs, 'language', 'fr') or 'fr').lower().startswith('en') else 'fr'
 
         all_entries = JournalEntry.objects.filter(user=user)
         entries = all_entries.filter(entry_date__gte=since)
@@ -57,6 +82,23 @@ class InsightsView(View):
         entries_by_mood = {m['mood']: m['count'] for m in mood_qs}
         most_used_mood = mood_qs[0]['mood'] if mood_qs else None
         max_mood = max(entries_by_mood.values()) if entries_by_mood else 1
+
+        mood_rows = []
+        for key, count in sorted(entries_by_mood.items(), key=lambda item: (-item[1], item[0])):
+            meta = MOOD_META.get(key, {})
+            mood_rows.append({
+                'key': key,
+                'label': meta.get(lang, key.replace('_', ' ').title()),
+                'emoji': meta.get('emoji', ''),
+                'hue': meta.get('hue', '#a1a1aa'),
+                'count': count,
+                'percent': int(round(count / max_mood * 100)) if max_mood else 0,
+            })
+
+        most_used_mood_label = ''
+        if most_used_mood:
+            meta = MOOD_META.get(most_used_mood, {})
+            most_used_mood_label = f"{meta.get('emoji', '')} {meta.get(lang, most_used_mood.title())}".strip()
 
         # ── Top tags ───────────────────────────────────────────────────────
         from tags.models import Tag
@@ -83,6 +125,11 @@ class InsightsView(View):
         max_activity = max([a['count'] for a in activity] or [1]) or 1
         for a in activity:
             a['height'] = int(round((a['count'] / max_activity) * 100)) if max_activity else 0
+            # The template draws the bars in pixels: a percentage height inside
+            # an auto-sized flex item collapses, which made the old chart lie.
+            a['bar_px'] = max(6, int(round((a['count'] / max_activity) * 128)))
+            a['is_empty'] = a['count'] == 0
+            a['is_peak'] = bool(a['count']) and a['count'] == max_activity
 
         # ── AI-derived analytics (sentiment + keywords) ────────────────────
         from ai.models import AIAnalysis
@@ -97,6 +144,17 @@ class InsightsView(View):
                 sentiment_dist[row['sentiment']] = row['c']
         sentiment_total = sum(sentiment_dist.values()) or 1
 
+        sentiment_rows = []
+        for key, meta in SENTIMENT_META:
+            count = sentiment_dist.get(key, 0)
+            sentiment_rows.append({
+                'key': key,
+                'label': meta[lang],
+                'hue': meta['hue'],
+                'count': count,
+                'percent': int(round(count / sentiment_total * 100)),
+            })
+
         avg_sentiment = (
             analysis_qs.filter(entry__entry_date__gte=since, sentiment_score__isnull=False)
             .aggregate(a=Avg('sentiment_score'))['a']
@@ -109,18 +167,32 @@ class InsightsView(View):
                 if kw:
                     keyword_counter[kw] += 1
         keyword_cloud = [
-            {'word': word, 'count': count, 'weight': 1 + min(count, 5)}
+            {
+                'word': word,
+                'count': count,
+                'weight': 1 + min(count, 5),
+                'size': 13 + min(count, 5) * 2,  # 15px → 23px, readable
+            }
             for word, count in keyword_counter.most_common(20)
         ]
 
         # ── People recognised in photos ────────────────────────────────────
         from persons.models import Person
-        top_persons = (
+        top_persons = []
+        for person in (
             Person.objects.filter(user=user)
             .annotate(detections=Count('face_detections'))
             .filter(detections__gt=0)
-            .order_by('-detections')[:6]
-        )
+            .order_by('-detections', 'name')[:8]
+        ):
+            name = (person.name or 'Unknown').strip()
+            top_persons.append({
+                'id': person.id,
+                'name': name,
+                'initial': (name[:1] or '?').upper(),
+                'detections': person.detections,
+                'avatar_thumb': image_variant(person.avatar_url, 320),
+            })
 
         # ── Distinct days / average length ─────────────────────────────────
         distinct_days = entries.values('entry_date').distinct().count()
@@ -133,13 +205,16 @@ class InsightsView(View):
             'avg_words': int(avg_words),
             'streak_days': streak,
             'most_used_mood': most_used_mood,
+            'most_used_mood_label': most_used_mood_label,
             'entries_by_mood': entries_by_mood,
+            'mood_rows': mood_rows,
             'max_mood': max_mood,
             'most_used_tags': top_tags,
             'entries_this_week': all_entries.filter(entry_date__gte=week_start).count(),
             'entries_this_month': all_entries.filter(entry_date__gte=month_start).count(),
             'distinct_days': distinct_days,
             'sentiment_dist': sentiment_dist,
+            'sentiment_rows': sentiment_rows,
             'sentiment_total': sentiment_total,
             'avg_sentiment': round(avg_sentiment, 3) if avg_sentiment is not None else None,
             'activity': activity,

@@ -1,0 +1,1579 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <script>
+    document.documentElement.classList.add('js');
+
+    /* Apply the theme before the first paint. (This used to run at the end
+       of <body>, which flashed the light canvas — very visible behind the
+       splash screen.) */
+    (function () {
+      try {
+        var s = localStorage.getItem("memo-theme") || "light";
+        if (s === "dark") { document.documentElement.setAttribute("data-theme", "dark"); }
+        else if (s === "light") { document.documentElement.setAttribute("data-theme", "light"); }
+        else if (s === "system" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+          document.documentElement.setAttribute("data-theme", "dark");
+        }
+      } catch (e) { /* localStorage unavailable */ }
+    })();
+
+    /* Splash gate — decides before the first paint whether the intro loader
+       runs, so returning visitors never see it flash. `?welcome=1` is set by
+       the sign-in redirect and always plays the intro.
+       Pages can opt into `always` (the site entry at "/"): the intro then
+       plays on every fresh visit, but stands down when the visitor arrives
+       from inside the app so "Accueil" stays usable. */
+    (function () {
+      var doc = document.documentElement;
+      var policy = "auto";
+      var skip = false;
+      try {
+        var reduced = false ||
+          !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+        var params = new URLSearchParams(window.location.search);
+        var forced = params.has('welcome') || params.has('splash');
+        var seen = false;
+        try { seen = sessionStorage.getItem('memo-splash') === '1'; } catch (e) { seen = false; }
+
+        var internal = false;
+        try {
+          internal = !!document.referrer &&
+            new URL(document.referrer).origin === window.location.origin;
+        } catch (e) { internal = false; }
+
+        if (reduced) {
+          skip = true;
+        } else if (policy === 'always') {
+          skip = !forced && internal;
+        } else {
+          skip = seen && !forced;
+        }
+      } catch (e) {
+        skip = true;
+      }
+      if (skip) doc.classList.add('splash-skip');
+      /* Safety net: if the controller never runs (e.g. the tab stays hidden
+         and rAF never ticks), never trap the user behind the loader. */
+      window.setTimeout(function () {
+        doc.classList.add('splash-skip');
+        doc.classList.remove('splash-lock');
+      }, 8000);
+    })();
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI insights — MemoAI</title>
+  <meta name="description" content="MemoAI - Journalisez vos souvenirs avec l'IA.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,350;0,9..144,400;0,9..144,500;1,9..144,350&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <meta name="csrf-token" content="ZrvVwVNSjhftwJnf0S1epSzAqlVf28oTsi12KS0WQZY9Vrhaz8OzYientAoyRUyV">
+  
+  <link rel="stylesheet" href="/static/css/cosmos.css?v=20261019_8">
+  
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/app.css?v=20261020_10">
+  <link rel="stylesheet" href="/static/css/tour.css?v=20261019_7">
+  
+  <style>
+    /* Critical Toast Styling — Guarantees floating top-right display regardless of browser cache */
+    .toast-container {
+      position: fixed !important;
+      top: 24px !important;
+      right: 24px !important;
+      z-index: 999999 !important;
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 12px !important;
+      max-width: 420px !important;
+      width: calc(100vw - 48px) !important;
+      pointer-events: none !important;
+    }
+
+    .toast {
+      pointer-events: auto !important;
+      position: relative !important;
+      display: flex !important;
+      align-items: flex-start !important;
+      gap: 14px !important;
+      padding: 16px 18px 18px !important;
+      background: rgba(255, 255, 255, 0.96) !important;
+      backdrop-filter: blur(20px) !important;
+      -webkit-backdrop-filter: blur(20px) !important;
+      border-radius: 16px !important;
+      box-shadow: 0 16px 40px -6px rgba(15, 23, 42, 0.16), 0 0 0 1px rgba(15, 23, 42, 0.08) !important;
+      overflow: hidden !important;
+      box-sizing: border-box !important;
+      animation: toastSlideIn 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease !important;
+    }
+
+    [data-theme="dark"] .toast {
+      background: rgba(24, 24, 27, 0.96) !important;
+      box-shadow: 0 16px 40px -6px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.12) !important;
+      color: #f4f4f5 !important;
+    }
+
+    .toast.toast--hiding {
+      animation: toastSlideOut 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+    }
+
+    @keyframes toastSlideIn {
+      from {
+        transform: translateX(120%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes toastSlideOut {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(120%);
+        opacity: 0;
+      }
+    }
+
+    .toast-icon-box {
+      width: 34px !important;
+      height: 34px !important;
+      border-radius: 10px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      flex-shrink: 0 !important;
+      color: #ffffff !important;
+    }
+
+    .toast--success .toast-icon-box {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35) !important;
+    }
+
+    .toast--error .toast-icon-box,
+    .toast--danger .toast-icon-box {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35) !important;
+    }
+
+    .toast--warning .toast-icon-box {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35) !important;
+    }
+
+    .toast--info .toast-icon-box {
+      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35) !important;
+    }
+
+    .toast-body {
+      flex: 1 !important;
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 3px !important;
+      min-width: 0 !important;
+      padding-top: 1px !important;
+    }
+
+    .toast-title {
+      font-family: inherit !important;
+      font-size: 14px !important;
+      font-weight: 600 !important;
+      color: inherit !important;
+      margin: 0 !important;
+      letter-spacing: -0.2px !important;
+      line-height: 1.3 !important;
+    }
+
+    .toast-msg {
+      font-family: inherit !important;
+      font-size: 13px !important;
+      line-height: 1.45 !important;
+      color: #64748b !important;
+      margin: 0 !important;
+      word-break: break-word !important;
+    }
+
+    [data-theme="dark"] .toast-msg {
+      color: #a1a1aa !important;
+    }
+
+    .toast-close-btn {
+      background: transparent !important;
+      border: none !important;
+      padding: 4px !important;
+      border-radius: 8px !important;
+      cursor: pointer !important;
+      color: #94a3b8 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      transition: all 0.15s ease !important;
+      margin-top: 2px !important;
+      flex-shrink: 0 !important;
+    }
+
+    .toast-close-btn:hover {
+      color: #0f172a !important;
+      background: rgba(0, 0, 0, 0.06) !important;
+      transform: scale(1.08) !important;
+    }
+
+    [data-theme="dark"] .toast-close-btn:hover {
+      background: rgba(255, 255, 255, 0.1) !important;
+      color: #ffffff !important;
+    }
+
+    .toast-progress-bar {
+      position: absolute !important;
+      bottom: 0 !important;
+      left: 0 !important;
+      height: 3px !important;
+      width: 100% !important;
+    }
+
+    .toast--success .toast-progress-bar { background: #10b981 !important; }
+    .toast--error .toast-progress-bar,
+    .toast--danger .toast-progress-bar { background: #ef4444 !important; }
+    .toast--warning .toast-progress-bar { background: #f59e0b !important; }
+    .toast--info .toast-progress-bar { background: #6366f1 !important; }
+
+    /* Lang pills switch */
+    .lang-switch-pills {
+      display: inline-flex !important;
+      align-items: center !important;
+      background: var(--color-linen-canvas, #f4f4f5) !important;
+      border: 1px solid var(--border-subtle, rgba(0,0,0,0.08)) !important;
+      border-radius: 999px !important;
+      padding: 2px 4px !important;
+      gap: 2px !important;
+      font-size: 11px !important;
+      font-weight: 700 !important;
+      font-family: var(--font-ui, sans-serif) !important;
+    }
+    .lang-pill {
+      padding: 2px 7px !important;
+      border-radius: 999px !important;
+      color: var(--color-stone, #71717a) !important;
+      text-decoration: none !important;
+      cursor: pointer !important;
+      transition: all 0.2s ease !important;
+    }
+    .lang-pill:hover {
+      color: var(--color-ink-black, #18181b) !important;
+    }
+    .lang-pill--active {
+      background: var(--color-paper-white, #ffffff) !important;
+      color: var(--color-ink-black, #18181b) !important;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.12) !important;
+      cursor: default !important;
+    }
+    [data-theme="dark"] .lang-switch-pills {
+      background: #27272a !important;
+      border-color: #3f3f46 !important;
+    }
+    [data-theme="dark"] .lang-pill--active {
+      background: #3f3f46 !important;
+      color: #f4f4f5 !important;
+    }
+  </style>
+  
+  
+</head>
+<body class=""><script>
+(function () {
+  var q = new URLSearchParams(location.search);
+  var theme = q.get('theme');
+  if (theme) document.documentElement.setAttribute('data-theme', theme);
+  if (q.get('motion') === 'reduce') document.body.classList.add('reduce-motion');
+})();
+</script>
+
+  
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="tour" id="memo-tour" hidden role="dialog" aria-modal="true"
+     aria-label="Guided tour">
+  <div class="tour__spot" id="tour-spot" aria-hidden="true"></div>
+  <div class="tour__bubble" id="tour-bubble" role="document">
+    <div class="tour__progress" aria-hidden="true"><span id="tour-progress-bar"></span></div>
+    <div class="tour__meta">
+      <span class="tour__count" id="tour-count"></span>
+      <div class="tour__dots" id="tour-dots" aria-hidden="true"></div>
+      <button type="button" class="tour__close" id="tour-close" aria-label="Close the tour" title="Close the tour">
+        <svg aria-hidden="true" width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path d="M1.5 1.5l9 9M10.5 1.5l-9 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <h3 class="tour__title" id="tour-title"></h3>
+    <p class="tour__text" id="tour-text"></p>
+    <div class="tour__actions">
+      <button type="button" class="tour__btn tour__btn--ghost" id="tour-skip">Skip</button>
+      <span class="tour__spacer"></span>
+      <button type="button" class="tour__btn" id="tour-prev">Back</button>
+      <button type="button" class="tour__btn tour__btn--primary" id="tour-next">Next</button>
+    </div>
+  </div>
+</div>
+
+<script type="application/json" id="memo-tour-data">
+{
+  "storageKey": "memo-tour-v1",
+  "stepLabel": "Step",
+  "finishLabel": "Finish",
+  "hint": "Tip: ← → to navigate, Escape to leave.",
+  "steps": [
+    {"target": null, "placement": "center", "title": "Welcome to MemoAI", "text": "Let\u0027s take a quick tour: 30 seconds to learn where everything lives."},
+    {"target": "#nav-journal", "placement": "bottom", "title": "Your journal", "text": "The dashboard: your day, your highlights and your stats."},
+    {"target": "#nav-memories", "placement": "bottom", "title": "Memories", "text": "Every past entry, filterable and readable at a glance."},
+    {"target": "#nav-persons", "placement": "bottom", "title": "People", "text": "Add a face: MemoAI will recognise it automatically in your photos."},
+    {"target": "#nav-insights", "placement": "bottom", "title": "Insights", "text": "The AI reads your emotions over time: moods, themes and trends."},
+    {"target": "#nav-search-input", "placement": "bottom", "title": "Global search", "text": "Type anything: titles, texts, places, people. Results show up live."},
+    {"target": "#nav-new-entry", "placement": "bottom", "title": "New entry", "text": "The main button. Write your day, the AI handles the summary and the artwork."},
+    {"target": "#nav-notif-btn", "placement": "bottom", "title": "Notifications", "text": "Reminders and fresh analyses: everything the platform tells you."},
+    {"target": "#theme-toggle", "placement": "bottom", "title": "Light / dark", "text": "Switch the look anytime — your choice is remembered."},
+    {"target": "#avatar-btn", "placement": "bottom", "title": "Your profile", "text": "Here: profile, preferences (theme, language, AI) and sign\u002Dout. You can replay this tour anytime."},
+    {"target": null, "placement": "center", "title": "You\u0027re all set!", "text": "Create your first entry and let the AI do the rest."}
+  ]
+}
+</script>
+
+
+  
+  <div class="app-aurora" aria-hidden="true">
+    <span class="app-aurora__blob app-aurora__blob--1"></span>
+    <span class="app-aurora__blob app-aurora__blob--2"></span>
+    <span class="app-aurora__blob app-aurora__blob--3"></span>
+    <span class="app-aurora__grain"></span>
+  </div>
+  
+
+  
+  <header class="nav-wrapper" role="banner">
+    <nav class="nav-pill" aria-label="Navigation principale">
+
+      <!-- Logo — always visible -->
+      <a href="/" class="nav-logo" aria-label="MemoAI Accueil">
+        <div class="dot-cluster" aria-hidden="true">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          <span class="dot"></span><span class="dot dot--hidden"></span><span class="dot"></span>
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        </div>
+        <span class="nav-brand">MemoAI</span>
+      </a>
+
+      
+        <!-- ── APP NAV (authenticated) ── -->
+        <div class="nav-links">
+          <a href="/journal/" id="nav-journal" class="nav-link ">Journal</a>
+          <a href="/journal/liste/" id="nav-memories" class="nav-link ">Memories</a>
+          <a href="/personnes/" id="nav-persons" class="nav-link ">People</a>
+          <a href="/insights/" id="nav-insights" class="nav-link active">Insights</a>
+          <a href="/tags/" id="nav-tags" class="nav-link ">Tags</a>
+        </div>
+
+        <div class="nav-search" id="nav-search">
+          <form action="/recherche/" method="get" role="search" id="nav-search-form" autocomplete="off">
+            <label for="nav-search-input" class="sr-only">Search...</label>
+            <div class="search-wrapper">
+              <svg class="search-icon" aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M11 11L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+              <input id="nav-search-input" type="search" name="q" class="search-input"
+                     placeholder="Search everywhere…"
+                     autocomplete="off" spellcheck="false" role="combobox"
+                     aria-expanded="false" aria-autocomplete="list" aria-controls="nav-search-results">
+              <button type="button" class="search-clear" id="nav-search-clear" hidden
+                      aria-label="Clear search">
+                <svg aria-hidden="true" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1.5 1.5l9 9M10.5 1.5l-9 9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+              </button>
+            </div>
+            <div class="nav-search-results" id="nav-search-results" role="listbox" hidden
+                 data-label-entries="Entries"
+                 data-label-persons="People"
+                 data-label-tags="Tags"
+                 data-empty="No results"
+                 data-error="Search unavailable"
+                 data-hint="See all results">
+            </div>
+          </form>
+        </div>
+
+        <div class="nav-actions">
+          <div class="lang-switch-pills" title="Changer de langue / Switch language">
+            
+              <a href="/comptes/changer-langue/?lang=fr&next=/insights/" class="lang-pill" title="Passer en français">FR</a>
+              <span class="lang-pill lang-pill--active">EN</span>
+            
+          </div>
+
+          <div class="nav-notif-wrapper">
+            <button type="button" class="nav-notif-btn " aria-label="Notifications" title="Notifications" id="nav-notif-btn" aria-haspopup="true" aria-expanded="false" aria-controls="nav-notif-panel">
+              <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+              </svg>
+              
+            </button>
+
+            <div class="nav-notif-panel" id="nav-notif-panel" role="dialog" aria-label="Notifications">
+              <div class="nav-notif-panel__head">
+                <span class="nav-notif-panel__title">Notifications</span>
+                
+              </div>
+
+              <div class="nav-notif-panel__list">
+                
+                  <p class="nav-notif-empty">
+                    <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                      <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                    You're all caught up.
+                  </p>
+                
+              </div>
+
+              <a href="/notifications/" class="nav-notif-panel__all" id="nav-notif-all">
+                Show all
+                <svg aria-hidden="true" width="13" height="13" viewBox="0 0 12 12" fill="none">
+                  <path d="M2 6h8M7 3l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+
+  
+
+          <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme" type="button">
+            <svg class="icon-sun" aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v1.5M8 13.5V15M1 8h1.5M13.5 8H15M3.05 3.05l1.06 1.06M11.89 11.89l1.06 1.06M3.05 12.95l1.06-1.06M11.89 4.11l1.06-1.06" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <svg class="icon-moon" aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M13.5 10.5A6 6 0 115.5 2.5a5 5 0 008 8z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          </button>
+
+          <a href="/journal/nouveau/" class="btn btn-primary btn-sm" id="nav-new-entry">
+            <svg aria-hidden="true" width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            New
+          </a>
+
+          <div class="nav-avatar-wrapper">
+            <button class="nav-avatar" id="avatar-btn" aria-haspopup="true" aria-expanded="false" type="button" title="demo@memoai.local">
+              
+                <span class="avatar-initials">SB</span>
+              
+            </button>
+            <div class="avatar-dropdown" id="avatar-dropdown" role="menu">
+              <div class="dropdown-header" style="display:flex;align-items:center;gap:12px;padding:12px 16px;">
+                <div style="width:40px;height:40px;border-radius:50%;overflow:hidden;flex-shrink:0;border:1.5px solid var(--color-amber-gold, #c8963e);background:var(--color-linen-canvas);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+                  
+                    <span style="font-family:var(--font-ui);font-weight:700;font-size:14px;color:var(--color-amber-gold, #c8963e);">SB</span>
+                  
+                </div>
+                <div style="min-width:0;flex:1;">
+                  <p class="dropdown-name" style="margin:0;font-weight:600;font-size:14px;color:var(--color-ink-black);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">demo@memoai.local</p>
+                  <p class="dropdown-email" style="margin:2px 0 0;font-size:11px;color:var(--color-stone);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">demo@memoai.local</p>
+                </div>
+              </div>
+              <div class="dropdown-divider"></div>
+              <a href="/comptes/profil/" class="dropdown-item" role="menuitem">My profile</a>
+              <a href="/comptes/preferences/" class="dropdown-item" role="menuitem">Preferences</a>
+              <button type="button" class="dropdown-item" role="menuitem" data-tour-start>Guided tour</button>
+              <a href="/notifications/" class="dropdown-item" role="menuitem">Notifications</a>
+              <a href="/tags/" class="dropdown-item" role="menuitem">Tags</a>
+              <div class="dropdown-divider"></div>
+              <form method="post" action="/comptes/deconnexion/" style="margin:0">
+                <input type="hidden" name="csrfmiddlewaretoken" value="ZrvVwVNSjhftwJnf0S1epSzAqlVf28oTsi12KS0WQZY9Vrhaz8OzYientAoyRUyV">
+                <button type="submit" class="dropdown-item dropdown-item--danger">Log out</button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+      
+
+    </nav>
+  </header>
+  
+
+  <!-- ── TOAST NOTIFICATIONS ── -->
+  <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true">
+    
+  </div>
+
+  <main id="main-content" class="main-content">
+    
+<div class="container">
+  <div class="page-header reveal">
+    <div>
+      <p class="eyebrow">ARTIFICIAL INTELLIGENCE</p>
+      <h1 class="page-title">Your insights</h1>
+    </div>
+    <div class="header-period-selector">
+      <form method="get" action="" id="period-form">
+        <select name="period" class="form-select" onchange="this.form.submit()" id="period-select">
+          <option value="7" >Last 7 days</option>
+          <option value="30" selected>Last 30 days</option>
+          <option value="90" >Last 3 months</option>
+          <option value="365" >This year</option>
+        </select>
+      </form>
+    </div>
+  </div>
+
+  
+  <!-- Stats overview -->
+  <div class="insights-stats reveal-stagger">
+    <div class="insight-stat-card">
+      <span class="insight-stat-value" data-count="8">8</span>
+      <span class="insight-stat-label">Entries</span>
+    </div>
+    <div class="insight-stat-card">
+      <span class="insight-stat-value" data-count="36">36</span>
+      <span class="insight-stat-label">Words written</span>
+    </div>
+    <div class="insight-stat-card">
+      <span class="insight-stat-value" data-count="2">2</span>
+      <span class="insight-stat-label">Day streak</span>
+    </div>
+    <div class="insight-stat-card">
+      <span class="insight-stat-value">🤩 Amazing</span>
+      <span class="insight-stat-label">Dominant mood</span>
+    </div>
+  </div>
+
+  <div class="insights-grid">
+    <!-- Writing activity (real, last 12 weeks) -->
+    <div class="insight-card insight-card--wide reveal">
+      <div class="insight-card-header">
+        <h2 class="insight-card-title">Writing rhythm (12 weeks)</h2>
+      </div>
+      <div class="trend-chart" role="img" aria-label="Entries per week">
+        
+          <div class="trend-bar-wrap is-empty"
+               style="--bar-i: 0;"
+               title="0 entry(ies)">
+            <span class="trend-bar-value">0</span>
+            <div class="trend-bar" style="height: 6px;"></div>
+            <span class="trend-bar-label">03/08</span>
+          </div>
+        
+          <div class="trend-bar-wrap is-empty"
+               style="--bar-i: 1;"
+               title="0 entry(ies)">
+            <span class="trend-bar-value">0</span>
+            <div class="trend-bar" style="height: 6px;"></div>
+            <span class="trend-bar-label">10/08</span>
+          </div>
+        
+          <div class="trend-bar-wrap is-empty"
+               style="--bar-i: 2;"
+               title="0 entry(ies)">
+            <span class="trend-bar-value">0</span>
+            <div class="trend-bar" style="height: 6px;"></div>
+            <span class="trend-bar-label">17/08</span>
+          </div>
+        
+          <div class="trend-bar-wrap is-empty"
+               style="--bar-i: 3;"
+               title="0 entry(ies)">
+            <span class="trend-bar-value">0</span>
+            <div class="trend-bar" style="height: 6px;"></div>
+            <span class="trend-bar-label">24/08</span>
+          </div>
+        
+          <div class="trend-bar-wrap is-empty"
+               style="--bar-i: 4;"
+               title="0 entry(ies)">
+            <span class="trend-bar-value">0</span>
+            <div class="trend-bar" style="height: 6px;"></div>
+            <span class="trend-bar-label">31/08</span>
+          </div>
+        
+          <div class="trend-bar-wrap is-empty"
+               style="--bar-i: 5;"
+               title="0 entry(ies)">
+            <span class="trend-bar-value">0</span>
+            <div class="trend-bar" style="height: 6px;"></div>
+            <span class="trend-bar-label">07/09</span>
+          </div>
+        
+          <div class="trend-bar-wrap is-empty"
+               style="--bar-i: 6;"
+               title="0 entry(ies)">
+            <span class="trend-bar-value">0</span>
+            <div class="trend-bar" style="height: 6px;"></div>
+            <span class="trend-bar-label">14/09</span>
+          </div>
+        
+          <div class="trend-bar-wrap is-empty"
+               style="--bar-i: 7;"
+               title="0 entry(ies)">
+            <span class="trend-bar-value">0</span>
+            <div class="trend-bar" style="height: 6px;"></div>
+            <span class="trend-bar-label">21/09</span>
+          </div>
+        
+          <div class="trend-bar-wrap is-empty"
+               style="--bar-i: 8;"
+               title="0 entry(ies)">
+            <span class="trend-bar-value">0</span>
+            <div class="trend-bar" style="height: 6px;"></div>
+            <span class="trend-bar-label">28/09</span>
+          </div>
+        
+          <div class="trend-bar-wrap is-empty"
+               style="--bar-i: 9;"
+               title="0 entry(ies)">
+            <span class="trend-bar-value">0</span>
+            <div class="trend-bar" style="height: 6px;"></div>
+            <span class="trend-bar-label">05/10</span>
+          </div>
+        
+          <div class="trend-bar-wrap"
+               style="--bar-i: 10;"
+               title="3 entry(ies)">
+            <span class="trend-bar-value">3</span>
+            <div class="trend-bar" style="height: 77px;"></div>
+            <span class="trend-bar-label">12/10</span>
+          </div>
+        
+          <div class="trend-bar-wrap is-peak"
+               style="--bar-i: 11;"
+               title="5 entry(ies)">
+            <span class="trend-bar-value">5</span>
+            <div class="trend-bar" style="height: 128px;"></div>
+            <span class="trend-bar-label">19/10</span>
+          </div>
+        
+      </div>
+    </div>
+
+    <!-- Mood distribution -->
+    <div class="insight-card insight-card--wide reveal">
+      <div class="insight-card-header">
+        <h2 class="insight-card-title">Mood distribution</h2>
+      </div>
+      <div class="mood-chart" id="mood-chart" aria-label="Mood chart">
+        
+          
+            <div class="mood-bar-row" style="--mood-hue: #f59e0b; --bar-i: 0;">
+              <span class="mood-bar-label">
+                <span class="mood-bar-emoji" aria-hidden="true">🤩</span>Amazing
+              </span>
+              <div class="mood-bar-track">
+                <div class="mood-bar-fill" style="width: 100%" aria-valuenow="4" role="progressbar"></div>
+              </div>
+              <span class="mood-bar-count">4</span>
+            </div>
+          
+            <div class="mood-bar-row" style="--mood-hue: #10b981; --bar-i: 1;">
+              <span class="mood-bar-label">
+                <span class="mood-bar-emoji" aria-hidden="true">😊</span>Good
+              </span>
+              <div class="mood-bar-track">
+                <div class="mood-bar-fill" style="width: 25%" aria-valuenow="1" role="progressbar"></div>
+              </div>
+              <span class="mood-bar-count">1</span>
+            </div>
+          
+        
+      </div>
+    </div>
+
+    <!-- Sentiment from the AI analysis (real) -->
+    <div class="insight-card reveal">
+      <div class="insight-card-header">
+        <h2 class="insight-card-title">AI sentiment breakdown</h2>
+      </div>
+      
+        <div class="sentiment-panel">
+          <div class="sentiment-gauge"
+               data-score="0,8"
+               style="--score: 0,8;">
+            <span class="sentiment-gauge__inner">
+              <strong>0,80</strong>
+              <small>average</small>
+            </span>
+          </div>
+          <div class="sentiment-bars">
+            
+              <div class="sentiment-row" style="--mood-hue: #10b981; --bar-i: 0;">
+                <span class="sentiment-row__label">Positive</span>
+                <span class="sentiment-row__track">
+                  <span class="sentiment-row__fill" style="width: 90%;"></span>
+                </span>
+                <span class="sentiment-row__value">9<em>90%</em></span>
+              </div>
+            
+              <div class="sentiment-row" style="--mood-hue: #a1a1aa; --bar-i: 1;">
+                <span class="sentiment-row__label">Neutral</span>
+                <span class="sentiment-row__track">
+                  <span class="sentiment-row__fill" style="width: 10%;"></span>
+                </span>
+                <span class="sentiment-row__value">1<em>10%</em></span>
+              </div>
+            
+              <div class="sentiment-row" style="--mood-hue: #ef4444; --bar-i: 2;">
+                <span class="sentiment-row__label">Negative</span>
+                <span class="sentiment-row__track">
+                  <span class="sentiment-row__fill" style="width: 0%;"></span>
+                </span>
+                <span class="sentiment-row__value">0<em>0%</em></span>
+              </div>
+            
+          </div>
+        </div>
+      
+    </div>
+
+    <!-- Keywords extracted by the AI (real) -->
+    <div class="insight-card reveal">
+      <div class="insight-card-header">
+        <h2 class="insight-card-title">Keywords from your days</h2>
+      </div>
+      
+        <div class="keyword-cloud">
+          
+            <span class="keyword-tag" style="--i: 0; font-size: 19px;">joie <small>· 3</small></span>
+          
+            <span class="keyword-tag" style="--i: 1; font-size: 17px;">présence <small>· 2</small></span>
+          
+            <span class="keyword-tag" style="--i: 2; font-size: 17px;">balade <small>· 2</small></span>
+          
+            <span class="keyword-tag" style="--i: 3; font-size: 17px;">réussite <small>· 2</small></span>
+          
+            <span class="keyword-tag" style="--i: 4; font-size: 15px;">lac <small>· 1</small></span>
+          
+            <span class="keyword-tag" style="--i: 5; font-size: 15px;">sœur <small>· 1</small></span>
+          
+            <span class="keyword-tag" style="--i: 6; font-size: 15px;">gratitude <small>· 1</small></span>
+          
+            <span class="keyword-tag" style="--i: 7; font-size: 15px;">calme <small>· 1</small></span>
+          
+            <span class="keyword-tag" style="--i: 8; font-size: 15px;">adieu <small>· 1</small></span>
+          
+            <span class="keyword-tag" style="--i: 9; font-size: 15px;">ami <small>· 1</small></span>
+          
+            <span class="keyword-tag" style="--i: 10; font-size: 15px;">bienveillance <small>· 1</small></span>
+          
+            <span class="keyword-tag" style="--i: 11; font-size: 15px;">souhaits <small>· 1</small></span>
+          
+            <span class="keyword-tag" style="--i: 12; font-size: 15px;">départ <small>· 1</small></span>
+          
+            <span class="keyword-tag" style="--i: 13; font-size: 15px;">aziz <small>· 1</small></span>
+          
+            <span class="keyword-tag" style="--i: 14; font-size: 15px;">retour <small>· 1</small></span>
+          
+            <span class="keyword-tag" style="--i: 15; font-size: 15px;">événement <small>· 1</small></span>
+          
+            <span class="keyword-tag" style="--i: 16; font-size: 15px;">retrouvailles <small>· 1</small></span>
+          
+            <span class="keyword-tag" style="--i: 17; font-size: 15px;">lyon <small>· 1</small></span>
+          
+            <span class="keyword-tag" style="--i: 18; font-size: 15px;">dîner <small>· 1</small></span>
+          
+            <span class="keyword-tag" style="--i: 19; font-size: 15px;">camille <small>· 1</small></span>
+          
+        </div>
+      
+    </div>
+
+    <!-- Top tags -->
+    <div class="insight-card reveal">
+      <div class="insight-card-header">
+        <h2 class="insight-card-title">Most used tags</h2>
+      </div>
+      
+        <div class="top-tags-list">
+          
+            <div class="top-tag-item">
+              <span class="tag-pill" style="--tag-color: #ec4899">belle</span>
+              <span class="top-tag-count">3 entries</span>
+            </div>
+          
+        </div>
+      
+    </div>
+
+    <!-- Writing frequency -->
+    <div class="insight-card reveal">
+      <div class="insight-card-header">
+        <h2 class="insight-card-title">Writing frequency</h2>
+      </div>
+      <div class="freq-stats">
+        <div class="freq-stat">
+          <span class="freq-value">8</span>
+          <span class="freq-label">This week</span>
+        </div>
+        <div class="freq-stat">
+          <span class="freq-value">8</span>
+          <span class="freq-label">This month</span>
+        </div>
+        <div class="freq-stat">
+          <span class="freq-value">4</span>
+          <span class="freq-label">Words / entry</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- People recognised in photos (real) -->
+    
+    <div class="insight-card insight-card--wide reveal">
+      <div class="insight-card-header">
+        <h2 class="insight-card-title">Your people in photos</h2>
+      </div>
+      <div class="people-orbit">
+        
+          <a class="people-orbit__item" href="/personnes/2189a4ee-e6e2-496c-8432-3526b55ba2e3/" style="--i: 0;"
+             title="aziz — 2 photo(s)">
+            <span class="people-orbit__ring">
+              
+                <img src="https://res.cloudinary.com/dhlnfpfen/image/upload/c_limit,w_320,q_auto,f_auto/v1792432124/memoai/persons/51859168-d573-453c-a943-357a6e514713/person_51859168-d573-453c-a943-357a6e514713_ffe61ecc_skmzxn.png" alt="aziz" loading="lazy" decoding="async">
+              
+              <span class="people-orbit__count">2</span>
+            </span>
+            <span class="people-orbit__name">aziz</span>
+          </a>
+        
+      </div>
+    </div>
+    
+  </div>
+
+  <!-- AI Insights list (real summaries) -->
+  
+    <section class="section-band reveal">
+      <div class="section-header">
+        <div>
+          <p class="eyebrow">ANALYSIS</p>
+          <h2 class="section-title">Recent insights</h2>
+        </div>
+      </div>
+      <div class="insights-list reveal-stagger" id="insights-list">
+        
+          <a class="insight-item" id="insight-97b24b00-ff73-4c69-adf9-a896a2653bfe" href="/journal/3edb9d4c-ef62-4bd4-80ff-3f4782b6cfb1/" style="text-decoration:none;color:inherit;">
+            <div class="insight-item-icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M10 2L12 8H18L13 12L15 18L10 14L5 18L7 12L2 8H8L10 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="insight-item-body">
+              <h3 class="insight-item-title">Promenade au bord du lac</h3>
+              <p class="insight-item-body-text">Ce matin, vous avez partagé un moment privilégié avec votre sœur au bord du lac, profitant d&#x27;un lever de soleil magnifique et d&#x27;une conversation profonde sur vos projets, ressentant une grande gratitude. L&#x27;après-midi a été consacrée à la lecture paisible au parc, clôturant une journée emplie de calme et de joie. Il semble que cette journée vous ait apporté beaucoup de sérénité et de bonheur.</p>
+              <span class="insight-item-date">19 octobre 2026
+                · positive
+              </span>
+            </div>
+            
+          </a>
+        
+          <a class="insight-item" id="insight-9f79842a-ff44-45b0-b224-3e2f1583c938" href="/journal/cc8f14b3-b709-42ed-99ba-6afcd366024f/" style="text-decoration:none;color:inherit;">
+            <div class="insight-item-icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M10 2L12 8H18L13 12L15 18L10 14L5 18L7 12L2 8H8L10 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="insight-item-body">
+              <h3 class="insight-item-title">mon amis a voyager</h3>
+              <p class="insight-item-body-text">Cette entrée, bien que brève, exprime un adieu chaleureux et plein de bienveillance. Vous semblez souhaiter le meilleur à un ami proche, lui envoyant des ondes positives pour son futur. C&#x27;est un message d&#x27;encouragement et de soutien amical.</p>
+              <span class="insight-item-date">19 octobre 2026
+                · positive
+              </span>
+            </div>
+            
+              <img src="https://res.cloudinary.com/dhlnfpfen/image/upload/v1792423454/memoai/generated/51859168-d573-453c-a943-357a6e514713/entry_cc8f14b3-b709-42ed-99ba-6afcd366024f_8f46d995.jpg" alt="" loading="lazy" style="width:64px;height:64px;object-fit:cover;border-radius:14px;flex-shrink:0;">
+            
+          </a>
+        
+          <a class="insight-item" id="insight-6d34592d-a17f-40f6-82fa-d8ffe29534fa" href="/journal/292d2352-5219-450b-a6d0-767dd4d76f08/" style="text-decoration:none;color:inherit;">
+            <div class="insight-item-icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M10 2L12 8H18L13 12L15 18L10 14L5 18L7 12L2 8H8L10 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="insight-item-body">
+              <h3 class="insight-item-title">home sweet home</h3>
+              <p class="insight-item-body-text">Il semblerait que le retour d&#x27;Aziz soit un événement significatif pour vous. Ce simple constat marque un moment important, potentiellement rempli d&#x27;émotions positives comme la joie ou le soulagement.</p>
+              <span class="insight-item-date">19 octobre 2026
+                · positive
+              </span>
+            </div>
+            
+              <img src="https://res.cloudinary.com/dhlnfpfen/image/upload/v1792423519/memoai/generated/51859168-d573-453c-a943-357a6e514713/entry_292d2352-5219-450b-a6d0-767dd4d76f08_46f5709d.jpg" alt="" loading="lazy" style="width:64px;height:64px;object-fit:cover;border-radius:14px;flex-shrink:0;">
+            
+          </a>
+        
+          <a class="insight-item" id="insight-86fc7d81-d014-43e5-861b-56aa0c5e7f71" href="/journal/810e2b5e-f5e9-4817-b8a5-06cde4bd1431/" style="text-decoration:none;color:inherit;">
+            <div class="insight-item-icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M10 2L12 8H18L13 12L15 18L10 14L5 18L7 12L2 8H8L10 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="insight-item-body">
+              <h3 class="insight-item-title">Test lieu — Lyon</h3>
+              <p class="insight-item-body-text">Aujourd&#x27;hui, vous avez profité d&#x27;une agréable balade à Lyon, suivie d&#x27;un dîner chaleureux en compagnie de Camille. Il semble que vous ayez passé un moment plaisant et convivial, rempli de bons souvenirs.</p>
+              <span class="insight-item-date">19 octobre 2026
+                · positive
+              </span>
+            </div>
+            
+              <img src="https://res.cloudinary.com/dhlnfpfen/image/upload/v1792425283/memoai/generated/51859168-d573-453c-a943-357a6e514713/entry_810e2b5e-f5e9-4817-b8a5-06cde4bd1431_efeb996c.jpg" alt="" loading="lazy" style="width:64px;height:64px;object-fit:cover;border-radius:14px;flex-shrink:0;">
+            
+          </a>
+        
+          <a class="insight-item" id="insight-4d79eccd-2f61-4101-816b-6c876c37c23a" href="/journal/41f22aa4-afc2-4a7d-922a-5194a96662bf/" style="text-decoration:none;color:inherit;">
+            <div class="insight-item-icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M10 2L12 8H18L13 12L15 18L10 14L5 18L7 12L2 8H8L10 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="insight-item-body">
+              <h3 class="insight-item-title">la belle vie avec mon mec</h3>
+              <p class="insight-item-body-text">Aujourd&#x27;hui, tu as partagé un moment simple et agréable, une balade avec ton petit ami. C&#x27;est un instant de connexion et de détente qui semble t&#x27;avoir apporté de la joie et de la légèreté.</p>
+              <span class="insight-item-date">19 octobre 2026
+                · positive
+              </span>
+            </div>
+            
+              <img src="https://res.cloudinary.com/dhlnfpfen/image/upload/v1792430674/memoai/generated/51859168-d573-453c-a943-357a6e514713/entry_41f22aa4-afc2-4a7d-922a-5194a96662bf_a1800905.jpg" alt="" loading="lazy" style="width:64px;height:64px;object-fit:cover;border-radius:14px;flex-shrink:0;">
+            
+          </a>
+        
+          <a class="insight-item" id="insight-864d183b-189d-45cc-aaee-7aef71b4ff52" href="/journal/1e13eb4d-0ddd-4f81-8b3b-03b3c3dce840/" style="text-decoration:none;color:inherit;">
+            <div class="insight-item-icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M10 2L12 8H18L13 12L15 18L10 14L5 18L7 12L2 8H8L10 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="insight-item-body">
+              <h3 class="insight-item-title">balade magic</h3>
+              <p class="insight-item-body-text">Cette entrée, bien que brève, exprime une profonde appréciation pour l&#x27;amitié. Elle souligne l&#x27;importance et la valeur que vous accordez à vos amis dans votre vie, les considérant comme une source essentielle de bonheur et de soutien.</p>
+              <span class="insight-item-date">19 octobre 2026
+                · positive
+              </span>
+            </div>
+            
+              <img src="https://res.cloudinary.com/dhlnfpfen/image/upload/v1792430985/memoai/generated/51859168-d573-453c-a943-357a6e514713/entry_1e13eb4d-0ddd-4f81-8b3b-03b3c3dce840_2cfea794.jpg" alt="" loading="lazy" style="width:64px;height:64px;object-fit:cover;border-radius:14px;flex-shrink:0;">
+            
+          </a>
+        
+      </div>
+      
+
+<nav class="pagination reveal" aria-label="Pagination" data-pagination>
+  
+    <span class="pagination-btn pagination-arrow is-disabled" aria-disabled="true">
+      <svg aria-hidden="true" width="11" height="11" viewBox="0 0 12 12" fill="none">
+        <path d="M8 2L4 6l4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Previous
+    </span>
+  
+
+  <span class="pagination-pages">
+    
+      
+        <span class="pagination-page is-current" aria-current="page">1</span>
+      
+    
+      
+        <a class="pagination-page" href="/insights/?page=2#insights-list"
+           aria-label="Page 2">2</a>
+      
+    
+  </span>
+
+  
+    <a class="pagination-btn pagination-arrow" href="/insights/?page=2#insights-list" rel="next">
+      Next
+      <svg aria-hidden="true" width="11" height="11" viewBox="0 0 12 12" fill="none">
+        <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>
+  
+</nav>
+
+
+    </section>
+  
+  
+</div>
+
+  </main>
+
+  
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <div class="dot-cluster dot-cluster--sm" aria-hidden="true">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            <span class="dot"></span><span class="dot dot--hidden"></span><span class="dot"></span>
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          </div>
+          <span class="footer-name">MemoAI</span>
+        </div>
+        <p class="footer-copy">Journal intelligent propulse par l'IA &copy; 2026</p>
+        <div class="footer-links">
+          <a href="#" class="footer-link">Confidentialite</a>
+          <a href="#" class="footer-link">Conditions</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function(){
+      // Keep the preferences theme selector in sync with the theme actually
+      // applied: the nav toggle only writes to localStorage, so without this
+      // the settings page could highlight a theme different from the visible one.
+      (function(){
+        var stored = localStorage.getItem("memo-theme");
+        if(stored !== "light" && stored !== "dark") return;
+        var opt = document.querySelector('.theme-option[data-theme="' + stored + '"]');
+        if(!opt || opt.classList.contains('theme-option--active')) return;
+        document.querySelectorAll('.theme-option[data-theme]').forEach(function(o){ o.classList.remove('theme-option--active'); });
+        opt.classList.add('theme-option--active');
+        var idTheme = document.getElementById('id_theme');
+        if(idTheme) idTheme.value = stored;
+      })();
+
+      // Theme toggle in nav
+      var themeBtn = document.getElementById("theme-toggle");
+      if(themeBtn){
+        themeBtn.addEventListener("click", function(){
+          var h = document.documentElement;
+          var isDark = h.getAttribute("data-theme") === "dark";
+          var nextTheme = isDark ? "light" : "dark";
+          h.setAttribute("data-theme", nextTheme);
+          localStorage.setItem("memo-theme", nextTheme);
+          // Sync with preferences theme buttons if on that page
+          var opt = document.querySelector('.theme-option[data-theme="' + nextTheme + '"]');
+          if(opt) {
+            document.querySelectorAll('.theme-option[data-theme]').forEach(function(o){ o.classList.remove('theme-option--active'); });
+            opt.classList.add('theme-option--active');
+            var idTheme = document.getElementById('id_theme');
+            if(idTheme) idTheme.value = nextTheme;
+          }
+        });
+      }
+
+      // Avatar dropdown
+      var aBtn = document.getElementById("avatar-btn");
+      var aDrop = document.getElementById("avatar-dropdown");
+      var nBtn = document.getElementById("nav-notif-btn");
+      var nPanel = document.getElementById("nav-notif-panel");
+      if(aBtn && aDrop){
+        aBtn.addEventListener("click", function(e){
+          e.stopPropagation();
+          var o = aBtn.getAttribute("aria-expanded") === "true";
+          aBtn.setAttribute("aria-expanded", String(!o));
+          aDrop.classList.toggle("open", !o);
+          if(nPanel){ nPanel.classList.remove("open"); if(nBtn) nBtn.setAttribute("aria-expanded","false"); }
+        });
+      }
+
+      // Notifications panel
+      if(nBtn && nPanel){
+        nBtn.addEventListener("click", function(e){
+          e.stopPropagation();
+          var o = nBtn.getAttribute("aria-expanded") === "true";
+          nBtn.setAttribute("aria-expanded", String(!o));
+          nPanel.classList.toggle("open", !o);
+          if(aDrop){ aDrop.classList.remove("open"); if(aBtn) aBtn.setAttribute("aria-expanded","false"); }
+        });
+        nPanel.addEventListener("click", function(e){ e.stopPropagation(); });
+      }
+
+      document.addEventListener("click", function(){
+        if(aBtn) aBtn.setAttribute("aria-expanded", "false");
+        if(aDrop) aDrop.classList.remove("open");
+        if(nBtn) nBtn.setAttribute("aria-expanded", "false");
+        if(nPanel) nPanel.classList.remove("open");
+      });
+
+      // Toast Notification Engine
+      function initToast(toast) {
+        var duration = 4500;
+        var progressBar = toast.querySelector('.toast-progress-bar');
+        var startTime = Date.now();
+        var remaining = duration;
+        var timerId = null;
+
+        function startTimer() {
+          if (progressBar) {
+            progressBar.style.transition = 'width ' + remaining + 'ms linear';
+            progressBar.style.width = '0%';
+          }
+          startTime = Date.now();
+          timerId = setTimeout(dismissToast, remaining);
+        }
+
+        function pauseTimer() {
+          if (timerId) {
+            clearTimeout(timerId);
+            timerId = null;
+          }
+          if (progressBar) {
+            var elapsed = Date.now() - startTime;
+            remaining = Math.max(0, remaining - elapsed);
+            var computedWidth = getComputedStyle(progressBar).width;
+            progressBar.style.transition = 'none';
+            progressBar.style.width = computedWidth;
+          }
+        }
+
+        function dismissToast() {
+          if (toast.classList.contains('toast--hiding')) return;
+          toast.classList.add('toast--hiding');
+          setTimeout(function() {
+            if (toast.parentNode) toast.parentNode.removeChild(toast);
+          }, 320);
+        }
+
+        var closeBtn = toast.querySelector('.toast-close-btn');
+        if (closeBtn) {
+          closeBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            dismissToast();
+          });
+        }
+
+        toast.addEventListener('mouseenter', pauseTimer);
+        toast.addEventListener('mouseleave', function() {
+          if (remaining > 0) startTimer();
+        });
+
+        startTimer();
+      }
+
+      document.querySelectorAll('.toast').forEach(initToast);
+
+      // Global helper available to any script
+      window.showToast = function(message, type, title) {
+        type = type || 'info';
+        var container = document.getElementById('toast-container');
+        if (!container) {
+          container = document.createElement('div');
+          container.id = 'toast-container';
+          container.className = 'toast-container';
+          document.body.appendChild(container);
+        }
+        var toast = document.createElement('div');
+        toast.className = 'toast toast--' + type;
+        var iconSvg = '';
+        var isEn = document.documentElement.getAttribute('lang') === 'en';
+        var defaultTitle = isEn ? 'Notice' : 'Information';
+        if (type === 'success') {
+          defaultTitle = isEn ? 'Success' : 'Succès';
+          iconSvg = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+        } else if (type === 'error' || type === 'danger') {
+          defaultTitle = isEn ? 'Error' : 'Erreur';
+          iconSvg = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>';
+        } else if (type === 'warning') {
+          defaultTitle = isEn ? 'Warning' : 'Attention';
+          iconSvg = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>';
+        } else {
+          iconSvg = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>';
+        }
+        toast.innerHTML = '<div class="toast-icon-box" aria-hidden="true">' + iconSvg + '</div>' +
+          '<div class="toast-body"><p class="toast-title">' + (title || defaultTitle) + '</p><p class="toast-msg">' + message + '</p></div>' +
+          '<button class="toast-close-btn" aria-label="Fermer" type="button"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="13" y2="13"></line><line x1="13" y1="1" x2="1" y2="13"></line></svg></button>' +
+          '<div class="toast-progress-bar"></div>';
+        container.appendChild(toast);
+        initToast(toast);
+      };
+    });
+  </script>
+
+  <script>
+    /* ── Scroll reveal: gives every post-login page a gentle staged entrance ── */
+    (function () {
+      var root = document.body;
+      var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      function showAll() {
+        document.querySelectorAll('.reveal, .reveal-stagger').forEach(function (el) {
+          el.classList.add('is-visible');
+        });
+      }
+      if (!root || root.classList.contains('reduce-motion') || prefersReduced || !('IntersectionObserver' in window)) {
+        showAll();
+        return;
+      }
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          /* `top < 0` covers fast scrolls / anchor jumps: an element the user
+             has already scrolled past is revealed instead of staying blank. */
+          if (entry.isIntersecting || entry.boundingClientRect.top < 0) {
+            entry.target.classList.add('is-visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1, rootMargin: '0px 0px -36px 0px' });
+      document.querySelectorAll('.reveal, .reveal-stagger').forEach(function (el) { observer.observe(el); });
+    })();
+
+    /* ── Global scroll reveal: any block still below the fold gets a staged
+       entrance, so every page (not just the hand-tagged ones) feels alive.
+       Elements already carrying .reveal/.reveal-stagger are left to their
+       own choreography, and skipping the in-viewport ones avoids hiding
+       content that is already on screen. ── */
+    (function () {
+      var main = document.getElementById('main-content');
+      if (!main) return;
+      /* The landing has its own [data-reveal] choreography — don't stack two
+         reveal systems on the same blocks. */
+      if (document.body.classList.contains('landing-page')) return;
+      if (main.querySelector('[data-reveal]')) return;
+      if (document.body.classList.contains('reduce-motion')) return;
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      if (!('IntersectionObserver' in window)) return;
+
+      var SELECTOR = [
+        '.container > *',
+        'section', 'article',
+        '.card', '.stat-card', '.entry-card', '.person-card', '.memory-card',
+        '.insight-card', '.insight-item', '.dashboard-section', '.panel',
+        '.wizard-card', '.prefs-section', '.timeline-item', '.list-item',
+        '.empty-state', '.freq-stat', '.top-tag-item'
+      ].join(', ');
+      var ZOOM = '.stat-card, .entry-card, .person-card, .memory-card, .insight-card, .freq-stat';
+
+      var viewport = window.innerHeight || document.documentElement.clientHeight || 800;
+      var pending = [];
+      var found = main.querySelectorAll(SELECTOR);
+
+      for (var i = 0; i < found.length; i++) {
+        var el = found[i];
+        if (el.classList.contains('reveal') || el.classList.contains('reveal-stagger')) continue;
+        if (el.classList.contains('scroll-reveal')) continue;
+        if (el.closest && el.closest('.reveal, .reveal-stagger')) continue;
+        /* A container holding its own .reveal children must stay visible,
+           otherwise the two systems hide each other. */
+        if (el.querySelector && el.querySelector('.reveal, .reveal-stagger')) continue;
+        if (el.parentElement && el.parentElement.closest('.scroll-reveal')) continue;
+        if (el.offsetParent === null) continue;               /* hidden panel  */
+        var top = el.getBoundingClientRect().top;
+        if (top < viewport * 0.82) continue;                  /* already shown */
+        el.classList.add('scroll-reveal');
+        if (el.matches && el.matches(ZOOM)) el.classList.add('scroll-reveal--zoom');
+        pending.push(el);
+      }
+      if (!pending.length) return;
+
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting && entry.boundingClientRect.top > 0) return;
+          entry.target.classList.add('is-revealed');
+          observer.unobserve(entry.target);
+        });
+      }, { threshold: 0.07, rootMargin: '0px 0px -56px 0px' });
+
+      pending.forEach(function (el) { observer.observe(el); });
+    })();
+
+    /* ── Subtle parallax on the aurora background (desktop, motion allowed) ── */
+    (function () {
+      var aurora = document.querySelector('.app-aurora');
+      if (!aurora || document.body.classList.contains('reduce-motion')) return;
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      var ticking = false;
+      window.addEventListener('scroll', function () {
+        if (ticking) return;
+        ticking = true;
+        window.requestAnimationFrame(function () {
+          var y = window.scrollY || 0;
+          aurora.style.transform = 'translate3d(0,' + Math.min(y * 0.06, 60) + 'px,0)';
+          ticking = false;
+        });
+      }, { passive: true });
+    })();
+
+    /* ── Navbar omnibox: live, platform-wide search ── */
+    (function () {
+      var input = document.getElementById('nav-search-input');
+      var panel = document.getElementById('nav-search-results');
+      var form = document.getElementById('nav-search-form');
+      var wrap = document.getElementById('nav-search');
+      var clearBtn = document.getElementById('nav-search-clear');
+      if (!input || !panel || !form || !wrap) return;
+
+      var API = '/recherche/api/';
+      var DEBOUNCE = 200;
+      var controller = null;
+      var timer = null;
+      var activeIndex = -1;
+      var lastQuery = null;
+
+      function escapeHtml(value) {
+        return String(value == null ? '' : value).replace(/[&<>"']/g, function (ch) {
+          return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
+        });
+      }
+
+      function label(key) {
+        var name = 'label' + key.charAt(0).toUpperCase() + key.slice(1);
+        return panel.dataset[name] || key;
+      }
+
+      function close() {
+        panel.hidden = true;
+        panel.innerHTML = '';
+        input.setAttribute('aria-expanded', 'false');
+        activeIndex = -1;
+      }
+
+      function nodes() {
+        return panel.querySelectorAll('.nav-search-item');
+      }
+
+      function setActive(index) {
+        var list = nodes();
+        if (!list.length) { activeIndex = -1; return; }
+        if (index < 0) index = list.length - 1;
+        if (index >= list.length) index = 0;
+        activeIndex = index;
+        for (var i = 0; i < list.length; i++) {
+          list[i].classList.toggle('is-active', i === activeIndex);
+        }
+        if (list[activeIndex].scrollIntoView) {
+          list[activeIndex].scrollIntoView({ block: 'nearest' });
+        }
+      }
+
+      var GLYPH_ENTRY = '<svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v14H4z"></path><path d="M8 9h8M8 13h5"></path></svg>';
+      var GLYPH_PERSON = '<svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"></circle><path d="M5 20a7 7 0 0114 0"></path></svg>';
+
+      function mediaHtml(item) {
+        if (item.image) {
+          return '<span class="nav-search-item__media"><img src="' + escapeHtml(item.image) + '" alt="" loading="lazy"></span>';
+        }
+        if (item.type === 'tag') {
+          return '<span class="nav-search-item__media nav-search-item__media--tag" style="--tag-color:' + escapeHtml(item.color || '#6366f1') + '">' + escapeHtml(item.icon || '🏷️') + '</span>';
+        }
+        return '<span class="nav-search-item__media nav-search-item__media--glyph">' + (item.type === 'person' ? GLYPH_PERSON : GLYPH_ENTRY) + '</span>';
+      }
+
+      function render(data) {
+        var query = (data.query || '').trim();
+        if (!query) { close(); return; }
+
+        var html = '';
+        if (!data.total) {
+          html = '<div class="nav-search-empty">' + escapeHtml(panel.dataset.empty || '') + '</div>';
+        } else {
+          data.groups.forEach(function (group) {
+            html += '<div class="nav-search-group"><span class="nav-search-group__label">' + escapeHtml(label(group.key)) + '</span>';
+            group.items.forEach(function (item) {
+              html += '<a class="nav-search-item" role="option" href="' + escapeHtml(item.url) + '">' +
+                mediaHtml(item) +
+                '<span class="nav-search-item__body">' +
+                  '<span class="nav-search-item__title">' + escapeHtml(item.title) + '</span>' +
+                  (item.subtitle ? '<span class="nav-search-item__sub">' + escapeHtml(item.subtitle) + '</span>' : '') +
+                '</span>' +
+                (item.badge ? '<span class="nav-search-item__badge">' + escapeHtml(item.badge) + '</span>' : '') +
+                '</a>';
+            });
+            html += '</div>';
+          });
+          html += '<a class="nav-search-more" href="/recherche/?q=' + encodeURIComponent(query) + '">' +
+            escapeHtml(panel.dataset.hint || '') +
+            '<svg aria-hidden="true" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M7 3l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+            '</a>';
+        }
+
+        panel.innerHTML = html;
+        panel.hidden = false;
+        input.setAttribute('aria-expanded', 'true');
+        activeIndex = -1;
+      }
+
+      function fetchResults(query) {
+        if (controller) controller.abort();
+        controller = ('AbortController' in window) ? new AbortController() : null;
+        var options = { headers: { 'X-Requested-With': 'XMLHttpRequest' } };
+        if (controller) options.signal = controller.signal;
+
+        fetch(API + '?q=' + encodeURIComponent(query), options)
+          .then(function (response) { return response.ok ? response.json() : null; })
+          .then(function (data) { if (data) render(data); })
+          .catch(function () { /* aborted or offline — keep the previous panel */ });
+      }
+
+      input.addEventListener('input', function () {
+        var query = input.value.trim();
+        if (clearBtn) clearBtn.hidden = !query;
+        if (timer) clearTimeout(timer);
+        if (!query) { lastQuery = null; close(); return; }
+        if (query === lastQuery) return;
+        lastQuery = query;
+        timer = setTimeout(function () { fetchResults(query); }, DEBOUNCE);
+      });
+
+      input.addEventListener('focus', function () {
+        if (input.value.trim() && panel.innerHTML) panel.hidden = false;
+      });
+
+      input.addEventListener('keydown', function (event) {
+        if (event.key === 'ArrowDown') {
+          if (panel.hidden) return;
+          event.preventDefault();
+          setActive(activeIndex + 1);
+        } else if (event.key === 'ArrowUp') {
+          if (panel.hidden) return;
+          event.preventDefault();
+          setActive(activeIndex - 1);
+        } else if (event.key === 'Escape') {
+          close();
+        } else if (event.key === 'Enter') {
+          var list = nodes();
+          if (!panel.hidden && activeIndex >= 0 && list[activeIndex]) {
+            event.preventDefault();
+            window.location.href = list[activeIndex].getAttribute('href');
+          }
+        }
+      });
+
+      panel.addEventListener('mousemove', function (event) {
+        var item = event.target.closest ? event.target.closest('.nav-search-item') : null;
+        if (!item) return;
+        var list = nodes();
+        for (var i = 0; i < list.length; i++) {
+          if (list[i] === item) { setActive(i); return; }
+        }
+      });
+
+      if (clearBtn) {
+        clearBtn.addEventListener('click', function () {
+          input.value = '';
+          clearBtn.hidden = true;
+          lastQuery = null;
+          close();
+          input.focus();
+        });
+      }
+
+      document.addEventListener('click', function (event) {
+        if (!wrap.contains(event.target)) close();
+      });
+
+      form.addEventListener('submit', function (event) {
+        if (!input.value.trim()) {
+          event.preventDefault();
+          close();
+        }
+      });
+    })();
+  </script>
+  <script src="/static/js/tour.js?v=20261019_6" defer></script>
+  <script src="/static/js/form-validation.js?v=20261019_1" defer></script>
+  
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var reduce = document.body.classList.contains('reduce-motion') || !!(
+    window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  );
+  if (reduce) return;
+
+  var locale = document.documentElement.getAttribute('lang') || undefined;
+
+  // Count-up on the overview numbers.
+  document.querySelectorAll('.insight-stat-value[data-count]').forEach(function (el) {
+    var target = parseInt(el.getAttribute('data-count'), 10);
+    if (isNaN(target) || target <= 0) return;
+    var started = null;
+    var duration = 900;
+    el.textContent = '0';
+    function step(now) {
+      if (started === null) started = now;
+      var t = Math.min(1, (now - started) / duration);
+      var eased = 1 - Math.pow(1 - t, 3);
+      el.textContent = Math.round(target * eased).toLocaleString(locale);
+      if (t < 1) window.requestAnimationFrame(step);
+      else el.textContent = target.toLocaleString(locale);
+    }
+    window.requestAnimationFrame(step);
+  });
+
+  // Sentiment ring: the CSS custom property drives a conic-gradient and
+  // transitions from 0 to the real score (supported browsers animate it).
+  document.querySelectorAll('.sentiment-gauge[data-score]').forEach(function (gauge) {
+    var score = parseFloat(gauge.getAttribute('data-score'));
+    if (isNaN(score)) return;
+    gauge.style.setProperty('--score', '0');
+    window.requestAnimationFrame(function () {
+      window.requestAnimationFrame(function () {
+        gauge.style.setProperty('--score', String(Math.max(0, Math.min(1, score))));
+      });
+    });
+  });
+});
+</script>
+
+<script>
+(function () {
+  function apply() {
+    var q = new URLSearchParams(location.search);
+    var to = q.get('to');
+    if (to) {
+      setTimeout(function () {
+        var el = document.querySelector(to);
+        if (el) window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY);
+      }, 450);
+    }
+    if (q.get('end') === '1') {
+      setTimeout(function () {
+        window.scrollTo(0, document.documentElement.scrollHeight);
+      }, 450);
+    }
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', apply);
+  } else {
+    apply();
+  }
+})();
+</script>
+</body>
+</html>

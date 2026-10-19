@@ -132,6 +132,25 @@ def upload_avatar(file, user_id, kind: str = 'avatars') -> str:
 
 
 # ───────────────────────────────────────────────────────────────────────────
+# Read helpers
+# ───────────────────────────────────────────────────────────────────────────
+
+def image_variant(url: str, width: int) -> str:
+    """Return a lighter, auto-formatted variant of a stored image URL.
+
+    Cloudinary URLs get a ``c_limit,w_…,q_auto,f_auto`` transformation so the
+    grids download small files; any other remote URL (Pexels, ...) is returned
+    untouched because it is already optimised and may carry its own query.
+    """
+    if not url:
+        return ''
+    if 'res.cloudinary.com' in url and '/image/upload/' in url:
+        head, tail = url.split('/image/upload/', 1)
+        return f'{head}/image/upload/c_limit,w_{int(width)},q_auto,f_auto/{tail}'
+    return url
+
+
+# ───────────────────────────────────────────────────────────────────────────
 # Validation
 # ───────────────────────────────────────────────────────────────────────────
 
