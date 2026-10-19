@@ -1,0 +1,82 @@
+{% comment %}
+Guided tour — animated walkthrough that highlights every key control after
+sign-in. Strings are bilingual (FR/EN) and the step list is shipped as JSON so
+static/js/tour.js can stay dumb. Shown once (localStorage) and replayable from
+the "?" button in the navbar.
+{% endcomment %}
+{% trans_text "Bienvenue dans MemoAI" "Welcome to MemoAI" as tour_w1_t %}
+{% trans_text "Faisons le tour du propriétaire : 30 secondes pour savoir où tout se trouve." "Let's take a quick tour: 30 seconds to learn where everything lives." as tour_w1_x %}
+{% trans_text "Votre journal" "Your journal" as tour_w2_t %}
+{% trans_text "Le tableau de bord : votre journée, vos souvenirs marquants et vos statistiques." "The dashboard: your day, your highlights and your stats." as tour_w2_x %}
+{% trans_text "Souvenirs" "Memories" as tour_w3_t %}
+{% trans_text "Toutes vos entrées passées, filtrables et consultables en un clin d'œil." "Every past entry, filterable and readable at a glance." as tour_w3_x %}
+{% trans_text "Personnes" "People" as tour_w4_t %}
+{% trans_text "Ajoutez un visage : MemoAI le reconnaîtra automatiquement dans vos photos." "Add a face: MemoAI will recognise it automatically in your photos." as tour_w4_x %}
+{% trans_text "Insights" "Insights" as tour_w5_t %}
+{% trans_text "L'IA analyse vos émotions dans le temps : humeurs, thèmes et tendances." "The AI reads your emotions over time: moods, themes and trends." as tour_w5_x %}
+{% trans_text "Recherche globale" "Global search" as tour_w6_t %}
+{% trans_text "Tapez n'importe quoi : titres, textes, lieux, personnes. Les résultats arrivent en direct." "Type anything: titles, texts, places, people. Results show up live." as tour_w6_x %}
+{% trans_text "Nouvelle entrée" "New entry" as tour_w7_t %}
+{% trans_text "Le bouton principal. Écrivez votre journée, l'IA s'occupe du résumé et de l'illustration." "The main button. Write your day, the AI handles the summary and the artwork." as tour_w7_x %}
+{% trans_text "Notifications" "Notifications" as tour_w8_t %}
+{% trans_text "Rappels et nouvelles analyses : tout ce que la plateforme vous signale." "Reminders and fresh analyses: everything the platform tells you." as tour_w8_x %}
+{% trans_text "Clair / sombre" "Light / dark" as tour_w9_t %}
+{% trans_text "Basculez l'apparence à tout moment — votre choix est mémorisé." "Switch the look anytime — your choice is remembered." as tour_w9_x %}
+{% trans_text "Votre profil" "Your profile" as tour_w10_t %}
+{% trans_text "Ici : profil, préférences (thème, langue, IA) et déconnexion. Vous pouvez relancer cette visite à tout moment." "Here: profile, preferences (theme, language, AI) and sign-out. You can replay this tour anytime." as tour_w10_x %}
+{% trans_text "C'est parti !" "You're all set!" as tour_w11_t %}
+{% trans_text "Créez votre première entrée et laissez l'IA faire le reste." "Create your first entry and let the AI do the rest." as tour_w11_x %}
+{% trans_text "Étape" "Step" as tour_step %}
+{% trans_text "Passer" "Skip" as tour_skip %}
+{% trans_text "Précédent" "Back" as tour_prev %}
+{% trans_text "Suivant" "Next" as tour_next %}
+{% trans_text "Terminer" "Finish" as tour_done %}
+{% trans_text "Fermer la visite" "Close the tour" as tour_close %}
+{% trans_text "Astuce : flèches ← → pour naviguer, Échap pour quitter." "Tip: ← → to navigate, Escape to leave." as tour_hint %}
+
+<div class="tour" id="memo-tour" hidden role="dialog" aria-modal="true"
+     aria-label="{% trans_text 'Visite guidée' 'Guided tour' %}">
+  <div class="tour__spot" id="tour-spot" aria-hidden="true"></div>
+  <div class="tour__bubble" id="tour-bubble" role="document">
+    <div class="tour__progress" aria-hidden="true"><span id="tour-progress-bar"></span></div>
+    <div class="tour__meta">
+      <span class="tour__count" id="tour-count"></span>
+      <button type="button" class="tour__close" id="tour-close" aria-label="{{ tour_close|escapejs }}" title="{{ tour_close|escapejs }}">
+        <svg aria-hidden="true" width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path d="M1.5 1.5l9 9M10.5 1.5l-9 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <h3 class="tour__title" id="tour-title"></h3>
+    <p class="tour__text" id="tour-text"></p>
+    <div class="tour__actions">
+      <button type="button" class="tour__btn tour__btn--ghost" id="tour-skip">{{ tour_skip }}</button>
+      <span class="tour__spacer"></span>
+      <div class="tour__dots" id="tour-dots" aria-hidden="true"></div>
+      <button type="button" class="tour__btn" id="tour-prev">{{ tour_prev }}</button>
+      <button type="button" class="tour__btn tour__btn--primary" id="tour-next">{{ tour_next }}</button>
+    </div>
+  </div>
+</div>
+
+<script type="application/json" id="memo-tour-data">
+{
+  "storageKey": "memo-tour-v1",
+  "stepLabel": "{{ tour_step|escapejs }}",
+  "finishLabel": "{{ tour_done|escapejs }}",
+  "hint": "{{ tour_hint|escapejs }}",
+  "steps": [
+    {"target": null, "placement": "center", "title": "{{ tour_w1_t|escapejs }}", "text": "{{ tour_w1_x|escapejs }}"},
+    {"target": "#nav-journal", "placement": "bottom", "title": "{{ tour_w2_t|escapejs }}", "text": "{{ tour_w2_x|escapejs }}"},
+    {"target": "#nav-memories", "placement": "bottom", "title": "{{ tour_w3_t|escapejs }}", "text": "{{ tour_w3_x|escapejs }}"},
+    {"target": "#nav-persons", "placement": "bottom", "title": "{{ tour_w4_t|escapejs }}", "text": "{{ tour_w4_x|escapejs }}"},
+    {"target": "#nav-insights", "placement": "bottom", "title": "{{ tour_w5_t|escapejs }}", "text": "{{ tour_w5_x|escapejs }}"},
+    {"target": "#nav-search-input", "placement": "bottom", "title": "{{ tour_w6_t|escapejs }}", "text": "{{ tour_w6_x|escapejs }}"},
+    {"target": "#nav-new-entry", "placement": "bottom", "title": "{{ tour_w7_t|escapejs }}", "text": "{{ tour_w7_x|escapejs }}"},
+    {"target": "#nav-notif-btn", "placement": "bottom", "title": "{{ tour_w8_t|escapejs }}", "text": "{{ tour_w8_x|escapejs }}"},
+    {"target": "#theme-toggle", "placement": "bottom", "title": "{{ tour_w9_t|escapejs }}", "text": "{{ tour_w9_x|escapejs }}"},
+    {"target": "#avatar-btn", "placement": "bottom", "title": "{{ tour_w10_t|escapejs }}", "text": "{{ tour_w10_x|escapejs }}"},
+    {"target": null, "placement": "center", "title": "{{ tour_w11_t|escapejs }}", "text": "{{ tour_w11_x|escapejs }}"}
+  ]
+}
+</script>

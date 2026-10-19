@@ -44,6 +44,16 @@ def _prefs_for(user):
         return None
 
 
+def _clean_coord(value):
+    """Parse a map coordinate posted by the editor; ``None`` when absent."""
+    if value in (None, ''):
+        return None
+    try:
+        return round(float(value), 6)
+    except (TypeError, ValueError):
+        return None
+
+
 def _run_in_background(func, *args):
     """Run an eager Celery task off the request thread so the POST returns fast."""
     def runner():
@@ -258,6 +268,32 @@ def pexels_search(request):
     return JsonResponse(result)
 
 
+def _places_lang(request):
+    """Nominatim returns localised labels — follow the UI language."""
+    return 'en' if getattr(request, 'LANGUAGE_CODE', '') == 'en' else 'fr'
+
+
+@login_required
+def place_search(request):
+    """JSON endpoint powering the "Add a location" autocomplete."""
+    from common import places
+
+    query = request.GET.get('q', '')
+    result = places.search_places(query, limit=6, lang=_places_lang(request))
+    return JsonResponse(result)
+
+
+@login_required
+def place_reverse(request):
+    """Resolve a map pin into a readable place name."""
+    from common import places
+
+    result = places.reverse_place(
+        request.GET.get('lat'), request.GET.get('lon'), lang=_places_lang(request)
+    )
+    return JsonResponse(result)
+
+
 @login_required
 def ai_status(request, pk):
     """Poll the AI processing state of one entry (used by the detail page)."""
@@ -393,6 +429,8 @@ class EntryCreateView(View):
         content = request.POST.get('content', '').strip()
         mood = request.POST.get('mood', '').strip()
         location = request.POST.get('location', '').strip()
+        latitude = _clean_coord(request.POST.get('latitude'))
+        longitude = _clean_coord(request.POST.get('longitude'))
         entry_date_str = request.POST.get('entry_date', '').strip()
         tag_ids = request.POST.getlist('tags')
 
@@ -405,6 +443,8 @@ class EntryCreateView(View):
             content=content,
             mood=mood,
             location=location,
+            latitude=latitude,
+            longitude=longitude,
             entry_date=entry_date_str,
         )
 
@@ -437,6 +477,8 @@ class EntryEditView(View):
                 'content': {'value': entry.content},
                 'mood': {'value': entry.mood},
                 'location': {'value': entry.location},
+                'latitude': {'value': entry.latitude},
+                'longitude': {'value': entry.longitude},
                 'entry_date': {'value': entry.entry_date.isoformat()},
             },
             'today': timezone.now().date().isoformat(),
@@ -453,6 +495,14 @@ class EntryEditView(View):
         entry.content = request.POST.get('content', entry.content).strip()
         entry.mood = request.POST.get('mood', entry.mood).strip()
         entry.location = request.POST.get('location', entry.location).strip()
+        posted_lat = _clean_coord(request.POST.get('latitude'))
+        posted_lon = _clean_coord(request.POST.get('longitude'))
+        if posted_lat is not None and posted_lon is not None:
+            entry.latitude = posted_lat
+            entry.longitude = posted_lon
+        else:
+            entry.latitude = None
+            entry.longitude = None
         entry_date_str = request.POST.get('entry_date', '').strip()
         if entry_date_str:
             entry.entry_date = entry_date_str

@@ -229,6 +229,28 @@
 }
 .cx-nav__login:hover { color: var(--cx-secondary); }
 
+/* Light / dark switch — visible before sign-in, on every screen size */
+.cx-theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border: 1px solid var(--cx-border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--cx-ink);
+  cursor: pointer;
+  transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+.cx-theme-toggle:hover {
+  background: var(--cx-elevation);
+  border-color: var(--cx-tertiary);
+  transform: rotate(-12deg);
+}
+.cx-theme-toggle:active { transform: scale(0.94); }
+
 /* ═══ HERO ══════════════════════════════════════════════════════════ */
 .cx-hero {
   position: relative;

@@ -819,7 +819,7 @@ textarea::placeholder { color: var(--app-tertiary); opacity: 1; }
   from { opacity: 0; transform: translateY(16px); }
   to   { opacity: 1; transform: none; }
 }
-.main-content .container > *:not(.reveal):not(.reveal-stagger) {
+.main-content .container > *:not(.reveal):not(.reveal-stagger):not(.scroll-reveal) {
   animation: pageIn 0.55s var(--app-ease) backwards;
 }
 .main-content .container > *:nth-child(2) { animation-delay: 0.05s; }
@@ -951,27 +951,54 @@ html.js .reveal-stagger.is-visible > * { opacity: 1; transform: none; }
 
 /* ═══════════════════════════════════════════════════════════════════
    PERSONS — drag & drop face upload
+   The zone is `position: relative` so the transparent file input is
+   clipped to the box (before, it escaped and captured every click).
    ═══════════════════════════════════════════════════════════════════ */
-.face-upload {
+.face-drop {
+  position: relative;
   display: flex; gap: 18px; align-items: stretch;
   border: 1.5px dashed var(--app-line);
   border-radius: 20px; padding: 16px;
-  transition: border-color 0.2s ease, background 0.2s ease;
+  background: var(--app-surface, transparent);
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+  cursor: pointer;
 }
-.face-upload--over { border-color: var(--app-ink); background: var(--app-elevation); }
-.face-upload__preview {
+.face-drop:hover { border-color: var(--app-secondary); }
+.face-drop:focus-within { border-color: var(--app-ink); box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-ink) 12%, transparent); }
+.face-drop--over { border-color: var(--app-ink); border-style: solid; background: var(--app-elevation); transform: scale(1.005); }
+
+.face-drop__input {
+  position: absolute; inset: 0; z-index: 1;
+  width: 100%; height: 100%;
+  opacity: 0; cursor: pointer;
+}
+
+.face-drop__preview {
   width: 132px; height: 132px; flex-shrink: 0;
   border-radius: 16px; overflow: hidden;
   background: var(--app-elevation);
   display: grid; place-items: center;
+  pointer-events: none;
 }
-.face-upload__preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.face-upload__placeholder {
+.face-drop__preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.face-drop__placeholder {
   display: flex; flex-direction: column; align-items: center; gap: 8px;
   color: var(--app-tertiary); font-size: 11px; text-align: center; padding: 8px;
 }
-.face-upload__body { display: flex; flex-direction: column; justify-content: center; gap: 8px; flex: 1; }
-.face-upload__hint { margin: 0; font-size: 13px; color: var(--app-secondary); }
+.face-drop__body {
+  display: flex; flex-direction: column; justify-content: center; gap: 6px;
+  flex: 1; min-width: 0; pointer-events: none;
+}
+.face-drop__title { margin: 0; font-size: 14.5px; font-weight: 600; color: var(--app-ink); }
+.face-drop__hint { margin: 0; font-size: 13px; color: var(--app-secondary); }
+.face-drop__meta { margin: 0; font-size: 11.5px; color: var(--app-tertiary); }
+.face-drop__browse {
+  pointer-events: auto; position: relative; z-index: 2;
+  border: 0; background: none; padding: 0;
+  font: inherit; font-weight: 600; color: var(--app-accent, #c8963e);
+  text-decoration: underline; text-underline-offset: 2px; cursor: pointer;
+}
+.face-drop__browse:hover { opacity: 0.75; }
 .face-status { font-size: 13px; font-weight: 600; min-height: 18px; color: var(--app-secondary); }
 .face-status--ok { color: #0f9d6b; }
 .face-status--warn { color: #c98a00; }

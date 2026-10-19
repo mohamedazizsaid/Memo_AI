@@ -2698,3 +2698,24 @@ ul, ol { list-style: none; }
   box-shadow: 0 16px 36px rgba(0,0,0,0.4);
 }
 
+
+/* -------------------------------------------------------------------
+   SCROLL REVEAL — applied at runtime by base.html to elements that are
+   still below the fold, so every page gets a modern staged entrance
+   instead of dumping all the content at once.
+   ------------------------------------------------------------------- */
+html.js .scroll-reveal {
+  opacity: 0;
+  transform: translate3d(0, 34px, 0);
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+html.js .scroll-reveal--zoom { transform: scale(0.945); }
+html.js .scroll-reveal--left { transform: translate3d(-38px, 0, 0); }
+html.js .scroll-reveal--right { transform: translate3d(38px, 0, 0); }
+html.js .scroll-reveal.is-revealed { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  html.js .scroll-reveal { opacity: 1 !important; transform: none !important; }
+}
+.reduce-motion .scroll-reveal { opacity: 1 !important; transform: none !important; }

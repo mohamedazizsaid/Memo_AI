@@ -73,7 +73,8 @@
   <link rel="stylesheet" href="{% static 'css/cosmos.css' %}?v=20261010_15">
   {% block app_css %}{% if user.is_authenticated %}
   <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20261019_4">
+  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20261019_5">
+  <link rel="stylesheet" href="{% static 'css/tour.css' %}?v=20261019_5">
   {% endif %}{% endblock %}
   <style>
     /* Critical Toast Styling — Guarantees floating top-right display regardless of browser cache */
@@ -316,11 +317,11 @@
       {% if user.is_authenticated %}
         <!-- ── APP NAV (authenticated) ── -->
         <div class="nav-links">
-          <a href="/journal/" class="nav-link {% block nav_journal %}{% endblock %}">{{ t.nav_journal }}</a>
-          <a href="/journal/liste/" class="nav-link {% block nav_memories %}{% endblock %}">{{ t.nav_memories }}</a>
-          <a href="/personnes/" class="nav-link {% block nav_persons %}{% endblock %}">{{ t.nav_persons }}</a>
-          <a href="/insights/" class="nav-link {% block nav_insights %}{% endblock %}">{{ t.nav_insights }}</a>
-          <a href="/tags/" class="nav-link {% block nav_tags %}{% endblock %}">{{ t.nav_tags }}</a>
+          <a href="/journal/" id="nav-journal" class="nav-link {% block nav_journal %}{% endblock %}">{{ t.nav_journal }}</a>
+          <a href="/journal/liste/" id="nav-memories" class="nav-link {% block nav_memories %}{% endblock %}">{{ t.nav_memories }}</a>
+          <a href="/personnes/" id="nav-persons" class="nav-link {% block nav_persons %}{% endblock %}">{{ t.nav_persons }}</a>
+          <a href="/insights/" id="nav-insights" class="nav-link {% block nav_insights %}{% endblock %}">{{ t.nav_insights }}</a>
+          <a href="/tags/" id="nav-tags" class="nav-link {% block nav_tags %}{% endblock %}">{{ t.nav_tags }}</a>
         </div>
 
         <div class="nav-search" id="nav-search">
@@ -411,6 +412,16 @@
             </div>
           </div>
 
+          <button id="tour-help" class="nav-help-btn" type="button" data-tour-start
+                  aria-label="{% trans_text 'Revoir la visite guidée' 'Replay the guided tour' %}"
+                  title="{% trans_text 'Visite guidée' 'Guided tour' %}">
+            <svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="9.2"></circle>
+              <path d="M9.4 9.2a2.7 2.7 0 1 1 3.6 2.5c-.7.3-1 .9-1 1.6v.4"></path>
+              <path d="M12 17.2h.01"></path>
+            </svg>
+          </button>
+
           <button id="theme-toggle" class="theme-toggle" aria-label="{{ t.toggle_theme }}" type="button">
             <svg class="icon-sun" aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v1.5M8 13.5V15M1 8h1.5M13.5 8H15M3.05 3.05l1.06 1.06M11.89 11.89l1.06 1.06M3.05 12.95l1.06-1.06M11.89 4.11l1.06-1.06" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
             <svg class="icon-moon" aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M13.5 10.5A6 6 0 115.5 2.5a5 5 0 008 8z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
@@ -448,6 +459,7 @@
               <div class="dropdown-divider"></div>
               <a href="/comptes/profil/" class="dropdown-item" role="menuitem">{{ t.nav_my_profile }}</a>
               <a href="/comptes/preferences/" class="dropdown-item" role="menuitem">{{ t.nav_preferences }}</a>
+              <button type="button" class="dropdown-item" role="menuitem" data-tour-start>{% trans_text "Visite guidée" "Guided tour" %}</button>
               <a href="/notifications/" class="dropdown-item" role="menuitem">{{ t.nav_notifications }}</a>
               <a href="/tags/" class="dropdown-item" role="menuitem">{{ t.nav_tags }}</a>
               <div class="dropdown-divider"></div>
@@ -755,6 +767,58 @@
         });
       }, { threshold: 0.1, rootMargin: '0px 0px -36px 0px' });
       document.querySelectorAll('.reveal, .reveal-stagger').forEach(function (el) { observer.observe(el); });
+    })();
+
+    /* ── Global scroll reveal: any block still below the fold gets a staged
+       entrance, so every page (not just the hand-tagged ones) feels alive.
+       Elements already carrying .reveal/.reveal-stagger are left to their
+       own choreography, and skipping the in-viewport ones avoids hiding
+       content that is already on screen. ── */
+    (function () {
+      var main = document.getElementById('main-content');
+      if (!main) return;
+      if (document.body.classList.contains('reduce-motion')) return;
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      if (!('IntersectionObserver' in window)) return;
+
+      var SELECTOR = [
+        '.container > *',
+        'section', 'article',
+        '.card', '.stat-card', '.entry-card', '.person-card', '.memory-card',
+        '.insight-card', '.insight-item', '.dashboard-section', '.panel',
+        '.wizard-card', '.prefs-section', '.timeline-item', '.list-item',
+        '.empty-state', '.freq-stat', '.top-tag-item'
+      ].join(', ');
+      var ZOOM = '.stat-card, .entry-card, .person-card, .memory-card, .insight-card, .freq-stat';
+
+      var viewport = window.innerHeight || document.documentElement.clientHeight || 800;
+      var pending = [];
+      var found = main.querySelectorAll(SELECTOR);
+
+      for (var i = 0; i < found.length; i++) {
+        var el = found[i];
+        if (el.classList.contains('reveal') || el.classList.contains('reveal-stagger')) continue;
+        if (el.classList.contains('scroll-reveal')) continue;
+        if (el.closest && el.closest('.reveal, .reveal-stagger')) continue;
+        if (el.parentElement && el.parentElement.closest('.scroll-reveal')) continue;
+        if (el.offsetParent === null) continue;               /* hidden panel  */
+        var top = el.getBoundingClientRect().top;
+        if (top < viewport * 0.82) continue;                  /* already shown */
+        el.classList.add('scroll-reveal');
+        if (el.matches && el.matches(ZOOM)) el.classList.add('scroll-reveal--zoom');
+        pending.push(el);
+      }
+      if (!pending.length) return;
+
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add('is-revealed');
+          observer.unobserve(entry.target);
+        });
+      }, { threshold: 0.07, rootMargin: '0px 0px -56px 0px' });
+
+      pending.forEach(function (el) { observer.observe(el); });
     })();
 
     /* ── Subtle parallax on the aurora background (desktop, motion allowed) ── */

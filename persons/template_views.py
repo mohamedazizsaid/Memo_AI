@@ -96,8 +96,10 @@ class PersonCreateView(View):
     def post(self, request):
         name = request.POST.get('name', '').strip() or 'Inconnu'
         notes = request.POST.get('notes', '').strip()
-        avatar_url = request.POST.get('avatar_url', '').strip()
 
+        # The portrait can only come from the drag & drop zone now — the old
+        # "paste a photo URL" field is gone.
+        avatar_url = ''
         avatar_file = request.FILES.get('avatar_file')
         if avatar_file:
             avatar_url = _save_avatar(request.user, avatar_file)

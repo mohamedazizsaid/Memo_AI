@@ -1,0 +1,198 @@
+/* ═══════════════════════════════════════════════════════════════════
+   GUIDED TOUR — animated onboarding walkthrough (post-login)
+   A spotlight cuts a hole over each control while a bubble explains it.
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root {
+  --tour-dim: rgba(10, 10, 12, 0.62);
+  --tour-ring: rgba(255, 255, 255, 0.55);
+}
+
+html.tour-open { overflow: hidden; }
+
+.tour {
+  position: fixed;
+  inset: 0;
+  z-index: 99990;
+  pointer-events: none;
+}
+.tour[hidden] { display: none; }
+
+/* ── Spotlight: dims everything except the highlighted control ── */
+.tour__spot {
+  position: fixed;
+  top: 0; left: 0;
+  width: 0; height: 0;
+  border-radius: 16px;
+  box-shadow: 0 0 0 2px var(--tour-ring), 0 0 0 9999px var(--tour-dim);
+  pointer-events: none;
+  transition: top 0.45s var(--app-ease, cubic-bezier(0.22, 1, 0.36, 1)),
+              left 0.45s var(--app-ease, cubic-bezier(0.22, 1, 0.36, 1)),
+              width 0.45s var(--app-ease, cubic-bezier(0.22, 1, 0.36, 1)),
+              height 0.45s var(--app-ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+/* Soft pulse around the highlighted element */
+.tour__spot::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 20px;
+  border: 2px solid var(--tour-ring);
+  opacity: 0;
+  animation: tourPulse 2.4s ease-out infinite;
+}
+
+@keyframes tourPulse {
+  0%   { opacity: 0.55; transform: scale(0.98); }
+  70%  { opacity: 0; transform: scale(1.06); }
+  100% { opacity: 0; transform: scale(1.06); }
+}
+
+/* ── Bubble ── */
+.tour__bubble {
+  position: fixed;
+  width: min(372px, calc(100vw - 28px));
+  background: var(--app-paper, #fff);
+  color: var(--app-ink, #111);
+  border: 1px solid var(--app-line, rgba(0, 0, 0, 0.1));
+  border-radius: 20px;
+  padding: 18px 18px 16px;
+  box-shadow: 0 28px 64px -24px rgba(0, 0, 0, 0.55), 0 4px 14px rgba(0, 0, 0, 0.18);
+  pointer-events: auto;
+  z-index: 99999;
+  transition: top 0.42s var(--app-ease, ease), left 0.42s var(--app-ease, ease),
+              transform 0.42s var(--app-ease, ease), opacity 0.3s ease;
+  animation: tourPop 0.42s var(--app-ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+@keyframes tourPop {
+  from { opacity: 0; transform: translateY(10px) scale(0.97); }
+  to   { opacity: 1; transform: none; }
+}
+
+.tour__progress {
+  height: 3px;
+  border-radius: 999px;
+  background: var(--app-elevation, #efece8);
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.tour__progress span {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #c8963e, #e0bb6a);
+  transition: width 0.45s var(--app-ease, ease);
+}
+
+.tour__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.tour__count {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--app-tertiary, #9a9796);
+}
+.tour__close {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px;
+  border: 0; border-radius: 999px;
+  background: transparent;
+  color: var(--app-tertiary, #9a9796);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.tour__close:hover { background: var(--app-elevation, #efece8); color: var(--app-ink, #111); }
+
+.tour__title {
+  margin: 0 0 6px;
+  font-size: 16.5px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+.tour__text {
+  margin: 0 0 16px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--app-secondary, #6e6a69);
+}
+
+.tour__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.tour__spacer { flex: 1; }
+
+.tour__btn {
+  border: 1px solid var(--app-line, rgba(0, 0, 0, 0.12));
+  background: var(--app-paper, #fff);
+  color: var(--app-ink, #111);
+  border-radius: 999px;
+  padding: 8px 15px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+}
+.tour__btn:hover { background: var(--app-elevation, #efece8); }
+.tour__btn:active { transform: scale(0.97); }
+
+.tour__btn--primary {
+  background: var(--app-ink, #111);
+  border-color: var(--app-ink, #111);
+  color: var(--app-paper, #fff);
+}
+.tour__btn--primary:hover { opacity: 0.88; background: var(--app-ink, #111); }
+
+.tour__btn--ghost { border-color: transparent; background: transparent; color: var(--app-secondary, #6e6a69); }
+.tour__btn--ghost:hover { background: var(--app-elevation, #efece8); color: var(--app-ink, #111); }
+
+.tour__btn[disabled] { opacity: 0.4; cursor: default; }
+.tour__btn[disabled]:hover { background: var(--app-paper, #fff); }
+
+/* Dots */
+.tour__dots {
+  display: flex; align-items: center; gap: 5px;
+}
+.tour__dot {
+  width: 6px; height: 6px; border-radius: 999px;
+  background: var(--app-line, rgba(0, 0, 0, 0.18));
+  transition: width 0.3s var(--app-ease, ease), background 0.3s ease;
+}
+.tour__dot.is-active { width: 18px; background: #c8963e; }
+
+/* Highlighted target gets a lift so it reads above the dim */
+.tour-target-hover { position: relative; z-index: 99995 !important; }
+
+/* Nav help button */
+.nav-help-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px;
+  border: 0; border-radius: 999px;
+  background: transparent;
+  color: var(--app-secondary, #6e6a69);
+  cursor: pointer;
+  transition: color 0.18s ease, background 0.18s ease;
+}
+.nav-help-btn:hover { color: var(--app-ink, #111); background: var(--app-elevation, #efece8); }
+
+@media (max-width: 560px) {
+  .tour__bubble { padding: 16px 15px 14px; }
+  .tour__title { font-size: 15.5px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tour__spot, .tour__bubble { transition: none; animation: none; }
+  .tour__spot::after { animation: none; }
+}

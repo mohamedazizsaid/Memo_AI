@@ -382,6 +382,11 @@ PEXELS_API_KEY = config('PEXELS_API_KEY', default='')
 PEXELS_API_BASE_URL = config('PEXELS_API_BASE_URL', default='https://api.pexels.com/v1')
 
 # ─────────────────────────────────────────────
+# Places - "Add a location" (OpenStreetMap / Nominatim, keyless)
+# ─────────────────────────────────────────────
+PLACES_API_BASE_URL = config('PLACES_API_BASE_URL', default='https://nominatim.openstreetmap.org')
+
+# ─────────────────────────────────────────────
 # Internationalization
 # ─────────────────────────────────────────────
 LANGUAGE_CODE = 'fr-fr'
