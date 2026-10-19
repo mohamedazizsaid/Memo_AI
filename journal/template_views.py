@@ -28,6 +28,59 @@ MOOD_EMOJIS = {
     'angry': '😠', 'excited': '🎉', 'grateful': '🙏',
 }
 
+# ───────────────────────────────────────────────────────────────────────────
+# Immersive memories ("film de souvenirs")
+# ───────────────────────────────────────────────────────────────────────────
+
+_MEMORY_MONTHS = {
+    'fr': ('JANV.', 'FÉVR.', 'MARS', 'AVR.', 'MAI', 'JUIN', 'JUIL.', 'AOÛT', 'SEPT.', 'OCT.', 'NOV.', 'DÉC.'),
+    'en': ('JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'),
+}
+
+_MEMORY_QUOTES = {
+    'fr': (
+        "Il y a des jours qui ne font aucun bruit. Et pourtant, ils nous changent.",
+        "Ce que vous avez traversé vous a mené jusqu'ici.",
+        "La beauté était déjà là. Vous l'avez simplement regardée.",
+        "Les plus petits instants font les plus longs voyages.",
+        "Rien de ce que vous avez ressenti n'est perdu.",
+    ),
+    'en': (
+        "Some days make no sound. And yet, they change us.",
+        "What you walked through brought you here.",
+        "Beauty was already there. You simply looked at it.",
+        "The smallest moments make the longest journeys.",
+        "Nothing you felt is lost.",
+    ),
+}
+
+_MEMORY_FINAL_QUOTES = {
+    'fr': "Tout ce que vous avez aimé est encore là.",
+    'en': "Everything you loved is still here.",
+}
+
+_MEMORY_TILE_LAYOUT = (
+    ('wide', 'tall', 'square'),
+    ('tall', 'wide', 'portrait'),
+    ('square', 'tall', 'wide'),
+)
+
+_MEMORY_GRID_CLASSES = ('tall', 'wide', 'square', 'portrait', 'wide', 'square', 'tall', 'wide')
+
+
+def _memory_image_variant(url, width):
+    """Ask Cloudinary for a light, auto-formatted version of a stored image.
+
+    Pexels/other remote URLs are returned untouched; the original is already
+    compressed and may be transformed by its own query string.
+    """
+    if not url:
+        return ''
+    if 'res.cloudinary.com' in url and '/image/upload/' in url:
+        head, tail = url.split('/image/upload/', 1)
+        return f'{head}/image/upload/c_limit,w_{int(width)},q_auto,f_auto/{tail}'
+    return url
+
 
 # ───────────────────────────────────────────────────────────────────────────
 # Helpers
@@ -374,6 +427,138 @@ class HomeView(View):
             'recent_entries': recent_entries,
             'stats': stats,
             'hero_photos': hero_photos,
+        })
+
+
+@method_decorator(login_required, name='dispatch')
+class MemoryExperienceView(View):
+    """Immersive, auto-scrolling film built from every image of the account.
+
+    Images come from the journal (uploaded photos + AI illustrations) and from
+    the people's portraits. Nothing is mocked: an account with no image gets a
+    dedicated empty state.
+    """
+
+    def get(self, request):
+        from persons.models import Person
+
+        prefs = getattr(request.user, 'preferences', None)
+        lang = 'en' if str(getattr(prefs, 'language', 'fr') or 'fr').lower().startswith('en') else 'fr'
+        months = _MEMORY_MONTHS[lang]
+
+        entries = list(
+            JournalEntry.objects.filter(user=request.user)
+            .select_related('ai_analysis')
+            .prefetch_related('media')
+            .order_by('-entry_date', '-created_at')
+        )
+
+        photos = []
+        seen = set()
+
+        def add_photo(url, *, title='', date_value=None, sort_dt=None, kind='photo', entry_id=None):
+            url = (url or '').strip()
+            if not url or url in seen:
+                return
+            seen.add(url)
+            when = date_value or timezone.localdate()
+            photos.append({
+                'url': url,
+                'large_url': _memory_image_variant(url, 1700),
+                'thumb_url': _memory_image_variant(url, 800),
+                'title': (title or '').strip(),
+                'date': when,
+                'sort_dt': sort_dt or timezone.now(),
+                'date_label': f'{months[when.month - 1]} {when.year}',
+                'year': when.year,
+                'kind': kind,
+                'entry_id': str(entry_id) if entry_id else '',
+            })
+
+        for entry in entries:
+            for media in entry.media.all():
+                if media.media_type not in ('IMAGE', 'GENERATED_IMAGE'):
+                    continue
+                add_photo(
+                    media.storage_url,
+                    title=entry.title,
+                    date_value=entry.entry_date,
+                    sort_dt=entry.created_at,
+                    kind='illustration' if media.media_type == 'GENERATED_IMAGE' else 'photo',
+                    entry_id=entry.pk,
+                )
+
+            analysis = getattr(entry, 'ai_analysis', None)
+            if analysis and analysis.generated_image_url:
+                add_photo(
+                    analysis.generated_image_url,
+                    title=entry.title,
+                    date_value=entry.entry_date,
+                    sort_dt=entry.created_at,
+                    kind='illustration',
+                    entry_id=entry.pk,
+                )
+
+        for person in (
+            Person.objects.filter(user=request.user)
+            .exclude(avatar_url='')
+            .order_by('-created_at')
+        ):
+            add_photo(
+                person.avatar_url,
+                title=person.name,
+                date_value=person.created_at.date(),
+                sort_dt=person.created_at,
+                kind='portrait',
+            )
+
+        photos.sort(key=lambda item: (item['date'], item['sort_dt']), reverse=True)
+        for index, photo in enumerate(photos, 1):
+            photo['number'] = f'{index:03d}'
+            photo['grid_class'] = _MEMORY_GRID_CLASSES[(index - 1) % len(_MEMORY_GRID_CLASSES)]
+
+        # Screenshot-like hero wall: three staggered columns, mixed tile sizes.
+        hero_photos = photos[:9]
+        hero_columns = []
+        for col_index in range(3):
+            column = []
+            for slot, photo_index in enumerate(range(col_index, len(hero_photos), 3)):
+                photo = dict(hero_photos[photo_index])
+                photo['tile'] = _MEMORY_TILE_LAYOUT[col_index][min(slot, 2)]
+                photo['tagged'] = slot == 0
+                column.append(photo)
+            if column:
+                hero_columns.append(column)
+
+        # Remaining images become alternating editorial scenes.
+        remaining = photos[9:]
+        quotes = _MEMORY_QUOTES[lang]
+        scenes = []
+        for scene_index, start in enumerate(range(0, len(remaining), 3)):
+            scenes.append({
+                'photos': remaining[start:start + 3],
+                'side': 'right' if scene_index % 2 == 0 else 'left',
+                'quote': quotes[scene_index % len(quotes)],
+            })
+
+        years = {entry.entry_date.year for entry in entries} | {photo['year'] for photo in photos}
+        ordered_years = sorted(years)
+        if len(ordered_years) > 1:
+            period = f'{ordered_years[0]}—{ordered_years[-1]}'
+        elif ordered_years:
+            period = str(ordered_years[-1])
+        else:
+            period = str(timezone.localdate().year)
+
+        return render(request, 'journal/memory_experience.html', {
+            'photos': photos,
+            'hero_columns': hero_columns,
+            'scenes': scenes,
+            'photo_count': len(photos),
+            'entry_count': len(entries),
+            'period': period,
+            'final_quote': _MEMORY_FINAL_QUOTES[lang],
+            'memory_mode': True,
         })
 
 
