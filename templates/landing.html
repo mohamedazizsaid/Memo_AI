@@ -4,6 +4,13 @@
 {% block meta_description %}MemoAI est votre journal personnel intelligent. Ecrivez, laissez l'IA analyser vos emotions et retrouvez vos souvenirs.{% endblock %}
 {% block body_class %}landing-page{% endblock %}
 
+{% block splash_head %}
+<link rel="stylesheet" href="{% static 'css/splash.css' %}?v=20261019_3">
+<script defer src="{% static 'js/splash.js' %}?v=20261019_3"></script>
+{% endblock %}
+
+{% block splash %}{% include 'partials/splash.html' %}{% endblock %}
+
 {% block extra_css %}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

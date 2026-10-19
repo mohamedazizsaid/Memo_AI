@@ -1,0 +1,400 @@
+/* ═══════════════════════════════════════════════════════════════════
+   SPLASH — MemoAI's intro loader.
+
+   Shows once per browser session when entering the platform: the logo
+   sits top-left, a tilted ring of memories spins in the middle, the
+   counter climbs bottom-right. When the count reaches 100% the reel
+   flies off, the canvas closes like a shutter and the page underneath
+   animates in.
+
+   Loaded only by the templates that opt in (landing + dashboard) via
+   `{% block splash_head %}`. Behaviour lives in static/js/splash.js;
+   pass/fail display is decided in <head> (class `splash-skip`).
+   ═══════════════════════════════════════════════════════════════════ */
+
+.splash {
+  /* Self-contained tokens — this file also runs on the public landing
+     page, where app.css is not loaded. */
+  --sp-paper: var(--color-linen-canvas, #f7f5f3);
+  --sp-ink: var(--color-ink-black, #0d0d0d);
+  --sp-muted: var(--color-stone, #6e6a69);
+  --sp-line: var(--border-subtle, rgba(13, 13, 13, 0.1));
+  --sp-font: 'Inter Tight', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --sp-display: 'Fraunces', 'GT Super', Georgia, serif;
+  --sp-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Reel geometry */
+  --sp-tile-w: clamp(54px, 7vw, 104px);
+  --sp-tile-h: calc(var(--sp-tile-w) * 1.42);
+  --sp-radius: clamp(142px, 20vw, 290px);
+  --sp-step: 30deg;
+  --sp-spin: 30s;
+
+  position: fixed;
+  inset: 0;
+  z-index: 999990;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--sp-paper);
+  color: var(--sp-ink);
+  font-family: var(--sp-font);
+  clip-path: inset(0 0 0 0);
+  --p: 0;
+}
+
+/* Decided in <head> before the first paint: never flash the loader for
+   returning visitors, and never run it when motion is unwelcome. */
+html.splash-skip .splash { display: none !important; }
+html.splash-lock { overflow: hidden; }
+
+@media (prefers-reduced-motion: reduce) {
+  .splash { display: none !important; }
+}
+
+/* ─── Background ──────────────────────────────────────────────────── */
+.splash__bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.splash__blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: 0.55;
+}
+
+.splash__blob--1 {
+  width: 44vw;
+  height: 44vw;
+  left: -10vw;
+  top: -14vw;
+  background: radial-gradient(circle at 50% 50%, rgba(226, 168, 116, 0.55), rgba(226, 168, 116, 0) 70%);
+  animation: splashDrift 24s ease-in-out infinite alternate;
+}
+
+.splash__blob--2 {
+  width: 40vw;
+  height: 40vw;
+  right: -8vw;
+  bottom: -16vw;
+  background: radial-gradient(circle at 50% 50%, rgba(136, 130, 214, 0.45), rgba(136, 130, 214, 0) 70%);
+  animation: splashDrift 30s ease-in-out infinite alternate-reverse;
+}
+
+[data-theme="dark"] .splash__blob { opacity: 0.42; }
+
+@keyframes splashDrift {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to   { transform: translate3d(4vw, 3vh, 0) scale(1.14); }
+}
+
+/* ─── Logo, top-left ──────────────────────────────────────────────── */
+.splash__brand {
+  position: absolute;
+  top: clamp(22px, 3.2vw, 44px);
+  left: clamp(22px, 3.4vw, 50px);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  opacity: 0;
+  animation: splashBrandIn 0.9s var(--sp-ease) 0.12s forwards;
+}
+
+.splash__brand .dot-cluster { color: var(--sp-ink); }
+
+.splash__wordmark {
+  font-family: var(--sp-display);
+  font-size: clamp(21px, 2.2vw, 32px);
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 1;
+  color: var(--sp-ink);
+}
+
+@keyframes splashBrandIn {
+  from { opacity: 0; transform: translateY(-12px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ─── Photo reel ──────────────────────────────────────────────────── */
+.splash__stage {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding-bottom: 5vh;
+  perspective: 1400px;
+  perspective-origin: 50% 46%;
+  opacity: 0;
+  animation: splashStageIn 1.3s var(--sp-ease) 0.06s forwards;
+}
+
+.splash__halo {
+  position: absolute;
+  width: calc(var(--sp-radius) * 3.1);
+  height: calc(var(--sp-radius) * 1.5);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(13, 13, 13, 0.09), rgba(13, 13, 13, 0) 72%);
+  filter: blur(28px);
+}
+
+[data-theme="dark"] .splash__halo {
+  background: radial-gradient(closest-side, rgba(240, 237, 233, 0.1), rgba(240, 237, 233, 0) 72%);
+}
+
+.splash__reel {
+  position: relative;
+  width: 0;
+  height: 0;
+  transform-style: preserve-3d;
+  animation: splashSpin var(--sp-spin) linear infinite;
+}
+
+@keyframes splashSpin {
+  from { transform: rotateX(-26deg) rotateY(0deg); }
+  to   { transform: rotateX(-26deg) rotateY(360deg); }
+}
+
+.splash__tile {
+  position: absolute;
+  width: var(--sp-tile-w);
+  height: var(--sp-tile-h);
+  left: calc(var(--sp-tile-w) / -2);
+  top: calc(var(--sp-tile-h) / -2);
+  border-radius: 11px;
+  overflow: hidden;
+  background: var(--sp-line);
+  transform: rotateY(calc(var(--i) * var(--sp-step))) translateZ(var(--sp-radius));
+  box-shadow:
+    0 22px 42px -20px rgba(0, 0, 0, 0.55),
+    0 2px 8px rgba(0, 0, 0, 0.14);
+  backface-visibility: visible;
+}
+
+.splash__tile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: saturate(0.92);
+}
+
+.splash__tile::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 45%, rgba(0, 0, 0, 0.3));
+}
+
+@keyframes splashStageIn {
+  from { opacity: 0; transform: scale(0.88) translateY(18px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ─── Bottom bar: skip button + counter ───────────────────────────── */
+.splash__foot {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  padding: clamp(20px, 2.8vw, 42px) clamp(22px, 3.4vw, 50px) clamp(26px, 3.4vw, 52px);
+  opacity: 0;
+  animation: splashFootIn 0.9s var(--sp-ease) 0.28s forwards;
+}
+
+@keyframes splashFootIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.splash__skip {
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--sp-muted);
+  font-family: var(--sp-font);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.splash__skip-ring {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border: 1px solid var(--sp-line);
+  border-radius: 50%;
+  color: var(--sp-ink);
+  transition: transform 0.35s var(--sp-ease), background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.splash__skip:hover,
+.splash__skip:focus-visible { color: var(--sp-ink); }
+
+.splash__skip:hover .splash__skip-ring,
+.splash__skip:focus-visible .splash__skip-ring {
+  transform: translateY(-3px);
+  background: var(--sp-ink);
+  border-color: var(--sp-ink);
+  color: var(--sp-paper);
+}
+
+.splash__skip:focus-visible { outline: 2px solid var(--sp-ink); outline-offset: 6px; border-radius: 4px; }
+
+.splash__meter {
+  margin-left: auto;
+  text-align: right;
+}
+
+.splash__meter-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: clamp(9px, 0.72vw, 11px);
+  font-weight: 600;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--sp-muted);
+}
+
+.splash__meter-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--sp-ink);
+  animation: splashPulse 1.4s ease-in-out infinite;
+}
+
+@keyframes splashPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(0.7); }
+}
+
+.splash__meter-value {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  margin-top: 6px;
+  font-size: clamp(56px, 8.6vw, 128px);
+  font-weight: 700;
+  line-height: 0.84;
+  letter-spacing: -0.055em;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+  color: var(--sp-ink);
+}
+
+.splash__percent {
+  font-size: 0.34em;
+  font-weight: 600;
+  letter-spacing: 0;
+  margin-left: 0.06em;
+  padding-top: 0.32em;
+}
+
+/* ─── Hairline progress ───────────────────────────────────────────── */
+.splash__bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--sp-line);
+}
+
+.splash__bar-fill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--sp-ink);
+  transform: scaleX(var(--p, 0));
+  transform-origin: left center;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   EXIT — reel flies off, canvas closes like a shutter, page animates in
+   ═══════════════════════════════════════════════════════════════════ */
+.splash.is-exiting {
+  animation: splashCurtain 0.82s cubic-bezier(0.76, 0, 0.24, 1) 0.34s forwards;
+}
+
+@keyframes splashCurtain {
+  from { clip-path: inset(0 0 0 0); }
+  to   { clip-path: inset(49.9% 0 49.9% 0); }
+}
+
+.splash.is-exiting .splash__stage {
+  animation: splashStageOut 0.92s cubic-bezier(0.5, 0, 0.75, 0) forwards;
+}
+
+@keyframes splashStageOut {
+  from { opacity: 1; transform: none; filter: blur(0); }
+  to   { opacity: 0; transform: scale(1.34) translateY(-4vh); filter: blur(14px); }
+}
+
+.splash.is-exiting .splash__brand {
+  animation: splashBrandOut 0.45s var(--sp-ease) forwards;
+}
+
+@keyframes splashBrandOut {
+  from { opacity: 1; transform: none; }
+  to   { opacity: 0; transform: translateY(-16px); }
+}
+
+.splash.is-exiting .splash__foot,
+.splash.is-exiting .splash__bar {
+  animation: splashFadeOut 0.4s ease forwards;
+}
+
+@keyframes splashFadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+/* The page itself rises to meet the user as the shutter closes.
+   NB: `--sp-ease` lives on `.splash`, so it cannot be used here — a
+   shorthand with an unresolved var() would invalidate the whole rule. */
+body.splash-reveal .main-content,
+body.splash-reveal .nav-wrapper,
+body.splash-reveal .cx-nav,
+body.splash-reveal .footer {
+  animation: splashContentIn 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.52s both;
+}
+
+@keyframes splashContentIn {
+  from { opacity: 0; transform: translateY(20px) scale(1.008); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ─── Small screens ───────────────────────────────────────────────── */
+@media (max-width: 720px) {
+  .splash {
+    --sp-tile-w: 64px;
+    --sp-radius: 130px;
+  }
+
+  .splash__skip-label { display: none; }
+  .splash__meter-value { font-size: 68px; }
+  .splash__halo { width: calc(var(--sp-radius) * 2.4); }
+}
+
+@media (max-height: 520px) {
+  .splash__stage { padding-bottom: 0; }
+  .splash { --sp-tile-w: 52px; --sp-radius: 120px; }
+}

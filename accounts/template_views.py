@@ -9,6 +9,7 @@ from django.contrib.auth import get_user_model, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views import View
 
@@ -16,6 +17,19 @@ from .models import UserPreferences
 
 logger = logging.getLogger('memoai')
 User = get_user_model()
+
+
+def _with_welcome(target):
+    """Append `?welcome=1` to a redirect target without breaking anchors.
+
+    The intro splash (templates/partials/splash.html) is replayed whenever
+    that flag is present, so every fresh sign-in gets the full entrance
+    animation even if the visitor already browsed the platform.
+    """
+    path, _, fragment = target.partition('#')
+    separator = '&' if '?' in path else '?'
+    url = f'{path}{separator}welcome=1'
+    return f'{url}#{fragment}' if fragment else url
 
 
 class LoginForm(forms.Form):
@@ -87,7 +101,7 @@ class TemplateLoginView(View):
                 else:
                     request.session.set_expiry(0)
                 messages.success(request, f'Bienvenue, {user.first_name} !')
-                return redirect(request.GET.get('next', 'journal:home'))
+                return redirect(_with_welcome(request.GET.get('next') or reverse('journal:home')))
             else:
                 form.add_error(None, 'Email ou mot de passe incorrect.')
         return render(request, 'accounts/login.html', {'form': form})
@@ -128,7 +142,7 @@ class TemplateRegisterView(View):
 
             login(request, user)
             messages.success(request, f'Compte cree avec succes ! Bienvenue, {user.first_name} !')
-            return redirect('journal:home')
+            return redirect(_with_welcome(reverse('journal:home')))
         return render(request, 'accounts/register.html', {'form': form})
 
 

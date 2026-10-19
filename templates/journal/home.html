@@ -3,6 +3,13 @@
 {% block title %}{% trans_text "Tableau de bord" "Dashboard" %} — MemoAI{% endblock %}
 {% block nav_journal %}active{% endblock %}
 
+{% block splash_head %}
+<link rel="stylesheet" href="{% static 'css/splash.css' %}?v=20261019_3">
+<script defer src="{% static 'js/splash.js' %}?v=20261019_3"></script>
+{% endblock %}
+
+{% block splash %}{% include 'partials/splash.html' %}{% endblock %}
+
 {% block content %}
 <div class="container">
   <!-- Hero greeting -->

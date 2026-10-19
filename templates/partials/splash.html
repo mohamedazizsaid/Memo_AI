@@ -1,0 +1,70 @@
+{% load static %}
+{% comment %}
+MemoAI — Intro splash screen.
+Shown once per browser session when entering the platform (landing page) or
+right after signing in (`?welcome=1`). Pure CSS animation driven by
+static/js/splash.js; the "should we show it?" decision is made in the <head>
+so the loader never flashes for returning visitors.
+{% endcomment %}
+<div class="splash" id="splash" data-splash>
+  <div class="splash__bg" aria-hidden="true">
+    <span class="splash__blob splash__blob--1"></span>
+    <span class="splash__blob splash__blob--2"></span>
+  </div>
+
+  <!-- Logo — top left -->
+  <div class="splash__brand">
+    <span class="dot-cluster dot-cluster--sm" aria-hidden="true">
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      <span class="dot"></span><span class="dot dot--hidden"></span><span class="dot"></span>
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+    </span>
+    <span class="splash__wordmark">MemoAI</span>
+  </div>
+
+  <!-- Rotating photo reel -->
+  <div class="splash__stage" aria-hidden="true">
+    <span class="splash__halo"></span>
+    <div class="splash__reel">
+      <span class="splash__tile" style="--i:0"><img src="{% static 'img/orbit/o01.jpg' %}" alt="" loading="eager" draggable="false"></span>
+      <span class="splash__tile" style="--i:1"><img src="{% static 'img/orbit/o04.jpg' %}" alt="" loading="eager" draggable="false"></span>
+      <span class="splash__tile" style="--i:2"><img src="{% static 'img/orbit/o07.jpg' %}" alt="" loading="eager" draggable="false"></span>
+      <span class="splash__tile" style="--i:3"><img src="{% static 'img/orbit/o10.jpg' %}" alt="" loading="eager" draggable="false"></span>
+      <span class="splash__tile" style="--i:4"><img src="{% static 'img/orbit/o13.jpg' %}" alt="" loading="eager" draggable="false"></span>
+      <span class="splash__tile" style="--i:5"><img src="{% static 'img/orbit/o16.jpg' %}" alt="" loading="eager" draggable="false"></span>
+      <span class="splash__tile" style="--i:6"><img src="{% static 'img/orbit/o19.jpg' %}" alt="" loading="eager" draggable="false"></span>
+      <span class="splash__tile" style="--i:7"><img src="{% static 'img/orbit/o22.jpg' %}" alt="" loading="eager" draggable="false"></span>
+      <span class="splash__tile" style="--i:8"><img src="{% static 'img/orbit/o24.jpg' %}" alt="" loading="eager" draggable="false"></span>
+      <span class="splash__tile" style="--i:9"><img src="{% static 'img/orbit/o26.jpg' %}" alt="" loading="eager" draggable="false"></span>
+      <span class="splash__tile" style="--i:10"><img src="{% static 'img/orbit/o12.jpg' %}" alt="" loading="eager" draggable="false"></span>
+      <span class="splash__tile" style="--i:11"><img src="{% static 'img/orbit/o17.jpg' %}" alt="" loading="eager" draggable="false"></span>
+    </div>
+  </div>
+
+  <!-- Bottom row: skip + progress meter -->
+  <div class="splash__foot">
+    <button type="button" class="splash__skip" id="splash-skip" data-splash-skip
+            title="{% trans_text 'Passer' 'Skip' %}">
+      <span class="splash__skip-ring" aria-hidden="true">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M2 7h9M7.4 3.2l3.8 3.8-3.8 3.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <span class="splash__skip-label">{% trans_text "Passer" "Skip" %}</span>
+    </button>
+
+    <div class="splash__meter">
+      <p class="splash__meter-label">
+        <span class="splash__meter-dot" aria-hidden="true"></span>
+        {% trans_text "Chargement des souvenirs" "Loading memories" %}
+      </p>
+      <p class="splash__meter-value" aria-hidden="true">
+        <span class="splash__count" id="splash-count">00</span><span class="splash__percent">%</span>
+      </p>
+    </div>
+  </div>
+
+  <div class="splash__bar" aria-hidden="true"><span class="splash__bar-fill" id="splash-bar"></span></div>
+
+  <p class="sr-only" role="status">{% trans_text "Chargement de la plateforme…" "Loading the platform…" %}</p>
+</div>

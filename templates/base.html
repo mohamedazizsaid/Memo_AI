@@ -1,7 +1,49 @@
 <!DOCTYPE html>
 <html lang="{{ current_lang|default:'fr' }}" data-theme="light">
 <head>
-  <script>document.documentElement.classList.add('js');</script>
+  <script>
+    document.documentElement.classList.add('js');
+
+    /* Apply the theme before the first paint. (This used to run at the end
+       of <body>, which flashed the light canvas — very visible behind the
+       splash screen.) */
+    (function () {
+      try {
+        var s = localStorage.getItem("memo-theme") || "{{ user_theme|default:'system' }}";
+        if (s === "dark") { document.documentElement.setAttribute("data-theme", "dark"); }
+        else if (s === "light") { document.documentElement.setAttribute("data-theme", "light"); }
+        else if (s === "system" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+          document.documentElement.setAttribute("data-theme", "dark");
+        }
+      } catch (e) { /* localStorage unavailable */ }
+    })();
+
+    /* Splash gate — decides before the first paint whether the intro loader
+       runs, so returning visitors never see it flash. `?welcome=1` is set by
+       the sign-in redirect and always plays the intro. */
+    (function () {
+      var doc = document.documentElement;
+      var skip = false;
+      try {
+        var reduced = {% if reduce_motion %}true{% else %}false{% endif %} ||
+          !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+        var params = new URLSearchParams(window.location.search);
+        var forced = params.has('welcome') || params.has('splash');
+        var seen = false;
+        try { seen = sessionStorage.getItem('memo-splash') === '1'; } catch (e) { seen = false; }
+        skip = reduced || (seen && !forced);
+      } catch (e) {
+        skip = true;
+      }
+      if (skip) doc.classList.add('splash-skip');
+      /* Safety net: if the controller never runs (e.g. the tab stays hidden
+         and rAF never ticks), never trap the user behind the loader. */
+      window.setTimeout(function () {
+        doc.classList.add('splash-skip');
+        doc.classList.remove('splash-lock');
+      }, 8000);
+    })();
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}MemoAI — Votre journal intelligent{% endblock %}</title>
@@ -225,8 +267,11 @@
     }
   </style>
   {% block extra_css %}{% endblock %}
+  {% block splash_head %}{% endblock %}
 </head>
 <body class="{% block body_class %}{% endblock %}{% if reduce_motion %} reduce-motion{% endif %}">
+
+  {% block splash %}{% endblock %}
 
   {% if user.is_authenticated %}
   <div class="app-aurora" aria-hidden="true">
@@ -507,15 +552,6 @@
   {% endblock %}
 
   <script>
-    (function(){
-      var s = localStorage.getItem("memo-theme") || "{{ user_theme|default:'system' }}";
-      if(s === "dark"){ document.documentElement.setAttribute("data-theme","dark"); }
-      else if(s === "light"){ document.documentElement.setAttribute("data-theme","light"); }
-      else if(s === "system" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches){
-        document.documentElement.setAttribute("data-theme","dark");
-      }
-    })();
-
     document.addEventListener("DOMContentLoaded", function(){
       // Keep the preferences theme selector in sync with the theme actually
       // applied: the nav toggle only writes to localStorage, so without this
