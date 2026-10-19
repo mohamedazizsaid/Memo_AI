@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="container container--narrow">
-  <div class="page-header">
+  <div class="page-header reveal">
     <div>
       <p class="eyebrow">{% trans_text "ACTIVITE" "ACTIVITY" %}</p>
       <h1 class="page-title">Notifications</h1>
@@ -20,7 +20,7 @@
   {% if notifications %}
     <ul class="notifications-list" id="notifications-list">
       {% for notif in notifications %}
-        <li class="notification-item {% if not notif.is_read %}notification-item--unread{% endif %}" id="notif-{{ notif.id }}">
+        <li class="notification-item reveal {% if not notif.is_read %}notification-item--unread{% endif %}" id="notif-{{ notif.id }}">
           <div class="notification-icon notification-icon--{{ notif.notification_type }}" aria-hidden="true">
             {% if notif.notification_type == 'reminder' %}
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -60,7 +60,7 @@
       {% endfor %}
     </ul>
   {% else %}
-    <div class="empty-state" id="no-notifications">
+    <div class="empty-state reveal" id="no-notifications">
       <div class="empty-state-icon" aria-hidden="true">
         <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
           <path d="M24 6a14 14 0 0 1 14 14v8l4 4H6l4-4V20A14 14 0 0 1 24 6z" stroke="currentColor" stroke-width="2"/>

@@ -397,7 +397,7 @@
 {% block content %}
 <div class="container">
   <!-- Header -->
-  <div class="tags-hero">
+  <div class="tags-hero reveal">
     <div>
       <p class="eyebrow">{% trans_text "ORGANISATION & CATÉGORISATION" "ORGANIZATION & CATEGORIZATION" %}</p>
       <h1 class="page-title">{% trans_text "Mes tags" "My tags" %}</h1>
@@ -406,7 +406,7 @@
 
   <div class="tags-layout">
     <!-- Left: Form Card -->
-    <div class="tag-editor-card">
+    <div class="tag-editor-card reveal">
       <div class="tag-editor-header">
         <h2 class="tag-editor-title">
           {% if edit_tag %}{% trans_text "Modifier le tag" "Edit tag" %}{% else %}{% trans_text "Nouveau tag" "New tag" %}{% endif %}
@@ -482,7 +482,7 @@
     </div>
 
     <!-- Right: Tags Cards Grid -->
-    <div class="tags-content-panel">
+    <div class="tags-content-panel reveal">
       <!-- Stats Ribbon -->
       {% if tags %}
         <div class="tags-stats-ribbon">

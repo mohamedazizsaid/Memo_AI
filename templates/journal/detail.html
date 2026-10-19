@@ -4,7 +4,7 @@
 {% block content %}
 <div class="container container--narrow">
   <!-- Breadcrumb -->
-  <nav class="breadcrumb" aria-label="{% trans_text 'Fil d\'ariane' 'Breadcrumb' %}">
+  <nav class="breadcrumb reveal" aria-label="{% trans_text 'Fil d\'ariane' 'Breadcrumb' %}">
     <a href="/journal/" class="breadcrumb-link">{% trans_text "Tableau de bord" "Dashboard" %}</a>
     <span class="breadcrumb-sep" aria-hidden="true">/</span>
     <a href="/journal/liste/" class="breadcrumb-link">{% trans_text "Souvenirs" "Memories" %}</a>
@@ -14,7 +14,7 @@
 
   <article class="entry-detail">
     <!-- Entry Header -->
-    <header class="entry-detail-header">
+    <header class="entry-detail-header reveal">
       <div class="entry-detail-meta">
         <time datetime="{{ entry.entry_date|date:'Y-m-d' }}" class="entry-detail-date">
           {{ entry.entry_date|date:"l j F Y" }}
@@ -69,7 +69,7 @@
 
     <!-- Generated image -->
     {% if entry.ai_analysis.generated_image_url %}
-      <div class="entry-generated-image">
+      <div class="entry-generated-image reveal">
         <img src="{{ entry.ai_analysis.generated_image_url }}" alt="{% trans_text 'Illustration de cette entree' 'Illustration for this entry' %}" class="entry-hero-image" loading="lazy">
         <div class="ai-content-overlay" id="ai-overlay">
           <p class="ai-overlay-title">{% trans_text "Contenu IA" "AI content" %}</p>
@@ -85,7 +85,7 @@
 
     <!-- Media gallery -->
     {% if entry.media.all %}
-      <div class="entry-media-gallery">
+      <div class="entry-media-gallery reveal">
         {% for media in entry.media.all %}
           {% if media.media_type == 'IMAGE' %}
             <div class="gallery-item" id="media-{{ media.id }}">
@@ -116,13 +116,13 @@
     {% endif %}
 
     <!-- Entry content -->
-    <div class="entry-content prose">
+    <div class="entry-content prose reveal">
       {{ entry.content|rich_text }}
     </div>
 
     <!-- AI Analysis -->
     {% if entry.ai_analysis %}
-      <div class="ai-analysis-panel">
+      <div class="ai-analysis-panel reveal">
         <div class="ai-analysis-header">
           <div class="ai-badge-lg">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">

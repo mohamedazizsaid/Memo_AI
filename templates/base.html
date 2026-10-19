@@ -779,6 +779,10 @@
     (function () {
       var main = document.getElementById('main-content');
       if (!main) return;
+      /* The landing has its own [data-reveal] choreography — don't stack two
+         reveal systems on the same blocks. */
+      if (document.body.classList.contains('landing-page')) return;
+      if (main.querySelector('[data-reveal]')) return;
       if (document.body.classList.contains('reduce-motion')) return;
       if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
       if (!('IntersectionObserver' in window)) return;
@@ -802,6 +806,9 @@
         if (el.classList.contains('reveal') || el.classList.contains('reveal-stagger')) continue;
         if (el.classList.contains('scroll-reveal')) continue;
         if (el.closest && el.closest('.reveal, .reveal-stagger')) continue;
+        /* A container holding its own .reveal children must stay visible,
+           otherwise the two systems hide each other. */
+        if (el.querySelector && el.querySelector('.reveal, .reveal-stagger')) continue;
         if (el.parentElement && el.parentElement.closest('.scroll-reveal')) continue;
         if (el.offsetParent === null) continue;               /* hidden panel  */
         var top = el.getBoundingClientRect().top;

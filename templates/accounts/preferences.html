@@ -75,7 +75,7 @@
 
 {% block content %}
 <div class="container">
-  <div class="page-header">
+  <div class="page-header reveal">
     <div>
       <p class="eyebrow">{{ t.prefs_eyebrow|default:"COMPTE & PARAMÈTRES" }}</p>
       <h1 class="page-title">{{ t.prefs_title|default:"Préférences" }}</h1>
@@ -85,7 +85,7 @@
   <div class="profile-layout">
     <!-- Sidebar Navigation -->
     <aside class="profile-sidebar">
-      <div class="profile-avatar-card">
+      <div class="profile-avatar-card reveal">
         {% if user.avatar %}
           <img src="{{ user.avatar }}" alt="{{ user.get_full_name }}" class="profile-avatar-img">
         {% else %}
@@ -98,7 +98,7 @@
         <p class="profile-member-since">{{ t.prefs_member_since|default:"Membre depuis" }} {{ user.created_at|date:"F Y" }}</p>
       </div>
 
-      <nav class="profile-nav" aria-label="Navigation compte">
+      <nav class="profile-nav reveal" aria-label="Navigation compte">
         <a href="/comptes/profil/" class="profile-nav-item">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -142,7 +142,7 @@
         {% csrf_token %}
 
         <!-- 1. Apparence -->
-        <div class="prefs-card" id="apparence">
+        <div class="prefs-card reveal" id="apparence">
           <div class="prefs-card-header">
             <div class="prefs-card-title-group">
               <div class="prefs-card-icon">
@@ -215,7 +215,7 @@
         </div>
 
         <!-- 2. Intelligence Artificielle -->
-        <div class="prefs-card" style="margin-top: 20px;margin-bottom: 20px;" id="ia">
+        <div class="prefs-card reveal" style="margin-top: 20px;margin-bottom: 20px;" id="ia">
           <div class="prefs-card-header">
             <div class="prefs-card-title-group">
               <div class="prefs-card-icon">
@@ -294,7 +294,7 @@
         </div>
 
         <!-- 3. Notifications & Rappels -->
-        <div class="prefs-card" id="notifications">
+        <div class="prefs-card reveal" id="notifications">
           <div class="prefs-card-header">
             <div class="prefs-card-title-group">
               <div class="prefs-card-icon">
@@ -382,7 +382,7 @@
       </form>
 
       <!-- 4. Sécurité & Mot de passe -->
-      <div class="prefs-card" id="securite" style="margin-top: 10px;">
+      <div class="prefs-card reveal" id="securite" style="margin-top: 10px;">
         <div class="prefs-card-header">
           <div class="prefs-card-title-group">
             <div class="prefs-card-icon">

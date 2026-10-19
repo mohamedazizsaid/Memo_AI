@@ -30,7 +30,7 @@
     </header>
 
     <main class="auth__main">
-      <div class="auth__box">
+      <div class="auth__box reveal">
         <header class="auth__head">
           <h1 class="auth__title">{% trans_text "Bon retour" "Welcome back" %}</h1>
           <p class="auth__sub">{% trans_text "Pas encore de compte ?" "No account yet?" %} <a href="/comptes/inscription/">{% trans_text "Créez-en un" "Create one" %}</a></p>
@@ -104,7 +104,7 @@
   </section>
 
   <!-- ─── Visual panel (desktop) ─────────────────────────────────── -->
-  <section class="auth__visual" aria-hidden="true">
+  <section class="auth__visual reveal" aria-hidden="true">
     <div class="auth__scene">
       <figure class="auth__scene-a"><img src="{% static 'img/tile_notebook.jpg' %}" alt=""></figure>
       <figure class="auth__scene-b"><img src="{% static 'img/tile_flowers.jpg' %}" alt=""></figure>

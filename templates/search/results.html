@@ -3,7 +3,7 @@
 
 {% block content %}
 <div class="container search-page">
-  <div class="page-header">
+  <div class="page-header reveal">
     <div>
       <p class="eyebrow">{% trans_text "RECHERCHE" "SEARCH" %}</p>
       <h1 class="page-title">
@@ -28,7 +28,7 @@
   </div>
 
   {% if not query %}
-    <div class="empty-state">
+    <div class="empty-state reveal">
       <div class="empty-state-icon">
         <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
       </div>
@@ -36,7 +36,7 @@
       <p class="empty-state-body">{% trans_text "Entrées, personnes, tags… la recherche couvre toute la plateforme." "Entries, people, tags… search covers the whole platform." %}</p>
     </div>
   {% elif total == 0 %}
-    <div class="empty-state">
+    <div class="empty-state reveal">
       <div class="empty-state-icon">
         <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path><path d="M8 11h6"></path></svg>
       </div>
@@ -46,7 +46,7 @@
     </div>
   {% else %}
     {% for group in groups %}
-      <section class="section-band search-group">
+      <section class="section-band search-group reveal">
         <div class="section-header">
           <h2 class="section-title">
             {% if group.key == 'entries' %}{% trans_text "Entrées" "Entries" %}

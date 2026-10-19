@@ -3,7 +3,7 @@
 
 {% block content %}
 <div class="container">
-  <div class="page-header">
+  <div class="page-header reveal">
     <p class="eyebrow">{% trans_text "COMPTE" "ACCOUNT" %}</p>
     <h1 class="page-title">{% trans_text "Mon profil" "My profile" %}</h1>
   </div>
@@ -11,7 +11,7 @@
   <div class="profile-layout">
     <!-- Sidebar -->
     <aside class="profile-sidebar">
-      <div class="profile-avatar-card">
+      <div class="profile-avatar-card reveal">
         {% if user.avatar %}
           <img src="{{ user.avatar }}" alt="{{ user.get_full_name }}" class="profile-avatar-img">
         {% else %}
@@ -24,7 +24,7 @@
         <p class="profile-member-since">{% trans_text "Membre depuis" "Member since" %} {{ user.created_at|date:"F Y" }}</p>
       </div>
 
-      <nav class="profile-nav" aria-label="{% trans_text 'Navigation profil' 'Profile navigation' %}">
+      <nav class="profile-nav reveal" aria-label="{% trans_text 'Navigation profil' 'Profile navigation' %}">
         <a href="/comptes/profil/" class="profile-nav-item active">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -58,7 +58,7 @@
 
     <!-- Main content -->
     <div class="profile-content">
-      <div class="card">
+      <div class="card reveal">
         <div class="card-header">
           <h2 class="card-title">{% trans_text "Informations personnelles" "Personal information" %}</h2>
         </div>

@@ -1,4 +1,4 @@
-<article class="entry-card" id="entry-{{ entry.id }}">
+<article class="entry-card reveal" id="entry-{{ entry.id }}">
   <a href="/journal/{{ entry.id }}/" class="entry-card-link" aria-label="{% if entry.title %}{{ entry.title }}{% else %}{% trans_text 'Entree sans titre' 'Untitled entry' %}{% endif %} - {{ entry.entry_date|date:'j F Y' }}">
     {% if entry.cover_image_url %}
       <div class="entry-card-image">

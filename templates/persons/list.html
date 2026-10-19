@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="container">
-  <div class="page-header">
+  <div class="page-header reveal">
     <div>
       <p class="eyebrow">{% trans_text "MEMOIRE" "MEMORY" %}</p>
       <h1 class="page-title">{% trans_text "Personnes" "People" %}</h1>
@@ -18,7 +18,7 @@
   </div>
 
   {% if not consent_granted %}
-    <div class="consent-banner" id="face-consent-banner">
+    <div class="consent-banner reveal" id="face-consent-banner">
       <div class="consent-banner-icon" aria-hidden="true">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
           <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/>
@@ -39,7 +39,7 @@
   {% if persons %}
     <div class="persons-grid" id="persons-grid">
       {% for person in persons %}
-        <a href="/personnes/{{ person.id }}/" class="person-card" id="person-{{ person.id }}">
+        <a href="/personnes/{{ person.id }}/" class="person-card reveal" id="person-{{ person.id }}">
           {% if person.avatar_url %}
             <div class="person-avatar">
               <img src="{{ person.avatar_url }}" alt="{{ person.name }}" class="person-avatar-img">
@@ -67,7 +67,7 @@
       {% endfor %}
     </div>
   {% else %}
-    <div class="empty-state" id="no-persons">
+    <div class="empty-state reveal" id="no-persons">
       <div class="empty-state-icon" aria-hidden="true">
         <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
           <circle cx="24" cy="18" r="8" stroke="currentColor" stroke-width="2"/>

@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="container">
-  <div class="page-header">
+  <div class="page-header reveal">
     <div>
       <p class="eyebrow">{{ t.nav_journal|upper }}</p>
       <h1 class="page-title">{% trans_text "Mes souvenirs" "My memories" %}</h1>
@@ -18,7 +18,7 @@
   </div>
 
   <!-- Filters -->
-  <div class="filters-bar">
+  <div class="filters-bar reveal">
     <form method="get" action="" class="filters-form" id="filters-form">
       <div class="filter-search">
         <label for="filter-search-input" class="sr-only">{{ t.search|default:"Rechercher" }}</label>
@@ -60,7 +60,7 @@
   </div>
 
   <!-- Results info -->
-  <div class="results-info">
+  <div class="results-info reveal">
     <span class="results-count">{{ page_obj.paginator.count|default:entries.count }} {% if entries.count == 1 %}{% trans_text "entree" "entry" %}{% else %}{% trans_text "entrees" "entries" %}{% endif %}</span>
   </div>
 
@@ -74,7 +74,7 @@
 
     <!-- Pagination -->
     {% if is_paginated %}
-      <nav class="pagination" aria-label="Pagination">
+      <nav class="pagination reveal" aria-label="Pagination">
         {% if page_obj.has_previous %}
           <a href="?{% if request.GET.search %}search={{ request.GET.search }}&{% endif %}page={{ page_obj.previous_page_number }}" class="pagination-btn" id="prev-page">{% trans_text "Precedent" "Previous" %}</a>
         {% endif %}
@@ -85,7 +85,7 @@
       </nav>
     {% endif %}
   {% else %}
-    <div class="empty-state" id="no-entries-found">
+    <div class="empty-state reveal" id="no-entries-found">
       <div class="empty-state-icon" aria-hidden="true">
         <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
           <circle cx="21" cy="21" r="13" stroke="currentColor" stroke-width="2"/>

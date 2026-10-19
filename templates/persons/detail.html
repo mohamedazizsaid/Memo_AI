@@ -3,13 +3,13 @@
 
 {% block content %}
 <div class="container">
-  <nav class="breadcrumb" aria-label="{% trans_text 'Fil d\'ariane' 'Breadcrumb' %}">
+  <nav class="breadcrumb reveal" aria-label="{% trans_text 'Fil d\'ariane' 'Breadcrumb' %}">
     <a href="/personnes/" class="breadcrumb-link">{% trans_text "Personnes" "People" %}</a>
     <span class="breadcrumb-sep" aria-hidden="true">/</span>
     <span class="breadcrumb-current">{{ person.name }}</span>
   </nav>
 
-  <div class="person-detail-header">
+  <div class="person-detail-header reveal">
     {% if person.avatar_url %}
       <img src="{{ person.avatar_url }}" alt="{{ person.name }}" class="person-detail-avatar">
     {% else %}
@@ -38,7 +38,7 @@
   </div>
 
   <!-- Memories featuring this person -->
-  <section class="section-band">
+  <section class="section-band reveal">
     <div class="section-header">
       <div>
         <p class="eyebrow">{% trans_text "SOUVENIRS" "MEMORIES" %}</p>
@@ -53,7 +53,7 @@
         {% endfor %}
       </div>
     {% else %}
-      <div class="empty-state">
+      <div class="empty-state reveal">
         <p class="empty-state-body">{{ person.name }} {% trans_text "n'apparait dans aucune entree pour le moment." "does not appear in any entry yet." %}</p>
       </div>
     {% endif %}
