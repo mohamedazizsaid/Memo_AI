@@ -1,0 +1,49 @@
+{% load pagination_tags %}
+{% if page_obj and page_obj.paginator.num_pages > 1 %}
+<nav class="pagination reveal" aria-label="{% trans_text 'Pagination' 'Pagination' %}" data-pagination>
+  {% if page_obj.has_previous %}
+    <a class="pagination-btn pagination-arrow" href="{% page_url page_obj.previous_page_number param|default:'page' anchor %}" rel="prev">
+      <svg aria-hidden="true" width="11" height="11" viewBox="0 0 12 12" fill="none">
+        <path d="M8 2L4 6l4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      {% trans_text "Précédent" "Previous" %}
+    </a>
+  {% else %}
+    <span class="pagination-btn pagination-arrow is-disabled" aria-disabled="true">
+      <svg aria-hidden="true" width="11" height="11" viewBox="0 0 12 12" fill="none">
+        <path d="M8 2L4 6l4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      {% trans_text "Précédent" "Previous" %}
+    </span>
+  {% endif %}
+
+  <span class="pagination-pages">
+    {% for number in page_obj|page_window %}
+      {% if number is None %}
+        <span class="pagination-ellipsis" aria-hidden="true">…</span>
+      {% elif number == page_obj.number %}
+        <span class="pagination-page is-current" aria-current="page">{{ number }}</span>
+      {% else %}
+        <a class="pagination-page" href="{% page_url number param|default:'page' anchor %}"
+           aria-label="{% trans_text 'Page' 'Page' %} {{ number }}">{{ number }}</a>
+      {% endif %}
+    {% endfor %}
+  </span>
+
+  {% if page_obj.has_next %}
+    <a class="pagination-btn pagination-arrow" href="{% page_url page_obj.next_page_number param|default:'page' anchor %}" rel="next">
+      {% trans_text "Suivant" "Next" %}
+      <svg aria-hidden="true" width="11" height="11" viewBox="0 0 12 12" fill="none">
+        <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>
+  {% else %}
+    <span class="pagination-btn pagination-arrow is-disabled" aria-disabled="true">
+      {% trans_text "Suivant" "Next" %}
+      <svg aria-hidden="true" width="11" height="11" viewBox="0 0 12 12" fill="none">
+        <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </span>
+  {% endif %}
+</nav>
+{% endif %}

@@ -41,6 +41,7 @@ the "?" button in the navbar.
     <div class="tour__progress" aria-hidden="true"><span id="tour-progress-bar"></span></div>
     <div class="tour__meta">
       <span class="tour__count" id="tour-count"></span>
+      <div class="tour__dots" id="tour-dots" aria-hidden="true"></div>
       <button type="button" class="tour__close" id="tour-close" aria-label="{{ tour_close|escapejs }}" title="{{ tour_close|escapejs }}">
         <svg aria-hidden="true" width="12" height="12" viewBox="0 0 12 12" fill="none">
           <path d="M1.5 1.5l9 9M10.5 1.5l-9 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
@@ -52,7 +53,6 @@ the "?" button in the navbar.
     <div class="tour__actions">
       <button type="button" class="tour__btn tour__btn--ghost" id="tour-skip">{{ tour_skip }}</button>
       <span class="tour__spacer"></span>
-      <div class="tour__dots" id="tour-dots" aria-hidden="true"></div>
       <button type="button" class="tour__btn" id="tour-prev">{{ tour_prev }}</button>
       <button type="button" class="tour__btn tour__btn--primary" id="tour-next">{{ tour_next }}</button>
     </div>

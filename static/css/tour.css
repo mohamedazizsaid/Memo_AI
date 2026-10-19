@@ -4,7 +4,7 @@
    ═══════════════════════════════════════════════════════════════════ */
 
 :root {
-  --tour-dim: rgba(10, 10, 12, 0.62);
+  --tour-dim: rgba(10, 10, 12, 0.68);
   --tour-ring: rgba(255, 255, 255, 0.55);
 }
 
@@ -24,7 +24,7 @@ html.tour-open { overflow: hidden; }
   top: 0; left: 0;
   width: 0; height: 0;
   border-radius: 16px;
-  box-shadow: 0 0 0 2px var(--tour-ring), 0 0 0 9999px var(--tour-dim);
+  box-shadow: 0 0 0 2px var(--tour-ring), 0 0 0 100vmax var(--tour-dim);
   pointer-events: none;
   transition: top 0.45s var(--app-ease, cubic-bezier(0.22, 1, 0.36, 1)),
               left 0.45s var(--app-ease, cubic-bezier(0.22, 1, 0.36, 1)),
@@ -90,11 +90,12 @@ html.tour-open { overflow: hidden; }
 .tour__meta {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 10px;
   margin-bottom: 6px;
 }
 .tour__count {
+  flex: 0 0 auto;
+  white-space: nowrap;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -102,6 +103,7 @@ html.tour-open { overflow: hidden; }
   color: var(--app-tertiary, #9a9796);
 }
 .tour__close {
+  flex: 0 0 auto;
   display: inline-flex; align-items: center; justify-content: center;
   width: 26px; height: 26px;
   border: 0; border-radius: 999px;
@@ -130,6 +132,8 @@ html.tour-open { overflow: hidden; }
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
+  row-gap: 8px;
 }
 .tour__spacer { flex: 1; }
 
@@ -142,6 +146,7 @@ html.tour-open { overflow: hidden; }
   font: inherit;
   font-size: 13px;
   font-weight: 600;
+  white-space: nowrap;
   cursor: pointer;
   transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
 }
@@ -161,16 +166,22 @@ html.tour-open { overflow: hidden; }
 .tour__btn[disabled] { opacity: 0.4; cursor: default; }
 .tour__btn[disabled]:hover { background: var(--app-paper, #fff); }
 
-/* Dots */
+/* Dots live in the meta row next to the step counter so the action row
+   never overflows on a phone. */
 .tour__dots {
-  display: flex; align-items: center; gap: 5px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  overflow: hidden;
 }
 .tour__dot {
-  width: 6px; height: 6px; border-radius: 999px;
+  flex: 0 0 auto;
+  width: 5px; height: 5px; border-radius: 999px;
   background: var(--app-line, rgba(0, 0, 0, 0.18));
   transition: width 0.3s var(--app-ease, ease), background 0.3s ease;
 }
-.tour__dot.is-active { width: 18px; background: #c8963e; }
+.tour__dot.is-active { width: 14px; background: #c8963e; }
 
 /* Highlighted target gets a lift so it reads above the dim */
 .tour-target-hover { position: relative; z-index: 99995 !important; }
