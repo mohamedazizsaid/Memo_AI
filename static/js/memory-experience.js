@@ -143,11 +143,26 @@
   var startTimer = null;
   var resumeTimer = null;
   var lastTs = 0;
-  var speed = window.innerWidth <= 720 ? 21 : 33;
+  var filmY = 0;
+  var restarting = false;
+  var isMobile = window.innerWidth <= 720;
+  var filmDuration = isMobile ? 85 : 65; // seconds for the whole film
+  var speed = 0;
 
   function maxScroll() {
     return Math.max(0, docEl.scrollHeight - window.innerHeight);
   }
+
+  // Keep the film around a minute long even when the archive grows: short
+  // accounts drift slowly, long accounts are not stuck for ten minutes.
+  function computeSpeed() {
+    var distance = maxScroll();
+    var minimum = isMobile ? 46 : 58;
+    var maximum = isMobile ? 120 : 160;
+    return Math.max(minimum, Math.min(maximum, distance / filmDuration));
+  }
+
+  speed = computeSpeed();
 
   function isPlaying() {
     return started && autoScroll && !userPaused && !endReached && !reduceMotion;
@@ -189,6 +204,9 @@
     started = true;
     autoScroll = true;
     userPaused = false;
+    restarting = false;
+    filmY = window.scrollY;
+    speed = computeSpeed();
 
     if (startTimer) {
       window.clearTimeout(startTimer);
@@ -243,6 +261,7 @@
     started = false;
     autoScroll = false;
     userPaused = false;
+    restarting = true;
     updateUI();
 
     try {
@@ -251,9 +270,19 @@
       window.scrollTo(0, 0);
     }
 
-    window.setTimeout(function () {
+    // Wait for the smooth rewind to really be over (or give up after 2.5s)
+    // before handing control back to the film, so the restart always plays
+    // from the top instead of fighting the scroll animation.
+    function finishRestart(attempt) {
+      if (!restarting) return;
+      if (window.scrollY > 2 && attempt < 25) {
+        window.setTimeout(function () { finishRestart(attempt + 1); }, 100);
+        return;
+      }
       beginAutoScroll();
-    }, 1150);
+    }
+
+    window.setTimeout(function () { finishRestart(0); }, 350);
   }
 
   if (pauseBtn) {
@@ -290,7 +319,7 @@
   /* ─── User gestures briefly suspend the auto-scroll ───────────── */
 
   function temporaryPause() {
-    if (reduceMotion || endReached || !started) return;
+    if (reduceMotion || endReached || !started || restarting) return;
     if (resumeTimer) {
       window.clearTimeout(resumeTimer);
       resumeTimer = null;
@@ -326,6 +355,17 @@
     if (target && target.closest && target.closest('button, a, input, textarea, select')) return;
     temporaryPause();
   });
+
+  // A scrollbar drag or an anchor jump moves the page without a wheel or
+  // pointer event: resync the cursor and let the viewer take over instead of
+  // fighting the film.
+  window.addEventListener('scroll', function () {
+    if (restarting || !isPlaying()) return;
+    if (Math.abs(window.scrollY - filmY) > 8) {
+      filmY = window.scrollY;
+      temporaryPause();
+    }
+  }, { passive: true });
 
   /* ─── Ambient score (Web Audio, generated in the browser) ─────── */
 
@@ -619,19 +659,27 @@
   /* ─── Film loop ───────────────────────────────────────────────── */
 
   function tick(timestamp) {
-    var delta = lastTs ? Math.min(64, timestamp - lastTs) : 16;
+    // Cap only for safety (tab was hidden, main thread hiccup): at 10fps or
+    // faster the film keeps its exact pace instead of dragging behind.
+    var delta = lastTs ? Math.min(100, timestamp - lastTs) : 16;
     lastTs = timestamp;
 
     if (isPlaying() && !document.hidden) {
       var bottom = maxScroll();
-      if (window.scrollY >= bottom - 1) {
+      if (filmY >= bottom - 0.5) {
+        filmY = bottom;
         autoScroll = false;
         endReached = true;
         updateUI();
       } else {
-        var next = Math.min(bottom, window.scrollY + ((speed * delta) / 1000));
-        window.scrollTo(0, next);
+        // Keep a fractional cursor: scrollY is rounded to whole pixels, and
+        // rebuilding the position from it every frame would lose the fraction
+        // and make the film look like it stalls between pixels.
+        filmY = Math.min(bottom, filmY + ((speed * delta) / 1000));
+        window.scrollTo(0, filmY);
       }
+    } else {
+      filmY = window.scrollY;
     }
 
     if (progress) {
@@ -646,6 +694,8 @@
   window.requestAnimationFrame(tick);
 
   window.addEventListener('resize', function () {
-    speed = window.innerWidth <= 720 ? 21 : 33;
+    isMobile = window.innerWidth <= 720;
+    filmDuration = isMobile ? 85 : 65;
+    speed = computeSpeed();
   });
 })();
