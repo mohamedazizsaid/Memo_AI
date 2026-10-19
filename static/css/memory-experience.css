@@ -380,7 +380,6 @@
 .memory-title__outline {
   color: transparent;
   -webkit-text-stroke: 1.15px var(--m-ink);
-  text-stroke: 1.15px var(--m-ink);
 }
 
 .memory-lede {

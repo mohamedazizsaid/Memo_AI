@@ -139,6 +139,9 @@ h1, h2, h3, h4 {
 /* ─── Page header ──────────────────────────────────────────────────── */
 .page-header { margin-bottom: 28px; }
 .page-header .eyebrow { margin-bottom: 6px; }
+.page-header-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.memory-cta svg { color: var(--app-secondary); transition: color 0.2s ease; }
+.memory-cta:hover svg { color: currentColor; }
 
 .text-link { font-weight: 500; }
 
