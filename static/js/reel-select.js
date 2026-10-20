@@ -88,6 +88,7 @@
     if (selecting === on) return;
     selecting = on;
     wall.classList.toggle('is-selecting', on);
+    document.body.classList.toggle('wall-selecting', on);
     toggle.classList.toggle('is-active', on);
     toggle.setAttribute('aria-pressed', on ? 'true' : 'false');
     if (label) {

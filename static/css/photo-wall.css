@@ -7,6 +7,54 @@
    label in. Scrolling the page asks the server for the next tiles.
    ═══════════════════════════════════════════════════════════════════ */
 
+/* Section header: "Select" + "See all" sit together without wrapping
+   awkwardly on narrow screens. */
+.section-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.wall-select-toggle {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  color: var(--app-secondary);
+}
+
+.wall-select-toggle svg {
+  color: var(--app-tertiary);
+  transition: color 0.2s ease, transform 0.25s var(--app-ease);
+}
+
+.wall-select-toggle:hover {
+  opacity: 1;
+  color: var(--app-ink);
+}
+
+.wall-select-toggle:hover svg {
+  color: var(--app-ink);
+  transform: scale(1.08);
+}
+
+.wall-select-toggle.is-active {
+  color: var(--app-ink);
+}
+
+.wall-select-toggle.is-active svg {
+  color: var(--app-ink);
+  transform: rotate(90deg);
+}
+
+.wall-select-toggle:focus-visible {
+  outline: 2px solid var(--app-ink);
+  outline-offset: 4px;
+  border-radius: 999px;
+}
+
 .visually-hidden {
   position: absolute !important;
   width: 1px; height: 1px;
@@ -177,6 +225,218 @@
 .photo-tile__link:focus-visible {
   outline: 3px solid var(--app-ink);
   outline-offset: 3px;
+}
+
+/* ─── Reel selection ───────────────────────────────────────────────── */
+
+.photo-tile__select {
+  position: absolute;
+  top: 9px;
+  left: 9px;
+  z-index: 7;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: transparent;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-5px) scale(0.92);
+  transition: opacity 0.22s ease, transform 0.3s var(--app-ease), visibility 0.22s;
+  cursor: pointer;
+}
+
+.photo-tile__select-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 23px;
+  height: 23px;
+  border-radius: 8px;
+  border: 1.5px solid rgba(255, 255, 255, 0.92);
+  background: rgba(22, 18, 15, 0.34);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 8px rgba(10, 8, 6, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  color: transparent;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s var(--app-ease);
+}
+
+.photo-tile__select-order {
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--app-ink);
+  color: var(--app-paper);
+  font-family: var(--app-font, inherit);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: 0 2px 6px rgba(10, 8, 6, 0.35);
+}
+
+.photo-tile__select-order[hidden] { display: none; }
+
+.photo-wall.is-selecting .photo-tile__select {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+}
+
+.photo-wall.is-selecting .photo-tile {
+  cursor: pointer;
+}
+
+.photo-wall.is-selecting .photo-tile__link {
+  pointer-events: none;
+}
+
+.photo-wall.is-selecting .photo-tile__media::after {
+  opacity: 0.74;
+}
+
+.photo-wall.is-selecting .photo-tile:hover img {
+  transform: scale(1.045);
+}
+
+.photo-tile.is-selected {
+  border-color: color-mix(in srgb, var(--app-ink) 42%, var(--app-line));
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--app-ink) 22%, transparent),
+    var(--app-shadow-md);
+}
+
+.photo-tile.is-selected .photo-tile__select-box {
+  background: var(--app-ink);
+  border-color: var(--app-paper);
+  color: var(--app-paper);
+  transform: scale(1.06);
+}
+
+.photo-tile.is-selected .photo-tile__media::after {
+  opacity: 0.34;
+}
+
+.photo-tile__select:focus-visible {
+  outline: none;
+}
+
+.photo-tile__select:focus-visible .photo-tile__select-box {
+  outline: 3px solid var(--app-paper);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px var(--app-ink);
+}
+
+/* ─── Reel selection tray ──────────────────────────────────────────── */
+
+.reel-select-bar {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  z-index: 420;
+  width: min(640px, calc(100vw - 32px));
+  transform: translateX(-50%);
+  animation: reelBarIn 0.38s var(--app-ease) both;
+}
+
+.reel-select-bar[hidden] { display: none; }
+
+.reel-select-bar__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 11px 13px 11px 22px;
+  border-radius: 999px;
+  background-color: var(--lg-fill-strong, rgba(255, 255, 255, 0.7));
+  background-image:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.035));
+  border: 1px solid var(--lg-edge, rgba(255, 255, 255, 0.8));
+  box-shadow:
+    0 28px 56px -24px rgba(48, 36, 22, 0.5),
+    0 6px 16px -8px rgba(48, 36, 22, 0.18),
+    var(--lg-inner, inset 0 1px 0 rgba(255, 255, 255, 0.9));
+  -webkit-backdrop-filter: blur(26px) saturate(180%);
+  backdrop-filter: blur(26px) saturate(180%);
+}
+
+.reel-select-bar__count {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  font-family: var(--app-font, inherit);
+  font-size: 13px;
+  color: var(--app-secondary);
+  white-space: nowrap;
+}
+
+.reel-select-bar__count strong {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--app-ink);
+  letter-spacing: -0.04em;
+}
+
+.reel-select-bar__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wall-selecting { padding-bottom: 96px; }
+
+@keyframes reelBarIn {
+  from { opacity: 0; transform: translate(-50%, 18px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+@media (max-width: 560px) {
+  .section-header__actions {
+    width: 100%;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .reel-select-bar {
+    bottom: 14px;
+    width: calc(100vw - 20px);
+  }
+
+  .reel-select-bar__inner {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 10px;
+    padding: 13px 14px 14px;
+    border-radius: 24px;
+  }
+
+  .reel-select-bar__count { justify-content: center; }
+  .reel-select-bar__actions { width: 100%; }
+  .reel-select-bar__actions .btn { flex: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reel-select-bar { animation: none; }
+
+  .photo-tile__select,
+  .photo-tile__select-box,
+  .photo-tile img,
+  .wall-select-toggle svg {
+    transition: none;
+  }
 }
 
 /* ─── Entrance ─────────────────────────────────────────────────────── */
