@@ -210,8 +210,8 @@
         btn.setAttribute('role', 'option');
         btn.innerHTML =
           '<svg class="place-item__icon" aria-hidden="true" width="14" height="14" viewBox="0 0 14 14" fill="none">' +
-            '<path d="M7 1a4 4 0 0 1 4 4c0 3-4 8-4 8S3 8 3 5a4 4 0 0 1 4-4z" stroke="currentColor" stroke-width="1.3"/>' +
-            '<circle cx="7" cy="5" r="1.3" stroke="currentColor" stroke-width="1.3"/></svg>' +
+            '<path d="M7 1a4 4 0 0 1 4 4c0 3-4 8-4 8S3 8 3 5a4 4 0 0 1 4-4z" stroke="currentColor" stroke-width="1.5"/>' +
+            '<circle cx="7" cy="5" r="1.3" stroke="currentColor" stroke-width="1.5"/></svg>' +
           '<span class="place-item__body">' +
             '<span class="place-item__name"></span>' +
             '<span class="place-item__label"></span>' +

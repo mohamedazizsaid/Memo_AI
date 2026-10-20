@@ -21,8 +21,8 @@
         {% if entry.location %}
           <span class="memory-card__place">
             <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-              <path d="M6 1a3.5 3.5 0 0 1 3.5 3.5c0 2.5-3.5 6.5-3.5 6.5S2.5 7 2.5 4.5A3.5 3.5 0 0 1 6 1z" stroke="currentColor" stroke-width="1.2"/>
-              <circle cx="6" cy="4.5" r="1" stroke="currentColor" stroke-width="1.2"/>
+              <path d="M6 1a3.5 3.5 0 0 1 3.5 3.5c0 2.5-3.5 6.5-3.5 6.5S2.5 7 2.5 4.5A3.5 3.5 0 0 1 6 1z" stroke="currentColor" stroke-width="1.5"/>
+              <circle cx="6" cy="4.5" r="1" stroke="currentColor" stroke-width="1.5"/>
             </svg>
             {{ entry.location }}
           </span>
@@ -48,8 +48,8 @@
         {% if entry.ai_status == 'completed' %}
           <span class="memory-card__ai">
             <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-              <circle cx="5" cy="5" r="4" stroke="currentColor" stroke-width="1"/>
-              <path d="M3 5l1.5 1.5L7 3.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="5" cy="5" r="4" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M3 5l1.5 1.5L7 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
             {% trans_text "IA" "AI" %}
           </span>

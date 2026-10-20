@@ -1013,9 +1013,9 @@
       return '<svg aria-hidden="true" width="11" height="11" viewBox="0 0 14 14" fill="none"><path d="M4 2.5 11.5 7 4 11.5v-9Z" fill="currentColor"/></svg>';
     }
     if (name === 'pause') {
-      return '<svg aria-hidden="true" width="11" height="11" viewBox="0 0 14 14" fill="none"><path d="M4.4 2.5v9M9.6 2.5v9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+      return '<svg aria-hidden="true" width="11" height="11" viewBox="0 0 14 14" fill="none"><path d="M4.4 2.5v9M9.6 2.5v9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
     }
-    return '<svg aria-hidden="true" width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M2.5 7.2 5.6 10.3 11.5 4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    return '<svg aria-hidden="true" width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M2.5 7.2 5.6 10.3 11.5 4.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   }
 
   function makeMusicResult(trackItem) {
