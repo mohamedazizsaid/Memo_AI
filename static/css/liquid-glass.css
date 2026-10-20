@@ -1,0 +1,1037 @@
+/* ═══════════════════════════════════════════════════════════════════
+   LIQUID GLASS — Apple-inspired material layer for MemoAI.
+
+   Loaded after the page-level stylesheets, but every rule is scoped to
+   `.glass-page`, so only the screens that opt in adopt the material.
+   The recipe is deliberately simple and resilient:
+     · a translucent, slightly warm fill
+     · a specular top-left highlight
+     · a soft inner rim (light caught by the glass edge)
+     · a deep, diffuse drop shadow
+     · a backdrop blur + saturation pass so the aurora colours show
+       through the surface instead of sitting behind an opaque card.
+   Light, dark, reduced motion and reduced transparency are all covered.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.glass-page {
+  --lg-fill: rgba(255, 255, 255, 0.42);
+  --lg-fill-strong: rgba(255, 255, 255, 0.55);
+  --lg-fill-soft: rgba(255, 255, 255, 0.25);
+  --lg-edge: rgba(255, 255, 255, 0.8);
+  --lg-edge-soft: rgba(255, 255, 255, 0.46);
+  --lg-edge-strong: rgba(255, 255, 255, 0.96);
+
+  --lg-shadow:
+    0 30px 68px -32px rgba(48, 36, 22, 0.5),
+    0 6px 18px -8px rgba(48, 36, 22, 0.15);
+  --lg-shadow-hover:
+    0 40px 82px -34px rgba(48, 36, 22, 0.56),
+    0 9px 24px -10px rgba(48, 36, 22, 0.2);
+  --lg-inner:
+    inset 0 1px 0 rgba(255, 255, 255, 0.98),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.42),
+    inset 1px 0 0 rgba(255, 255, 255, 0.55),
+    inset -1px 0 0 rgba(255, 255, 255, 0.25);
+
+  --lg-blur-lg: 26px;
+  --lg-blur-sm: 16px;
+  --lg-saturate: 175%;
+
+  /* Refracted colour from the aurora. Each page can tune the two tints. */
+  --lg-tint-a: rgba(211, 164, 82, 0.2);
+  --lg-tint-b: rgba(141, 128, 190, 0.12);
+}
+
+[data-theme="dark"] .glass-page {
+  --lg-fill: rgba(30, 27, 24, 0.56);
+  --lg-fill-strong: rgba(38, 34, 30, 0.68);
+  --lg-fill-soft: rgba(30, 27, 24, 0.34);
+  --lg-edge: rgba(255, 255, 255, 0.17);
+  --lg-edge-soft: rgba(255, 255, 255, 0.09);
+  --lg-edge-strong: rgba(255, 255, 255, 0.26);
+  --lg-shadow:
+    0 30px 64px -30px rgba(0, 0, 0, 0.88),
+    0 5px 18px -8px rgba(0, 0, 0, 0.44);
+  --lg-shadow-hover:
+    0 40px 80px -32px rgba(0, 0, 0, 0.92),
+    0 8px 24px -10px rgba(0, 0, 0, 0.5);
+  --lg-inner:
+    inset 0 1px 0 rgba(255, 255, 255, 0.19),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
+    inset 1px 0 0 rgba(255, 255, 255, 0.1),
+    inset -1px 0 0 rgba(255, 255, 255, 0.04);
+}
+
+/* ── Page-specific refracted tints ─────────────────────────────────── */
+.glass-page--home {
+  --lg-tint-a: rgba(219, 169, 82, 0.31);
+  --lg-tint-b: rgba(197, 113, 91, 0.18);
+}
+.glass-page--memories {
+  --lg-tint-a: rgba(211, 164, 82, 0.29);
+  --lg-tint-b: rgba(115, 138, 183, 0.19);
+}
+.glass-page--insights {
+  --lg-tint-a: rgba(215, 163, 80, 0.28);
+  --lg-tint-b: rgba(190, 111, 87, 0.2);
+}
+.glass-page--tags {
+  --lg-tint-a: rgba(211, 166, 84, 0.29);
+  --lg-tint-b: rgba(101, 151, 137, 0.18);
+}
+.glass-page--profile,
+.glass-page--prefs {
+  --lg-tint-a: rgba(216, 169, 91, 0.29);
+  --lg-tint-b: rgba(134, 127, 190, 0.19);
+}
+.glass-page--search {
+  --lg-tint-a: rgba(211, 165, 84, 0.27);
+  --lg-tint-b: rgba(106, 140, 187, 0.2);
+}
+.glass-page--form {
+  --lg-tint-a: rgba(217, 171, 92, 0.29);
+  --lg-tint-b: rgba(113, 153, 136, 0.19);
+}
+
+[data-theme="dark"] :is(
+  .glass-page--home,
+  .glass-page--memories,
+  .glass-page--insights,
+  .glass-page--tags,
+  .glass-page--profile,
+  .glass-page--prefs,
+  .glass-page--search,
+  .glass-page--form
+) {
+  --lg-tint-a: rgba(211, 166, 90, 0.12);
+  --lg-tint-b: rgba(137, 132, 192, 0.1);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   1. THE MATERIAL
+   All requested cards and panels share one physical recipe. Size,
+   padding and radius remain owned by the page stylesheet.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.glass-page :is(
+  .stat-card,
+  .filters-bar,
+  .insight-stat-card,
+  .insight-card,
+  .insight-item,
+  .tag-editor-card,
+  .tag-stat-pill,
+  .tags-toolbar,
+  .tag-card,
+  .profile-avatar-card,
+  .profile-nav,
+  .prefs-card,
+  .search-result,
+  .card,
+  .wizard-card,
+  .face-drop,
+  .dropzone,
+  .tags-empty-state,
+  .empty-state
+) {
+  position: relative;
+  isolation: isolate;
+  background-color: var(--lg-fill);
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0) 9%, rgba(255, 255, 255, 0) 91%, rgba(255, 255, 255, 0.12) 100%),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 7%, rgba(255, 255, 255, 0) 93%, rgba(255, 255, 255, 0.1) 100%),
+    radial-gradient(120% 115% at 8% -14%, rgba(255, 255, 255, 0.72) 0%, rgba(255, 255, 255, 0.14) 31%, rgba(255, 255, 255, 0) 58%),
+    linear-gradient(132deg, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0.025) 40%, rgba(255, 255, 255, 0.14) 67%, rgba(255, 255, 255, 0.015) 100%),
+    radial-gradient(92% 125% at 100% 112%, var(--lg-tint-b) 0%, rgba(255, 255, 255, 0) 62%),
+    radial-gradient(82% 105% at 0% 0%, var(--lg-tint-a) 0%, rgba(255, 255, 255, 0) 58%);
+  border: 1px solid var(--lg-edge);
+  box-shadow: var(--lg-shadow), var(--lg-inner);
+  -webkit-backdrop-filter: blur(var(--lg-blur-lg)) saturate(var(--lg-saturate));
+  backdrop-filter: blur(var(--lg-blur-lg)) saturate(var(--lg-saturate));
+  transition:
+    border-color 0.3s ease,
+    background-color 0.3s ease,
+    box-shadow 0.35s var(--app-ease),
+    translate 0.35s var(--app-ease);
+}
+
+[data-theme="dark"] .glass-page :is(
+  .stat-card,
+  .filters-bar,
+  .insight-stat-card,
+  .insight-card,
+  .insight-item,
+  .tag-editor-card,
+  .tag-stat-pill,
+  .tags-toolbar,
+  .tag-card,
+  .profile-avatar-card,
+  .profile-nav,
+  .prefs-card,
+  .search-result,
+  .card,
+  .wizard-card,
+  .face-drop,
+  .dropzone,
+  .tags-empty-state,
+  .empty-state
+) {
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.055) 0%, rgba(255, 255, 255, 0) 9%, rgba(255, 255, 255, 0) 91%, rgba(255, 255, 255, 0.025) 100%),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0) 7%, rgba(255, 255, 255, 0) 93%, rgba(255, 255, 255, 0.025) 100%),
+    radial-gradient(125% 120% at 8% -14%, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.04) 30%, rgba(255, 255, 255, 0) 58%),
+    linear-gradient(132deg, rgba(255, 255, 255, 0.09) 0%, rgba(255, 255, 255, 0.012) 40%, rgba(255, 255, 255, 0.055) 67%, rgba(255, 255, 255, 0.006) 100%),
+    radial-gradient(92% 125% at 100% 112%, var(--lg-tint-b) 0%, rgba(255, 255, 255, 0) 62%),
+    radial-gradient(82% 105% at 0% 0%, var(--lg-tint-a) 0%, rgba(255, 255, 255, 0) 58%);
+}
+
+/* Smaller tiles do not need a 26px blur: keep the material but protect
+   scrolling performance on dense grids. */
+.glass-page :is(
+  .stat-card,
+  .insight-stat-card,
+  .tag-stat-pill,
+  .tag-card,
+  .search-result
+) {
+  -webkit-backdrop-filter: blur(var(--lg-blur-sm)) saturate(165%);
+  backdrop-filter: blur(var(--lg-blur-sm)) saturate(165%);
+}
+
+/* ── Radii: a little softer and more Apple-like ───────────────────── */
+.glass-page .stat-card,
+.glass-page .insight-stat-card { border-radius: 22px; }
+.glass-page .filters-bar { border-radius: 26px; }
+.glass-page .insight-card { border-radius: 26px; }
+.glass-page .tag-editor-card,
+.glass-page .tag-card { border-radius: 22px; }
+.glass-page .profile-avatar-card,
+.glass-page .profile-nav,
+.glass-page .prefs-card { border-radius: 24px; }
+.glass-page .search-result { border-radius: 18px; }
+.glass-page .card,
+.glass-page .wizard-card { border-radius: 28px; }
+.glass-page .face-drop,
+.glass-page .dropzone { border-radius: 22px; }
+.glass-page .tags-toolbar { border-radius: 18px; }
+.glass-page .tags-empty-state,
+.glass-page .empty-state { border-radius: 24px; }
+
+/* Empty states keep their dashed invitation while becoming glass. */
+.glass-page .empty-state,
+.glass-page .tags-empty-state {
+  border-style: dashed;
+  border-color: var(--lg-edge-soft);
+}
+
+/* ── Lift on hover, only for surfaces that invite interaction ─────── */
+.glass-page :is(
+  .stat-card,
+  .insight-stat-card,
+  .insight-card,
+  .insight-item,
+  .tag-card,
+  .search-result,
+  .prefs-card
+):hover {
+  translate: 0 -3px;
+  border-color: var(--lg-edge-strong);
+  background-color: var(--lg-fill-strong);
+  box-shadow: var(--lg-shadow-hover), var(--lg-inner);
+}
+
+/* The page stylesheets already move some of these with `transform`.
+   Reset it so the lift happens exactly once. */
+.glass-page .tag-card:hover,
+.glass-page .search-result:hover,
+.glass-page .stat-card:hover,
+.glass-page .insight-stat-card:hover {
+  transform: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   2. GLASS CONTROLS
+   Chips, segmented buttons, emoji pickers and small wells.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.glass-page :is(.filter-chip, .theme-option, .emoji-btn) {
+  background-color: var(--lg-fill-soft);
+  background-image:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.58) 0%, rgba(255, 255, 255, 0.08) 52%, rgba(255, 255, 255, 0.22) 100%);
+  border: 1px solid var(--lg-edge-soft);
+  box-shadow:
+    0 8px 18px -14px rgba(48, 36, 22, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.82);
+  color: var(--app-secondary);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  backdrop-filter: blur(12px) saturate(160%);
+}
+
+.glass-page :is(.filter-chip, .theme-option, .emoji-btn):hover {
+  background-color: var(--lg-fill-strong);
+  border-color: var(--lg-edge);
+  color: var(--app-ink);
+}
+
+.glass-page .filter-chip--active,
+.glass-page .theme-option--active {
+  background-color: var(--app-ink);
+  background-image:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 48%, rgba(255, 255, 255, 0.06) 100%);
+  border-color: color-mix(in srgb, var(--app-ink) 72%, transparent);
+  color: var(--app-paper);
+  box-shadow:
+    0 12px 26px -16px color-mix(in srgb, var(--app-ink) 72%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.glass-page .theme-selector {
+  background-color: var(--lg-fill-soft);
+  background-image: linear-gradient(145deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.04));
+  border: 1px solid var(--lg-edge-soft);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.64),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.14);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  backdrop-filter: blur(14px) saturate(160%);
+}
+
+[data-theme="dark"] .glass-page :is(.filter-chip, .theme-option, .emoji-btn) {
+  background-image:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.012) 52%, rgba(255, 255, 255, 0.045) 100%);
+  box-shadow:
+    0 10px 20px -16px rgba(0, 0, 0, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+[data-theme="dark"] .glass-page .theme-selector {
+  background-image: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.008));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.035);
+}
+
+/* The filter bar's search field becomes a small glass well. */
+.glass-page .filters-bar .search-wrapper {
+  background-color: var(--lg-fill-soft);
+  background-image: linear-gradient(145deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0.045));
+  border: 1px solid var(--lg-edge-soft);
+  border-radius: 999px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.16);
+}
+
+.glass-page .filters-bar .search-wrapper:focus-within {
+  border-color: color-mix(in srgb, var(--app-ink) 28%, var(--lg-edge));
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--app-ink) 8%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+[data-theme="dark"] .glass-page .filters-bar .search-wrapper {
+  background-image: linear-gradient(145deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.006));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.03);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   3. GLASS FIELDS
+   Inputs read as recessed glass, not opaque boxes.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.glass-page :is(
+  .form-input,
+  .form-select,
+  .form-textarea,
+  .pref-input-time,
+  input[type="date"],
+  input[type="time"],
+  input[type="datetime-local"],
+  .profile-form input[type="text"],
+  .profile-form input[type="email"],
+  .profile-form input[type="password"]
+) {
+  background-color: rgba(255, 255, 255, 0.32);
+  background-image: linear-gradient(145deg, rgba(255, 255, 255, 0.38), rgba(255, 255, 255, 0.04));
+  border: 1px solid var(--lg-edge-soft);
+  border-radius: 15px;
+  color: var(--app-ink);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.76),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.18);
+  -webkit-backdrop-filter: blur(10px) saturate(145%);
+  backdrop-filter: blur(10px) saturate(145%);
+  transition:
+    border-color 0.22s ease,
+    background-color 0.22s ease,
+    box-shadow 0.22s ease;
+}
+
+.glass-page :is(
+  .form-input,
+  .form-select,
+  .form-textarea,
+  .pref-input-time,
+  input[type="date"],
+  input[type="time"],
+  input[type="datetime-local"]
+):hover {
+  border-color: var(--lg-edge);
+}
+
+.glass-page :is(
+  .form-input,
+  .form-select,
+  .form-textarea,
+  .pref-input-time,
+  input[type="date"],
+  input[type="time"],
+  input[type="datetime-local"],
+  .profile-form input[type="text"],
+  .profile-form input[type="email"],
+  .profile-form input[type="password"]
+):focus {
+  background-color: rgba(255, 255, 255, 0.48);
+  border-color: color-mix(in srgb, var(--app-ink) 34%, var(--lg-edge));
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--app-ink) 9%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.88),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.glass-page .form-textarea::placeholder,
+.glass-page .form-input::placeholder,
+.glass-page .pref-input-time::placeholder {
+  color: color-mix(in srgb, var(--app-tertiary) 88%, transparent);
+}
+
+[data-theme="dark"] .glass-page :is(
+  .form-input,
+  .form-select,
+  .form-textarea,
+  .pref-input-time,
+  input[type="date"],
+  input[type="time"],
+  input[type="datetime-local"],
+  .profile-form input[type="text"],
+  .profile-form input[type="email"],
+  .profile-form input[type="password"]
+) {
+  background-color: rgba(18, 15, 13, 0.4);
+  background-image: linear-gradient(145deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.006));
+  border-color: var(--lg-edge-soft);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.025);
+}
+
+[data-theme="dark"] .glass-page :is(
+  .form-input,
+  .form-select,
+  .form-textarea,
+  .pref-input-time,
+  input[type="date"],
+  input[type="time"],
+  input[type="datetime-local"],
+  .profile-form input[type="text"],
+  .profile-form input[type="email"],
+  .profile-form input[type="password"]
+):focus {
+  background-color: rgba(25, 21, 18, 0.58);
+  border-color: rgba(216, 185, 124, 0.5);
+  box-shadow:
+    0 0 0 4px rgba(200, 150, 62, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+/* Autofill must not paint an opaque rectangle over the glass. */
+.glass-page input:-webkit-autofill,
+.glass-page input:-webkit-autofill:hover,
+.glass-page input:-webkit-autofill:focus,
+.glass-page textarea:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px color-mix(in srgb, var(--app-paper) 82%, transparent) inset;
+  -webkit-text-fill-color: var(--app-ink);
+  caret-color: var(--app-ink);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   4. PAGE-SPECIFIC DETAILS
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Home · stats band ─────────────────────────────────────────────── */
+.glass-page--home .stat-card {
+  padding: 22px 24px;
+}
+
+.glass-page--home .stat-value {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Memories · filters ────────────────────────────────────────────── */
+.glass-page--memories .filters-bar {
+  padding: 22px 24px;
+}
+
+.glass-page--memories .filter-chips {
+  gap: 9px;
+}
+
+.glass-page--memories .filter-row {
+  padding-top: 4px;
+}
+
+.glass-page--memories .filter-group .form-input {
+  min-height: 40px;
+}
+
+/* ── Insights ───────────────────────────────────────────────────────── */
+.glass-page--insights .insight-card {
+  padding: 26px 28px;
+}
+
+.glass-page--insights .insight-card-header {
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--lg-edge-soft);
+}
+
+.glass-page--insights .insight-card-title {
+  font-weight: 500;
+}
+
+.glass-page--insights .insight-item {
+  padding: 18px 20px;
+}
+
+.glass-page--insights .insight-item + .insight-item {
+  margin-top: 2px;
+}
+
+.glass-page--insights .freq-stat {
+  background-color: var(--lg-fill-soft);
+  background-image: linear-gradient(145deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.035));
+  border: 1px solid var(--lg-edge-soft);
+  border-radius: 16px;
+  padding: 14px 16px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.64);
+}
+
+[data-theme="dark"] .glass-page--insights .freq-stat {
+  background-image: linear-gradient(145deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.006));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* ── Tags ───────────────────────────────────────────────────────────── */
+.glass-page--tags .tag-editor-card {
+  padding: 24px 24px 26px;
+}
+
+.glass-page--tags .tag-editor-header {
+  border-bottom-color: var(--lg-edge-soft);
+}
+
+.glass-page--tags .tag-preview-box {
+  background-color: var(--lg-fill-soft);
+  background-image: linear-gradient(145deg, rgba(255, 255, 255, 0.36), rgba(255, 255, 255, 0.035));
+  border: 1.5px dashed var(--lg-edge-soft);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.58),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.12);
+}
+
+[data-theme="dark"] .glass-page--tags .tag-preview-box {
+  background-image: linear-gradient(145deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.006));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.025);
+}
+
+.glass-page--tags .tag-pill-preview {
+  box-shadow:
+    0 8px 22px -12px currentColor,
+    inset 0 1px 0 rgba(255, 255, 255, 0.42);
+}
+
+.glass-page--tags .tags-toolbar {
+  padding: 7px 16px;
+}
+
+.glass-page--tags .tags-toolbar:focus-within {
+  border-color: color-mix(in srgb, var(--app-ink) 30%, var(--lg-edge));
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--app-ink) 9%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+
+.glass-page--tags .tag-stat-pill {
+  padding: 11px 18px;
+}
+
+.glass-page--tags .tag-card {
+  padding: 19px 21px 17px;
+}
+
+.glass-page--tags .tag-card-footer {
+  border-top-color: var(--lg-edge-soft);
+}
+
+.glass-page--tags .tag-btn-action {
+  background-color: transparent;
+  border: 1px solid transparent;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+.glass-page--tags .tag-btn-action:hover {
+  background-color: var(--lg-fill-strong);
+  border-color: var(--lg-edge-soft);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.glass-page--tags .tags-empty-icon {
+  background-color: var(--lg-fill-strong);
+  border: 1px solid var(--lg-edge-soft);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+/* ── Profile & preferences ─────────────────────────────────────────── */
+.glass-page--profile .profile-avatar-img,
+.glass-page--prefs .profile-avatar-img {
+  box-shadow:
+    0 0 0 4px rgba(255, 255, 255, 0.42),
+    0 14px 30px -14px rgba(48, 36, 22, 0.4);
+}
+
+[data-theme="dark"] .glass-page--profile .profile-avatar-img,
+[data-theme="dark"] .glass-page--prefs .profile-avatar-img {
+  box-shadow:
+    0 0 0 4px rgba(255, 255, 255, 0.1),
+    0 14px 30px -14px rgba(0, 0, 0, 0.8);
+}
+
+.glass-page .profile-nav-item {
+  border-bottom-color: var(--lg-edge-soft);
+}
+
+.glass-page .profile-nav-item:hover {
+  background-color: var(--lg-fill-strong);
+  color: var(--app-ink);
+}
+
+.glass-page .profile-nav-item.active,
+[data-theme="dark"] .glass-page .profile-nav-item.active {
+  background-color: var(--app-ink);
+  background-image:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0) 55%);
+  color: var(--app-paper);
+  border-color: transparent;
+  box-shadow:
+    0 12px 24px -16px color-mix(in srgb, var(--app-ink) 75%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.glass-page--prefs .prefs-card {
+  padding: 26px 30px 30px;
+}
+
+.glass-page--prefs .prefs-card-header {
+  border-bottom-color: var(--lg-edge-soft);
+}
+
+.glass-page--prefs .pref-item {
+  border-bottom-color: var(--lg-edge-soft);
+}
+
+.glass-page--prefs .prefs-card-icon {
+  background-color: var(--lg-fill-strong);
+  background-image: linear-gradient(145deg, rgba(255, 255, 255, 0.58), rgba(255, 255, 255, 0.06));
+  border: 1px solid var(--lg-edge-soft);
+  border-radius: 12px;
+  box-shadow:
+    0 8px 18px -14px rgba(48, 36, 22, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  color: var(--app-ink);
+}
+
+[data-theme="dark"] .glass-page--prefs .prefs-card-icon {
+  background-image: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.01));
+  box-shadow:
+    0 8px 18px -14px rgba(0, 0, 0, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+.glass-page--prefs .toggle-track {
+  background-color: var(--lg-fill-soft);
+  border: 1px solid var(--lg-edge-soft);
+  box-shadow:
+    inset 0 1px 3px rgba(48, 36, 22, 0.16),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.28);
+}
+
+.glass-page--prefs .toggle-switch input:checked + .toggle-track,
+[data-theme="dark"] .glass-page--prefs .toggle-switch input:checked + .toggle-track {
+  background-color: var(--app-ink);
+  background-image: linear-gradient(145deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0) 60%);
+  border-color: color-mix(in srgb, var(--app-ink) 70%, transparent);
+  box-shadow:
+    0 8px 16px -12px color-mix(in srgb, var(--app-ink) 70%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.glass-page--prefs .prefs-sticky-bar {
+  background-color: var(--lg-fill-strong);
+  background-image:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.38), rgba(255, 255, 255, 0.035));
+  border: 1px solid var(--lg-edge);
+  box-shadow: var(--lg-shadow), var(--lg-inner);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(24px) saturate(180%);
+}
+
+[data-theme="dark"] .glass-page--prefs .prefs-sticky-bar {
+  background-image:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.006));
+}
+
+.glass-page .card--danger {
+  background-image:
+    radial-gradient(120% 115% at 8% -14%, rgba(255, 255, 255, 0.78) 0%, rgba(255, 255, 255, 0.16) 31%, rgba(255, 255, 255, 0) 58%),
+    linear-gradient(132deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.03) 40%, rgba(255, 255, 255, 0.14) 67%, rgba(255, 255, 255, 0.02) 100%),
+    radial-gradient(100% 130% at 100% 110%, rgba(192, 57, 43, 0.12) 0%, rgba(255, 255, 255, 0) 58%),
+    radial-gradient(82% 105% at 0% 0%, var(--lg-tint-a) 0%, rgba(255, 255, 255, 0) 58%);
+  border-color: rgba(192, 57, 43, 0.2);
+}
+
+[data-theme="dark"] .glass-page .card--danger {
+  background-image:
+    radial-gradient(125% 120% at 8% -14%, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.03) 30%, rgba(255, 255, 255, 0) 58%),
+    linear-gradient(132deg, rgba(255, 255, 255, 0.075) 0%, rgba(255, 255, 255, 0.01) 40%, rgba(255, 255, 255, 0.045) 67%, rgba(255, 255, 255, 0.005) 100%),
+    radial-gradient(100% 130% at 100% 110%, rgba(192, 57, 43, 0.16) 0%, rgba(255, 255, 255, 0) 58%),
+    radial-gradient(82% 105% at 0% 0%, var(--lg-tint-a) 0%, rgba(255, 255, 255, 0) 58%);
+  border-color: rgba(248, 113, 113, 0.18);
+}
+
+/* ── Search ─────────────────────────────────────────────────────────── */
+.glass-page--search .search-result {
+  padding: 13px 14px;
+}
+
+.glass-page--search .search-result__media {
+  background-color: var(--lg-fill-soft);
+  border: 1px solid var(--lg-edge-soft);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.64),
+    0 8px 16px -14px rgba(48, 36, 22, 0.42);
+}
+
+.glass-page--search .search-result__badge {
+  background-color: var(--lg-fill-soft);
+  border: 1px solid var(--lg-edge-soft);
+  border-radius: 999px;
+  padding: 4px 9px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.56);
+}
+
+/* ── Forms · persons + journal ─────────────────────────────────────── */
+.glass-page--form .card {
+  padding: 28px;
+}
+
+.glass-page--form .card-header {
+  border-bottom-color: var(--lg-edge-soft);
+}
+
+.glass-page--form .wizard-card {
+  padding: 28px 28px 8px;
+}
+
+.glass-page--form .wizard-steps {
+  margin-bottom: 16px;
+}
+
+.glass-page--form .wizard-step__num {
+  background-color: var(--lg-fill-soft);
+  background-image: linear-gradient(145deg, rgba(255, 255, 255, 0.56), rgba(255, 255, 255, 0.04));
+  border: 1px solid var(--lg-edge-soft);
+  box-shadow:
+    0 8px 18px -14px rgba(48, 36, 22, 0.36),
+    inset 0 1px 0 rgba(255, 255, 255, 0.78);
+  color: var(--app-secondary);
+}
+
+.glass-page--form .wizard-step.is-active .wizard-step__num {
+  background-color: var(--app-ink);
+  background-image: linear-gradient(145deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0) 60%);
+  border-color: transparent;
+  color: var(--app-paper);
+}
+
+.glass-page--form .wizard-step__line {
+  background-color: var(--lg-fill-soft);
+  border: 1px solid var(--lg-edge-soft);
+  box-shadow: inset 0 1px 2px rgba(48, 36, 22, 0.12);
+}
+
+[data-theme="dark"] .glass-page--form .wizard-step__num {
+  background-image: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.008));
+  box-shadow:
+    0 8px 18px -14px rgba(0, 0, 0, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.glass-page--form .face-drop,
+.glass-page--form .dropzone {
+  border-style: dashed;
+  border-color: var(--lg-edge-soft);
+  background-color: var(--lg-fill-soft);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.58),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.glass-page--form .face-drop:hover,
+.glass-page--form .dropzone:hover {
+  border-color: var(--lg-edge);
+  background-color: var(--lg-fill-strong);
+}
+
+.glass-page--form .face-drop--over,
+.glass-page--form .dropzone--over {
+  border-color: color-mix(in srgb, var(--app-ink) 42%, var(--lg-edge));
+  border-style: solid;
+  background-color: var(--lg-fill-strong);
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--app-ink) 8%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.glass-page--form .face-drop__preview {
+  background-color: var(--lg-fill-soft);
+  border: 1px solid var(--lg-edge-soft);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.glass-page--form .cover-picker__preview {
+  background-color: var(--lg-fill-soft);
+  border: 1px dashed var(--lg-edge-soft);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.56),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.glass-page--form .cover-picker__preview:not(.is-empty) {
+  border-style: solid;
+  border-color: var(--lg-edge-soft);
+  box-shadow: var(--lg-shadow), var(--lg-inner);
+}
+
+.glass-page--form .editor-toolbar {
+  background-color: var(--lg-fill-soft);
+  border-color: var(--lg-edge-soft);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.56);
+}
+
+.glass-page--form .editor-tool:hover {
+  background-color: var(--lg-fill-strong);
+}
+
+.glass-page--form .editor-toolbar + .form-textarea {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.glass-page--form .wizard-nav {
+  background-color: var(--lg-fill-strong);
+  background-image:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.035));
+  border: 1px solid var(--lg-edge);
+  box-shadow: var(--lg-shadow), var(--lg-inner);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(24px) saturate(180%);
+}
+
+[data-theme="dark"] .glass-page--form .wizard-nav {
+  background-image:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.065), rgba(255, 255, 255, 0.006));
+}
+
+.glass-page--form .place-search,
+.glass-page--form .place-selected {
+  background-color: var(--lg-fill-soft);
+  border: 1px solid var(--lg-edge-soft);
+  border-radius: 16px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.56);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   5. RESPONSIVE, MOTION & TRANSPARENCY
+   ═══════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 640px) {
+  .glass-page :is(
+    .stat-card,
+    .filters-bar,
+    .insight-stat-card,
+    .insight-card,
+    .tag-editor-card,
+    .tag-card,
+    .profile-avatar-card,
+    .profile-nav,
+    .prefs-card,
+    .card,
+    .wizard-card
+  ) {
+    -webkit-backdrop-filter: blur(18px) saturate(155%);
+    backdrop-filter: blur(18px) saturate(155%);
+  }
+
+  .glass-page--prefs .prefs-card,
+  .glass-page--insights .insight-card,
+  .glass-page--form .card,
+  .glass-page--form .wizard-card {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .glass-page .filters-bar {
+    padding: 18px;
+  }
+}
+
+.reduce-motion .glass-page :is(
+  .stat-card,
+  .filters-bar,
+  .insight-stat-card,
+  .insight-card,
+  .insight-item,
+  .tag-editor-card,
+  .tag-stat-pill,
+  .tags-toolbar,
+  .tag-card,
+  .profile-avatar-card,
+  .profile-nav,
+  .prefs-card,
+  .search-result,
+  .card,
+  .wizard-card,
+  .face-drop,
+  .dropzone,
+  .empty-state,
+  .filter-chip,
+  .theme-option,
+  .emoji-btn
+) {
+  transition: none;
+}
+
+.reduce-motion .glass-page :is(
+  .stat-card,
+  .insight-stat-card,
+  .insight-card,
+  .insight-item,
+  .tag-card,
+  .search-result,
+  .prefs-card
+):hover {
+  translate: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glass-page :is(
+    .stat-card,
+    .filters-bar,
+    .insight-stat-card,
+    .insight-card,
+    .insight-item,
+    .tag-editor-card,
+    .tag-stat-pill,
+    .tags-toolbar,
+    .tag-card,
+    .profile-avatar-card,
+    .profile-nav,
+    .prefs-card,
+    .search-result,
+    .card,
+    .wizard-card,
+    .face-drop,
+    .dropzone,
+    .empty-state,
+    .filter-chip,
+    .theme-option,
+    .emoji-btn
+  ) {
+    transition: none;
+  }
+
+  .glass-page :is(
+    .stat-card,
+    .insight-stat-card,
+    .insight-card,
+    .insight-item,
+    .tag-card,
+    .search-result,
+    .prefs-card
+  ):hover {
+    translate: none;
+  }
+}
+
+/* Users who ask for less transparency get the layout without the blur. */
+@media (prefers-reduced-transparency: reduce) {
+  .glass-page :is(
+    .stat-card,
+    .filters-bar,
+    .insight-stat-card,
+    .insight-card,
+    .insight-item,
+    .tag-editor-card,
+    .tag-stat-pill,
+    .tags-toolbar,
+    .tag-card,
+    .profile-avatar-card,
+    .profile-nav,
+    .prefs-card,
+    .search-result,
+    .card,
+    .wizard-card,
+    .face-drop,
+    .dropzone,
+    .empty-state,
+    .wizard-nav,
+    .prefs-sticky-bar
+  ) {
+    background-color: var(--app-paper);
+    background-image: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+/* Browsers without backdrop blur still get the layered translucent fill. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass-page :is(
+    .stat-card,
+    .filters-bar,
+    .insight-stat-card,
+    .insight-card,
+    .insight-item,
+    .tag-editor-card,
+    .tag-stat-pill,
+    .tags-toolbar,
+    .tag-card,
+    .profile-avatar-card,
+    .profile-nav,
+    .prefs-card,
+    .search-result,
+    .card,
+    .wizard-card,
+    .face-drop,
+    .dropzone,
+    .empty-state
+  ) {
+    background-color: color-mix(in srgb, var(--app-paper) 90%, transparent);
+  }
+}

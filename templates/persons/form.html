@@ -3,7 +3,7 @@
 {% block title %}{% if person %}{% trans_text "Modifier" "Edit" %}{% else %}{% trans_text "Ajouter" "Add" %}{% endif %} {{ person.name|default:'' }} — MemoAI{% endblock %}
 
 {% block content %}
-<div class="container container--narrow">
+<div class="container container--narrow glass-page glass-page--form">
   <div class="page-header reveal">
     <div>
       <p class="eyebrow">{% trans_text "PERSONNES" "PEOPLE" %}</p>
