@@ -7,15 +7,18 @@ import json
 import logging
 import threading
 from datetime import date, timedelta
+from urllib.parse import urlencode, urlparse
 
+import requests
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.http import JsonResponse
+from django.http import HttpResponseBadRequest, JsonResponse, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.templatetags.static import static
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views import View
@@ -631,6 +634,214 @@ class MemoryPhotoWallView(View):
             'next_page': page + 1,
             'total': len(photos),
         })
+
+
+# ───────────────────────────────────────────────────────────────────────────
+# Cinematic reel studio
+# ───────────────────────────────────────────────────────────────────────────
+
+# The browser-side exporter renders a 1080p MP4. Keeping the selection short
+# makes the real-time encoding reliable and the resulting film pleasant.
+_REEL_MAX_PHOTOS = 12
+
+
+def _memory_period(entries, photos):
+    """Readable year range for the reel intro/outro cards."""
+    years = {entry.entry_date.year for entry in entries} | {photo['year'] for photo in photos}
+    ordered = sorted(years)
+    if len(ordered) > 1:
+        return f'{ordered[0]}—{ordered[-1]}'
+    if ordered:
+        return str(ordered[-1])
+    return str(timezone.localdate().year)
+
+
+def _reel_labels(lang):
+    """Every string the reel JavaScript needs at runtime."""
+    if lang == 'en':
+        return {
+            'minPhotos': 'Choose at least 2 photos to create a reel.',
+            'maxPhotos': f'You can select up to {_REEL_MAX_PHOTOS} photos.',
+            'select': 'Select',
+            'cancel': 'Cancel',
+            'clear': 'Clear',
+            'create': 'Create the reel',
+            'selected': '{n} selected',
+            'exporting': 'Rendering your film…',
+            'exportHint': 'Keep this tab visible. The export runs in real time.',
+            'exportDone': 'Your film is ready.',
+            'download': 'Download the MP4',
+            'exportError': 'The export failed. Try again with fewer photos.',
+            'exportUnsupported': 'This browser cannot record video. Try a recent version of Chrome, Edge or Safari.',
+            'musicError': 'Music search is unavailable. Import your own audio file instead.',
+            'musicEmpty': 'No result. Try another mood or style.',
+            'musicLoading': 'Searching…',
+            'uploadError': 'Choose an audio file smaller than 20 MB.',
+            'musicSelected': 'Selected music',
+            'photos': 'photos',
+            'untitled': 'Untitled',
+        }
+    return {
+        'minPhotos': 'Choisissez au moins 2 photos pour créer un reel.',
+        'maxPhotos': f'Vous pouvez sélectionner jusqu’à {_REEL_MAX_PHOTOS} photos.',
+        'select': 'Sélectionner',
+        'cancel': 'Annuler',
+        'clear': 'Effacer',
+        'create': 'Créer le reel',
+        'selected': '{n} sélectionnée(s)',
+        'exporting': 'Création de votre film…',
+        'exportHint': 'Gardez cet onglet visible. L’export se fait en temps réel.',
+        'exportDone': 'Votre film est prêt.',
+        'download': 'Télécharger le MP4',
+        'exportError': 'L’export a échoué. Réessayez avec moins de photos.',
+        'exportUnsupported': 'Ce navigateur ne peut pas enregistrer de vidéo. Essayez une version récente de Chrome, Edge ou Safari.',
+        'musicError': 'La recherche musicale est indisponible. Importez votre propre fichier audio.',
+        'musicEmpty': 'Aucun résultat. Essayez une autre ambiance ou un autre style.',
+        'musicLoading': 'Recherche…',
+        'uploadError': 'Choisissez un fichier audio de moins de 20 Mo.',
+        'musicSelected': 'Musique sélectionnée',
+        'photos': 'photos',
+        'untitled': 'Sans titre',
+    }
+
+
+@method_decorator(login_required, name='dispatch')
+class ReelStudioView(View):
+    """Studio for turning chosen memories into a cinematic MP4 reel."""
+
+    def get(self, request):
+        photos, entries, lang = _collect_memory_photos(request.user)
+        period = _memory_period(entries, photos)
+
+        # Only serialisable, display-ready fields reach the browser.
+        reel_photos = [
+            {
+                'id': str(index),
+                'src': photo['large_url'],
+                'thumb': photo['thumb_url'],
+                'title': photo['title'],
+                'date': photo['date_label'],
+                'number': photo['number'],
+            }
+            for index, photo in enumerate(photos)
+        ]
+
+        return render(request, 'journal/reel_studio.html', {
+            'reel_photos': reel_photos,
+            'reel_period': period,
+            'reel_final_quote': _MEMORY_FINAL_QUOTES[lang],
+            'reel_max': _REEL_MAX_PHOTOS,
+            'reel_labels': _reel_labels(lang),
+            'reel_default_count': min(6, len(reel_photos)),
+            'memory_mode': False,
+        })
+
+
+# iTunes Search API powers the free music picker: no API key, 30-second
+# previews. Audio is proxied so Web Audio / MediaRecorder can capture it
+# without CORS issues.
+_MUSIC_SEARCH_ENDPOINT = 'https://itunes.apple.com/search'
+
+
+def _music_preview_allowed(url):
+    """Only proxy Apple-hosted previews (prevents SSRF)."""
+    try:
+        parsed = urlparse(url)
+    except (TypeError, ValueError):
+        return False
+    if parsed.scheme != 'https':
+        return False
+    host = (parsed.hostname or '').lower()
+    return (
+        host == 'audio-ssl.itunes.apple.com'
+        or host.endswith('.apple.com')
+        or host.endswith('.mzstatic.com')
+    )
+
+
+@login_required
+def music_search(request):
+    """JSON search over the free iTunes catalogue (previews only)."""
+    query = (request.GET.get('q') or '').strip()
+    if not query:
+        return JsonResponse({'tracks': []})
+
+    lang = str(getattr(request, 'LANGUAGE_CODE', 'fr') or 'fr').lower()
+    params = {
+        'term': query,
+        'media': 'music',
+        'entity': 'song',
+        'limit': '12',
+        'country': 'FR' if lang.startswith('fr') else 'US',
+    }
+
+    try:
+        upstream = requests.get(
+            _MUSIC_SEARCH_ENDPOINT,
+            params=params,
+            timeout=(5, 10),
+            headers={'User-Agent': 'MemoAI/1.0 (cinematic reel studio)'},
+        )
+        upstream.raise_for_status()
+        payload = upstream.json()
+    except (requests.RequestException, ValueError):
+        logger.warning('Music search unavailable', exc_info=True)
+        return JsonResponse({'tracks': [], 'error': 'unavailable'})
+
+    tracks = []
+    for item in payload.get('results', []):
+        preview = item.get('previewUrl') or ''
+        if not preview:
+            continue
+        artwork = (item.get('artworkUrl100') or '').replace('100x100bb', '300x300bb')
+        tracks.append({
+            'id': str(item.get('trackId') or ''),
+            'title': item.get('trackName') or '',
+            'artist': item.get('artistName') or '',
+            'album': item.get('collectionName') or '',
+            'artwork': artwork,
+            'duration': 30,
+            'preview': reverse('journal:music-audio') + '?' + urlencode({'url': preview}),
+        })
+
+    return JsonResponse({'tracks': tracks})
+
+
+@login_required
+def music_audio(request):
+    """Stream an Apple preview through the app origin for Web Audio capture."""
+    url = request.GET.get('url') or ''
+    if not _music_preview_allowed(url):
+        return HttpResponseBadRequest('Invalid music source')
+
+    try:
+        upstream = requests.get(
+            url,
+            stream=True,
+            timeout=(5, 20),
+            headers={'User-Agent': 'MemoAI/1.0 (cinematic reel studio)'},
+        )
+        upstream.raise_for_status()
+    except requests.RequestException:
+        logger.warning('Music preview unavailable', exc_info=True)
+        return HttpResponseBadRequest('Music preview unavailable')
+
+    def chunks():
+        try:
+            for chunk in upstream.iter_content(chunk_size=64 * 1024):
+                if chunk:
+                    yield chunk
+        finally:
+            upstream.close()
+
+    response = StreamingHttpResponse(
+        chunks(),
+        content_type=upstream.headers.get('Content-Type', 'audio/mp4'),
+    )
+    if upstream.headers.get('Content-Length'):
+        response['Content-Length'] = upstream.headers['Content-Length']
+    response['Cache-Control'] = 'private, max-age=3600'
+    return response
 
 
 @method_decorator(login_required, name='dispatch')
