@@ -678,6 +678,11 @@ def _reel_labels(lang):
             'musicLoading': 'Searching…',
             'uploadError': 'Choose an audio file smaller than 20 MB.',
             'musicSelected': 'Selected music',
+            'musicPlay': 'Preview',
+            'musicPick': 'Use this track',
+            'imageError': 'Some photos could not be loaded for the film.',
+            'audioError': 'This audio file cannot be read by the browser.',
+            'exportingProgress': 'Rendering… {n}%',
             'photos': 'photos',
             'untitled': 'Untitled',
         }
@@ -700,6 +705,11 @@ def _reel_labels(lang):
         'musicLoading': 'Recherche…',
         'uploadError': 'Choisissez un fichier audio de moins de 20 Mo.',
         'musicSelected': 'Musique sélectionnée',
+        'musicPlay': 'Écouter',
+        'musicPick': 'Choisir ce titre',
+        'imageError': 'Certaines photos n’ont pas pu être chargées pour le film.',
+        'audioError': 'Le navigateur ne peut pas lire ce fichier audio.',
+        'exportingProgress': 'Création… {n} %',
         'photos': 'photos',
         'untitled': 'Sans titre',
     }
