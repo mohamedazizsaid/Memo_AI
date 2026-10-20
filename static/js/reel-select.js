@@ -106,8 +106,10 @@
     }
 
     // Full-tile links keep their normal behaviour outside selection mode.
+    // CSS removes their pointer target while selecting so a click anywhere
+    // on the tile reaches this controller instead of following the link.
     wall.querySelectorAll('.photo-tile__link').forEach(function (link) {
-      link.inert = on;
+      link.tabIndex = on ? -1 : 0;
     });
   }
 
@@ -177,7 +179,7 @@
     var observer = new MutationObserver(function () {
       if (!selecting) return;
       wall.querySelectorAll('.photo-tile__link').forEach(function (link) {
-        link.inert = true;
+        link.tabIndex = -1;
       });
       refreshTiles();
     });

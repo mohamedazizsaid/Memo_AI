@@ -783,6 +783,11 @@
   color: var(--app-paper);
 }
 
+.reel-music-result__play.is-playing {
+  background: color-mix(in srgb, var(--app-ink) 10%, transparent);
+  color: var(--app-ink);
+}
+
 .reel-note {
   margin: 10px 0 0;
   font-family: var(--app-font, inherit);
@@ -940,6 +945,8 @@
   border-radius: 10px;
   overflow: hidden;
   background: color-mix(in srgb, var(--app-ink) 4%, transparent);
+  cursor: ew-resize;
+  touch-action: none;
 }
 
 .reel-wave {

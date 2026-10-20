@@ -637,7 +637,14 @@
     var music = state.music;
     var length = Math.max(0.1, music.end - music.start);
     var target = music.start + (Math.max(0, time) % length);
-    if (audio.ended) return;
+    if (audio.ended) {
+      if (state.playing || state.exporting) {
+        try { audio.currentTime = music.start; } catch (error) { /* ignore */ }
+        var restart = audio.play();
+        if (restart && restart.catch) restart.catch(function () {});
+      }
+      return;
+    }
     if (Math.abs(audio.currentTime - target) > 0.38) {
       try { audio.currentTime = target; } catch (error) { /* metadata still loading */ }
     }
@@ -665,6 +672,8 @@
     state.raf = 0;
     if (pauseMusic !== false && state.music) {
       try { audio.pause(); } catch (error) { /* ignore */ }
+      state.listening = false;
+      setMusicPreviewState(false);
     }
     updateTransport();
   }
@@ -687,12 +696,8 @@
 
   function startPlayback() {
     if (state.exporting || !state.selected.length) return;
-    if (!state.imagesReady) {
-      ensureImages(state.selected).then(function () {
-        if (state.imagesReady) startPlayback();
-      });
-      return;
-    }
+    // Images keep loading in the background; the preview redraws every frame,
+    // so a slow photo simply appears as soon as it is decoded.
     if (state.playing) {
       stopPlayback();
       return;
@@ -812,6 +817,19 @@
     }
   }
 
+  function setMusicPreviewState(active) {
+    if (!musicPreview) return;
+    musicPreview.classList.toggle('is-playing', active);
+    musicPreview.setAttribute('aria-pressed', active ? 'true' : 'false');
+    for (var i = musicPreview.childNodes.length - 1; i >= 0; i -= 1) {
+      var node = musicPreview.childNodes[i];
+      if (node.nodeType === 3 && node.nodeValue.trim()) {
+        node.nodeValue = ' ' + (active ? 'Pause' : (isEnglish ? 'Listen' : 'Écouter'));
+        break;
+      }
+    }
+  }
+
   function resetTrackUI() {
     if (track) track.hidden = true;
     if (trackArt) {
@@ -820,10 +838,7 @@
     }
     if (trackTitle) trackTitle.textContent = '';
     if (trackArtist) trackArtist.textContent = '';
-    if (musicPreview) {
-      musicPreview.classList.remove('is-playing');
-      musicPreview.setAttribute('aria-pressed', 'false');
-    }
+    setMusicPreviewState(false);
     state.listening = false;
     updateTrimUI();
   }
@@ -838,9 +853,11 @@
       audio.load();
     }
     state.music = {
+      id: music.id || '',
       src: music.src,
       title: music.title || labels.untitled,
       artist: music.artist || (isEnglish ? 'Uploaded file' : 'Fichier importé'),
+      album: music.album || '',
       artwork: music.artwork || '',
       duration: Number(music.duration) || 30,
       start: 0,
@@ -960,6 +977,7 @@
     musicResults.querySelectorAll('.reel-music-result__play').forEach(function (button) {
       button.classList.remove('is-playing');
       button.setAttribute('aria-pressed', 'false');
+      button.innerHTML = makeIcon('play');
     });
   }
 
@@ -986,6 +1004,7 @@
     if (button) {
       button.classList.add('is-playing');
       button.setAttribute('aria-pressed', 'true');
+      button.innerHTML = makeIcon('pause');
     }
   }
 
@@ -1043,7 +1062,15 @@
     pick.setAttribute('aria-label', labels.musicPick);
     pick.innerHTML = makeIcon('pick');
     pick.addEventListener('click', function () {
-      selectMusic(trackItem);
+      selectMusic({
+        id: trackItem.id,
+        src: trackItem.preview,
+        title: trackItem.title,
+        artist: trackItem.artist,
+        album: trackItem.album,
+        artwork: trackItem.artwork,
+        duration: trackItem.duration
+      });
       previewAudio.pause();
     });
 
@@ -1218,6 +1245,11 @@
       return;
     }
 
+    // Lock the action immediately: loading the source photos can take a
+    // moment and a second click must not start a parallel recording.
+    state.exporting = true;
+    if (exportBtn) exportBtn.disabled = true;
+
     ensureImages(state.selected).then(function (results) {
       if (!results.every(Boolean)) notify(labels.imageError, 'error');
 
@@ -1227,7 +1259,7 @@
       exportCanvas.height = dims[1];
       var exportCtx = exportCanvas.getContext('2d');
       if (!exportCtx) {
-        notify(labels.exportUnsupported, 'error');
+        failExport(labels.exportUnsupported);
         return;
       }
 
@@ -1235,7 +1267,7 @@
       try {
         stream = exportCanvas.captureStream(30);
       } catch (error) {
-        notify(labels.exportUnsupported, 'error');
+        failExport(labels.exportUnsupported);
         return;
       }
 
@@ -1261,7 +1293,7 @@
         try {
           recorder = new MediaRecorder(stream);
         } catch (fallbackError) {
-          notify(labels.exportUnsupported, 'error');
+          failExport(labels.exportUnsupported);
           return;
         }
       }
@@ -1305,7 +1337,7 @@
         if (exportProgress) exportProgress.hidden = false;
         setExportProgress(100, labels.exportDone);
 
-        var actualMime = mimeType || 'video/webm';
+        var actualMime = (recorder && recorder.mimeType) || mimeType || 'video/webm';
         var blob = new Blob(chunks, { type: actualMime });
         if (!blob.size) {
           setExportProgress(0, labels.exportError);
@@ -1360,19 +1392,23 @@
 
       function renderExportFrame(now) {
         if (completed) return;
-        var elapsed = (now - startedAt) / 1000;
-        var time = Math.min(total, elapsed);
-        drawFrame(exportCtx, dims[0], dims[1], time);
-        syncAudio(time);
-        setExportProgress((time / Math.max(0.1, total)) * 100);
-        if (time < total) {
-          requestAnimationFrame(renderExportFrame);
-        } else {
-          setTimeout(function () {
-            if (!completed && recorder.state !== 'inactive') {
-              try { recorder.stop(); } catch (error) { failExport(labels.exportError, recorder); }
-            }
-          }, 180);
+        try {
+          var elapsed = (now - startedAt) / 1000;
+          var time = Math.min(total, elapsed);
+          drawFrame(exportCtx, dims[0], dims[1], time);
+          syncAudio(time);
+          setExportProgress((time / Math.max(0.1, total)) * 100);
+          if (time < total) {
+            requestAnimationFrame(renderExportFrame);
+          } else {
+            setTimeout(function () {
+              if (!completed && recorder.state !== 'inactive') {
+                try { recorder.stop(); } catch (error) { failExport(labels.exportError, recorder); }
+              }
+            }, 180);
+          }
+        } catch (error) {
+          failExport(labels.exportError, recorder);
         }
       }
       requestAnimationFrame(renderExportFrame);
@@ -1435,8 +1471,9 @@
   if (scrub) {
     scrub.addEventListener('input', function () {
       if (state.exporting) return;
+      var target = clamp(parseFloat(scrub.value) || 0, 0, totalDuration());
       stopPlayback();
-      state.current = clamp(parseFloat(scrub.value) || 0, 0, totalDuration());
+      state.current = target;
       renderPreview();
     });
   }
@@ -1486,8 +1523,7 @@
       if (state.listening) {
         audio.pause();
         state.listening = false;
-        musicPreview.classList.remove('is-playing');
-        musicPreview.setAttribute('aria-pressed', 'false');
+        setMusicPreviewState(false);
         return;
       }
       stopPlayback();
@@ -1497,8 +1533,7 @@
       var promise = audio.play();
       if (promise && promise.catch) promise.catch(function () {});
       state.listening = true;
-      musicPreview.classList.add('is-playing');
-      musicPreview.setAttribute('aria-pressed', 'true');
+      setMusicPreviewState(true);
     });
   }
 
@@ -1520,18 +1555,12 @@
       if (audio.currentTime >= state.music.end - 0.03) {
         audio.pause();
         state.listening = false;
-        if (musicPreview) {
-          musicPreview.classList.remove('is-playing');
-          musicPreview.setAttribute('aria-pressed', 'false');
-        }
+        setMusicPreviewState(false);
       }
     });
     audio.addEventListener('ended', function () {
       state.listening = false;
-      if (musicPreview) {
-        musicPreview.classList.remove('is-playing');
-        musicPreview.setAttribute('aria-pressed', 'false');
-      }
+      setMusicPreviewState(false);
     });
     audio.addEventListener('error', function () {
       if (state.music) notify(labels.audioError, 'error');

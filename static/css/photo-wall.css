@@ -289,6 +289,10 @@
 
 .photo-tile__select-order[hidden] { display: none; }
 
+.photo-wall.is-selecting .photo-tile__link {
+  pointer-events: none;
+}
+
 .photo-wall.is-selecting .photo-tile__select {
   opacity: 1;
   visibility: visible;
