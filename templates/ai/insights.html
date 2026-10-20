@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load l10n %}
 {% block title %}{% trans_text "Insights IA" "AI insights" %} — MemoAI{% endblock %}
 {% block nav_insights %}active{% endblock %}
 
@@ -93,8 +94,8 @@
       {% if stats.sentiment_dist.positive or stats.sentiment_dist.neutral or stats.sentiment_dist.negative %}
         <div class="sentiment-panel">
           <div class="sentiment-gauge"
-               data-score="{% if stats.avg_sentiment is not None %}{{ stats.avg_sentiment }}{% endif %}"
-               style="--score: {% if stats.avg_sentiment is not None %}{{ stats.avg_sentiment }}{% else %}0{% endif %};">
+               data-score="{% if stats.avg_sentiment is not None %}{{ stats.avg_sentiment|unlocalize }}{% endif %}"
+               style="--score: {% if stats.avg_sentiment is not None %}{{ stats.avg_sentiment|unlocalize }}{% else %}0{% endif %};">
             <span class="sentiment-gauge__inner">
               <strong>{% if stats.avg_sentiment is not None %}{{ stats.avg_sentiment|floatformat:2 }}{% else %}—{% endif %}</strong>
               <small>{% trans_text "score moyen" "average" %}</small>

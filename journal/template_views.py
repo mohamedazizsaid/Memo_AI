@@ -737,8 +737,11 @@ class ReelStudioView(View):
                 'period': period,
                 'finalQuote': _MEMORY_FINAL_QUOTES[lang],
                 'firstName': request.user.first_name or '',
+                'lang': lang,
                 'max': _REEL_MAX_PHOTOS,
                 'defaultCount': min(6, len(reel_photos)),
+                'musicSearchUrl': reverse('journal:music-search'),
+                'musicProxyUrl': reverse('journal:music-audio'),
             },
             'memory_mode': False,
         })

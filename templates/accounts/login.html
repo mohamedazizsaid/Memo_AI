@@ -81,12 +81,12 @@
 
           <div class="remember-row">
             <label class="remember-label" for="id_remember_me">
-              <input type="checkbox" name="remember_me" id="id_remember_me" value="1" checked>
-              {% trans_text "Se souvenir de moi" "Remember me" %}
+              <input type="checkbox" name="remember_me" id="id_remember_me" value="1"
+                     {% if request.method != 'POST' or request.POST.remember_me %}checked{% endif %}>
+              <span>{% trans_text "Se souvenir de moi" "Remember me" %}</span>
             </label>
+            <a href="/comptes/mot-de-passe/reinitialiser/" class="auth__forgot">{% trans_text "Mot de passe oublié ?" "Forgot password?" %}</a>
           </div>
-
-          <a href="/comptes/mot-de-passe/reinitialiser/" class="auth__forgot">{% trans_text "Mot de passe oublié ?" "Forgot password?" %}</a>
 
           <button type="submit" class="auth-btn" id="login-submit">{% trans_text "Se connecter" "Log in" %}</button>
 

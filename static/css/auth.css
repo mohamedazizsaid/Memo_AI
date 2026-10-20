@@ -353,10 +353,38 @@
 }
 .auth__legal a:hover { color: var(--au-ink); }
 
+/* Remember-me + recovery link share one calm, compact row. */
+.remember-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 18px;
+  flex-wrap: wrap;
+  margin: 2px 0 0;
+}
+
+.remember-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 28px;
+  font-family: var(--au-font);
+  font-size: 12.5px;
+  line-height: 1.3;
+  color: var(--au-secondary);
+  cursor: pointer;
+  user-select: none;
+}
+
+.remember-label:hover { color: var(--au-ink); }
+
+.remember-label input[type="checkbox"] {
+  margin: 0;
+}
+
 .auth__forgot {
-  align-self: flex-end;
-  margin-top: -2px;
-  font-size: 13px;
+  margin: 0;
+  font-size: 12.5px;
   color: var(--au-secondary);
 }
 .auth__forgot:hover { color: var(--au-ink); }

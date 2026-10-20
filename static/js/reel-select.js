@@ -133,11 +133,12 @@
   });
 
   wall.addEventListener('click', function (event) {
-    var button = event.target.closest('[data-photo-select]');
-    if (!button || !selecting) return;
+    if (!selecting) return;
+    var tile = event.target.closest('.photo-tile');
+    if (!tile) return;
     event.preventDefault();
     event.stopPropagation();
-    togglePhoto(button.closest('.photo-tile'));
+    togglePhoto(tile);
   });
 
   if (clearBtn) {

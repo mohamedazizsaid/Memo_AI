@@ -325,6 +325,12 @@
 
       {% if user.is_authenticated %}
         <!-- ── APP NAV (authenticated) ── -->
+        <button type="button" class="nav-mobile-toggle" id="nav-mobile-toggle"
+                aria-label="{% trans_text 'Ouvrir le menu' 'Open menu' %}"
+                aria-controls="nav-mobile-menu" aria-expanded="false">
+          <span class="nav-mobile-toggle__bars" aria-hidden="true"><span></span><span></span></span>
+        </button>
+
         <div class="nav-links">
           <a href="/journal/" id="nav-journal" class="nav-link {% block nav_journal %}{% endblock %}">{{ t.nav_journal }}</a>
           <a href="/journal/liste/" id="nav-memories" class="nav-link {% block nav_memories %}{% endblock %}">{{ t.nav_memories }}</a>
@@ -501,6 +507,54 @@
       {% endif %}
 
     </nav>
+
+    {% if user.is_authenticated %}
+    <div class="nav-mobile-menu" id="nav-mobile-menu" aria-hidden="true" hidden>
+      <div class="nav-mobile-menu__head">
+        <div>
+          <span class="nav-mobile-menu__eyebrow">MEMOAI</span>
+          <strong class="nav-mobile-menu__name">{{ user.first_name|default:user.email }}</strong>
+        </div>
+        <button type="button" class="nav-mobile-menu__close" id="nav-mobile-menu-close"
+                aria-label="{% trans_text 'Fermer le menu' 'Close menu' %}">
+          <svg aria-hidden="true" width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M2 2l10 10M12 2 2 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <nav class="nav-mobile-menu__links" aria-label="{% trans_text 'Navigation mobile' 'Mobile navigation' %}">
+        <a href="/journal/">{{ t.nav_journal }}</a>
+        <a href="/journal/liste/">{{ t.nav_memories }}</a>
+        <a href="/personnes/">{{ t.nav_persons }}</a>
+        <a href="/insights/">{{ t.nav_insights }}</a>
+        <a href="/tags/">{{ t.nav_tags }}</a>
+        <a href="/recherche/">{{ t.nav_search_placeholder }}</a>
+      </nav>
+
+      <div class="nav-mobile-menu__actions">
+        <a href="/journal/nouveau/" class="btn btn-primary btn-sm">
+          <svg aria-hidden="true" width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          {{ t.nav_new }}
+        </a>
+        <a href="/notifications/" class="nav-mobile-menu__meta">
+          {{ t.nav_notifications }}
+          {% if unread_notifications_count %}<span>{{ unread_notifications_count }}</span>{% endif %}
+        </a>
+      </div>
+
+      <div class="nav-mobile-menu__footer">
+        <a href="/comptes/profil/">{{ t.nav_my_profile }}</a>
+        <a href="/comptes/preferences/">{{ t.nav_preferences }}</a>
+        <form method="post" action="/comptes/deconnexion/">
+          {% csrf_token %}
+          <button type="submit">{{ t.nav_logout }}</button>
+        </form>
+      </div>
+    </div>
+    {% endif %}
   </header>
   {% endblock %}
 
@@ -650,6 +704,89 @@
         if(nBtn) nBtn.setAttribute("aria-expanded", "false");
         if(nPanel) nPanel.classList.remove("open");
       });
+
+      // Compact mobile navigation. The desktop links stay in the pill; on
+      // narrow screens this button opens the same destinations in a glass
+      // sheet instead of silently hiding them.
+      (function(){
+        var mBtn = document.getElementById("nav-mobile-toggle");
+        var mMenu = document.getElementById("nav-mobile-menu");
+        var mClose = document.getElementById("nav-mobile-menu-close");
+        if(!mBtn || !mMenu) return;
+        var hideTimer = null;
+        var wideQuery = window.matchMedia ? window.matchMedia("(min-width: 961px)") : null;
+
+        function closeMobile(restoreFocus){
+          clearTimeout(hideTimer);
+          mMenu.classList.remove("is-open");
+          mMenu.setAttribute("aria-hidden", "true");
+          mBtn.setAttribute("aria-expanded", "false");
+          document.body.classList.remove("nav-menu-open");
+          hideTimer = setTimeout(function(){
+            if(!mMenu.classList.contains("is-open")) mMenu.hidden = true;
+          }, 230);
+          if(restoreFocus){
+            try { mBtn.focus({ preventScroll: true }); } catch (error) { mBtn.focus(); }
+          }
+        }
+
+        function openMobile(){
+          clearTimeout(hideTimer);
+          mMenu.hidden = false;
+          mMenu.setAttribute("aria-hidden", "false");
+          mBtn.setAttribute("aria-expanded", "true");
+          document.body.classList.add("nav-menu-open");
+          if(aDrop) aDrop.classList.remove("open");
+          if(aBtn) aBtn.setAttribute("aria-expanded", "false");
+          if(nPanel) nPanel.classList.remove("open");
+          if(nBtn) nBtn.setAttribute("aria-expanded", "false");
+          requestAnimationFrame(function(){
+            mMenu.classList.add("is-open");
+            if(mClose){
+              try { mClose.focus({ preventScroll: true }); } catch (error) { mClose.focus(); }
+            }
+          });
+        }
+
+        mBtn.addEventListener("click", function(event){
+          event.preventDefault();
+          event.stopPropagation();
+          if(mMenu.hidden) openMobile();
+          else closeMobile(false);
+        });
+
+        if(mClose){
+          mClose.addEventListener("click", function(){ closeMobile(true); });
+        }
+
+        mMenu.addEventListener("click", function(event){
+          event.stopPropagation();
+          var link = event.target.closest("a");
+          if(link) closeMobile(false);
+        });
+
+        document.addEventListener("click", function(event){
+          if(mMenu.hidden) return;
+          if(mMenu.contains(event.target) || mBtn.contains(event.target)) return;
+          closeMobile(false);
+        });
+
+        document.addEventListener("keydown", function(event){
+          if(event.key !== "Escape" || mMenu.hidden) return;
+          event.preventDefault();
+          closeMobile(true);
+        });
+
+        if(wideQuery){
+          var onWide = function(event){ if(event.matches) closeMobile(false); };
+          if(wideQuery.addEventListener) wideQuery.addEventListener("change", onWide);
+          else if(wideQuery.addListener) wideQuery.addListener(onWide);
+        }
+
+        window.addEventListener("pageshow", function(){
+          if(!mMenu.hidden) closeMobile(false);
+        });
+      })();
 
       // Toast Notification Engine
       function initToast(toast) {
