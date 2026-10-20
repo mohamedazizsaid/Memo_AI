@@ -141,13 +141,28 @@
         <p class="eyebrow">{% trans_text "MES SOUVENIRS" "MY MEMORIES" %}</p>
         <h2 class="section-title">{% trans_text "Vos souvenirs en images" "Your memories in pictures" %}</h2>
       </div>
-      <a href="/journal/liste/" class="text-link" id="wall-see-all">
-        <svg aria-hidden="true" width="12" height="12" viewBox="0 0 12 12" fill="none">
-          <path d="M2 6h8M7 3l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-            stroke-linejoin="round" />
-        </svg>
-        {% trans_text "Tout voir" "See all" %}
-      </a>
+      <div class="section-header__actions">
+        {% if wall_columns %}
+        <button type="button" class="text-link wall-select-toggle" id="wall-select-toggle"
+                aria-pressed="false"
+                data-studio-url="{% url 'journal:reel-studio' %}"
+                data-label-select="{% trans_text 'Sélectionner' 'Select' %}"
+                data-label-cancel="{% trans_text 'Annuler' 'Cancel' %}">
+          <svg aria-hidden="true" width="13" height="13" viewBox="0 0 16 16" fill="none">
+            <rect x="2.2" y="2.2" width="11.6" height="11.6" rx="3.4" stroke="currentColor" stroke-width="1.4"/>
+            <path d="m5.3 8.1 1.9 1.9 3.6-3.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span id="wall-select-label">{% trans_text "Sélectionner" "Select" %}</span>
+        </button>
+        {% endif %}
+        <a href="/journal/liste/" class="text-link" id="wall-see-all">
+          <svg aria-hidden="true" width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M2 6h8M7 3l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
+          {% trans_text "Tout voir" "See all" %}
+        </a>
+      </div>
     </div>
 
     {% if wall_columns %}
@@ -196,6 +211,34 @@
     </div>
     {% endif %}
   </section>
+
+  <!-- Reel selection tray: appears when the user starts selecting photos. -->
+  <div class="reel-select-bar" id="reel-select-bar" role="region"
+       aria-label="{% trans_text 'Sélection pour le reel' 'Reel selection' %}"
+       data-label-one="{% trans_text 'photo sélectionnée' 'photo selected' %}"
+       data-label-many="{% trans_text 'photos sélectionnées' 'photos selected' %}"
+       data-msg-min="{% trans_text 'Choisissez au moins 2 photos.' 'Choose at least 2 photos.' %}"
+       data-msg-max="{% trans_text 'Vous pouvez sélectionner jusqu’à 12 photos.' 'You can select up to 12 photos.' %}"
+       data-max="12"
+       hidden>
+    <div class="reel-select-bar__inner">
+      <p class="reel-select-bar__count" aria-live="polite">
+        <strong id="reel-select-count">0</strong>
+        <span id="reel-select-count-label">{% trans_text "photos sélectionnées" "photos selected" %}</span>
+      </p>
+      <div class="reel-select-bar__actions">
+        <button type="button" class="btn btn-ghost btn-sm" id="reel-select-clear">
+          {% trans_text "Effacer" "Clear" %}
+        </button>
+        <button type="button" class="btn btn-primary btn-sm" id="reel-select-create" disabled>
+          {% trans_text "Créer le reel" "Create the reel" %}
+          <svg aria-hidden="true" width="13" height="13" viewBox="0 0 12 12" fill="none">
+            <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}
 
@@ -205,4 +248,5 @@
 
 {% block extra_js %}
 <script defer src="{% static 'js/photo-wall.js' %}?v=20261020_1"></script>
+<script defer src="{% static 'js/reel-select.js' %}?v=20261020_1"></script>
 {% endblock %}
