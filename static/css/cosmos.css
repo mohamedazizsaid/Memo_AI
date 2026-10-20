@@ -2183,6 +2183,12 @@ ul, ol { list-style: none; }
   box-shadow: 0 4px 12px rgba(110, 106, 105, 0.28);
 }
 
+/* The ink success tile disappears against the dark toast; lift it to a
+   warm charcoal so the white check keeps its shape. */
+[data-theme="dark"] .toast--success .toast-icon-box {
+  background: linear-gradient(135deg, #4a423a 0%, #26221e 100%);
+}
+
 .toast-body {
   flex: 1;
   display: flex;
@@ -2268,6 +2274,13 @@ ul, ol { list-style: none; }
   .profile-layout {
     grid-template-columns: 1fr;
     gap: 24px;
+  }
+
+  /* In one column the sticky card used to float over the form while
+     scrolling; it now follows the normal flow, like every other block. */
+  .profile-sidebar {
+    position: static;
+    top: auto;
   }
 }
 
