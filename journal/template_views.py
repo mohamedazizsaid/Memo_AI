@@ -15,6 +15,7 @@ from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
+from django.templatetags.static import static
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views import View
@@ -512,19 +513,21 @@ class HomeView(View):
             'entries_this_month': entries_qs.filter(entry_date__month=today.month, entry_date__year=today.year).count(),
         }
 
-        # Animated hero collage: the user's own covers, newest first.
-        hero_photos = []
-        for e in JournalEntry.objects.filter(user=request.user).prefetch_related('media').order_by('-entry_date')[:40]:
-            url = e.cover_image_url
-            if url and url not in hero_photos:
-                hero_photos.append(url)
-            if len(hero_photos) >= 9:
-                break
-
         # Memory wall: every image of the account (uploads, AI illustrations,
         # portraits), exactly like the immersive film, loaded page by page.
         wall_photos, _, _ = _collect_memory_photos(request.user)
         wall_columns = _wall_columns(wall_photos[:_WALL_PAGE_SIZE])
+
+        # Animated hero collage: always six tiles so the composition keeps its
+        # shape even for a brand-new account. The user's own images come first
+        # (same pool as the wall), then curated stills fill the remaining slots.
+        hero_fallbacks = (
+            'img/orbit/o03.jpg', 'img/orbit/o07.jpg', 'img/orbit/o11.jpg',
+            'img/orbit/o15.jpg', 'img/orbit/o19.jpg', 'img/orbit/o23.jpg',
+        )
+        hero_photos = [photo['thumb_url'] for photo in wall_photos[:6]]
+        for fallback in hero_fallbacks[len(hero_photos):]:
+            hero_photos.append(static(fallback))
 
         return render(request, 'journal/home.html', {
             'today': today,

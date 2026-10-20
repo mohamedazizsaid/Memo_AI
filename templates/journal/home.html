@@ -31,17 +31,18 @@
       <p class="hero-date">{{ today|date:"l j F Y" }}</p>
     </div>
 
-    <!-- Animated photo collage (top-right) -->
+    <!-- Animated photo collage (top-right) — always six tiles: the account's
+         own images first, then curated stills so the combo never collapses. -->
     <div class="hero-collage" aria-hidden="true">
       {% for photo in hero_photos %}
-        <figure class="hero-collage__item"><img src="{{ photo }}" alt="" loading="lazy"></figure>
+        <figure class="hero-collage__item"><img src="{{ photo }}" alt="" loading="eager" decoding="async"></figure>
       {% empty %}
-        <figure class="hero-collage__item"><img src="{% static 'img/orbit/o03.jpg' %}" alt="" loading="lazy"></figure>
-        <figure class="hero-collage__item"><img src="{% static 'img/orbit/o07.jpg' %}" alt="" loading="lazy"></figure>
-        <figure class="hero-collage__item"><img src="{% static 'img/orbit/o11.jpg' %}" alt="" loading="lazy"></figure>
-        <figure class="hero-collage__item"><img src="{% static 'img/orbit/o15.jpg' %}" alt="" loading="lazy"></figure>
-        <figure class="hero-collage__item"><img src="{% static 'img/orbit/o19.jpg' %}" alt="" loading="lazy"></figure>
-        <figure class="hero-collage__item"><img src="{% static 'img/orbit/o23.jpg' %}" alt="" loading="lazy"></figure>
+        <figure class="hero-collage__item"><img src="{% static 'img/orbit/o03.jpg' %}" alt="" loading="eager" decoding="async"></figure>
+        <figure class="hero-collage__item"><img src="{% static 'img/orbit/o07.jpg' %}" alt="" loading="eager" decoding="async"></figure>
+        <figure class="hero-collage__item"><img src="{% static 'img/orbit/o11.jpg' %}" alt="" loading="eager" decoding="async"></figure>
+        <figure class="hero-collage__item"><img src="{% static 'img/orbit/o15.jpg' %}" alt="" loading="eager" decoding="async"></figure>
+        <figure class="hero-collage__item"><img src="{% static 'img/orbit/o19.jpg' %}" alt="" loading="eager" decoding="async"></figure>
+        <figure class="hero-collage__item"><img src="{% static 'img/orbit/o23.jpg' %}" alt="" loading="eager" decoding="async"></figure>
       {% endfor %}
     </div>
   </section>

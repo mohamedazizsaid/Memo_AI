@@ -108,6 +108,11 @@ class PersonDetailView(View):
         paginator = Paginator(entries, PERSONS_PER_PAGE)
         page_obj = paginator.get_page(request.GET.get('page', 1))
 
+        # Same photo-first cards as the journal list: ask Cloudinary for a
+        # lighter, auto-formatted cover instead of the original file.
+        for entry in page_obj:
+            entry.cover_thumb = image_variant(entry.cover_image_url, 900)
+
         face_detections = person.face_detections.select_related('media', 'media__entry').order_by('-created_at')[:8]
 
         return render(request, 'persons/detail.html', {

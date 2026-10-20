@@ -49,7 +49,7 @@
     {% if entries %}
       <div class="entries-grid" id="person-entries">
         {% for entry in entries %}
-          {% include 'journal/_entry_card.html' with entry=entry %}
+          {% include 'journal/_memory_card.html' with entry=entry %}
         {% endfor %}
       </div>
       {% include 'partials/pagination.html' with page_obj=page_obj param='page' anchor='person-entries' %}
