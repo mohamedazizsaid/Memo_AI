@@ -147,9 +147,12 @@
               <span class="sentiment-label sentiment-label--{{ entry.ai_analysis.sentiment }}">
                 {% if entry.ai_analysis.sentiment == 'positive' %}{% trans_text "Positif" "Positive" %}{% elif entry.ai_analysis.sentiment == 'negative' %}{% trans_text "Negatif" "Negative" %}{% else %}{% trans_text "Neutre" "Neutral" %}{% endif %}
               </span>
-              {% if entry.ai_analysis.sentiment_score %}
-                <div class="sentiment-meter">
-                  <div class="sentiment-meter-fill" style="width: {{ entry.ai_analysis.sentiment_score|floatformat:0 }}%"></div>
+              {% if entry.ai_analysis.sentiment_score is not None %}
+                <div class="sentiment-meter" role="progressbar"
+                     aria-valuemin="0" aria-valuemax="100"
+                     aria-valuenow="{% widthratio entry.ai_analysis.sentiment_score 1 100 %}"
+                     aria-label="{% trans_text 'Score de sentiment' 'Sentiment score' %}">
+                  <div class="sentiment-meter-fill" style="width: {% widthratio entry.ai_analysis.sentiment_score 1 100 %}%"></div>
                 </div>
               {% endif %}
             </div>

@@ -49,14 +49,8 @@
       var photo = readTile(tile);
       if (!photo) return;
       var entry = selected.get(photo.src);
-      var badge = button.querySelector('[data-photo-order]');
       button.classList.toggle('is-selected', !!entry);
       button.setAttribute('aria-pressed', entry ? 'true' : 'false');
-      if (badge) {
-        badge.hidden = !entry;
-        var order = entry ? String(entry.order) : '';
-        if (badge.textContent !== order) badge.textContent = order;
-      }
       if (tile) tile.classList.toggle('is-selected', !!entry);
     });
   }

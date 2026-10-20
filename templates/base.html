@@ -70,7 +70,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,350;0,9..144,400;0,9..144,500;1,9..144,350&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <meta name="csrf-token" content="{{ csrf_token }}">
   {% load static %}
-  <link rel="stylesheet" href="{% static 'css/cosmos.css' %}?v=20261019_10">
+  <link rel="stylesheet" href="{% static 'css/cosmos.css' %}?v=20261020_1">
   {% block app_css %}{% if user.is_authenticated %}
   <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20261020_12">
@@ -335,9 +335,9 @@
         <div class="nav-links">
           <a href="/journal/" id="nav-journal" class="nav-link {% block nav_journal %}{% endblock %}">{{ t.nav_journal }}</a>
           <a href="/journal/liste/" id="nav-memories" class="nav-link {% block nav_memories %}{% endblock %}">{{ t.nav_memories }}</a>
+          <a href="{% url 'journal:reel-studio' %}" id="nav-reel" class="nav-link {% block nav_reel %}{% endblock %}">{{ t.nav_reel }}</a>
           <a href="/personnes/" id="nav-persons" class="nav-link {% block nav_persons %}{% endblock %}">{{ t.nav_persons }}</a>
           <a href="/insights/" id="nav-insights" class="nav-link {% block nav_insights %}{% endblock %}">{{ t.nav_insights }}</a>
-          <a href="/tags/" id="nav-tags" class="nav-link {% block nav_tags %}{% endblock %}">{{ t.nav_tags }}</a>
         </div>
 
         <div class="nav-search" id="nav-search">
@@ -533,9 +533,9 @@
       <nav class="nav-mobile-menu__links" aria-label="{% trans_text 'Navigation mobile' 'Mobile navigation' %}">
         <a href="/journal/">{{ t.nav_journal }}</a>
         <a href="/journal/liste/">{{ t.nav_memories }}</a>
+        <a href="{% url 'journal:reel-studio' %}">{{ t.nav_reel }}</a>
         <a href="/personnes/">{{ t.nav_persons }}</a>
         <a href="/insights/">{{ t.nav_insights }}</a>
-        <a href="/tags/">{{ t.nav_tags }}</a>
         <a href="/recherche/">{{ t.nav_search_placeholder }}</a>
       </nav>
 
@@ -555,6 +555,7 @@
       <div class="nav-mobile-menu__footer">
         <a href="/comptes/profil/">{{ t.nav_my_profile }}</a>
         <a href="/comptes/preferences/">{{ t.nav_preferences }}</a>
+        <a href="/tags/">{{ t.nav_tags }}</a>
         <form method="post" action="/comptes/deconnexion/">
           {% csrf_token %}
           <button type="submit">{{ t.nav_logout }}</button>

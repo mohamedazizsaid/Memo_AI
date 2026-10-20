@@ -47,7 +47,7 @@
 /* Decided in <head> before the first paint: never flash the loader for
    returning visitors, and never run it when motion is unwelcome. */
 html.splash-skip .splash { display: none !important; }
-html.splash-lock { overflow: hidden; }
+html.splash-lock { overflow: hidden; scrollbar-gutter: stable; }
 
 @media (prefers-reduced-motion: reduce) {
   .splash { display: none !important; }

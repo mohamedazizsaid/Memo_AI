@@ -267,28 +267,6 @@
   transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s var(--app-ease);
 }
 
-.photo-tile__select-order {
-  position: absolute;
-  right: 3px;
-  bottom: 3px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 4px;
-  border-radius: 999px;
-  background: var(--app-ink);
-  color: var(--app-paper);
-  font-family: var(--app-font, inherit);
-  font-size: 10px;
-  font-weight: 700;
-  line-height: 1;
-  box-shadow: 0 2px 6px rgba(10, 8, 6, 0.35);
-}
-
-.photo-tile__select-order[hidden] { display: none; }
-
 .photo-wall.is-selecting .photo-tile__link {
   pointer-events: none;
 }

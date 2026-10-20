@@ -21,7 +21,6 @@ initial page and the infinite-scroll JSON endpoint render the exact same markup.
   </span>
   {% endif %}
   <figcaption class="photo-tile__tag">
-    <span>N° {{ photo.number }}</span>
     <span>{{ photo.date_label }}</span>
   </figcaption>
   <button type="button" class="photo-tile__select" data-photo-select aria-pressed="false"
@@ -31,7 +30,6 @@ initial page and the infinite-scroll JSON endpoint render the exact same markup.
         <path d="M2.5 7.2 5.6 10.3 11.5 4.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </span>
-    <span class="photo-tile__select-order" data-photo-order hidden></span>
   </button>
   {% if photo.entry_id %}
   <a class="photo-tile__link" href="/journal/{{ photo.entry_id }}/"

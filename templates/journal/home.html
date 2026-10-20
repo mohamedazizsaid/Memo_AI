@@ -4,7 +4,7 @@
 {% block nav_journal %}active{% endblock %}
 
 {% block splash_head %}
-<link rel="stylesheet" href="{% static 'css/splash.css' %}?v=20261019_4">
+<link rel="stylesheet" href="{% static 'css/splash.css' %}?v=20261020_1">
 <script defer src="{% static 'js/splash.js' %}?v=20261019_4"></script>
 {% endblock %}
 
@@ -103,7 +103,7 @@
         <p class="eyebrow">{% trans_text "MEMOIRE" "MEMORY" %}</p>
         <h2 class="section-title">{% trans_text "En ce jour" "On this day" %}</h2>
       </div>
-      <a href="/journal/ce-jour/" class="text-link">
+      <a href="{% url 'journal:on-this-day' %}" class="text-link">
         <svg aria-hidden="true" width="12" height="12" viewBox="0 0 12 12" fill="none">
           <path d="M2 6h8M7 3l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
             stroke-linejoin="round" />
@@ -111,23 +111,9 @@
         {% trans_text "Voir tout" "See all" %}
       </a>
     </div>
-    <div class="entries-scroll reveal-stagger">
-      {% for entry in on_this_day %}
-      <a href="/journal/{{ entry.id }}/" class="entry-card-mini" id="otd-entry-{{ entry.id }}">
-        {% if entry.cover_image_url %}
-        <div class="entry-card-mini-img">
-          <img src="{{ entry.cover_image_url }}" alt="" loading="lazy">
-        </div>
-        {% endif %}
-        <div class="entry-card-mini-body">
-          <span class="entry-card-mini-date">{{ entry.entry_date|date:"j F Y" }}</span>
-          <h3 class="entry-card-mini-title">{% if entry.title %}{{ entry.title }}{% else %}{% trans_text "Sans titre" "Untitled" %}{% endif %}</h3>
-          <p class="entry-card-mini-excerpt">{{ entry.excerpt }}</p>
-          {% if entry.mood %}
-          <span class="mood-badge mood-badge--{{ entry.mood }}">{{ entry.mood_emoji }} {{ entry.mood }}</span>
-          {% endif %}
-        </div>
-      </a>
+    <div class="entries-grid" id="on-this-day-grid">
+      {% for entry in on_this_day|slice:":3" %}
+        {% include 'journal/_memory_card.html' with entry=entry show_year=True %}
       {% endfor %}
     </div>
   </section>
@@ -245,10 +231,10 @@
 {% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/photo-wall.css' %}?v=20261020_3">
+<link rel="stylesheet" href="{% static 'css/photo-wall.css' %}?v=20261020_5">
 {% endblock %}
 
 {% block extra_js %}
 <script defer src="{% static 'js/photo-wall.js' %}?v=20261020_1"></script>
-<script defer src="{% static 'js/reel-select.js' %}?v=20261020_4"></script>
+<script defer src="{% static 'js/reel-select.js' %}?v=20261020_5"></script>
 {% endblock %}

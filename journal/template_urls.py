@@ -10,6 +10,7 @@ app_name = 'journal'
 urlpatterns = [
     path('', template_views.HomeView.as_view(), name='home'),
     path('liste/', template_views.EntryListView.as_view(), name='list'),
+    path('ce-jour/', template_views.OnThisDayView.as_view(), name='on-this-day'),
     path('souvenirs/', template_views.MemoryExperienceView.as_view(), name='memory-experience'),
     path('souvenirs/photos/', template_views.MemoryPhotoWallView.as_view(), name='memory-photos'),
     path('creer-reel/', template_views.ReelStudioView.as_view(), name='reel-studio'),

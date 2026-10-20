@@ -8,6 +8,7 @@ TRANSLATIONS = {
         # Navigation & Shell
         "nav_journal": "Journal",
         "nav_memories": "Souvenirs",
+        "nav_reel": "Création reel",
         "nav_persons": "Personnes",
         "nav_insights": "Insights",
         "nav_tags": "Tags",
@@ -137,6 +138,7 @@ TRANSLATIONS = {
         # Navigation & Shell
         "nav_journal": "Journal",
         "nav_memories": "Memories",
+        "nav_reel": "Reel studio",
         "nav_persons": "People",
         "nav_insights": "Insights",
         "nav_tags": "Tags",

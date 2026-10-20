@@ -14,7 +14,7 @@
 
     <div class="memory-card__content">
       <div class="memory-card__topline">
-        <time datetime="{{ entry.entry_date|date:'Y-m-d' }}" class="memory-card__date">{{ entry.entry_date|date:"j F" }}</time>
+        <time datetime="{{ entry.entry_date|date:'Y-m-d' }}" class="memory-card__date">{{ entry.entry_date|date:"j F" }}{% if show_year %} {{ entry.entry_date|date:"Y" }}{% endif %}</time>
         {% if entry.mood %}
           <span class="memory-card__mood" aria-hidden="true">{{ entry.mood_emoji }}</span>
         {% endif %}

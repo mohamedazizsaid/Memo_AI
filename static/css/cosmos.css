@@ -90,6 +90,10 @@ html {
   font-size: 16px;
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
+  /* Reserve the scrollbar lane up front. Without this the splash's
+     overflow lock (and the reel tray padding) added/removed the classic
+     scrollbar, shifting the centred navbar sideways for a frame. */
+  scrollbar-gutter: stable;
 }
 
 body {
@@ -142,8 +146,13 @@ ul, ol { list-style: none; }
 .nav-wrapper {
   position: fixed;
   top: 12px;
-  left: 50%;
-  transform: translateX(-50%);
+  /* Centre with auto margins instead of translateX(-50%): the splash
+     entrance animates `transform`, which used to cancel the centring and
+     made the navbar jump sideways on page load. */
+  left: 0;
+  right: 0;
+  margin-inline: auto;
+  transform: none;
   z-index: 100;
   width: calc(100% - 32px);
   max-width: calc(var(--max-w) - 64px);
@@ -1288,8 +1297,18 @@ ul, ol { list-style: none; }
 .sentiment-label--positive { color: #27ae60; }
 .sentiment-label--negative { color: #c0392b; }
 .sentiment-label--neutral { color: var(--color-stone); }
-.sentiment-meter { flex: 1; height: 6px; background: var(--color-paper-white); border-radius: var(--r-pill); overflow: hidden; }
-.sentiment-meter-fill { height: 100%; background: var(--color-ink-black); border-radius: var(--r-pill); }
+.sentiment-meter {
+  flex: 1;
+  height: 7px;
+  background: color-mix(in srgb, var(--color-ink-black) 12%, transparent);
+  border-radius: var(--r-pill);
+  overflow: hidden;
+}
+.sentiment-meter-fill {
+  height: 100%;
+  background: var(--color-ink-black);
+  border-radius: var(--r-pill);
+}
 
 .keywords-list { display: flex; flex-wrap: wrap; gap: var(--sp-4); }
 .keyword-tag {

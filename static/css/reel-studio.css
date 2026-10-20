@@ -38,14 +38,15 @@
 }
 
 .reel-title {
-  font-family: 'Fraunces', Georgia, serif;
+  /* Same display stack as the rest of the authenticated platform. */
+  font-family: var(--app-font, 'Inter Tight', sans-serif);
   font-size: clamp(38px, 5.2vw, 66px);
-  font-weight: 350;
+  font-weight: 600;
   line-height: 0.98;
   letter-spacing: -0.045em;
   color: var(--app-ink);
   margin: 0 0 12px;
-  max-width: 14ch;
+  max-width: 16ch;
 }
 
 .reel-lede {
@@ -228,7 +229,8 @@
   top: 13px;
   left: 14px;
   z-index: 2;
-  font-family: 'Anton', 'Inter Tight', sans-serif;
+  font-family: var(--app-font, 'Inter Tight', sans-serif);
+  font-weight: 700;
   font-size: 8.5px;
   letter-spacing: 0.2em;
   line-height: 1;
@@ -1214,9 +1216,9 @@
 }
 
 .reel-empty__title {
-  font-family: 'Fraunces', Georgia, serif;
+  font-family: var(--app-font, 'Inter Tight', sans-serif);
   font-size: 28px;
-  font-weight: 350;
+  font-weight: 600;
   letter-spacing: -0.03em;
   color: var(--app-ink);
   margin: 0;

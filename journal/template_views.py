@@ -495,11 +495,21 @@ class HomeView(View):
             user=request.user, entry_date=today
         ).order_by('-created_at').first()
 
-        on_this_day = JournalEntry.objects.filter(
-            user=request.user,
-            entry_date__month=today.month,
-            entry_date__day=today.day,
-        ).exclude(entry_date=today).order_by('-entry_date')[:5]
+        on_this_day = list(
+            JournalEntry.objects.filter(
+                user=request.user,
+                entry_date__month=today.month,
+                entry_date__day=today.day,
+            )
+            .exclude(entry_date=today)
+            .select_related('ai_analysis')
+            .prefetch_related('media', 'tags')
+            .order_by('-entry_date')[:5]
+        )
+        # The "On this day" strip now uses the same photo-first cards as the
+        # memories list, so each entry needs its list-sized cover variant.
+        for entry in on_this_day:
+            entry.cover_thumb = _memory_image_variant(entry.cover_image_url, 900)
 
         entries_qs = JournalEntry.objects.filter(user=request.user)
         streak = 0
@@ -862,6 +872,38 @@ def music_audio(request):
         response['Content-Length'] = upstream.headers['Content-Length']
     response['Cache-Control'] = 'private, max-age=3600'
     return response
+
+
+@method_decorator(login_required, name='dispatch')
+class OnThisDayView(View):
+    """All memories written on today's date in previous years.
+
+    The cards intentionally reuse the exact same photo-first component as the
+    memories list; only the date adds the year, which matters when entries
+    span several years.
+    """
+
+    def get(self, request):
+        today = timezone.now().date()
+        entries = list(
+            JournalEntry.objects.filter(
+                user=request.user,
+                entry_date__month=today.month,
+                entry_date__day=today.day,
+            )
+            .exclude(entry_date=today)
+            .select_related('ai_analysis')
+            .prefetch_related('media', 'tags')
+            .order_by('-entry_date')
+        )
+        for entry in entries:
+            entry.cover_thumb = _memory_image_variant(entry.cover_image_url, 900)
+
+        return render(request, 'journal/on_this_day.html', {
+            'entries': entries,
+            'today': today,
+            'years': sorted({entry.entry_date.year for entry in entries}, reverse=True),
+        })
 
 
 @method_decorator(login_required, name='dispatch')

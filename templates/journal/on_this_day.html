@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}{% trans_text "En ce jour" "On this day" %} — MemoAI{% endblock %}
+{% block nav_journal %}active{% endblock %}
+
+{% block content %}
+<div class="container glass-page glass-page--memories glass-page--on-this-day">
+  <div class="page-header reveal">
+    <div>
+      <p class="eyebrow">{% trans_text "MÉMOIRE" "MEMORY" %}</p>
+      <h1 class="page-title">{% trans_text "En ce jour" "On this day" %}</h1>
+      <p class="page-subtitle">
+        {% trans_text "Retrouvez ce que vous écriviez à cette date, année après année." "Look back at what you wrote on this date, year after year." %}
+      </p>
+    </div>
+    <div class="page-header-actions">
+      <a href="/journal/liste/" class="btn btn-ghost" id="on-this-day-all">
+        <svg aria-hidden="true" width="14" height="14" viewBox="0 0 16 16" fill="none">
+          <rect x="2.5" y="2.5" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M5.5 8h5M8 5.5v5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        {% trans_text "Tous mes souvenirs" "All my memories" %}
+      </a>
+      <a href="/journal/nouveau/" class="btn btn-primary" id="on-this-day-new">
+        <svg aria-hidden="true" width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        {{ t.nav_new_entry|default:"Nouvelle entrée" }}
+      </a>
+    </div>
+  </div>
+
+  {% if entries %}
+  <div class="results-info reveal">
+    <span class="results-count">
+      {{ entries|length }} {% if entries|length == 1 %}{% trans_text "souvenir" "memory" %}{% else %}{% trans_text "souvenirs" "memories" %}{% endif %}
+      · {{ today|date:"j F" }}
+    </span>
+    {% if years %}
+    <span class="results-count">
+      {% for year in years %}{{ year }}{% if not forloop.last %} · {% endif %}{% endfor %}
+    </span>
+    {% endif %}
+  </div>
+
+  <div class="entries-grid" id="on-this-day-grid">
+    {% for entry in entries %}
+      {% include 'journal/_memory_card.html' with entry=entry show_year=True %}
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state reveal" id="on-this-day-empty">
+    <div class="empty-state-icon" aria-hidden="true">
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+        <rect x="8" y="10" width="32" height="30" rx="5" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M8 19h32M16 6v8M32 6v8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M24 25v5l3.5 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <h2 class="empty-state-title">{% trans_text "Aucun souvenir à cette date" "No memories on this day" %}</h2>
+    <p class="empty-state-body">
+      {% trans_text "Écrivez votre journée aujourd'hui : elle reviendra ici l'année prochaine." "Write about today: it will come back here next year." %}
+    </p>
+    <a href="/journal/nouveau/" class="btn btn-primary">{% trans_text "Écrire aujourd'hui" "Write today" %}</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
