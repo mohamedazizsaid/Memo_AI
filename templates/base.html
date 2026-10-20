@@ -290,8 +290,9 @@
   </style>
   {% block extra_css %}{% endblock %}
   {% if user.is_authenticated %}
-  <link rel="stylesheet" href="{% static 'css/liquid-glass.css' %}?v=20261020_4">
+  <link rel="stylesheet" href="{% static 'css/liquid-glass.css' %}?v=20261020_5">
   {% endif %}
+  <link rel="stylesheet" href="{% static 'css/nav-mobile.css' %}?v=20261020_1">
   {% block splash_head %}{% endblock %}
 </head>
 <body class="{% block body_class %}{% endblock %}{% if reduce_motion %} reduce-motion{% endif %}">

@@ -43,6 +43,12 @@ Un compte complet avec des souvenirs réels, photos, tags et analyses IA est pr�
 - **Mot de passe** : `DemoPass123!`
 *(Un bouton de remplissage en 1 clic « ✨ Remplir avec un compte démo » est également disponible sur l'écran de connexion)*.
 
+Pour régénérer entièrement ce compte (souvenirs, photos locales, tags, personnes, analyses IA et notifications) :
+```bash
+.venv\Scripts\python.exe manage.py seed_demo_data
+```
+La commande est idempotente : elle remplace le contenu du compte de démonstration sans toucher aux autres utilisateurs.
+
 ---
 
 ### 1. Démarrer le Backend (Django)

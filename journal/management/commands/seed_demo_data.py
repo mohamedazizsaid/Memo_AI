@@ -195,7 +195,7 @@ ENTRY_SPECS = [
             "remplir le vide. En fin d'après-midi, j'ai quand même noté une idée pour "
             "la semaine. Une petite idée, pas une mission."
         ),
-        "mood": "neutral",
+        "mood": "good",
         "location": "Maison",
         "media": [(7, "IMAGE"), (8, "IMAGE")],
         "tags": ["quotidien", "creativite"],
@@ -811,7 +811,7 @@ class Command(BaseCommand):
         notification_count = Notification.objects.filter(user=user).count()
 
         self.stdout.write(self.style.SUCCESS(
-            f"Demo account ready: {email} — {entry_count} entries, "
+            f"Demo account ready: {email} - {entry_count} entries, "
             f"{media_count} media, {person_count} people, "
             f"{notification_count} notifications, "
             f"{len(TAG_SPECS)} tags and {len(FACE_SPECS)} face detections."

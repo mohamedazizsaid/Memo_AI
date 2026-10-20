@@ -20,7 +20,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{% static 'css/landing.css' %}?v=20261019_4">
+<link rel="stylesheet" href="{% static 'css/landing.css' %}?v=20261020_2">
 {% endblock %}
 
 <!-- ═══════════════════════════════════════════════════════════════════
@@ -53,6 +53,7 @@
           <a href="#themes">Themes</a>
           <a href="#memories">Souvenirs</a>
           <a href="#contact">Contact</a>
+          <a href="/comptes/connexion/" class="cx-menu__mobile-link">{% trans_text "Connexion" "Sign in" %}</a>
         </nav>
       </div>
     </div>
@@ -719,7 +720,10 @@
     document.addEventListener('click', function () { setMenu(false); });
     menuPanel.addEventListener('click', function () { setMenu(false); });
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') setMenu(false);
+      if (e.key === 'Escape' && menuBtn.getAttribute('aria-expanded') === 'true') {
+        setMenu(false);
+        menuBtn.focus();
+      }
     });
   }
 

@@ -203,6 +203,7 @@
   transition: color 0.15s ease, background 0.15s ease;
 }
 .cx-menu__panel a:hover { color: var(--cx-ink); background: var(--cx-light-elevation); }
+.cx-menu__panel .cx-menu__mobile-link { display: none; }
 
 .cx-wordmark {
   position: absolute;
@@ -1186,8 +1187,30 @@
   .cx-appcard { display: none; }
 }
 
+@media (max-width: 380px) {
+  /* Keep the compact toolbar collision-free on the narrowest phones. */
+  .cx-wordmark { display: none; }
+}
+
 @media (max-width: 720px) {
-  .cx-menu { display: none; }
+  .cx-menu { display: block; }
+  .cx-menu__panel {
+    position: fixed;
+    top: 74px;
+    left: 16px;
+    right: 16px;
+    min-width: 0;
+    max-height: calc(100vh - 92px);
+    max-height: calc(100dvh - 92px);
+    overflow-y: auto;
+    transform-origin: top center;
+  }
+  .cx-menu__panel .cx-menu__mobile-link {
+    display: block;
+    margin-top: 6px;
+    padding-top: 12px;
+    border-top: 1px solid var(--cx-border);
+  }
   .cx-nav__login { display: none; }
   .cx-wordmark { font-size: 16px; letter-spacing: 0.16em; text-indent: 0.16em; }
   .cx-hero { padding-top: 112px; }
