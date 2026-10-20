@@ -9,9 +9,12 @@ import logging
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.decorators import method_decorator
 from django.views import View
+
+from common.cloud_media import image_variant
 
 from .models import Person
 
@@ -66,7 +69,11 @@ def _extract_descriptor(request):
 @method_decorator(login_required, name='dispatch')
 class PersonListView(View):
     def get(self, request):
-        persons = Person.objects.filter(user=request.user).order_by('name')
+        persons = (
+            Person.objects.filter(user=request.user)
+            .annotate(memory_total=Count('face_detections__media__entry', distinct=True))
+            .order_by('name')
+        )
         try:
             from accounts.models import UserPreferences
             prefs, _ = UserPreferences.objects.get_or_create(user=request.user)
@@ -76,6 +83,8 @@ class PersonListView(View):
 
         paginator = Paginator(persons, PERSONS_PER_PAGE)
         page_obj = paginator.get_page(request.GET.get('page', 1))
+        for person in page_obj:
+            person.avatar_thumb = image_variant(person.avatar_url, 700)
 
         return render(request, 'persons/list.html', {
             'persons': page_obj,

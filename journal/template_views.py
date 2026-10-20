@@ -657,6 +657,12 @@ class EntryListView(View):
         paginator = Paginator(qs, 12)
         page = paginator.get_page(request.GET.get('page', 1))
 
+        # The list now uses the photo as a full-card cover: ask Cloudinary
+        # for a lighter, auto-formatted variant instead of the original file.
+        from common.cloud_media import image_variant
+        for entry in page:
+            entry.cover_thumb = image_variant(entry.cover_image_url, 900)
+
         return render(request, 'journal/list.html', {
             'entries': page,
             'page_obj': page,

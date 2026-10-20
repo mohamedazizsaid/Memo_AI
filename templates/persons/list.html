@@ -39,28 +39,26 @@
   {% if persons %}
     <div class="persons-grid" id="persons-grid">
       {% for person in persons %}
-        <a href="/personnes/{{ person.id }}/" class="person-card reveal" id="person-{{ person.id }}">
-          {% if person.avatar_url %}
-            <div class="person-avatar">
-              <img src="{{ person.avatar_url }}" alt="{{ person.name }}" class="person-avatar-img">
-            </div>
+        <a href="/personnes/{{ person.id }}/" class="person-card person-card--cover reveal" id="person-{{ person.id }}">
+          {% if person.avatar_thumb %}
+            <img src="{{ person.avatar_thumb }}" alt="" loading="lazy" decoding="async" class="person-card__photo">
           {% else %}
-            <div class="person-avatar person-avatar--placeholder">
-              <span>{{ person.name|first|upper }}</span>
-            </div>
+            <span class="person-card__monogram" aria-hidden="true">{{ person.name|first|upper }}</span>
           {% endif %}
-          <div class="person-card-body">
+          <span class="person-card__veil" aria-hidden="true"></span>
+
+          {% if person.is_confirmed %}
+            <span class="person-card__confirmed" title="{% trans_text 'Identite confirmee' 'Confirmed identity' %}" aria-label="{% trans_text 'Identite confirmee' 'Confirmed identity' %}">
+              <svg width="12" height="12" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                <path d="M1.5 5l2.2 2.2L8.5 2.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          {% endif %}
+
+          <div class="person-card__content">
             <h3 class="person-name">{{ person.name }}</h3>
             <p class="person-meta">
-              {{ person.memory_count }} {% if person.memory_count == 1 %}{% trans_text "souvenir" "memory" %}{% else %}{% trans_text "souvenirs" "memories" %}{% endif %}
-              {% if person.is_confirmed %}
-                <span class="person-confirmed-badge">
-                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-label="{% trans_text 'Confirme' 'Confirmed' %}">
-                    <circle cx="5" cy="5" r="4" stroke="currentColor" stroke-width="1"/>
-                    <path d="M3 5l1.5 1.5L7 3.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                </span>
-              {% endif %}
+              {{ person.memory_total }} {% if person.memory_total == 1 %}{% trans_text "souvenir" "memory" %}{% else %}{% trans_text "souvenirs" "memories" %}{% endif %}
             </p>
           </div>
         </a>

@@ -70,10 +70,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,350;0,9..144,400;0,9..144,500;1,9..144,350&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <meta name="csrf-token" content="{{ csrf_token }}">
   {% load static %}
-  <link rel="stylesheet" href="{% static 'css/cosmos.css' %}?v=20261019_8">
+  <link rel="stylesheet" href="{% static 'css/cosmos.css' %}?v=20261019_9">
   {% block app_css %}{% if user.is_authenticated %}
   <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20261020_10">
+  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20261020_11">
   <link rel="stylesheet" href="{% static 'css/tour.css' %}?v=20261019_7">
   {% endif %}{% endblock %}
   <style>
@@ -102,7 +102,7 @@
       backdrop-filter: blur(20px) !important;
       -webkit-backdrop-filter: blur(20px) !important;
       border-radius: 16px !important;
-      box-shadow: 0 16px 40px -6px rgba(15, 23, 42, 0.16), 0 0 0 1px rgba(15, 23, 42, 0.08) !important;
+      box-shadow: 0 18px 44px -10px rgba(13, 13, 13, 0.18), 0 0 0 1px rgba(13, 13, 13, 0.08) !important;
       overflow: hidden !important;
       box-sizing: border-box !important;
       animation: toastSlideIn 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
@@ -110,9 +110,9 @@
     }
 
     [data-theme="dark"] .toast {
-      background: rgba(24, 24, 27, 0.96) !important;
-      box-shadow: 0 16px 40px -6px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.12) !important;
-      color: #f4f4f5 !important;
+      background: rgba(30, 27, 24, 0.96) !important;
+      box-shadow: 0 18px 44px -10px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(240, 237, 233, 0.12) !important;
+      color: #f0ede9 !important;
     }
 
     .toast.toast--hiding {
@@ -153,24 +153,24 @@
     }
 
     .toast--success .toast-icon-box {
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
-      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35) !important;
+      background: linear-gradient(135deg, #2f2a26 0%, #0d0d0d 100%) !important;
+      box-shadow: 0 4px 12px rgba(13, 13, 13, 0.28) !important;
     }
 
     .toast--error .toast-icon-box,
     .toast--danger .toast-icon-box {
-      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
-      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35) !important;
+      background: linear-gradient(135deg, #b5563f 0%, #8a3a28 100%) !important;
+      box-shadow: 0 4px 12px rgba(181, 86, 63, 0.3) !important;
     }
 
     .toast--warning .toast-icon-box {
-      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
-      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35) !important;
+      background: linear-gradient(135deg, #d2a24e 0%, #a3762c 100%) !important;
+      box-shadow: 0 4px 12px rgba(200, 150, 62, 0.3) !important;
     }
 
     .toast--info .toast-icon-box {
-      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
-      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35) !important;
+      background: linear-gradient(135deg, #7a7470 0%, #4d4946 100%) !important;
+      box-shadow: 0 4px 12px rgba(110, 106, 105, 0.28) !important;
     }
 
     .toast-body {
@@ -196,13 +196,13 @@
       font-family: inherit !important;
       font-size: 13px !important;
       line-height: 1.45 !important;
-      color: #64748b !important;
+      color: #6e6a69 !important;
       margin: 0 !important;
       word-break: break-word !important;
     }
 
     [data-theme="dark"] .toast-msg {
-      color: #a1a1aa !important;
+      color: #a8a4a0 !important;
     }
 
     .toast-close-btn {
@@ -211,7 +211,7 @@
       padding: 4px !important;
       border-radius: 8px !important;
       cursor: pointer !important;
-      color: #94a3b8 !important;
+      color: #9a9796 !important;
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
@@ -221,8 +221,8 @@
     }
 
     .toast-close-btn:hover {
-      color: #0f172a !important;
-      background: rgba(0, 0, 0, 0.06) !important;
+      color: #0d0d0d !important;
+      background: rgba(13, 13, 13, 0.06) !important;
       transform: scale(1.08) !important;
     }
 
@@ -239,11 +239,11 @@
       width: 100% !important;
     }
 
-    .toast--success .toast-progress-bar { background: #10b981 !important; }
+    .toast--success .toast-progress-bar { background: #c8963e !important; }
     .toast--error .toast-progress-bar,
-    .toast--danger .toast-progress-bar { background: #ef4444 !important; }
-    .toast--warning .toast-progress-bar { background: #f59e0b !important; }
-    .toast--info .toast-progress-bar { background: #6366f1 !important; }
+    .toast--danger .toast-progress-bar { background: #b5563f !important; }
+    .toast--warning .toast-progress-bar { background: #d2a24e !important; }
+    .toast--info .toast-progress-bar { background: #9a9796 !important; }
 
     /* Lang pills switch */
     .lang-switch-pills {

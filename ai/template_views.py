@@ -26,22 +26,22 @@ PERIOD_LABELS = {'7': '7', '30': '30', '90': '90', '365': '365'}
 # Mood keys are stored in English in the database; the dashboard shows a
 # readable, localized label with a hue used by the mood bars.
 MOOD_META = {
-    'amazing': {'fr': 'Incroyable', 'en': 'Amazing', 'emoji': '🤩', 'hue': '#f59e0b'},
-    'good': {'fr': 'Bien', 'en': 'Good', 'emoji': '😊', 'hue': '#10b981'},
-    'neutral': {'fr': 'Neutre', 'en': 'Neutral', 'emoji': '😐', 'hue': '#a1a1aa'},
-    'sad': {'fr': 'Triste', 'en': 'Sad', 'emoji': '😢', 'hue': '#60a5fa'},
-    'stressed': {'fr': 'Stresse', 'en': 'Stressed', 'emoji': '😤', 'hue': '#f97316'},
-    'anxious': {'fr': 'Anxieux', 'en': 'Anxious', 'emoji': '😰', 'hue': '#8b5cf6'},
-    'tired': {'fr': 'Fatigue', 'en': 'Tired', 'emoji': '😴', 'hue': '#64748b'},
-    'angry': {'fr': 'En colere', 'en': 'Angry', 'emoji': '😠', 'hue': '#ef4444'},
-    'excited': {'fr': 'Excité', 'en': 'Excited', 'emoji': '🎉', 'hue': '#ec4899'},
-    'grateful': {'fr': 'Reconnaissant', 'en': 'Grateful', 'emoji': '🙏', 'hue': '#14b8a6'},
+    'amazing': {'fr': 'Incroyable', 'en': 'Amazing', 'emoji': '🤩', 'hue': '#c8963e'},
+    'good': {'fr': 'Bien', 'en': 'Good', 'emoji': '😊', 'hue': '#b08a4f'},
+    'neutral': {'fr': 'Neutre', 'en': 'Neutral', 'emoji': '😐', 'hue': '#a8a29e'},
+    'sad': {'fr': 'Triste', 'en': 'Sad', 'emoji': '😢', 'hue': '#8b8580'},
+    'stressed': {'fr': 'Stresse', 'en': 'Stressed', 'emoji': '😤', 'hue': '#b4654a'},
+    'anxious': {'fr': 'Anxieux', 'en': 'Anxious', 'emoji': '😰', 'hue': '#9c8064'},
+    'tired': {'fr': 'Fatigue', 'en': 'Tired', 'emoji': '😴', 'hue': '#706a64'},
+    'angry': {'fr': 'En colere', 'en': 'Angry', 'emoji': '😠', 'hue': '#9e4a36'},
+    'excited': {'fr': 'Excité', 'en': 'Excited', 'emoji': '🎉', 'hue': '#d6a24c'},
+    'grateful': {'fr': 'Reconnaissant', 'en': 'Grateful', 'emoji': '🙏', 'hue': '#a8895f'},
 }
 
 SENTIMENT_META = (
-    ('positive', {'fr': 'Positif', 'en': 'Positive', 'hue': '#10b981'}),
-    ('neutral', {'fr': 'Neutre', 'en': 'Neutral', 'hue': '#a1a1aa'}),
-    ('negative', {'fr': 'Negatif', 'en': 'Negative', 'hue': '#ef4444'}),
+    ('positive', {'fr': 'Positif', 'en': 'Positive', 'hue': '#c8963e'}),
+    ('neutral', {'fr': 'Neutre', 'en': 'Neutral', 'hue': '#a8a29e'}),
+    ('negative', {'fr': 'Negatif', 'en': 'Negative', 'hue': '#a34e39'}),
 )
 
 
