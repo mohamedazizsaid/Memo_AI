@@ -92,6 +92,18 @@
   --lg-tint-a: rgba(217, 171, 92, 0.29);
   --lg-tint-b: rgba(113, 153, 136, 0.19);
 }
+.glass-page--detail {
+  --lg-tint-a: rgba(214, 166, 88, 0.28);
+  --lg-tint-b: rgba(116, 139, 180, 0.18);
+}
+.glass-page--notifications {
+  --lg-tint-a: rgba(216, 170, 92, 0.28);
+  --lg-tint-b: rgba(137, 127, 188, 0.18);
+}
+.glass-page--reel {
+  --lg-tint-a: rgba(228, 178, 92, 0.32);
+  --lg-tint-b: rgba(114, 145, 175, 0.2);
+}
 
 [data-theme="dark"] :is(
   .glass-page--home,
@@ -101,7 +113,10 @@
   .glass-page--profile,
   .glass-page--prefs,
   .glass-page--search,
-  .glass-page--form
+  .glass-page--form,
+  .glass-page--detail,
+  .glass-page--notifications,
+  .glass-page--reel
 ) {
   --lg-tint-a: rgba(211, 166, 90, 0.12);
   --lg-tint-b: rgba(137, 132, 192, 0.1);
@@ -127,6 +142,10 @@
   .profile-nav,
   .prefs-card,
   .search-result,
+  .notification-item,
+  .reel-card,
+  .reel-stage,
+  .glass-card,
   .card,
   .wizard-card,
   .face-drop,
@@ -169,6 +188,10 @@
   .profile-nav,
   .prefs-card,
   .search-result,
+  .notification-item,
+  .reel-card,
+  .reel-stage,
+  .glass-card,
   .card,
   .wizard-card,
   .face-drop,
@@ -207,8 +230,12 @@
 .glass-page .tag-card { border-radius: 22px; }
 .glass-page .profile-avatar-card,
 .glass-page .profile-nav,
-.glass-page .prefs-card { border-radius: 24px; }
-.glass-page .search-result { border-radius: 18px; }
+.glass-page .prefs-card,
+.glass-page .reel-card,
+.glass-page .reel-stage { border-radius: 24px; }
+.glass-page .search-result,
+.glass-page .notification-item { border-radius: 18px; }
+.glass-page .glass-card { border-radius: 26px; }
 .glass-page .card,
 .glass-page .wizard-card { border-radius: 28px; }
 .glass-page .face-drop,
@@ -1026,6 +1053,10 @@
     .profile-nav,
     .prefs-card,
     .search-result,
+    .notification-item,
+    .reel-card,
+    .reel-stage,
+    .glass-card,
     .card,
     .wizard-card,
     .face-drop,
@@ -1033,5 +1064,294 @@
     .empty-state
   ) {
     background-color: color-mix(in srgb, var(--app-paper) 90%, transparent);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   6. ENTRY DETAIL — each editorial block becomes its own glass sheet.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.glass-page--detail .entry-detail {
+  padding-top: 8px;
+}
+
+.glass-page--detail .entry-detail-header,
+.glass-page--detail .entry-content,
+.glass-page--detail .ai-analysis-panel,
+.glass-page--detail .entry-tags-section,
+.glass-page--detail .entry-detail-footer {
+  padding: 26px 28px;
+  margin-bottom: 18px;
+}
+
+.glass-page--detail .entry-detail-header {
+  border-bottom: 1px solid var(--lg-edge-soft);
+  padding-bottom: 26px;
+}
+
+.glass-page--detail .entry-detail-title {
+  margin-bottom: 18px;
+}
+
+.glass-page--detail .entry-content.prose {
+  margin-bottom: 18px;
+}
+
+.glass-page--detail .entry-content.prose p:last-child {
+  margin-bottom: 0;
+}
+
+.glass-page--detail .ai-analysis-panel {
+  background-color: var(--lg-fill);
+  background-image:
+    radial-gradient(120% 115% at 8% -14%, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.1) 32%, rgba(255, 255, 255, 0) 60%),
+    linear-gradient(132deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.02) 45%, rgba(255, 255, 255, 0.1)),
+    radial-gradient(90% 120% at 100% 110%, var(--lg-tint-b) 0%, rgba(255, 255, 255, 0) 62%),
+    radial-gradient(80% 100% at 0% 0%, var(--lg-tint-a) 0%, rgba(255, 255, 255, 0) 58%);
+}
+
+.glass-page--detail .entry-tags-section,
+.glass-page--detail .entry-detail-footer {
+  margin-bottom: 18px;
+}
+
+.glass-page--detail .entry-detail-footer {
+  border-top-color: var(--lg-edge-soft);
+}
+
+.glass-page--detail .entry-generated-image,
+.glass-page--detail .gallery-item,
+.glass-page--detail .audio-player-card {
+  padding: 9px;
+  overflow: hidden;
+  border-radius: 22px;
+}
+
+.glass-page--detail .gallery-item {
+  margin: 0;
+}
+
+.glass-page--detail .gallery-img {
+  border-radius: 15px;
+}
+
+.glass-page--detail .gallery-caption {
+  padding: 9px 6px 3px;
+}
+
+.glass-page--detail .entry-hero-image {
+  border-radius: 16px;
+}
+
+.glass-page--detail .audio-player-card {
+  align-items: center;
+}
+
+.glass-page--detail .audio-player-control {
+  min-width: 0;
+}
+
+.glass-page--detail .ai-processing,
+.glass-page--detail .ai-notice {
+  padding: 18px 22px;
+  border-radius: 20px;
+  background-color: var(--lg-fill-soft);
+  border: 1px solid var(--lg-edge-soft);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+.glass-page--detail .entry-detail-actions .btn {
+  backdrop-filter: blur(10px);
+}
+
+@media (max-width: 640px) {
+  .glass-page--detail .entry-detail-header,
+  .glass-page--detail .entry-content,
+  .glass-page--detail .ai-analysis-panel,
+  .glass-page--detail .entry-tags-section,
+  .glass-page--detail .entry-detail-footer {
+    padding: 20px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   7. NOTIFICATIONS — one glass row per event.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.glass-page--notifications .notifications-list {
+  gap: 10px;
+}
+
+.glass-page--notifications .notification-item {
+  margin-bottom: 0;
+  padding: 17px 20px;
+  border-radius: 20px;
+}
+
+.glass-page--notifications .notification-item--unread {
+  border-color: color-mix(in srgb, var(--app-ink) 20%, var(--lg-edge));
+  background-image:
+    linear-gradient(90deg, color-mix(in srgb, var(--lg-tint-a) 46%, transparent), transparent 18%),
+    linear-gradient(132deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.02) 55%);
+}
+
+.glass-page--notifications .notification-icon {
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 13px;
+  background-color: var(--lg-fill-soft);
+  border: 1px solid var(--lg-edge-soft);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   8. NAVBAR, DROPDOWNS & MODALS — the global glass chrome.
+   These live outside `.glass-page`, so they carry their own tokens.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.nav-pill {
+  background-color: rgba(255, 255, 255, 0.58);
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0) 55%),
+    linear-gradient(132deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.02) 58%);
+  border: 1px solid rgba(255, 255, 255, 0.82);
+  box-shadow:
+    0 18px 42px -28px rgba(48, 36, 22, 0.48),
+    0 2px 8px -4px rgba(48, 36, 22, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.96),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.36);
+  -webkit-backdrop-filter: blur(26px) saturate(180%);
+  backdrop-filter: blur(26px) saturate(180%);
+}
+
+[data-theme="dark"] .nav-pill {
+  background-color: rgba(30, 27, 24, 0.7);
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0) 55%),
+    linear-gradient(132deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0) 58%);
+  border-color: rgba(255, 255, 255, 0.14);
+  box-shadow:
+    0 18px 42px -26px rgba(0, 0, 0, 0.84),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+.nav-pill .search-wrapper {
+  background-color: rgba(255, 255, 255, 0.38);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+
+[data-theme="dark"] .nav-pill .search-wrapper {
+  background-color: rgba(0, 0, 0, 0.18);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.nav-notif-panel,
+.avatar-dropdown {
+  background-color: rgba(255, 255, 255, 0.82);
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.04) 30%),
+    linear-gradient(132deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.01) 60%);
+  border: 1px solid rgba(255, 255, 255, 0.86);
+  box-shadow:
+    0 30px 70px -26px rgba(48, 36, 22, 0.42),
+    0 4px 14px -6px rgba(48, 36, 22, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.96);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  backdrop-filter: blur(30px) saturate(180%);
+}
+
+[data-theme="dark"] .nav-notif-panel,
+[data-theme="dark"] .avatar-dropdown {
+  background-color: rgba(30, 27, 24, 0.9);
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0) 34%),
+    linear-gradient(132deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0) 60%);
+  border-color: rgba(255, 255, 255, 0.14);
+  box-shadow:
+    0 30px 70px -22px rgba(0, 0, 0, 0.9),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.modal-overlay {
+  background: rgba(24, 19, 14, 0.34);
+  -webkit-backdrop-filter: blur(9px) saturate(120%);
+  backdrop-filter: blur(9px) saturate(120%);
+}
+
+.modal {
+  background-color: rgba(255, 255, 255, 0.86);
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.04) 35%),
+    linear-gradient(132deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.02) 60%);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 26px;
+  box-shadow:
+    0 34px 80px -28px rgba(48, 36, 22, 0.55),
+    0 8px 20px -8px rgba(48, 36, 22, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.96);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  backdrop-filter: blur(30px) saturate(180%);
+}
+
+[data-theme="dark"] .modal {
+  background-color: rgba(30, 27, 24, 0.92);
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0) 35%),
+    linear-gradient(132deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0) 60%);
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow:
+    0 34px 80px -24px rgba(0, 0, 0, 0.92),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+#delete-tag-name {
+  color: var(--app-ink);
+  font-weight: 600;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   9. SMALL PLATFORM DETAILS
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* The person form's primary action mirrors the journal "Next" pill. */
+.glass-page--form .form-actions {
+  justify-content: flex-end;
+}
+
+.glass-page--form .form-actions .btn-primary {
+  padding-inline: 24px;
+}
+
+/* Reel studio: the surfaces own their padding in reel-studio.css. */
+.glass-page--reel .reel-card,
+.glass-page--reel .reel-stage {
+  border-radius: 26px;
+}
+
+.reduce-motion .glass-page :is(.glass-card, .notification-item, .reel-card, .reel-stage) {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glass-page :is(.glass-card, .notification-item, .reel-card, .reel-stage) {
+    transition: none;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .glass-page :is(.glass-card, .notification-item, .reel-card, .reel-stage),
+  .nav-pill,
+  .nav-notif-panel,
+  .avatar-dropdown,
+  .modal {
+    background-color: var(--app-paper);
+    background-image: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 }

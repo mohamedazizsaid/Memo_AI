@@ -2,7 +2,7 @@
 {% block title %}{% if entry.title %}{{ entry.title }}{% else %}{% trans_text "Entree sans titre" "Untitled entry" %}{% endif %} — MemoAI{% endblock %}
 
 {% block content %}
-<div class="container container--narrow">
+<div class="container container--narrow glass-page glass-page--detail">
   <!-- Breadcrumb -->
   <nav class="breadcrumb reveal" aria-label="{% trans_text 'Fil d\'ariane' 'Breadcrumb' %}">
     <a href="/journal/" class="breadcrumb-link">{% trans_text "Tableau de bord" "Dashboard" %}</a>
@@ -14,7 +14,7 @@
 
   <article class="entry-detail">
     <!-- Entry Header -->
-    <header class="entry-detail-header reveal">
+    <header class="entry-detail-header glass-card reveal">
       <div class="entry-detail-meta">
         <time datetime="{{ entry.entry_date|date:'Y-m-d' }}" class="entry-detail-date">
           {{ entry.entry_date|date:"l j F Y" }}
@@ -45,7 +45,7 @@
 
     <!-- Live AI processing state (auto-refreshes when the analysis lands) -->
     {% if entry.ai_status == 'processing' or entry.ai_status == 'pending' %}
-      <div class="ai-processing" id="ai-processing" data-status-url="{% url 'journal:ai-status' entry.pk %}" data-status="{{ entry.ai_status }}">
+      <div class="ai-processing glass-card" id="ai-processing" data-status-url="{% url 'journal:ai-status' entry.pk %}" data-status="{{ entry.ai_status }}">
         <span class="ai-processing__pulse" aria-hidden="true"></span>
         <p class="ai-processing__text">
           <strong>{% trans_text "L'IA analyse votre journee…" "The AI is analysing your day…" %}</strong><br>
@@ -56,7 +56,7 @@
 <br>
     <!-- Honest failure state when the illustration could not be produced/stored -->
     {% if entry.ai_analysis.image_generation_status == 'failed' %}
-      <div class="ai-notice ai-notice--error" role="status">
+      <div class="ai-notice ai-notice--error glass-card" role="status">
         <span class="ai-notice__icon" aria-hidden="true">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"></path><path d="M12 17h.01"></path><path d="M10.3 3.9L2 18a2 2 0 001.7 3h16.6A2 2 0 0022 18L13.7 3.9a2 2 0 00-3.4 0z"></path></svg>
         </span>
@@ -69,7 +69,7 @@
 
     <!-- Generated image -->
     {% if entry.ai_analysis.generated_image_url %}
-      <div class="entry-generated-image reveal">
+      <div class="entry-generated-image glass-card reveal">
         <img src="{{ entry.ai_analysis.generated_image_url }}" alt="{% trans_text 'Illustration de cette entree' 'Illustration for this entry' %}" class="entry-hero-image" loading="lazy">
         <div class="ai-content-overlay" id="ai-overlay">
           <p class="ai-overlay-title">{% trans_text "Contenu IA" "AI content" %}</p>
@@ -88,12 +88,12 @@
       <div class="entry-media-gallery reveal">
         {% for media in entry.media.all %}
           {% if media.media_type == 'IMAGE' %}
-            <div class="gallery-item" id="media-{{ media.id }}">
+            <div class="gallery-item glass-card" id="media-{{ media.id }}">
               <img src="{{ media.file_url }}" alt="{{ media.caption|default:'Photo' }}" loading="lazy" class="gallery-img">
               {% if media.caption %}<p class="gallery-caption">{{ media.caption }}</p>{% endif %}
             </div>
           {% elif media.media_type == 'AUDIO' %}
-            <div class="audio-player-card" id="audio-{{ media.id }}">
+            <div class="audio-player-card glass-card" id="audio-{{ media.id }}">
               <div class="audio-player-icon" aria-hidden="true">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                   <path d="M9 18V5l12-2v13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -116,13 +116,13 @@
     {% endif %}
 
     <!-- Entry content -->
-    <div class="entry-content prose reveal">
+    <div class="entry-content prose glass-card reveal">
       {{ entry.content|rich_text }}
     </div>
 
     <!-- AI Analysis -->
     {% if entry.ai_analysis %}
-      <div class="ai-analysis-panel reveal">
+      <div class="ai-analysis-panel glass-card reveal">
         <div class="ai-analysis-header">
           <div class="ai-badge-lg">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -194,7 +194,7 @@
 
     <!-- Tags -->
     {% if entry.tags.all %}
-      <div class="entry-tags-section">
+      <div class="entry-tags-section glass-card">
         <h3 class="entry-tags-title">Tags</h3>
         <div class="entry-tags">
           {% for tag in entry.tags.all %}
@@ -207,7 +207,7 @@
     {% endif %}
 
     <!-- Footer meta -->
-    <footer class="entry-detail-footer">
+    <footer class="entry-detail-footer glass-card">
       <span class="entry-word-count">{{ entry.word_count }} {% trans_text "mots" "words" %}</span>
       <span class="entry-created-at">{% trans_text "Cree le" "Created on" %} {{ entry.created_at|date:"j F Y a H:i" }}</span>
     </footer>

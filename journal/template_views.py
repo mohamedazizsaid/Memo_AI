@@ -733,6 +733,13 @@ class ReelStudioView(View):
             'reel_max': _REEL_MAX_PHOTOS,
             'reel_labels': _reel_labels(lang),
             'reel_default_count': min(6, len(reel_photos)),
+            'reel_config': {
+                'period': period,
+                'finalQuote': _MEMORY_FINAL_QUOTES[lang],
+                'firstName': request.user.first_name or '',
+                'max': _REEL_MAX_PHOTOS,
+                'defaultCount': min(6, len(reel_photos)),
+            },
             'memory_mode': False,
         })
 

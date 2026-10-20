@@ -1,0 +1,328 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{% trans_text "Studio de reel" "Reel studio" %} — MemoAI{% endblock %}
+{% block nav_journal %}active{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&display=swap">
+<link rel="stylesheet" href="{% static 'css/reel-studio.css' %}?v=20261020_1">
+{% endblock %}
+
+{% block content %}
+<div class="container glass-page glass-page--reel reel-page" id="reel-studio">
+  <a href="/journal/" class="reel-back reveal">
+    <svg aria-hidden="true" width="15" height="15" viewBox="0 0 16 16" fill="none">
+      <path d="M10 3.5 5.5 8l4.5 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    {% trans_text "Retour au journal" "Back to the journal" %}
+  </a>
+
+  <header class="reel-hero reveal">
+    <div>
+      <p class="eyebrow">{% trans_text "STUDIO CINÉMATIQUE" "CINEMATIC STUDIO" %}</p>
+      <h1 class="reel-title">{% trans_text "Vos souvenirs, en film." "Your memories, as a film." %}</h1>
+      <p class="reel-lede">
+        {% trans_text "Choisissez vos images, ajoutez une musique, puis exportez un reel MP4 prêt à partager." "Choose your images, add music, then export a share-ready MP4 reel." %}
+      </p>
+    </div>
+    <div class="reel-hero__meta">
+      <span><strong>{{ reel_photos|length }}</strong> {% trans_text "images disponibles" "images available" %}</span>
+      <span class="reel-hero__dot" aria-hidden="true"></span>
+      <span>{{ reel_period }}</span>
+      <span class="reel-hero__dot" aria-hidden="true"></span>
+      <span>MP4 · 1080p</span>
+    </div>
+  </header>
+
+  {% if reel_photos %}
+  <div class="reel-layout">
+    <!-- ── Live canvas preview ─────────────────────────────────────── -->
+    <section class="reel-stage reveal" aria-labelledby="reel-stage-title">
+      <div class="reel-stage__head">
+        <div>
+          <p class="eyebrow">{% trans_text "APERÇU" "PREVIEW" %}</p>
+          <h2 class="reel-stage__title" id="reel-stage-title">{% trans_text "Votre film" "Your film" %}</h2>
+        </div>
+        <div class="reel-formats" role="group" aria-label="{% trans_text 'Format du reel' 'Reel format' %}">
+          <button type="button" class="reel-format is-active" data-format="9:16" aria-pressed="true" title="9:16">
+            <svg aria-hidden="true" width="11" height="16" viewBox="0 0 12 18" fill="none"><rect x="1.2" y="1.2" width="9.6" height="15.6" rx="2.2" stroke="currentColor" stroke-width="1.3"/></svg>
+            9:16
+          </button>
+          <button type="button" class="reel-format" data-format="1:1" aria-pressed="false" title="1:1">
+            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="1.5" width="13" height="13" rx="2.4" stroke="currentColor" stroke-width="1.3"/></svg>
+            1:1
+          </button>
+          <button type="button" class="reel-format" data-format="16:9" aria-pressed="false" title="16:9">
+            <svg aria-hidden="true" width="17" height="12" viewBox="0 0 20 14" fill="none"><rect x="1.3" y="1.3" width="17.4" height="11.4" rx="2" stroke="currentColor" stroke-width="1.3"/></svg>
+            16:9
+          </button>
+        </div>
+      </div>
+
+      <div class="reel-frame reel-frame--9x16" id="reel-frame">
+        <canvas id="reel-canvas" width="540" height="960" role="img"
+                aria-label="{% trans_text 'Aperçu animé de votre reel' 'Animated preview of your reel' %}"></canvas>
+        <div class="reel-frame__loading" id="reel-frame-loading">
+          <span></span>
+          <p>{% trans_text "Préparation du film…" "Preparing the film…" %}</p>
+        </div>
+        <span class="reel-frame__badge" aria-hidden="true">MEMOAI · FILM</span>
+        <button type="button" class="reel-frame__play" id="reel-canvas-play"
+                aria-label="{% trans_text 'Lire le film' 'Play the film' %}">
+          <svg class="reel-icon-play" aria-hidden="true" width="19" height="19" viewBox="0 0 20 20" fill="none">
+            <path d="M6 3.8 16 10 6 16.2V3.8Z" fill="currentColor"/>
+          </svg>
+          <svg class="reel-icon-pause" aria-hidden="true" width="19" height="19" viewBox="0 0 20 20" fill="none">
+            <path d="M6.2 4v12M13.8 4v12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="reel-transport">
+        <button type="button" class="reel-transport__play" id="reel-play" aria-label="{% trans_text 'Lire' 'Play' %}">
+          <svg class="reel-icon-play" aria-hidden="true" width="13" height="13" viewBox="0 0 14 14" fill="none">
+            <path d="M4 2.5 11.5 7 4 11.5v-9Z" fill="currentColor"/>
+          </svg>
+          <svg class="reel-icon-pause" aria-hidden="true" width="13" height="13" viewBox="0 0 14 14" fill="none">
+            <path d="M4.4 2.5v9M9.6 2.5v9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          <span id="reel-play-label">{% trans_text "Lire" "Play" %}</span>
+        </button>
+        <input type="range" class="reel-scrub" id="reel-scrub" min="0" max="10" step="0.01" value="0"
+               aria-label="{% trans_text 'Position dans le film' 'Position in the film' %}">
+        <span class="reel-time" id="reel-time">00:00 / 00:00</span>
+      </div>
+
+      <div class="reel-looks">
+        <span class="reel-looks__label">{% trans_text "Ambiance" "Look" %}</span>
+        <button type="button" class="reel-look is-active" data-look="cinema" aria-pressed="true">
+          {% trans_text "Cinéma" "Cinema" %}
+        </button>
+        <button type="button" class="reel-look" data-look="noir" aria-pressed="false">Noir</button>
+        <button type="button" class="reel-look" data-look="gold" aria-pressed="false">
+          {% trans_text "Or" "Gold" %}
+        </button>
+      </div>
+    </section>
+
+    <!-- ── Controls ────────────────────────────────────────────────── -->
+    <aside class="reel-panel">
+      <section class="reel-card reel-card--photos reveal" aria-labelledby="reel-photos-title">
+        <header class="reel-card__head">
+          <div>
+            <p class="eyebrow">01 · {% trans_text "IMAGES" "IMAGES" %}</p>
+            <h2 class="reel-card__title" id="reel-photos-title">{% trans_text "Choisissez vos souvenirs" "Choose your memories" %}</h2>
+          </div>
+          <span class="reel-count" id="reel-selection-count">0 / {{ reel_max }}</span>
+        </header>
+
+        <div class="reel-card__tools">
+          <button type="button" class="reel-mini" id="reel-select-all">{% trans_text "Tout sélectionner" "Select all" %}</button>
+          <button type="button" class="reel-mini" id="reel-clear-all">{% trans_text "Tout effacer" "Clear all" %}</button>
+        </div>
+
+        <div class="reel-photo-grid" id="reel-photo-grid" role="group"
+             aria-label="{% trans_text 'Photos disponibles' 'Available photos' %}">
+          {% for photo in reel_photos %}
+          <button type="button" class="reel-photo" data-photo-id="{{ photo.id }}"
+                  aria-pressed="false"
+                  aria-label="{% if photo.title %}{{ photo.title }}{% else %}{{ photo.date }}{% endif %}">
+            <img src="{{ photo.thumb }}" alt="" loading="lazy" decoding="async">
+            <span class="reel-photo__order" data-order hidden></span>
+            <span class="reel-photo__check" aria-hidden="true">
+              <svg width="11" height="11" viewBox="0 0 14 14" fill="none">
+                <path d="M2.5 7.2 5.6 10.3 11.5 4.2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </button>
+          {% endfor %}
+        </div>
+
+        <p class="reel-hint">
+          <svg aria-hidden="true" width="13" height="13" viewBox="0 0 16 16" fill="none">
+            <circle cx="8" cy="8" r="6.3" stroke="currentColor" stroke-width="1.2"/>
+            <path d="M8 7.2v4M8 4.8h.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+          {% trans_text "Cliquez dans l’ordre du film. De 2 à 12 photos." "Click in film order. From 2 to 12 photos." %}
+        </p>
+      </section>
+
+      <section class="reel-card reel-card--music reveal" aria-labelledby="reel-music-title">
+        <header class="reel-card__head">
+          <div>
+            <p class="eyebrow">02 · {% trans_text "MUSIQUE" "MUSIC" %}</p>
+            <h2 class="reel-card__title" id="reel-music-title">{% trans_text "Donnez le tempo" "Set the mood" %}</h2>
+          </div>
+        </header>
+
+        <div class="reel-tabs" role="tablist" aria-label="{% trans_text 'Source de musique' 'Music source' %}">
+          <button type="button" class="reel-tab is-active" data-music-tab="library" role="tab" aria-selected="true">
+            {% trans_text "Bibliothèque" "Library" %}
+          </button>
+          <button type="button" class="reel-tab" data-music-tab="upload" role="tab" aria-selected="false">
+            {% trans_text "Importer" "Upload" %}
+          </button>
+        </div>
+
+        <div data-music-panel="library">
+          <form class="reel-search" id="reel-music-form" role="search">
+            <label for="reel-music-query" class="sr-only">{% trans_text "Rechercher une musique" "Search for music" %}</label>
+            <input type="search" id="reel-music-query" autocomplete="off"
+                   placeholder="{% trans_text 'Piano cinématique, ambient, épique…' 'Cinematic piano, ambient, epic…' %}">
+            <button type="submit" aria-label="{% trans_text 'Rechercher' 'Search' %}">
+              <svg aria-hidden="true" width="15" height="15" viewBox="0 0 16 16" fill="none">
+                <circle cx="7" cy="7" r="5.2" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M11 11l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </button>
+          </form>
+          <div class="reel-music-results" id="reel-music-results">
+            <p class="reel-music-empty" id="reel-music-empty">
+              {% trans_text "Cherchez une ambiance pour commencer." "Search for a mood to get started." %}
+            </p>
+          </div>
+          <p class="reel-note">{% trans_text "Extraits de 30 s · iTunes Search API, sans compte." "30-second previews · iTunes Search API, no account." %}</p>
+        </div>
+
+        <div data-music-panel="upload" hidden>
+          <label class="reel-upload" id="reel-upload-zone">
+            <input type="file" id="reel-music-file" accept="audio/*" hidden>
+            <span class="reel-upload__icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 18V5l12-2v13"/>
+                <circle cx="6" cy="18" r="3"/>
+                <circle cx="18" cy="16" r="3"/>
+              </svg>
+            </span>
+            <strong>{% trans_text "Déposez votre musique ici" "Drop your music here" %}</strong>
+            <span>{% trans_text "ou cliquez pour parcourir vos fichiers" "or click to browse your files" %}</span>
+            <small>MP3, WAV, M4A · 20 Mo max</small>
+          </label>
+        </div>
+
+        <div class="reel-track" id="reel-track" hidden>
+          <div class="reel-track__head">
+            <img id="reel-track-art" alt="" hidden>
+            <span class="reel-track__note" id="reel-track-note" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+              </svg>
+            </span>
+            <div class="reel-track__meta">
+              <strong id="reel-track-title"></strong>
+              <span id="reel-track-artist"></span>
+            </div>
+            <button type="button" class="reel-track__remove" id="reel-track-remove"
+                    aria-label="{% trans_text 'Retirer la musique' 'Remove the music' %}">
+              <svg aria-hidden="true" width="13" height="13" viewBox="0 0 14 14" fill="none">
+                <path d="M2 2l10 10M12 2 2 12" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+              </svg>
+            </button>
+          </div>
+
+          <div class="reel-wave-wrap">
+            <canvas class="reel-wave" id="reel-wave" aria-hidden="true"></canvas>
+            <div class="reel-wave__selection" id="reel-wave-selection" aria-hidden="true"></div>
+            <span class="reel-wave__handle reel-wave__handle--start" id="reel-wave-start" aria-hidden="true"></span>
+            <span class="reel-wave__handle reel-wave__handle--end" id="reel-wave-end" aria-hidden="true"></span>
+          </div>
+
+          <div class="reel-trim">
+            <label for="reel-music-start">
+              <span>{% trans_text "Début" "Start" %}</span>
+              <input type="range" id="reel-music-start" min="0" max="30" step="0.1" value="0">
+            </label>
+            <label for="reel-music-end">
+              <span>{% trans_text "Fin" "End" %}</span>
+              <input type="range" id="reel-music-end" min="0" max="30" step="0.1" value="20">
+            </label>
+          </div>
+
+          <div class="reel-trim__meta">
+            <span id="reel-trim-range">0:00 – 0:20</span>
+            <button type="button" class="reel-mini reel-mini--play" id="reel-music-preview">
+              <svg aria-hidden="true" width="11" height="11" viewBox="0 0 14 14" fill="none">
+                <path d="M4 2.5 11.5 7 4 11.5v-9Z" fill="currentColor"/>
+              </svg>
+              {% trans_text "Écouter" "Listen" %}
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="reel-card reel-card--export reveal" aria-labelledby="reel-export-title">
+        <header class="reel-card__head">
+          <div>
+            <p class="eyebrow">03 · {% trans_text "EXPORT" "EXPORT" %}</p>
+            <h2 class="reel-card__title" id="reel-export-title">{% trans_text "Prêt à partager" "Ready to share" %}</h2>
+          </div>
+        </header>
+
+        <dl class="reel-summary">
+          <div><dt>{% trans_text "Format" "Format" %}</dt><dd id="reel-summary-format">9:16</dd></div>
+          <div><dt>{% trans_text "Photos" "Photos" %}</dt><dd id="reel-summary-photos">0</dd></div>
+          <div><dt>{% trans_text "Durée" "Duration" %}</dt><dd id="reel-summary-duration">00:00</dd></div>
+          <div><dt>{% trans_text "Sortie" "Output" %}</dt><dd>MP4 · 1080p</dd></div>
+        </dl>
+
+        <button type="button" class="reel-export-btn" id="reel-export">
+          <span class="reel-export-btn__icon" aria-hidden="true">
+            <svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10 2.8v10M6 9l4 4 4-4"/>
+              <path d="M3.5 14.5v2a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-2"/>
+            </svg>
+          </span>
+          <span id="reel-export-label">{% trans_text "Exporter en MP4" "Export as MP4" %}</span>
+        </button>
+
+        <div class="reel-export-progress" id="reel-export-progress" hidden>
+          <div class="reel-export-progress__bar"><span id="reel-export-bar"></span></div>
+          <p id="reel-export-status" aria-live="polite">{% trans_text "Création de votre film…" "Rendering your film…" %}</p>
+        </div>
+
+        <div class="reel-download" id="reel-download" hidden>
+          <p id="reel-download-title">{% trans_text "Votre film est prêt." "Your film is ready." %}</p>
+          <a href="#" class="btn btn-primary btn-sm" id="reel-download-link" download>
+            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10 2.8v10M6 9l4 4 4-4"/>
+              <path d="M3.5 14.5v2a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-2"/>
+            </svg>
+            <span id="reel-download-label">{% trans_text "Télécharger le MP4" "Download the MP4" %}</span>
+          </a>
+          <span class="reel-download__meta" id="reel-download-size"></span>
+        </div>
+
+        <p class="reel-note">
+          {% trans_text "L’export se fait dans votre navigateur. Gardez cet onglet visible pendant la création." "The export happens in your browser. Keep this tab visible while it renders." %}
+        </p>
+      </section>
+    </aside>
+  </div>
+
+  <audio id="reel-audio" preload="auto" playsinline></audio>
+  {% else %}
+  <div class="reel-empty reel-card reveal">
+    <span class="reel-empty__icon" aria-hidden="true">
+      <svg width="42" height="42" viewBox="0 0 48 48" fill="none">
+        <rect x="7" y="9" width="34" height="30" rx="5" stroke="currentColor" stroke-width="1.8"/>
+        <path d="m14 33 8-9 6 7 4-5 4 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="31" cy="18" r="3" stroke="currentColor" stroke-width="1.8"/>
+      </svg>
+    </span>
+    <h2 class="reel-empty__title">{% trans_text "Ajoutez des photos à vos souvenirs" "Add photos to your memories" %}</h2>
+    <p class="reel-empty__body">
+      {% trans_text "Le studio utilise les photos de vos entrées, vos illustrations IA et les portraits de vos proches. Une image suffit pour commencer." "The studio uses photos from your entries, your AI illustrations and your people’s portraits. One image is enough to begin." %}
+    </p>
+    <a href="/journal/nouveau/" class="btn btn-primary">{% trans_text "Écrire une entrée" "Write an entry" %}</a>
+  </div>
+  {% endif %}
+</div>
+
+{{ reel_photos|json_script:"reel-photos-data" }}
+{{ reel_labels|json_script:"reel-labels-data" }}
+{{ reel_config|json_script:"reel-config-data" }}
+{% endblock %}
+
+{% block extra_js %}
+<script defer src="{% static 'js/reel-studio.js' %}?v=20261020_1"></script>
+{% endblock %}
