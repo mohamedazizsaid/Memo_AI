@@ -54,7 +54,8 @@
       button.setAttribute('aria-pressed', entry ? 'true' : 'false');
       if (badge) {
         badge.hidden = !entry;
-        badge.textContent = entry ? String(entry.order) : '';
+        var order = entry ? String(entry.order) : '';
+        if (badge.textContent !== order) badge.textContent = order;
       }
       if (tile) tile.classList.toggle('is-selected', !!entry);
     });
@@ -178,10 +179,12 @@
   if ('MutationObserver' in window) {
     var observer = new MutationObserver(function () {
       if (!selecting) return;
+      // Only update focusability of newly appended cards. Calling
+      // refreshTiles here would rewrite badge text nodes and retrigger this
+      // childList observer indefinitely.
       wall.querySelectorAll('.photo-tile__link').forEach(function (link) {
         link.tabIndex = -1;
       });
-      refreshTiles();
     });
     observer.observe(wall, { childList: true, subtree: true });
   }

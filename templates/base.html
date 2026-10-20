@@ -290,7 +290,7 @@
   </style>
   {% block extra_css %}{% endblock %}
   {% if user.is_authenticated %}
-  <link rel="stylesheet" href="{% static 'css/liquid-glass.css' %}?v=20261020_2">
+  <link rel="stylesheet" href="{% static 'css/liquid-glass.css' %}?v=20261020_4">
   {% endif %}
   {% block splash_head %}{% endblock %}
 </head>
@@ -480,6 +480,12 @@
 
       {% else %}
         <!-- ── PUBLIC NAV (not authenticated) ── -->
+        <button type="button" class="nav-mobile-toggle" id="nav-mobile-toggle"
+                aria-label="{% trans_text 'Ouvrir le menu' 'Open menu' %}"
+                aria-controls="nav-mobile-menu" aria-expanded="false">
+          <span class="nav-mobile-toggle__bars" aria-hidden="true"><span></span><span></span></span>
+        </button>
+
         <div class="nav-links">
           <a href="/" class="nav-link">{{ t.nav_home }}</a>
           <a href="/#about" class="nav-link">{{ t.nav_about }}</a>
@@ -552,6 +558,43 @@
           {% csrf_token %}
           <button type="submit">{{ t.nav_logout }}</button>
         </form>
+      </div>
+    </div>
+    {% endif %}
+
+    {% if not user.is_authenticated %}
+    <div class="nav-mobile-menu" id="nav-mobile-menu" aria-hidden="true" hidden>
+      <div class="nav-mobile-menu__head">
+        <div>
+          <span class="nav-mobile-menu__eyebrow">MEMOAI</span>
+          <strong class="nav-mobile-menu__name">{% trans_text "Vos souvenirs, en film." "Your memories, in motion." %}</strong>
+        </div>
+        <button type="button" class="nav-mobile-menu__close" id="nav-mobile-menu-close"
+                aria-label="{% trans_text 'Fermer le menu' 'Close menu' %}">
+          <svg aria-hidden="true" width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M2 2l10 10M12 2 2 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <nav class="nav-mobile-menu__links" aria-label="{% trans_text 'Navigation mobile' 'Mobile navigation' %}">
+        <a href="/">{{ t.nav_home }}</a>
+        <a href="/#about">{{ t.nav_about }}</a>
+        <a href="/#contact">{{ t.nav_contact }}</a>
+        <a href="/comptes/connexion/">{{ t.nav_login }}</a>
+      </nav>
+
+      <div class="nav-mobile-menu__actions">
+        <a href="/comptes/inscription/" class="btn btn-primary btn-sm">{{ t.nav_register }}</a>
+        <div class="nav-mobile-menu__langs">
+          {% if is_en %}
+            <a href="/comptes/changer-langue/?lang=fr&next={{ request.get_full_path|urlencode }}" class="lang-pill">FR</a>
+            <span class="lang-pill lang-pill--active">EN</span>
+          {% else %}
+            <span class="lang-pill lang-pill--active">FR</span>
+            <a href="/comptes/changer-langue/?lang=en&next={{ request.get_full_path|urlencode }}" class="lang-pill">EN</a>
+          {% endif %}
+        </div>
       </div>
     </div>
     {% endif %}
@@ -772,9 +815,33 @@
         });
 
         document.addEventListener("keydown", function(event){
-          if(event.key !== "Escape" || mMenu.hidden) return;
-          event.preventDefault();
-          closeMobile(true);
+          if(mMenu.hidden) return;
+          if(event.key === "Escape"){
+            event.preventDefault();
+            closeMobile(true);
+            return;
+          }
+          if(event.key !== "Tab") return;
+
+          // Keep keyboard focus inside the sheet while it is open.
+          var focusables = Array.prototype.slice.call(
+            mMenu.querySelectorAll('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])')
+          ).filter(function(item){ return item.offsetParent !== null; });
+          if(!focusables.length) return;
+          var first = focusables[0];
+          var last = focusables[focusables.length - 1];
+          if(!mMenu.contains(document.activeElement)){
+            event.preventDefault();
+            first.focus();
+            return;
+          }
+          if(event.shiftKey && document.activeElement === first){
+            event.preventDefault();
+            last.focus();
+          } else if(!event.shiftKey && document.activeElement === last){
+            event.preventDefault();
+            first.focus();
+          }
         });
 
         if(wideQuery){
