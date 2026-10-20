@@ -1,11 +1,23 @@
 {% extends 'base.html' %}
 {% block title %}{% trans_text "Mon profil" "My profile" %} — MemoAI{% endblock %}
 
+{% block extra_css %}
+<style>
+  .face-drop--avatar .face-drop__preview { width: 96px; height: 96px; border-radius: 50%; }
+  @media (max-width: 560px) {
+    .face-drop--avatar { gap: 14px; padding: 14px; }
+    .face-drop--avatar .face-drop__preview { width: 76px; height: 76px; }
+  }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container">
   <div class="page-header reveal">
-    <p class="eyebrow">{% trans_text "COMPTE" "ACCOUNT" %}</p>
-    <h1 class="page-title">{% trans_text "Mon profil" "My profile" %}</h1>
+    <div>
+      <p class="eyebrow">{% trans_text "COMPTE" "ACCOUNT" %}</p>
+      <h1 class="page-title">{% trans_text "Mon profil" "My profile" %}</h1>
+    </div>
   </div>
 
   <div class="profile-layout">
@@ -89,9 +101,41 @@
           </div>
 
           <div class="form-group">
-            <label for="id_avatar" class="form-label">{% trans_text "Photo de profil (URL)" "Profile photo (URL)" %}</label>
-            <input type="url" name="avatar" id="id_avatar"
-              class="form-input" value="{{ user.avatar }}" placeholder="https://...">
+            <span class="form-label" id="avatar-label">{% trans_text "Photo de profil" "Profile photo" %}</span>
+            <div class="face-drop face-drop--avatar" id="avatar-drop">
+              <input type="file" name="avatar_file" id="id_avatar_file" class="face-drop__input"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                data-max-size="10"
+                data-msg-size="{% trans_text 'L’image dépasse 10 Mo.' 'The image is larger than 10 MB.' %}"
+                data-msg-type="{% trans_text 'Choisissez une image JPG, PNG, WebP ou GIF.' 'Choose a JPG, PNG, WebP or GIF image.' %}"
+                data-msg-ready="{% trans_text 'Photo prête : elle sera enregistrée avec votre profil.' 'Photo ready: it will be saved with your profile.' %}"
+                data-msg-saving="{% trans_text 'Enregistrement…' 'Saving…' %}"
+                aria-labelledby="avatar-label" aria-describedby="avatar-hint">
+
+              <div class="face-drop__preview" id="avatar-preview">
+                {% if user.avatar %}
+                  <img src="{{ user.avatar }}" alt="" id="avatar-preview-img">
+                {% else %}
+                  <div class="face-drop__placeholder" id="avatar-placeholder">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M12 16V4M7 9l5-5 5 5"></path>
+                      <path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"></path>
+                    </svg>
+                    <span>{% trans_text "Aucune photo" "No photo" %}</span>
+                  </div>
+                {% endif %}
+              </div>
+
+              <div class="face-drop__body">
+                <p class="face-drop__title">{% trans_text "Glissez votre photo ici" "Drag your photo here" %}</p>
+                <p class="face-drop__hint" id="avatar-hint">
+                  {% trans_text "ou" "or" %}
+                  <button type="button" class="face-drop__browse" id="avatar-browse">{% trans_text "parcourir vos fichiers" "browse your files" %}</button>
+                </p>
+                <p class="face-drop__meta">{% trans_text "JPG, PNG, WebP ou GIF — 10 Mo max" "JPG, PNG, WebP or GIF — 10 MB max" %}</p>
+                <div class="face-status" id="avatar-status" aria-live="polite"></div>
+              </div>
+            </div>
           </div>
 
           <div class="form-actions">
@@ -152,6 +196,97 @@ document.addEventListener('DOMContentLoaded', function() {
   if (modal) modal.addEventListener('click', function(e) {
     if (e.target === modal) modal.hidden = true;
   });
+
+  // ── Profile photo: drag & drop picker ─────────────────────────────
+  var avatarInput = document.getElementById('id_avatar_file');
+  var avatarDrop = document.getElementById('avatar-drop');
+  var avatarPreview = document.getElementById('avatar-preview');
+  var avatarStatus = document.getElementById('avatar-status');
+  var avatarBrowse = document.getElementById('avatar-browse');
+  var profileForm = document.getElementById('profile-form');
+  var profileSave = document.getElementById('profile-save');
+
+  if (avatarInput && avatarDrop) {
+    var avatarObjectUrl = null;
+
+    function avatarStatusSet(msg, kind) {
+      if (!avatarStatus) return;
+      avatarStatus.textContent = msg || '';
+      avatarStatus.className = 'face-status' + (kind ? ' face-status--' + kind : '');
+    }
+
+    function avatarHandle(file) {
+      if (!file) return;
+      if (file.type && file.type.indexOf('image/') !== 0) {
+        avatarStatusSet(avatarInput.dataset.msgType, 'error');
+        avatarInput.value = '';
+        return;
+      }
+      var maxBytes = (parseInt(avatarInput.dataset.maxSize, 10) || 10) * 1024 * 1024;
+      if (file.size > maxBytes) {
+        avatarStatusSet(avatarInput.dataset.msgSize, 'error');
+        avatarInput.value = '';
+        return;
+      }
+
+      if (avatarObjectUrl) URL.revokeObjectURL(avatarObjectUrl);
+      avatarObjectUrl = URL.createObjectURL(file);
+
+      var img = avatarPreview.querySelector('img');
+      if (!img) {
+        img = document.createElement('img');
+        img.id = 'avatar-preview-img';
+        var placeholder = document.getElementById('avatar-placeholder');
+        if (placeholder) placeholder.remove();
+        avatarPreview.appendChild(img);
+      }
+      img.src = avatarObjectUrl;
+      avatarStatusSet(avatarInput.dataset.msgReady, 'ok');
+    }
+
+    if (avatarBrowse) {
+      avatarBrowse.addEventListener('click', function(e) {
+        e.stopPropagation();
+        avatarInput.click();
+      });
+    }
+
+    avatarInput.addEventListener('change', function() {
+      if (this.files && this.files[0]) avatarHandle(this.files[0]);
+    });
+
+    ['dragenter', 'dragover'].forEach(function(evt) {
+      avatarDrop.addEventListener(evt, function(e) {
+        e.preventDefault();
+        avatarDrop.classList.add('face-drop--over');
+      });
+    });
+    ['dragleave', 'drop'].forEach(function(evt) {
+      avatarDrop.addEventListener(evt, function(e) {
+        e.preventDefault();
+        avatarDrop.classList.remove('face-drop--over');
+      });
+    });
+    avatarDrop.addEventListener('drop', function(e) {
+      var file = e.dataTransfer.files && e.dataTransfer.files[0];
+      if (!file) return;
+      try {
+        var dt = new DataTransfer();
+        dt.items.add(file);
+        avatarInput.files = dt.files;
+      } catch (err) { /* ignore */ }
+      avatarHandle(file);
+    });
+
+    if (profileForm && profileSave) {
+      profileForm.addEventListener('submit', function() {
+        if (avatarInput.files && avatarInput.files.length) {
+          profileSave.disabled = true;
+          profileSave.textContent = avatarInput.dataset.msgSaving;
+        }
+      });
+    }
+  }
 });
 </script>
 {% endblock %}

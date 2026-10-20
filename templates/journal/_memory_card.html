@@ -1,0 +1,60 @@
+{% comment %}
+  Journal list — photo-first memory card. The picture covers the whole
+  tile, with a warm ink gradient keeping the caption readable. Entries
+  without a picture fall back to an ink + amber composition so the grid
+  never breaks its rhythm.
+{% endcomment %}
+<article class="memory-card reveal{% if not entry.cover_thumb %} memory-card--empty{% endif %}" id="entry-{{ entry.id }}">
+  <a href="/journal/{{ entry.id }}/" class="memory-card__link"
+     aria-label="{% if entry.title %}{{ entry.title }}{% else %}{% trans_text 'Entree sans titre' 'Untitled entry' %}{% endif %} — {{ entry.entry_date|date:'j F Y' }}">
+    {% if entry.cover_thumb %}
+      <img src="{{ entry.cover_thumb }}" alt="" loading="lazy" decoding="async" class="memory-card__photo">
+    {% endif %}
+    <span class="memory-card__veil" aria-hidden="true"></span>
+
+    <div class="memory-card__content">
+      <div class="memory-card__topline">
+        <time datetime="{{ entry.entry_date|date:'Y-m-d' }}" class="memory-card__date">{{ entry.entry_date|date:"j F" }}</time>
+        {% if entry.mood %}
+          <span class="memory-card__mood" aria-hidden="true">{{ entry.mood_emoji }}</span>
+        {% endif %}
+        {% if entry.location %}
+          <span class="memory-card__place">
+            <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+              <path d="M6 1a3.5 3.5 0 0 1 3.5 3.5c0 2.5-3.5 6.5-3.5 6.5S2.5 7 2.5 4.5A3.5 3.5 0 0 1 6 1z" stroke="currentColor" stroke-width="1.2"/>
+              <circle cx="6" cy="4.5" r="1" stroke="currentColor" stroke-width="1.2"/>
+            </svg>
+            {{ entry.location }}
+          </span>
+        {% endif %}
+      </div>
+
+      <h3 class="memory-card__title">{% if entry.title %}{{ entry.title }}{% else %}{% trans_text "Sans titre" "Untitled" %}{% endif %}</h3>
+
+      {% if entry.excerpt %}
+        <p class="memory-card__excerpt">{{ entry.excerpt }}</p>
+      {% endif %}
+
+      {% if entry.tags.all %}
+        <div class="memory-card__tags">
+          {% for tag in entry.tags.all|slice:":3" %}
+            <span class="tag-pill" style="--tag-color: {{ tag.color }}">{{ tag.name }}</span>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <div class="memory-card__footer">
+        <span class="memory-card__words">{{ entry.word_count }} {% trans_text "mots" "words" %}</span>
+        {% if entry.ai_status == 'completed' %}
+          <span class="memory-card__ai">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+              <circle cx="5" cy="5" r="4" stroke="currentColor" stroke-width="1"/>
+              <path d="M3 5l1.5 1.5L7 3.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            {% trans_text "IA" "AI" %}
+          </span>
+        {% endif %}
+      </div>
+    </div>
+  </a>
+</article>
