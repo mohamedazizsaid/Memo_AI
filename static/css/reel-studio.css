@@ -398,6 +398,50 @@
   color: var(--app-paper);
 }
 
+.reel-transitions-bar {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.reel-transition-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid var(--app-line);
+  background: transparent;
+  color: var(--app-secondary);
+  border-radius: 999px;
+  padding: 6px 11px;
+  font-family: var(--app-font, inherit);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+}
+
+.reel-transition-btn svg {
+  opacity: 0.85;
+}
+
+.reel-transition-btn:hover {
+  color: var(--app-ink);
+  transform: translateY(-1px);
+}
+
+.reel-transition-btn.is-active {
+  background: var(--app-ink);
+  border-color: transparent;
+  color: var(--app-paper);
+}
+
+.reel-transition-btn.is-active svg {
+  opacity: 1;
+}
+
 /* ─── Panel cards ──────────────────────────────────────────────────── */
 
 .reel-panel {

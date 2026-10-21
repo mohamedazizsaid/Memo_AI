@@ -72,7 +72,8 @@
               required
             >
             <button type="button" class="auth-field__peek password-toggle" aria-label="{% trans_text 'Afficher le mot de passe' 'Show password' %}">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M1.5 8C3 4.5 5.5 3 8 3s5 1.5 6.5 5c-1.5 3.5-4 5-6.5 5S3 11.5 1.5 8z" stroke="currentColor" stroke-width="1.5"/></svg>
+              <svg class="icon-eye" aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M1.5 8C3 4.5 5.5 3 8 3s5 1.5 6.5 5c-1.5 3.5-4 5-6.5 5S3 11.5 1.5 8z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <svg class="icon-eye-off" aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none" style="display:none;"><path d="M2 2l12 12M6.5 6.5A2.5 2.5 0 0 0 9.5 9.5M1.5 8C3 4.5 5.5 3 8 3c1.5 0 2.8.5 3.9 1.4M14.5 8c-.6 1.4-1.6 2.7-2.8 3.6M4.5 11.6C5.5 12.5 6.7 13 8 13c2.5 0 5-1.5 6.5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
           </label>
           {% if form.password.errors %}
@@ -123,7 +124,14 @@
     var input = document.getElementById('id_password');
     if (toggle && input) {
       toggle.addEventListener('click', function () {
-        input.type = input.type === 'password' ? 'text' : 'password';
+        var isText = input.type === 'text';
+        input.type = isText ? 'password' : 'text';
+        var eye = toggle.querySelector('.icon-eye');
+        var eyeOff = toggle.querySelector('.icon-eye-off');
+        if (eye && eyeOff) {
+          eye.style.display = isText ? 'block' : 'none';
+          eyeOff.style.display = isText ? 'none' : 'block';
+        }
       });
     }
   });

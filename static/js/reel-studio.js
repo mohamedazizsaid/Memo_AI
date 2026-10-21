@@ -28,7 +28,9 @@
   function clamp(value, min, max) { return Math.min(max, Math.max(min, value)); }
   function ease(value) {
     var t = clamp(value, 0, 1);
-    return t * t * (3 - 2 * t);
+    // Quintic smootherstep (Ken Perlin: 6t^5 - 15t^4 + 10t^3)
+    // Both 1st and 2nd derivatives reach zero at endpoints for silky-smooth motion.
+    return t * t * t * (t * (t * 6 - 15) + 10);
   }
   function formatTime(seconds) {
     var value = Math.max(0, Number(seconds) || 0);
@@ -102,10 +104,45 @@
   var CROSSFADE = 1.25;
   var STEP = PHOTO_LENGTH - CROSSFADE;
   var MIN_MUSIC = 3;
-  // Rotate four transitions so consecutive photos never cut the same way.
-  var TRANSITIONS = ['dissolve', 'zoom', 'slide', 'dip'];
+  // Apple Photos-inspired cinematic transitions suite.
+  // Rotates through a rich, varied palette of camera moves, dissolves, light leaks,
+  // zooms, and optical blurs so each photo transition feels alive like in iOS Memories.
+  var TRANSITION_MODES = {
+    apple: [
+      'zoom_in',
+      'dissolve',
+      'light_leak',
+      'slide_left',
+      'bokeh_blur',
+      'dip_white',
+      'zoom_out',
+      'slide_right',
+      'dip_black',
+      'cross_zoom',
+      'slide_up',
+      'wipe_soft'
+    ],
+    gentle: [
+      'dissolve',
+      'bokeh_blur',
+      'light_leak',
+      'dip_black',
+      'zoom_out',
+      'dissolve'
+    ],
+    dynamic: [
+      'zoom_in',
+      'slide_left',
+      'cross_zoom',
+      'light_leak',
+      'slide_right',
+      'dip_white'
+    ]
+  };
+
   function transitionFor(index) {
-    return TRANSITIONS[((index - 1) % TRANSITIONS.length + TRANSITIONS.length) % TRANSITIONS.length];
+    var list = TRANSITION_MODES[state.transitionStyle] || TRANSITION_MODES.apple;
+    return list[((index - 1) % list.length + list.length) % list.length];
   }
   var FORMATS = {
     '9:16': { preview: [540, 960], output: [1080, 1920], frame: 'reel-frame--9x16' },
@@ -186,6 +223,7 @@
     selected: [],
     format: '9:16',
     look: 'cinema',
+    transitionStyle: 'apple',
     current: 0,
     playing: false,
     exporting: false,
@@ -290,7 +328,7 @@
     return LOOKS[state.look] || LOOKS.cinema;
   }
 
-  function drawCover(g, image, width, height, zoom, panX, panY, filter) {
+  function drawCover(g, image, width, height, zoom, panX, panY, filter, clipRect) {
     if (!image) return;
     var iw = image.naturalWidth || image.width;
     var ih = image.naturalHeight || image.height;
@@ -301,6 +339,11 @@
     var dx = (width - dw) / 2 + panX * width;
     var dy = (height - dh) / 2 + panY * height;
     g.save();
+    if (clipRect) {
+      g.beginPath();
+      g.rect(clipRect.x, clipRect.y, clipRect.w, clipRect.h);
+      g.clip();
+    }
     if (filter) g.filter = filter;
     g.drawImage(image, dx, dy, dw, dh);
     g.restore();
@@ -431,26 +474,72 @@
     g.restore();
   }
 
+  // Apple Photos-inspired dynamic Ken Burns movement:
+  // Choreograph camera motion distinctly across photos so each scene has its
+  // own breathing personality (push-in, pull-out, pan horizontal, pan vertical, diagonal).
+  var MOTIONS = [
+    { zoomStart: 1.05, zoomEnd: 1.18, panXStart: 0, panXEnd: 0, panYStart: 0.02, panYEnd: -0.02 },
+    { zoomStart: 1.12, zoomEnd: 1.16, panXStart: -0.035, panXEnd: 0.035, panYStart: 0, panYEnd: 0 },
+    { zoomStart: 1.19, zoomEnd: 1.06, panXStart: 0, panXEnd: 0, panYStart: -0.02, panYEnd: 0.015 },
+    { zoomStart: 1.08, zoomEnd: 1.15, panXStart: 0.01, panXEnd: -0.01, panYStart: 0.035, panYEnd: -0.03 },
+    { zoomStart: 1.15, zoomEnd: 1.11, panXStart: 0.035, panXEnd: -0.035, panYStart: 0, panYEnd: 0 },
+    { zoomStart: 1.06, zoomEnd: 1.17, panXStart: -0.025, panXEnd: 0.025, panYStart: 0.025, panYEnd: -0.025 },
+    { zoomStart: 1.08, zoomEnd: 1.22, panXStart: 0.015, panXEnd: 0, panYStart: 0.02, panYEnd: -0.015 },
+    { zoomStart: 1.16, zoomEnd: 1.08, panXStart: -0.015, panXEnd: 0.015, panYStart: -0.03, panYEnd: 0.025 }
+  ];
+
+  function drawBokehOrbs(g, width, height, intensity, t) {
+    g.save();
+    g.globalCompositeOperation = 'screen';
+    var drift = (t !== undefined ? t : 0.5) - 0.5;
+    var orbs = [
+      { x: 0.25 + drift * 0.04, y: 0.32 - drift * 0.03, r: 0.09, c: 'rgba(255, 220, 160, ' },
+      { x: 0.72 - drift * 0.03, y: 0.28 - drift * 0.04, r: 0.12, c: 'rgba(255, 240, 200, ' },
+      { x: 0.45 + drift * 0.02, y: 0.65 - drift * 0.02, r: 0.15, c: 'rgba(255, 190, 130, ' },
+      { x: 0.82 - drift * 0.04, y: 0.72 - drift * 0.03, r: 0.08, c: 'rgba(255, 230, 180, ' },
+      { x: 0.18 + drift * 0.03, y: 0.78 - drift * 0.02, r: 0.11, c: 'rgba(255, 210, 150, ' }
+    ];
+    orbs.forEach(function (orb) {
+      var rad = Math.min(width, height) * orb.r;
+      var grad = g.createRadialGradient(
+        width * orb.x, height * orb.y, rad * 0.2,
+        width * orb.x, height * orb.y, rad
+      );
+      var alpha = (0.28 * intensity).toFixed(3);
+      grad.addColorStop(0, orb.c + alpha + ')');
+      grad.addColorStop(0.7, orb.c + (0.12 * intensity).toFixed(3) + ')');
+      grad.addColorStop(1, orb.c + '0)');
+      g.fillStyle = grad;
+      g.beginPath();
+      g.arc(width * orb.x, height * orb.y, rad, 0, Math.PI * 2);
+      g.fill();
+    });
+    g.restore();
+  }
+
   function drawPhotoScene(g, width, height, photo, progress, alpha, local, index, motion) {
     if (!photo || alpha <= 0.002) return;
     motion = motion || {};
     var image = imageCache[photo.src];
     var look = currentLook();
     var eased = ease(progress);
-    // Slow Ken Burns move: alternate push-in / pull-out and drift the frame
-    // in a different direction for each photo.
-    var zoomDirection = index % 2 === 0 ? 1 : -1;
-    var zoom = 1.085 + zoomDirection * (eased - 0.5) * 0.09 + (motion.zoom || 0);
-    var panX = (index % 2 ? -1 : 1) * (eased - 0.5) * 0.034 + (motion.x || 0);
-    var panY = (index % 3 === 0 ? -1 : 1) * (eased - 0.5) * 0.02 + (motion.y || 0);
-    var filter = look.filter;
-    if (motion.blur > 0.05) filter += ' blur(' + motion.blur.toFixed(2) + 'px)';
+
+    var m = MOTIONS[index % MOTIONS.length];
+    var baseZoom = m.zoomStart + (m.zoomEnd - m.zoomStart) * eased;
+    var basePanX = m.panXStart + (m.panXEnd - m.panXStart) * eased;
+    var basePanY = m.panYStart + (m.panYEnd - m.panYStart) * eased;
+    var zoom = baseZoom + (motion.zoom || 0);
+    var panX = basePanX + (motion.x || 0);
+    var panY = basePanY + (motion.y || 0);
 
     g.save();
+    if (motion.clipWipe !== undefined) {
+      g.beginPath();
+      g.rect(0, 0, width * motion.clipWipe, height);
+      g.clip();
+    }
     g.globalAlpha = alpha;
-    g.fillStyle = '#0a0908';
-    g.fillRect(0, 0, width, height);
-    drawCover(g, image, width, height, zoom, panX, panY, filter);
+    drawCover(g, image, width, height, zoom, panX, panY, look.filter);
 
     var bottom = g.createLinearGradient(0, height * 0.34, 0, height);
     bottom.addColorStop(0, 'rgba(9, 7, 5, 0)');
@@ -588,73 +677,167 @@
       var incomingAlpha = index === 0 ? ease(clamp(local / 0.75, 0, 1)) : 1;
       var incomingMotion = {};
 
+      var transitionStyle = null;
+      var transitionT = 0;
+
       if (index > 0 && local < CROSSFADE) {
         var t = clamp(local / CROSSFADE, 0, 1);
         var te = ease(t);
         var style = transitionFor(index);
         var previous = state.selected[index - 1];
         var previousProgress = (localTimeline - (index - 1) * STEP) / PHOTO_LENGTH;
-        // Keep the outgoing frame opaque and fade the incoming one over it.
-        // Fading both at once made the middle of every dissolve noticeably
-        // darker than the two photos around it. The "dip" style below is the
-        // one transition that intentionally passes through black.
         var previousAlpha = 1;
         var previousMotion = {};
         incomingAlpha = te;
-        incomingMotion.textDelay = CROSSFADE * 0.58;
+        incomingMotion.textDelay = CROSSFADE * 0.55;
 
-        if (style === 'zoom') {
-          // The outgoing frame keeps pushing in while the next one settles
-          // back from a closer crop.
-          previousMotion.zoom = te * 0.14;
-          previousMotion.blur = te * 1.5;
-          incomingMotion.zoom = (1 - te) * 0.16;
-          incomingMotion.blur = (1 - te) * 0.9;
-        } else if (style === 'slide') {
-          // A gentle lateral push, with enough overscan to avoid any gap.
+        transitionStyle = style;
+        transitionT = t;
+
+        if (style === 'zoom_in' || style === 'zoom') {
+          // Push continu cinématographique sans à-coup
+          previousMotion.zoom = te * 0.04;
+          previousAlpha = 1;
+          incomingMotion.zoom = (te - 1) * 0.04;
+          incomingAlpha = te;
+        } else if (style === 'zoom_out') {
+          // Recul cinématographique continu
+          previousMotion.zoom = -te * 0.04;
+          previousAlpha = 1;
+          incomingMotion.zoom = (1 - te) * 0.04;
+          incomingAlpha = te;
+        } else if (style === 'slide_left' || style === 'slide') {
+          // Balayage panoramique gauche fluide (mouvement coordonné vers la gauche)
           previousMotion.x = -te * 0.045;
-          previousMotion.zoom = 0.14;
+          previousAlpha = 1;
           incomingMotion.x = (1 - te) * 0.045;
-          incomingMotion.zoom = 0.14;
-        } else if (style === 'dip') {
-          // A short, warm dip through black — the classic memory-film beat.
-          var out = ease(clamp(t / 0.46, 0, 1));
-          var inn = ease(clamp((t - 0.44) / 0.56, 0, 1));
-          previousAlpha = 1 - out;
-          incomingAlpha = inn;
-          previousMotion.zoom = out * 0.05;
-          incomingMotion.zoom = (1 - inn) * 0.05;
+          incomingAlpha = te;
+        } else if (style === 'slide_right') {
+          // Balayage panoramique droite fluide (mouvement coordonné vers la droite)
+          previousMotion.x = te * 0.045;
+          previousAlpha = 1;
+          incomingMotion.x = -(1 - te) * 0.045;
+          incomingAlpha = te;
+        } else if (style === 'slide_up') {
+          // Montée verticale douce (mouvement coordonné vers le haut)
+          previousMotion.y = -te * 0.035;
+          previousAlpha = 1;
+          incomingMotion.y = (1 - te) * 0.035;
+          incomingAlpha = te;
+        } else if (style === 'dip_black' || style === 'dip') {
+          // Fondu au noir velours continu (50% out, 50% in, sans saut)
+          var outB = ease(clamp(t / 0.48, 0, 1));
+          var innB = ease(clamp((t - 0.52) / 0.48, 0, 1));
+          previousAlpha = 1 - outB;
+          incomingAlpha = innB;
+        } else if (style === 'dip_white') {
+          // Éblouissement / Flash d'été doux : fondu croisé lumineux
+          previousAlpha = 1;
+          incomingAlpha = te;
+        } else if (style === 'bokeh_blur') {
+          // Rêve bokeh optique
+          previousMotion.zoom = te * 0.03;
+          previousAlpha = 1;
+          incomingMotion.zoom = (te - 1) * 0.03;
+          incomingAlpha = te;
+        } else if (style === 'cross_zoom') {
+          // Zoom croisé avec parallaxe fluide
+          previousMotion.zoom = te * 0.05;
+          previousAlpha = 1;
+          incomingMotion.zoom = (te - 1) * 0.05;
+          incomingAlpha = te;
+        } else if (style === 'wipe_soft') {
+          // Rideau doux cinématique
+          incomingMotion.clipWipe = te;
+          previousAlpha = 1;
+          incomingAlpha = 1;
         } else {
-          // Soft dissolve: a hint of blur on both sides hides the edge.
-          previousMotion.blur = te * 1.1;
-          incomingMotion.blur = (1 - te) * 0.9;
+          // Dissolve classique ou light_leak : Ken Burns naturel et pur fondu
+          previousAlpha = 1;
+          incomingAlpha = te;
         }
 
         drawPhotoScene(g, width, height, previous, previousProgress, previousAlpha,
           PHOTO_LENGTH - (CROSSFADE - local), index - 1, previousMotion);
-
-        // A subtle bloom across the seam makes each transition feel lit
-        // rather than mechanically blended.
-        var bloom = Math.sin(Math.PI * t);
-        if (bloom > 0.01) {
-          g.save();
-          g.globalCompositeOperation = 'screen';
-          var glow = g.createRadialGradient(
-            width * 0.5, height * 0.36, 0,
-            width * 0.5, height * 0.36, Math.max(width, height) * 0.72
-          );
-          glow.addColorStop(0, 'rgba(255, 216, 164, ' + (0.075 * bloom).toFixed(3) + ')');
-          glow.addColorStop(1, 'rgba(255, 216, 164, 0)');
-          g.fillStyle = glow;
-          g.fillRect(0, 0, width, height);
-          g.restore();
-        }
       }
 
       if (index === state.selected.length - 1 && local > PHOTO_LENGTH - CROSSFADE) {
         incomingAlpha = ease(clamp((PHOTO_LENGTH - local) / CROSSFADE, 0, 1));
       }
       drawPhotoScene(g, width, height, photo, clamp(local / PHOTO_LENGTH, 0, 1), incomingAlpha, local, index, incomingMotion);
+
+      // Effets visuels Apple au sommet de la transition (rendus PAR-DESSUS les deux photos) :
+      if (transitionStyle) {
+        var t = transitionT;
+        var style = transitionStyle;
+
+        if (style === 'light_leak') {
+          var flareIntensity = Math.sin(Math.PI * t);
+          if (flareIntensity > 0.01) {
+            g.save();
+            g.globalCompositeOperation = 'screen';
+            var sweepX = width * (0.15 + t * 0.7);
+            var leakGrad = g.createRadialGradient(
+              sweepX, height * 0.32, 0,
+              sweepX, height * 0.32, Math.max(width, height) * 0.85
+            );
+            leakGrad.addColorStop(0, 'rgba(255, 238, 185, ' + (0.45 * flareIntensity).toFixed(3) + ')');
+            leakGrad.addColorStop(0.35, 'rgba(255, 195, 115, ' + (0.28 * flareIntensity).toFixed(3) + ')');
+            leakGrad.addColorStop(0.7, 'rgba(255, 155, 85, ' + (0.14 * flareIntensity).toFixed(3) + ')');
+            leakGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            g.fillStyle = leakGrad;
+            g.fillRect(0, 0, width, height);
+            g.restore();
+          }
+        } else if (style === 'dip_white') {
+          var whiteWash = Math.sin(Math.PI * t);
+          if (whiteWash > 0.01) {
+            g.save();
+            g.globalCompositeOperation = 'screen';
+            var bloomVal = (0.85 * Math.pow(whiteWash, 1.4)).toFixed(3);
+            g.fillStyle = 'rgba(255, 248, 236, ' + bloomVal + ')';
+            g.fillRect(0, 0, width, height);
+            g.restore();
+          }
+        } else if (style === 'bokeh_blur') {
+          var bokehIntensity = Math.sin(Math.PI * t);
+          if (bokehIntensity > 0.02) {
+            drawBokehOrbs(g, width, height, bokehIntensity, t);
+          }
+        } else if (style === 'wipe_soft') {
+          var te = ease(t);
+          if (te > 0.01 && te < 0.99) {
+            g.save();
+            g.globalCompositeOperation = 'screen';
+            var seamX = width * te;
+            var seamGrad = g.createLinearGradient(seamX - 25, 0, seamX + 25, 0);
+            seamGrad.addColorStop(0, 'rgba(255, 245, 220, 0)');
+            seamGrad.addColorStop(0.5, 'rgba(255, 248, 230, 0.40)');
+            seamGrad.addColorStop(1, 'rgba(255, 245, 220, 0)');
+            g.fillStyle = seamGrad;
+            g.fillRect(seamX - 25, 0, 50, height);
+            g.restore();
+          }
+        } else if (style === 'dip_black' || style === 'dip') {
+          // Velours pur : pas d'overlay lumineux lors du fondu au noir
+        } else {
+          // Bloom chaleureux universel sur le raccord
+          var bloom = Math.sin(Math.PI * t);
+          if (bloom > 0.01) {
+            g.save();
+            g.globalCompositeOperation = 'screen';
+            var glow = g.createRadialGradient(
+              width * 0.5, height * 0.36, 0,
+              width * 0.5, height * 0.36, Math.max(width, height) * 0.72
+            );
+            glow.addColorStop(0, 'rgba(255, 216, 164, ' + (0.07 * bloom).toFixed(3) + ')');
+            glow.addColorStop(1, 'rgba(255, 216, 164, 0)');
+            g.fillStyle = glow;
+            g.fillRect(0, 0, width, height);
+            g.restore();
+          }
+        }
+      }
     }
 
     drawVignette(g, width, height);
@@ -680,19 +863,27 @@
     frame.classList.add(currentFormat().frame);
   }
 
-  function renderPreview() {
+  var lastDisplayedSec = -1;
+
+  function renderPreview(full) {
     drawFrame(ctx, canvas.width, canvas.height, state.current);
-    updateTransport();
+    updateTransport(full === true);
   }
 
-  function updateTransport() {
+  function updateTransport(full) {
     var total = totalDuration();
     if (state.current > total) state.current = total;
     if (scrub) {
-      scrub.max = String(total.toFixed(2));
+      if (full) scrub.max = String(total.toFixed(2));
       scrub.value = String(state.current.toFixed(2));
     }
-    if (timeEl) timeEl.textContent = formatTime(state.current) + ' / ' + formatTime(total);
+    var currentSec = Math.floor(state.current);
+    if (timeEl && (full || currentSec !== lastDisplayedSec)) {
+      lastDisplayedSec = currentSec;
+      timeEl.textContent = formatTime(state.current) + ' / ' + formatTime(total);
+    }
+    if (!full) return;
+
     if (summaryPhotos) summaryPhotos.textContent = String(state.selected.length);
     if (summaryFormat) summaryFormat.textContent = state.format;
     if (summaryDuration) summaryDuration.textContent = formatTime(total);
@@ -748,7 +939,7 @@
       state.listening = false;
       setMusicPreviewState(false);
     }
-    updateTransport();
+    updateTransport(true);
   }
 
   function playbackTick(now) {
@@ -758,11 +949,11 @@
     state.current = state.playFrom + elapsed;
     if (state.current >= total) {
       state.current = total;
-      renderPreview();
+      renderPreview(true);
       stopPlayback();
       return;
     }
-    renderPreview();
+    renderPreview(false);
     syncAudio(state.current);
     state.raf = requestAnimationFrame(playbackTick);
   }
@@ -780,7 +971,7 @@
     state.playFrom = state.current;
     state.playStarted = performance.now();
     if (state.music) startMusic(state.current);
-    updateTransport();
+    updateTransport(true);
     state.raf = requestAnimationFrame(playbackTick);
   }
 
@@ -1520,6 +1711,20 @@
       if (!LOOKS[look] || look === state.look) return;
       state.look = look;
       document.querySelectorAll('.reel-look').forEach(function (item) {
+        var active = item === button;
+        item.classList.toggle('is-active', active);
+        item.setAttribute('aria-pressed', active ? 'true' : 'false');
+      });
+      renderPreview();
+    });
+  });
+
+  document.querySelectorAll('[data-transition]').forEach(function (button) {
+    button.addEventListener('click', function () {
+      var style = button.getAttribute('data-transition');
+      if (!TRANSITION_MODES[style] || style === state.transitionStyle) return;
+      state.transitionStyle = style;
+      document.querySelectorAll('[data-transition]').forEach(function (item) {
         var active = item === button;
         item.classList.toggle('is-active', active);
         item.setAttribute('aria-pressed', active ? 'true' : 'false');

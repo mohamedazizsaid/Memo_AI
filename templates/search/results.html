@@ -29,16 +29,16 @@
 
   {% if not query %}
     <div class="empty-state reveal">
-      <div class="empty-state-icon">
-        <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+      <div class="empty-state-icon" aria-hidden="true">
+        <svg aria-hidden="true" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
       </div>
       <h2 class="empty-state-title">{% trans_text "Que cherchez-vous ?" "What are you looking for?" %}</h2>
       <p class="empty-state-body">{% trans_text "Entrées, personnes, tags… la recherche couvre toute la plateforme." "Entries, people, tags… search covers the whole platform." %}</p>
     </div>
   {% elif total == 0 %}
     <div class="empty-state reveal">
-      <div class="empty-state-icon">
-        <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path><path d="M8 11h6"></path></svg>
+      <div class="empty-state-icon" aria-hidden="true">
+        <svg aria-hidden="true" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path><path d="M8 11h6"></path></svg>
       </div>
       <h2 class="empty-state-title">{% trans_text "Aucun résultat" "No results" %}</h2>
       <p class="empty-state-body">{% trans_text "Essayez un autre mot-clé ou créez une nouvelle entrée." "Try another keyword or write a new entry." %}</p>

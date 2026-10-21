@@ -4,7 +4,7 @@
 {% block nav_reel %}active{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/reel-studio.css' %}?v=20261020_3">
+<link rel="stylesheet" href="{% static 'css/reel-studio.css' %}?v=20261021_1">
 {% endblock %}
 
 {% block content %}
@@ -95,6 +95,29 @@
         <button type="button" class="reel-look" data-look="noir" aria-pressed="false">Noir</button>
         <button type="button" class="reel-look" data-look="gold" aria-pressed="false">
           {% trans_text "Or" "Gold" %}
+        </button>
+      </div>
+
+      <div class="reel-transitions-bar">
+        <span class="reel-looks__label">{% trans_text "Transitions" "Transitions" %}</span>
+        <button type="button" class="reel-transition-btn is-active" data-transition="apple" aria-pressed="true" title="{% trans_text 'Transitions cinématiques inspirées d\'Apple Souvenirs' 'Cinematic transitions inspired by Apple Memories' %}">
+          <svg aria-hidden="true" width="12" height="12" viewBox="0 0 16 16" fill="none">
+            <path d="M8 1.5v13M1.5 8h13M3.5 3.5l9 9M12.5 3.5l-9 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          {% trans_text "Apple Souvenirs" "Apple Memories" %}
+        </button>
+        <button type="button" class="reel-transition-btn" data-transition="gentle" aria-pressed="false" title="{% trans_text 'Fondus doux, flou optique et lumière dorée' 'Soft dissolves, bokeh blur, and golden light' %}">
+          <svg aria-hidden="true" width="12" height="12" viewBox="0 0 16 16" fill="none">
+            <circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M8 5v3l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          {% trans_text "Doux & Émotif" "Gentle & Soft" %}
+        </button>
+        <button type="button" class="reel-transition-btn" data-transition="dynamic" aria-pressed="false" title="{% trans_text 'Zooms immersifs, balayages et transitions rythmées' 'Immersive zooms, whip pans, and punchy cuts' %}">
+          <svg aria-hidden="true" width="12" height="12" viewBox="0 0 16 16" fill="none">
+            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          {% trans_text "Dynamique" "Dynamic" %}
         </button>
       </div>
     </section>
@@ -318,5 +341,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script defer src="{% static 'js/reel-studio.js' %}?v=20261020_5"></script>
+<script defer src="{% static 'js/reel-studio.js' %}?v=20261021_smooth2"></script>
 {% endblock %}
