@@ -325,11 +325,12 @@
 
 .reel-select-bar {
   position: fixed;
-  left: 50%;
+  left: 0;
+  right: 0;
+  margin-inline: auto;
   bottom: 24px;
   z-index: 420;
   width: min(640px, calc(100vw - 32px));
-  transform: translateX(-50%);
   animation: reelBarIn 0.38s var(--app-ease) both;
 }
 
@@ -381,8 +382,8 @@
 .wall-selecting { padding-bottom: 96px; }
 
 @keyframes reelBarIn {
-  from { opacity: 0; transform: translate(-50%, 18px); }
-  to { opacity: 1; transform: translate(-50%, 0); }
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @media (max-width: 560px) {
