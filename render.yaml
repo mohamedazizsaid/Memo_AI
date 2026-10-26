@@ -1,0 +1,118 @@
+# ============================================================
+# MemoAI — Render Blueprint (render.yaml)
+# Infrastructure-as-Code pour render.com
+# Docs: https://render.com/docs/blueprint-spec
+# ============================================================
+
+services:
+
+  # ── Web Service (Django + Gunicorn) ─────────────────────
+  - type: web
+    name: memoai-web
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    branch: main                    # branche de production
+    region: frankfurt               # ou oregon / singapore selon ton audience
+    plan: free                      # passe à starter ($7/mo) pour 0 spin-down
+    
+    healthCheckPath: /health/
+    
+    envVars:
+      # ── Django ───────────────────────────────────────────
+      - key: SECRET_KEY
+        generateValue: true          # Render génère une clé aléatoire
+      - key: DEBUG
+        value: "False"
+      - key: DJANGO_SETTINGS_MODULE
+        value: config.settings
+      - key: ALLOWED_HOSTS
+        value: "memoai-web.onrender.com"
+      - key: CSRF_TRUSTED_ORIGINS
+        value: "https://memoai-web.onrender.com"
+      - key: CORS_ALLOWED_ORIGINS
+        value: "https://memoai-web.onrender.com"
+
+      # ── Database — Neon DB ────────────────────────────────
+      - key: USE_SQLITE
+        value: "False"
+      - key: DB_ENGINE
+        value: postgresql
+      - key: DB_NAME
+        sync: false                  # À remplir dans le Dashboard Render
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_HOST
+        sync: false                  # ex: ep-xxx-xxxx.neon.tech
+      - key: DB_PORT
+        value: "5432"
+
+      # ── Redis / Celery (eager en free tier, pas de Redis) ─
+      - key: USE_REDIS
+        value: "False"
+      - key: CELERY_ALWAYS_EAGER
+        value: "True"
+
+      # ── Cloudinary ────────────────────────────────────────
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+
+      # ── Gemini AI ─────────────────────────────────────────
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-2.5-flash
+      - key: GEMINI_VISION_MODEL
+        value: gemini-2.5-flash
+
+      # ── Hugging Face ──────────────────────────────────────
+      - key: HUGGINGFACE_API_KEY
+        sync: false
+
+      # ── Email ─────────────────────────────────────────────
+      - key: EMAIL_BACKEND
+        value: django.core.mail.backends.smtp.EmailBackend
+      - key: EMAIL_HOST
+        value: smtp.gmail.com
+      - key: EMAIL_PORT
+        value: "587"
+      - key: EMAIL_USE_TLS
+        value: "True"
+      - key: EMAIL_HOST_USER
+        sync: false
+      - key: EMAIL_HOST_PASSWORD
+        sync: false
+      - key: DEFAULT_FROM_EMAIL
+        sync: false
+
+      # ── Pexels ────────────────────────────────────────────
+      - key: PEXELS_API_KEY
+        sync: false
+
+      # ── Pollinations (image gen, keyless) ─────────────────
+      - key: POLLINATIONS_BASE_URL
+        value: https://image.pollinations.ai/prompt
+      - key: IMAGE_GENERATION_MODEL
+        value: flux
+      - key: IMAGE_GENERATION_WIDTH
+        value: "896"
+      - key: IMAGE_GENERATION_HEIGHT
+        value: "576"
+
+      # ── Upload limits ─────────────────────────────────────
+      - key: MAX_UPLOAD_SIZE_MB
+        value: "50"
+      - key: MAX_AUDIO_DURATION_MINUTES
+        value: "60"
+
+      # ── Face Recognition ──────────────────────────────────
+      - key: FACE_RECOGNITION_ENABLED
+        value: "True"
+      - key: FACE_RECOGNITION_CONFIDENCE_THRESHOLD
+        value: "0.6"
