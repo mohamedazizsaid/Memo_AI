@@ -6,6 +6,7 @@ Production-ready configuration with environment-based overrides.
 from pathlib import Path
 from datetime import timedelta
 from decouple import config, Csv
+import dj_database_url
 
 # ─────────────────────────────────────────────
 # Base
@@ -99,15 +100,28 @@ WSGI_APPLICATION = 'config.wsgi.application'
 ASGI_APPLICATION = 'config.asgi.application'
 
 # ─────────────────────────────────────────────
-# Database — PostgreSQL (default) or SQLite (dev fallback)
+# Database — Neon DB / PostgreSQL / SQLite
+# Priorité: DATABASE_URL (Neon DB) > variables individuelles > SQLite
 # ─────────────────────────────────────────────
 DB_ENGINE = config('DB_ENGINE', default='postgresql')
+_DATABASE_URL = config('DATABASE_URL', default='')
+
 if DB_ENGINE == 'sqlite' or config('USE_SQLITE', default=False, cast=bool):
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': BASE_DIR / 'db.sqlite3',
         }
+    }
+elif _DATABASE_URL:
+    # Neon DB / Render — parse the DATABASE_URL automatiquement
+    DATABASES = {
+        'default': dj_database_url.parse(
+            _DATABASE_URL,
+            conn_max_age=60,
+            conn_health_checks=True,
+            ssl_require=True,
+        )
     }
 else:
     DATABASES = {
@@ -264,7 +278,13 @@ STORAGES = {
         'BACKEND': 'cloudinary_storage.storage.MediaCloudinaryStorage',
     },
     'staticfiles': {
-        'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage',
+        # CompressedManifestStaticFilesStorage en production pour le hashing
+        # StaticFilesStorage en dev pour ne pas avoir besoin de collectstatic
+        'BACKEND': (
+            'whitenoise.storage.CompressedManifestStaticFilesStorage'
+            if not DEBUG
+            else 'django.contrib.staticfiles.storage.StaticFilesStorage'
+        ),
     },
 }
 
@@ -453,3 +473,19 @@ LOGGING = {
 }
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# ─────────────────────────────────────────────
+# Security — Production settings
+# ─────────────────────────────────────────────
+if not DEBUG:
+    # Render / Nginx passent le protocole via ce header
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_HSTS_SECONDS = 31536000        # 1 an
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    X_FRAME_OPTIONS = 'DENY'

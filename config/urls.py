@@ -8,8 +8,12 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from common.landing_views import LandingView
+from common.health_views import health_check
 
 urlpatterns = [
+    # ── Health check (Docker / Render / CI) ────────────────────────
+    path('health/', health_check, name='health_check'),
+
     # ── Admin ──────────────────────────────────────────────────────
     path('admin/', admin.site.urls),
 

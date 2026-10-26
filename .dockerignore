@@ -1,0 +1,75 @@
+# ============================================================
+# MemoAI — .dockerignore
+# Fichiers à EXCLURE de l'image Docker pour la garder légère
+# ============================================================
+
+# Environnement virtuel local
+.venv/
+venv/
+env/
+
+# Fichiers sensibles
+.env
+.env.*
+!.env.example
+
+# Bases de données locales
+db.sqlite3
+*.sqlite3
+*.db
+db.sqlite3.backup
+
+# Fichiers de preview / rapports
+emoji_scan_report.txt
+datadump.json
+*_preview_*.html
+_memory_preview_*.html
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*$py.class
+*.egg-info/
+
+# Tests
+.pytest_cache/
+.coverage
+htmlcov/
+tests/
+
+# Documentation
+README.md
+docs/
+
+# Git
+.git/
+.gitignore
+.github/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node (si jamais)
+node_modules/
+npm-debug.log
+
+# ML models (lourd, non nécessaire au runtime)
+ai/ml/models/
+ai/ml/data/
+
+# Docker
+docker-compose*.yml
+Dockerfile*
+nginx/
+
+# Staticfiles déjà collectés (recollectés dans le build)
+staticfiles/
+mediafiles/
