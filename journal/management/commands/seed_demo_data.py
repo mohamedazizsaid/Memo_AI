@@ -563,6 +563,9 @@ def _create_analysis(entry, spec, media_list):
         (item.storage_url for item in media_list if item.media_type == "GENERATED_IMAGE"),
         "",
     )
+    from ai.services.emotion_service import classify_emotion
+    emo_res = classify_emotion(entry.content)
+
     return AIAnalysis.objects.create(
         entry=entry,
         transcription="",
@@ -575,6 +578,9 @@ def _create_analysis(entry, spec, media_list):
         sentiment=spec["sentiment"],
         sentiment_score=spec["score"],
         sentiment_status="completed",
+        emotion=emo_res.get('emotion', 'neutre'),
+        emotion_score=emo_res.get('score', 0.8),
+        emotion_status="completed",
         generated_image_url=generated_url,
         image_prompt=spec["prompt"],
         image_generation_status="completed" if generated_url else "skipped",

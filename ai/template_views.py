@@ -176,6 +176,102 @@ class InsightsView(View):
             for word, count in keyword_counter.most_common(20)
         ]
 
+        # ── 7-class Emotion analytics (French-emotion ML model) ─────────────
+        from ai.services.emotion_service import EMOTION_META
+        emotion_dist = {k: 0 for k in EMOTION_META}
+        for row in (
+            analysis_qs.filter(entry__entry_date__gte=since)
+            .exclude(emotion='').values('emotion').annotate(c=Count('id'))
+        ):
+            if row['emotion'] in emotion_dist:
+                emotion_dist[row['emotion']] = row['c']
+        emotion_total = sum(emotion_dist.values()) or 1
+
+        emotion_rows = []
+        dominant_emotion_key = None
+        dominant_emotion_count = -1
+
+        for key, meta in EMOTION_META.items():
+            count = emotion_dist.get(key, 0)
+            if count > dominant_emotion_count and count > 0:
+                dominant_emotion_count = count
+                dominant_emotion_key = key
+            percent = int(round(count / emotion_total * 100)) if sum(emotion_dist.values()) else 0
+            emotion_rows.append({
+                'key': key,
+                'label': meta.get(lang, meta['fr']),
+                'emoji': meta.get('emoji', '😐'),
+                'color': meta.get('color', '#94a3b8'),
+                'count': count,
+                'percent': percent,
+            })
+        emotion_rows.sort(key=lambda x: -x['count'])
+
+        dominant_emotion = None
+        if dominant_emotion_key:
+            d_meta = EMOTION_META[dominant_emotion_key]
+            dominant_emotion = {
+                'key': dominant_emotion_key,
+                'label': d_meta.get(lang, d_meta['fr']),
+                'emoji': d_meta.get('emoji', '😐'),
+                'color': d_meta.get('color', '#94a3b8'),
+                'count': dominant_emotion_count,
+                'percent': int(round(dominant_emotion_count / emotion_total * 100)),
+            }
+
+        # ── Monthly emotion breakdown (Statistiques mensuelles) ─────────────
+        french_months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre']
+        monthly_emotions = []
+        # Check last 6 distinct months
+        for m_offset in range(6):
+            cur_month_date = today.replace(day=1)
+            # Subtract months safely
+            year = cur_month_date.year
+            month = cur_month_date.month - m_offset
+            while month <= 0:
+                month += 12
+                year -= 1
+
+            m_entries = analysis_qs.filter(
+                entry__entry_date__year=year,
+                entry__entry_date__month=month,
+            ).exclude(emotion='')
+
+            m_total = m_entries.count()
+            if m_total > 0:
+                m_counts = Counter(m_entries.values_list('emotion', flat=True))
+                top_emo, top_cnt = m_counts.most_common(1)[0]
+                top_meta = EMOTION_META.get(top_emo, EMOTION_META['neutre'])
+
+                m_label = f"{french_months[month - 1]} {year}" if lang == 'fr' else f"{today.replace(year=year, month=month).strftime('%B')} {year}"
+
+                breakdown = []
+                for emo_k, emo_meta_item in EMOTION_META.items():
+                    cnt = m_counts.get(emo_k, 0)
+                    if cnt > 0:
+                        breakdown.append({
+                            'key': emo_k,
+                            'label': emo_meta_item.get(lang, emo_meta_item['fr']),
+                            'emoji': emo_meta_item['emoji'],
+                            'color': emo_meta_item['color'],
+                            'count': cnt,
+                            'percent': int(round(cnt / m_total * 100)),
+                        })
+                breakdown.sort(key=lambda x: -x['count'])
+
+                monthly_emotions.append({
+                    'month_label': m_label,
+                    'year': year,
+                    'month': month,
+                    'total': m_total,
+                    'top_emotion': top_emo,
+                    'top_label': top_meta.get(lang, top_meta['fr']),
+                    'top_emoji': top_meta['emoji'],
+                    'top_color': top_meta['color'],
+                    'top_percent': int(round(top_cnt / m_total * 100)),
+                    'breakdown': breakdown,
+                })
+
         # ── People recognised in photos ────────────────────────────────────
         from persons.models import Person
         top_persons = []
@@ -217,6 +313,11 @@ class InsightsView(View):
             'sentiment_rows': sentiment_rows,
             'sentiment_total': sentiment_total,
             'avg_sentiment': round(avg_sentiment, 3) if avg_sentiment is not None else None,
+            'emotion_dist': emotion_dist,
+            'emotion_rows': emotion_rows,
+            'emotion_total': sum(emotion_dist.values()),
+            'dominant_emotion': dominant_emotion,
+            'monthly_emotions': monthly_emotions,
             'activity': activity,
             'max_activity': max_activity,
             'keyword_cloud': keyword_cloud,
