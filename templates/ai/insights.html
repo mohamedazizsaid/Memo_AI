@@ -139,18 +139,17 @@
                   </div>
                 {% endif %}
 
-                <!-- Barres des 7 émotions -->
-                <div class="sentiment-bars emotion-bars-col">
+                <!-- Barres des 7 émotions IA synchronisées avec Distribution des humeurs -->
+                <div class="mood-chart emotion-bars-col" style="flex: 1;">
                   {% for row in stats.emotion_rows %}
-                    <div class="sentiment-row" style="--mood-hue: {{ row.color }}; --bar-i: {{ forloop.counter0 }};">
-                      <span class="sentiment-row__label" style="display: inline-flex; align-items: center; gap: 7px; min-width: 110px;">
-                        <span style="font-size: 15px; line-height: 1;">{{ row.emoji }}</span>
-                        <span style="font-weight: 500;">{{ row.label }}</span>
+                    <div class="mood-bar-row" style="--mood-hue: {{ row.color }}; --bar-i: {{ forloop.counter0 }};">
+                      <span class="mood-bar-label" style="min-width: 110px;">
+                        {% if row.emoji %}<span class="mood-bar-emoji" aria-hidden="true">{{ row.emoji }}</span>{% endif %}{{ row.label }}
                       </span>
-                      <span class="sentiment-row__track">
-                        <span class="sentiment-row__fill" style="width: {{ row.percent }}%;"></span>
-                      </span>
-                      <span class="sentiment-row__value">{{ row.count }}<em>{{ row.percent }}%</em></span>
+                      <div class="mood-bar-track">
+                        <div class="mood-bar-fill" style="width: {{ row.percent }}%" aria-valuenow="{{ row.count }}" role="progressbar"></div>
+                      </div>
+                      <span class="mood-bar-count">{{ row.count }} <em style="font-size: 11px; opacity: 0.7; font-style: normal; margin-left: 3px;">({{ row.percent }}%)</em></span>
                     </div>
                   {% endfor %}
                 </div>

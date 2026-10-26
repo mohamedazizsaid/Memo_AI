@@ -28,52 +28,53 @@ EMOTION_META = {
         'fr': 'Joie',
         'en': 'Joy',
         'emoji': '😊',
-        'color': '#10b981',
+        'color': '#c8963e',
         'description': "Sentiment de plaisir, de bonheur et d'accomplissement.",
     },
     'tristesse': {
         'fr': 'Tristesse',
         'en': 'Sadness',
         'emoji': '😢',
-        'color': '#64748b',
+        'color': '#8b8580',
         'description': "Sentiment de mélancolie, de perte ou de peine.",
     },
     'colere': {
         'fr': 'Colère',
         'en': 'Anger',
         'emoji': '😠',
-        'color': '#ef4444',
+        'color': '#9e4a36',
         'description': "Sentiment d'irritation, d'exaspération ou de révolte.",
     },
     'peur': {
         'fr': 'Peur',
         'en': 'Fear',
         'emoji': '😨',
-        'color': '#8b5cf6',
+        'color': '#9c8064',
         'description': "Sentiment d'inquiétude, d'anxiété ou d'appréhension.",
     },
     'surprise': {
         'fr': 'Surprise',
         'en': 'Surprise',
         'emoji': '😲',
-        'color': '#f59e0b',
+        'color': '#d6a24c',
         'description': "Étonnement devant un fait inattendu ou inhabituel.",
     },
     'degout': {
         'fr': 'Dégoût',
         'en': 'Disgust',
         'emoji': '🤢',
-        'color': '#0d9488',
+        'color': '#706a64',
         'description': "Aversion ou rejet profond envers une situation.",
     },
     'neutre': {
         'fr': 'Neutre',
         'en': 'Neutral',
         'emoji': '😐',
-        'color': '#94a3b8',
+        'color': '#a8a29e',
         'description': "Tonalité posée, descriptive sans charge émotionnelle marquée.",
     },
 }
+
 
 _LOADED_MODEL = None
 _MODEL_TYPE = None
