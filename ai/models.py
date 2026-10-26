@@ -84,7 +84,13 @@ class AIAnalysis(TimeStampedModel):
 
     @property
     def emotion_emoji(self):
-        return self.emotion_data.get('emoji', '😐')
+        from common.icons import get_emotion_svg
+        return self.emotion_data.get('icon_svg') or get_emotion_svg(self.emotion)
+
+    @property
+    def emotion_icon_svg(self):
+        from common.icons import get_emotion_svg
+        return get_emotion_svg(self.emotion)
 
     @property
     def emotion_color(self):

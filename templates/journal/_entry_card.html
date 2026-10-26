@@ -12,7 +12,7 @@
           {{ entry.entry_date|date:"j F" }}
         </time>
         {% if entry.mood %}
-          <span class="mood-badge mood-badge--{{ entry.mood }}">{{ entry.mood_emoji }}</span>
+          <span class="mood-badge mood-badge--{{ entry.mood }}">{{ entry.mood_emoji | safe }}</span>
         {% endif %}
         {% if entry.location %}
           <span class="entry-location">
@@ -41,7 +41,7 @@
         <div class="entry-card-badges">
           {% if entry.detected_emotion %}
             <span class="entry-card-emotion-chip" title="{% trans_text 'Émotion' 'Emotion' %} : {{ entry.detected_emotion_data.label }}">
-              <span class="entry-card-emotion-emoji">{{ entry.detected_emotion_data.emoji }}</span>
+              <span class="entry-card-emotion-emoji">{{ entry.detected_emotion_data.emoji | safe }}</span>
               <span class="entry-card-emotion-label">{{ entry.detected_emotion_data.label }}</span>
             </span>
           {% endif %}

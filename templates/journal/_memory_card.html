@@ -16,7 +16,7 @@
       <div class="memory-card__topline">
         <time datetime="{{ entry.entry_date|date:'Y-m-d' }}" class="memory-card__date">{{ entry.entry_date|date:"j F" }}{% if show_year %} {{ entry.entry_date|date:"Y" }}{% endif %}</time>
         {% if entry.mood %}
-          <span class="memory-card__mood" aria-hidden="true">{{ entry.mood_emoji }}</span>
+          <span class="memory-card__mood" aria-hidden="true">{{ entry.mood_emoji | safe }}</span>
         {% endif %}
         {% if entry.location %}
           <span class="memory-card__place">
@@ -48,7 +48,7 @@
         <div class="memory-card__badges">
           {% if entry.detected_emotion %}
             <span class="memory-card__emotion-chip" title="{% trans_text 'Émotion' 'Emotion' %} : {{ entry.detected_emotion_data.label }}">
-              <span class="memory-card__emotion-emoji">{{ entry.detected_emotion_data.emoji }}</span>
+              <span class="memory-card__emotion-emoji">{{ entry.detected_emotion_data.emoji | safe }}</span>
               <span class="memory-card__emotion-label">{{ entry.detected_emotion_data.label }}</span>
             </span>
           {% endif %}

@@ -105,10 +105,12 @@
         <div class="emotion-slider-controls">
           <div class="emotion-tabs-pill" role="tablist" aria-label="Navigation émotionnelle">
             <button type="button" class="emotion-tab-btn is-active" id="btn-tab-emotions" data-slide-target="0" role="tab" aria-selected="true">
-              <span>🎭</span> {% trans_text "7 Émotions IA" "7 AI Emotions" %}
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+              {% trans_text "7 Émotions IA" "7 AI Emotions" %}
             </button>
             <button type="button" class="emotion-tab-btn" id="btn-tab-monthly" data-slide-target="1" role="tab" aria-selected="false">
-              <span>📅</span> {% trans_text "Statistiques mensuelles" "Monthly statistics" %}
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              {% trans_text "Statistiques mensuelles" "Monthly statistics" %}
             </button>
           </div>
           <div class="emotion-arrows-group">
@@ -129,7 +131,7 @@
                 {% if stats.dominant_emotion %}
                   <div class="emotion-halo-card" style="--dominant-color: {{ stats.dominant_emotion.color }};">
                     <div class="emotion-halo-orb">
-                      <span>{{ stats.dominant_emotion.emoji }}</span>
+                      <span class="emotion-halo-svg">{{ stats.dominant_emotion.emoji | safe }}</span>
                     </div>
                     <div class="emotion-halo-name">{{ stats.dominant_emotion.label }}</div>
                     <div class="emotion-halo-pct">{{ stats.dominant_emotion.percent }}% {% trans_text "des souvenirs" "of memories" %}</div>
@@ -144,7 +146,7 @@
                   {% for row in stats.emotion_rows %}
                     <div class="mood-bar-row" style="--mood-hue: {{ row.color }}; --bar-i: {{ forloop.counter0 }};">
                       <span class="mood-bar-label" style="min-width: 110px;">
-                        {% if row.emoji %}<span class="mood-bar-emoji" aria-hidden="true">{{ row.emoji }}</span>{% endif %}{{ row.label }}
+                        {% if row.emoji %}<span class="mood-bar-emoji" aria-hidden="true">{{ row.emoji | safe }}</span>{% endif %}{{ row.label }}
                       </span>
                       <div class="mood-bar-track">
                         <div class="mood-bar-fill" style="width: {{ row.percent }}%" aria-valuenow="{{ row.count }}" role="progressbar"></div>
@@ -170,7 +172,7 @@
                       <span class="monthly-deck-card__badge">{{ m.total }} {% trans_text "souvenir(s)" "memory(ies)" %}</span>
                     </div>
                     <div class="monthly-dominant-banner">
-                      <span class="monthly-dominant-emoji">{{ m.top_emoji }}</span>
+                      <span class="monthly-dominant-emoji">{{ m.top_emoji | safe }}</span>
                       <div>
                         <div class="monthly-dominant-title">{% trans_text "Dominante" "Dominant" %} : {{ m.top_label }}</div>
                         <div class="monthly-dominant-sub">{{ m.top_percent }}% {% trans_text "des écrits" "of entries" %}</div>
@@ -179,7 +181,7 @@
                     <div class="monthly-mini-breakdown">
                       {% for b in m.breakdown|slice:":3" %}
                         <div class="monthly-mini-row">
-                          <span>{{ b.emoji }} {{ b.label }}</span>
+                          <span>{{ b.emoji | safe }} {{ b.label }}</span>
                           <span>{{ b.count }} <em style="font-style: normal; opacity: 0.8;">({{ b.percent }}%)</em></span>
                         </div>
                       {% endfor %}

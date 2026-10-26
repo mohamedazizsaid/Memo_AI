@@ -48,9 +48,6 @@ def get_item(dictionary, key):
 
 @register.filter
 def mood_emoji(mood):
-    emojis = {
-        'amazing': '🤩', 'good': '😊', 'neutral': '😐', 'sad': '😢',
-        'stressed': '😤', 'anxious': '😰', 'tired': '😴',
-        'angry': '😠', 'excited': '🎉', 'grateful': '🙏',
-    }
-    return emojis.get(mood, '')
+    from common.icons import get_mood_svg
+    return get_mood_svg(mood)
+

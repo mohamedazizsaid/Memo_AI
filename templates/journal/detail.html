@@ -21,7 +21,7 @@
         </time>
         {% if entry.mood %}
           <span class="mood-badge mood-badge--lg mood-badge--{{ entry.mood }}">
-            {{ entry.mood_emoji }} {{ entry.get_mood_display }}
+            {{ entry.mood_emoji | safe }} {{ entry.get_mood_display }}
           </span>
         {% endif %}
         {% if entry.location %}
@@ -164,7 +164,7 @@
             <h3 class="ai-section-title">{% trans_text "Émotion dominante" "Dominant emotion" %}</h3>
             <div class="sentiment-bar emotion-sentiment-bar">
               <span class="sentiment-label emotion-detail-label" style="display: inline-flex; align-items: center; gap: 6px; font-weight: 600; color: var(--color-ink-black);">
-                <span style="font-size: 1.15rem; line-height: 1;">{{ entry.ai_analysis.emotion_emoji }}</span>
+                <span style="line-height: 1;">{{ entry.ai_analysis.emotion_emoji | safe }}</span>
                 <span>{{ entry.ai_analysis.emotion_label }}</span>
               </span>
               {% if entry.ai_analysis.emotion_score is not None %}

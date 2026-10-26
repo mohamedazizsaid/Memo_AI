@@ -40,15 +40,16 @@
         </div>
       </div>
 
+{% load memo_icons %}
       <div class="filter-chips" role="group" aria-label="{% trans_text 'Filtrer par humeur' 'Filter by mood' %}">
         <button type="submit" name="mood" value="" class="filter-chip {% if not request.GET.mood %}filter-chip--active{% endif %}">{{ t.all|default:"Tout" }}</button>
-        <button type="submit" name="mood" value="amazing" class="filter-chip {% if request.GET.mood == 'amazing' %}filter-chip--active{% endif %}">🤩 {% trans_text "Fantastique" "Amazing" %}</button>
-        <button type="submit" name="mood" value="good" class="filter-chip {% if request.GET.mood == 'good' %}filter-chip--active{% endif %}">😊 {% trans_text "Bien" "Good" %}</button>
-        <button type="submit" name="mood" value="neutral" class="filter-chip {% if request.GET.mood == 'neutral' %}filter-chip--active{% endif %}">😐 {% trans_text "Neutre" "Neutral" %}</button>
-        <button type="submit" name="mood" value="sad" class="filter-chip {% if request.GET.mood == 'sad' %}filter-chip--active{% endif %}">😢 {% trans_text "Triste" "Sad" %}</button>
-        <button type="submit" name="mood" value="stressed" class="filter-chip {% if request.GET.mood == 'stressed' %}filter-chip--active{% endif %}">😤 {% trans_text "Stressé" "Stressed" %}</button>
-        <button type="submit" name="mood" value="excited" class="filter-chip {% if request.GET.mood == 'excited' %}filter-chip--active{% endif %}">🎉 {% trans_text "Excité" "Excited" %}</button>
-        <button type="submit" name="mood" value="grateful" class="filter-chip {% if request.GET.mood == 'grateful' %}filter-chip--active{% endif %}">🙏 {% trans_text "Reconnaissant" "Grateful" %}</button>
+        <button type="submit" name="mood" value="amazing" class="filter-chip {% if request.GET.mood == 'amazing' %}filter-chip--active{% endif %}">{% mood_icon 'amazing' size=14 %} {% trans_text "Fantastique" "Amazing" %}</button>
+        <button type="submit" name="mood" value="good" class="filter-chip {% if request.GET.mood == 'good' %}filter-chip--active{% endif %}">{% mood_icon 'good' size=14 %} {% trans_text "Bien" "Good" %}</button>
+        <button type="submit" name="mood" value="neutral" class="filter-chip {% if request.GET.mood == 'neutral' %}filter-chip--active{% endif %}">{% mood_icon 'neutral' size=14 %} {% trans_text "Neutre" "Neutral" %}</button>
+        <button type="submit" name="mood" value="sad" class="filter-chip {% if request.GET.mood == 'sad' %}filter-chip--active{% endif %}">{% mood_icon 'sad' size=14 %} {% trans_text "Triste" "Sad" %}</button>
+        <button type="submit" name="mood" value="stressed" class="filter-chip {% if request.GET.mood == 'stressed' %}filter-chip--active{% endif %}">{% mood_icon 'stressed' size=14 %} {% trans_text "Stressé" "Stressed" %}</button>
+        <button type="submit" name="mood" value="excited" class="filter-chip {% if request.GET.mood == 'excited' %}filter-chip--active{% endif %}">{% mood_icon 'excited' size=14 %} {% trans_text "Excité" "Excited" %}</button>
+        <button type="submit" name="mood" value="grateful" class="filter-chip {% if request.GET.mood == 'grateful' %}filter-chip--active{% endif %}">{% mood_icon 'grateful' size=14 %} {% trans_text "Reconnaissant" "Grateful" %}</button>
       </div>
 
       <div class="filter-row" style="gap: 10px;">

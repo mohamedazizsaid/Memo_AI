@@ -37,8 +37,8 @@ def language_context(request):
         'is_fr': lang == 'fr',
         't': TranslationProxy(lang),
         'available_languages': [
-            {'code': 'fr', 'name': 'Français (France)', 'flag': '🇫🇷'},
-            {'code': 'en', 'name': 'English (US)', 'flag': '🇺🇸'},
+            {'code': 'fr', 'name': 'Français (France)', 'flag': 'FR'},
+            {'code': 'en', 'name': 'English (US)', 'flag': 'EN'},
         ],
     }
 

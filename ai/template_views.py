@@ -202,7 +202,7 @@ class InsightsView(View):
             emotion_rows.append({
                 'key': key,
                 'label': meta.get(lang, meta['fr']),
-                'emoji': meta.get('emoji', '😐'),
+                'emoji': meta.get('icon_svg') or meta.get('emoji', ''),
                 'color': meta.get('color', '#94a3b8'),
                 'count': count,
                 'percent': percent,
@@ -215,7 +215,7 @@ class InsightsView(View):
             dominant_emotion = {
                 'key': dominant_emotion_key,
                 'label': d_meta.get(lang, d_meta['fr']),
-                'emoji': d_meta.get('emoji', '😐'),
+                'emoji': d_meta.get('icon_svg') or d_meta.get('emoji', ''),
                 'color': d_meta.get('color', '#94a3b8'),
                 'count': dominant_emotion_count,
                 'percent': int(round(dominant_emotion_count / emotion_total * 100)),
@@ -254,7 +254,7 @@ class InsightsView(View):
                         breakdown.append({
                             'key': emo_k,
                             'label': emo_meta_item.get(lang, emo_meta_item['fr']),
-                            'emoji': emo_meta_item['emoji'],
+                            'emoji': emo_meta_item.get('icon_svg') or emo_meta_item.get('emoji', ''),
                             'color': emo_meta_item['color'],
                             'count': cnt,
                             'percent': int(round(cnt / m_total * 100)),
@@ -268,7 +268,7 @@ class InsightsView(View):
                     'total': m_total,
                     'top_emotion': top_emo,
                     'top_label': top_meta.get(lang, top_meta['fr']),
-                    'top_emoji': top_meta['emoji'],
+                    'top_emoji': top_meta.get('icon_svg') or top_meta.get('emoji', ''),
                     'top_color': top_meta['color'],
                     'top_percent': int(round(top_cnt / m_total * 100)),
                     'breakdown': breakdown,

@@ -26,17 +26,11 @@ class JournalEntry(SoftDeleteModel):
         ('grateful', 'Grateful'),
     ]
 
+    # MOOD_EMOJI kept for reference; actual icons are returned by mood_icon_svg property
     MOOD_EMOJI = {
-        'amazing': '🤩',
-        'good': '😊',
-        'neutral': '😐',
-        'sad': '😢',
-        'stressed': '😤',
-        'anxious': '😰',
-        'tired': '😴',
-        'angry': '😠',
-        'excited': '🎉',
-        'grateful': '🙏',
+        'amazing': 'amazing', 'good': 'good', 'neutral': 'neutral', 'sad': 'sad',
+        'stressed': 'stressed', 'anxious': 'anxious', 'tired': 'tired',
+        'angry': 'angry', 'excited': 'excited', 'grateful': 'grateful',
     }
 
     AI_STATUS_CHOICES = [

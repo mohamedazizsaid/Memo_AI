@@ -1108,13 +1108,14 @@
 
       var GLYPH_ENTRY = '<svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v14H4z"></path><path d="M8 9h8M8 13h5"></path></svg>';
       var GLYPH_PERSON = '<svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"></circle><path d="M5 20a7 7 0 0114 0"></path></svg>';
+      var GLYPH_TAG = '<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>';
 
       function mediaHtml(item) {
         if (item.image) {
           return '<span class="nav-search-item__media"><img src="' + escapeHtml(item.image) + '" alt="" loading="lazy"></span>';
         }
         if (item.type === 'tag') {
-          return '<span class="nav-search-item__media nav-search-item__media--tag" style="--tag-color:' + escapeHtml(item.color || '#6366f1') + '">' + escapeHtml(item.icon || '🏷️') + '</span>';
+          return '<span class="nav-search-item__media nav-search-item__media--tag" style="--tag-color:' + escapeHtml(item.color || '#6366f1') + '">' + (item.icon ? escapeHtml(item.icon) : GLYPH_TAG) + '</span>';
         }
         return '<span class="nav-search-item__media nav-search-item__media--glyph">' + (item.type === 'person' ? GLYPH_PERSON : GLYPH_ENTRY) + '</span>';
       }

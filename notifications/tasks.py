@@ -72,7 +72,7 @@ def send_daily_memory_reminder():
                 ).exists()
 
                 if not has_written_today:
-                    title = "Votre journée attend son souvenir ✍️"
+                    title = "Votre journée attend son souvenir"
                     message = "Prenez 2 minutes pour immortaliser vos pensées, vos réussites ou votre humeur du jour."
                     Notification.objects.create(
                         user=user,
@@ -112,7 +112,7 @@ def send_weekly_summary():
             ).count()
 
             if entry_count > 0:
-                title = "Votre résumé de la semaine est prêt ✨"
+                title = "Votre résumé de la semaine est prêt"
                 message = f"Vous avez consigné {entry_count} souvenir{'s' if entry_count > 1 else ''} cette semaine. Découvrez vos tendances émotionnelles !"
                 Notification.objects.create(
                     user=user,
@@ -145,7 +145,7 @@ def send_monthly_memory_review():
         try:
             Notification.objects.create(
                 user=user,
-                title="Bilan du mois MemoAi 📅",
+                title="Bilan du mois MemoAi",
                 message="Un nouveau mois commence ! Prenez un instant pour contempler vos moments forts du mois écoulé.",
                 notification_type='monthly_review',
             )

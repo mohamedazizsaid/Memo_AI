@@ -118,7 +118,7 @@ def tag_items(queryset):
             'title': tag.name,
             'subtitle': '',
             'badge': f"{count} entrée{'s' if count != 1 else ''}" if count else '',
-            'icon': tag.icon or '🏷️',
+            'icon': tag.icon or '',
             'color': tag.color or '#6366f1',
             'url': reverse('tags:list') + '?q=' + tag.name,
         })

@@ -75,7 +75,7 @@
                 data-mood="{{ value }}"
                 aria-label="{{ label }}"
                 aria-pressed="{% if form.mood.value == value %}true{% else %}false{% endif %}">
-                <span class="mood-emoji">{{ mood_emojis|get_item:value }}</span>
+                <span class="mood-emoji">{{ mood_emojis|get_item:value | safe }}</span>
                 <span class="mood-name">{{ label }}</span>
               </button>
             {% endfor %}
@@ -336,12 +336,30 @@
       </form>
 
       <div class="photo-modal__chips" id="photo-chips">
-        <button type="button" class="photo-chip" data-q="voyage">✈️ {% trans_text "Voyage" "Travel" %}</button>
-        <button type="button" class="photo-chip" data-q="famille">👨‍👩‍👧 {% trans_text "Famille" "Family" %}</button>
-        <button type="button" class="photo-chip" data-q="amis">🥂 {% trans_text "Amis" "Friends" %}</button>
-        <button type="button" class="photo-chip" data-q="nature">🌿 {% trans_text "Nature" "Nature" %}</button>
-        <button type="button" class="photo-chip" data-q="café">☕ {% trans_text "Café" "Coffee" %}</button>
-        <button type="button" class="photo-chip" data-q="ville">🌆 {% trans_text "Ville" "City" %}</button>
+        <button type="button" class="photo-chip" data-q="voyage">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2L11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          {% trans_text "Voyage" "Travel" %}
+        </button>
+        <button type="button" class="photo-chip" data-q="famille">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="7" r="4"/><path d="M17 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><circle cx="9" cy="7" r="4"/><path d="M1 21v-2a4 4 0 0 1 7-2.6"/></svg>
+          {% trans_text "Famille" "Family" %}
+        </button>
+        <button type="button" class="photo-chip" data-q="amis">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          {% trans_text "Amis" "Friends" %}
+        </button>
+        <button type="button" class="photo-chip" data-q="nature">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+          {% trans_text "Nature" "Nature" %}
+        </button>
+        <button type="button" class="photo-chip" data-q="café">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+          {% trans_text "Café" "Coffee" %}
+        </button>
+        <button type="button" class="photo-chip" data-q="ville">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><line x1="9" y1="22" x2="9" y2="22.01"/><line x1="15" y1="22" x2="15" y2="22.01"/><line x1="9" y1="6" x2="9" y2="6.01"/><line x1="15" y1="6" x2="15" y2="6.01"/><line x1="9" y1="10" x2="9" y2="10.01"/><line x1="15" y1="10" x2="15" y2="10.01"/><line x1="9" y1="14" x2="9" y2="14.01"/><line x1="15" y1="14" x2="15" y2="14.01"/><line x1="9" y1="18" x2="9" y2="18.01"/><line x1="15" y1="18" x2="15" y2="18.01"/></svg>
+          {% trans_text "Ville" "City" %}
+        </button>
       </div>
 
       <div class="photo-modal__status" id="photo-status" aria-live="polite"></div>
@@ -577,7 +595,7 @@ document.addEventListener('DOMContentLoaded', function () {
     badge.textContent = '…';
     window.MemoFace.detectFromFile(file).then(function (res) {
       faceMap.set(file, res);
-      badge.textContent = res.descriptors.length ? ('👤 ' + res.descriptors.length) : '';
+      badge.innerHTML = res.descriptors.length ? ('<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20a8 8 0 0 1 16 0"/></svg> ' + res.descriptors.length) : '';
     }).catch(function () { badge.textContent = ''; });
   }
 
@@ -604,7 +622,7 @@ document.addEventListener('DOMContentLoaded', function () {
         badge.className = 'preview-face-badge';
         item.appendChild(badge);
         if (!faceMap.has(file)) detectFaces(file, badge);
-        else if (faceMap.get(file).descriptors.length) badge.textContent = '👤 ' + faceMap.get(file).descriptors.length;
+        else if (faceMap.get(file).descriptors.length) badge.innerHTML = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20a8 8 0 0 1 16 0"/></svg> ' + faceMap.get(file).descriptors.length;
       } else {
         var icon = document.createElement('div');
         icon.className = 'preview-audio-icon';

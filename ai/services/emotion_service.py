@@ -27,57 +27,71 @@ EMOTION_META = {
     'joie': {
         'fr': 'Joie',
         'en': 'Joy',
-        'emoji': '😊',
+        'emoji': '',
         'color': '#c8963e',
         'description': "Sentiment de plaisir, de bonheur et d'accomplissement.",
     },
     'tristesse': {
         'fr': 'Tristesse',
         'en': 'Sadness',
-        'emoji': '😢',
+        'emoji': '',
         'color': '#8b8580',
         'description': "Sentiment de mélancolie, de perte ou de peine.",
     },
     'colere': {
         'fr': 'Colère',
         'en': 'Anger',
-        'emoji': '😠',
+        'emoji': '',
         'color': '#9e4a36',
         'description': "Sentiment d'irritation, d'exaspération ou de révolte.",
     },
     'peur': {
         'fr': 'Peur',
         'en': 'Fear',
-        'emoji': '😨',
+        'emoji': '',
         'color': '#9c8064',
         'description': "Sentiment d'inquiétude, d'anxiété ou d'appréhension.",
     },
     'surprise': {
         'fr': 'Surprise',
         'en': 'Surprise',
-        'emoji': '😲',
+        'emoji': '',
         'color': '#d6a24c',
         'description': "Étonnement devant un fait inattendu ou inhabituel.",
     },
     'degout': {
         'fr': 'Dégoût',
         'en': 'Disgust',
-        'emoji': '🤢',
+        'emoji': '',
         'color': '#706a64',
         'description': "Aversion ou rejet profond envers une situation.",
     },
     'neutre': {
         'fr': 'Neutre',
         'en': 'Neutral',
-        'emoji': '😐',
+        'emoji': '',
         'color': '#a8a29e',
         'description': "Tonalité posée, descriptive sans charge émotionnelle marquée.",
     },
 }
 
+# ── Inject branded SVG icons into EMOTION_META at import time ──────────────
+def _inject_icons():
+    try:
+        from common.icons import get_emotion_svg
+        for key, meta in EMOTION_META.items():
+            svg = get_emotion_svg(key)
+            meta['icon_svg'] = svg
+            meta['emoji'] = svg
+    except Exception:
+        pass
+
+
+_inject_icons()
 
 _LOADED_MODEL = None
 _MODEL_TYPE = None
+
 
 
 def get_emotion_meta(emotion_key: str, lang: str = 'fr') -> dict:
