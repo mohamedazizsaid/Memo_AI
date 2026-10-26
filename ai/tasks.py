@@ -129,7 +129,7 @@ def analyze_entry(self, entry_id: str):
     # ── 7-class Emotion Classification (French-emotion model) ───────────────
     try:
         from ai.services.emotion_service import classify_emotion
-        emo_res = classify_emotion(content, lang=lang)
+        emo_res = classify_emotion(content, lang=lang, user_mood=entry.mood)
         analysis.emotion = emo_res.get('emotion', 'neutre')
         analysis.emotion_score = emo_res.get('score', 0.5)
         analysis.emotion_status = 'completed'

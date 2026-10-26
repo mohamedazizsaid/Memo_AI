@@ -51,7 +51,7 @@ class Command(BaseCommand):
                 continue
 
             lang = getattr(getattr(entry.user, 'preferences', None), 'language', 'fr') or 'fr'
-            res = classify_emotion(content, lang=lang)
+            res = classify_emotion(content, lang=lang, user_mood=entry.mood)
 
             analysis.emotion = res['emotion']
             analysis.emotion_score = res['score']

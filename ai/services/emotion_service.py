@@ -165,9 +165,63 @@ def _lexical_fallback(text: str) -> dict:
     }
 
 
-def classify_emotion(text: str, lang: str = 'fr') -> dict:
+MOOD_PRIORS = {
+    'amazing':  {'joie': 5.0, 'surprise': 1.8, 'neutre': 0.6, 'tristesse': 0.05, 'degout': 0.02, 'peur': 0.05, 'colere': 0.02},
+    'good':     {'joie': 3.5, 'neutre': 1.2, 'surprise': 1.0, 'tristesse': 0.1,  'degout': 0.05, 'peur': 0.1,  'colere': 0.05},
+    'excited':  {'joie': 4.0, 'surprise': 2.5, 'neutre': 0.5, 'tristesse': 0.05, 'degout': 0.02, 'peur': 0.1,  'colere': 0.05},
+    'grateful': {'joie': 4.5, 'neutre': 0.8, 'surprise': 0.8, 'tristesse': 0.1,  'degout': 0.02, 'peur': 0.05, 'colere': 0.02},
+    'neutral':  {'neutre': 3.5, 'joie': 1.0, 'tristesse': 0.8, 'surprise': 0.8, 'peur': 0.6,  'colere': 0.5, 'degout': 0.3},
+    'tired':    {'neutre': 3.0, 'tristesse': 1.4, 'peur': 1.0, 'joie': 0.5, 'colere': 0.5,  'degout': 0.3, 'surprise': 0.3},
+    'stressed': {'peur': 4.5, 'colere': 2.0, 'tristesse': 0.6, 'neutre': 0.8, 'degout': 0.4,  'joie': 0.05, 'surprise': 0.5},
+    'sad':      {'tristesse': 5.0, 'peur': 1.2, 'colere': 0.8, 'neutre': 0.5, 'degout': 0.4,  'joie': 0.02, 'surprise': 0.2},
+    'angry':    {'colere': 5.0, 'degout': 2.0, 'tristesse': 0.8, 'peur': 0.8, 'neutre': 0.4,  'joie': 0.02, 'surprise': 0.3},
+}
+
+DISGUST_KEYWORDS = ['degout', 'dégoût', 'vomir', 'nausée', 'nausee', 'immonde', 'infect', 'ecoeurant', 'écœurant', 'repugne', 'répugne', 'avarié', 'avarie', 'fétide', 'fetide']
+JOY_KEYWORDS = ['bonheur', 'plaisir', 'joie', 'rires', 'rire', 'sourire', 'merveilleux', 'magique', 'sublime', 'incroyable', 'incroyables', 'creativite', 'créativité', 'chaleur tranquille', 'amis', 'amitié', 'amities', 'amour', 'doux', 'douces', 'parfait']
+
+
+def _calibrate_with_context(raw_probs: dict, text: str, user_mood: str = None) -> tuple[str, float, dict]:
+    """
+    Combines raw ML probabilities with declared user mood prior and contextual safeguards
+    to ensure logical, robust emotion estimation for personal diaries.
+    """
+    probs = dict(raw_probs)
+    t_lower = text.lower()
+
+    # 1. Disgust safeguard: do not trigger disgust unless explicit revulsion exists
+    has_disgust_kw = any(w in t_lower for w in DISGUST_KEYWORDS)
+    if not has_disgust_kw and 'degout' in probs:
+        probs['degout'] = probs['degout'] * 0.1
+
+    # 2. Joy reinforcement: boost joie if positive reflective diary vocabulary is present
+    has_joy_kw = any(w in t_lower for w in JOY_KEYWORDS)
+    if has_joy_kw and 'joie' in probs:
+        probs['joie'] = probs['joie'] * 1.8
+        if 'tristesse' in probs and not any(w in t_lower for w in ['mort', 'deuil', 'pleure', 'pleuré', 'larmes', 'dévasté']):
+            probs['tristesse'] = probs['tristesse'] * 0.3
+
+    # 3. Bayesian prior from user's declared mood
+    mood_key = (user_mood or '').strip().lower()
+    priors = MOOD_PRIORS.get(mood_key)
+    if priors:
+        for emo in probs:
+            probs[emo] = probs[emo] * priors.get(emo, 1.0)
+
+    # Re-normalize probabilities
+    total = sum(probs.values()) or 1.0
+    norm_probs = {k: round(v / total, 3) for k, v in probs.items()}
+
+    best_emo = max(norm_probs, key=norm_probs.get)
+    best_score = norm_probs[best_emo]
+
+    return best_emo, round(float(best_score), 2), norm_probs
+
+
+def classify_emotion(text: str, lang: str = 'fr', user_mood: str = None) -> dict:
     """
     Main entry point: classifies a French text into one of the 7 emotions.
+    Optionally incorporates user_mood prior to align with declared feelings.
     Returns:
         dict: {emotion, score, label, emoji, color, description, probabilities, model_used}
     """
@@ -189,21 +243,18 @@ def classify_emotion(text: str, lang: str = 'fr') -> dict:
 
     if model_type == 'camembert' and model is not None:
         try:
-            # Hugging Face text-classification pipeline
             outputs = model(cleaned[:512])[0]
-            # outputs is a list of {'label': 'joie', 'score': 0.85}
-            best = max(outputs, key=lambda x: x['score'])
-            emo_key = str(best['label']).lower()
-            probs = {str(item['label']).lower(): round(float(item['score']), 3) for item in outputs}
-            meta = get_emotion_meta(emo_key, lang)
+            raw_probs = {str(item['label']).lower(): float(item['score']) for item in outputs}
+            best_emo, score, final_probs = _calibrate_with_context(raw_probs, cleaned, user_mood)
+            meta = get_emotion_meta(best_emo, lang)
             return {
-                'emotion': emo_key,
-                'score': round(float(best['score']), 2),
+                'emotion': best_emo,
+                'score': score,
                 'label': meta['label'],
                 'emoji': meta['emoji'],
                 'color': meta['color'],
                 'description': meta['description'],
-                'probabilities': probs,
+                'probabilities': final_probs,
                 'model_used': 'camembert',
             }
         except Exception as exc:
@@ -211,23 +262,35 @@ def classify_emotion(text: str, lang: str = 'fr') -> dict:
 
     if model_type == 'svm' and model is not None:
         try:
-            pred = model.predict([cleaned])[0]
             probs_list = model.predict_proba([cleaned])[0]
             classes = list(model.classes_)
-            probs = {classes[i]: round(float(probs_list[i]), 3) for i in range(len(classes))}
-            score = float(max(probs_list))
-            meta = get_emotion_meta(pred, lang)
+            raw_probs = {classes[i]: float(probs_list[i]) for i in range(len(classes))}
+            best_emo, score, final_probs = _calibrate_with_context(raw_probs, cleaned, user_mood)
+            meta = get_emotion_meta(best_emo, lang)
             return {
-                'emotion': str(pred).lower(),
-                'score': round(score, 2),
+                'emotion': best_emo,
+                'score': score,
                 'label': meta['label'],
                 'emoji': meta['emoji'],
                 'color': meta['color'],
                 'description': meta['description'],
-                'probabilities': probs,
+                'probabilities': final_probs,
                 'model_used': 'svm',
             }
         except Exception as exc:
             logger.warning("SVM prediction failed: %s, falling back to lexicon", exc)
 
-    return _lexical_fallback(cleaned)
+    lex_res = _lexical_fallback(cleaned)
+    best_emo, score, final_probs = _calibrate_with_context(lex_res['probabilities'], cleaned, user_mood)
+    meta = get_emotion_meta(best_emo, lang)
+    return {
+        'emotion': best_emo,
+        'score': score,
+        'label': meta['label'],
+        'emoji': meta['emoji'],
+        'color': meta['color'],
+        'description': meta['description'],
+        'probabilities': final_probs,
+        'model_used': 'lexical_fallback',
+    }
+
