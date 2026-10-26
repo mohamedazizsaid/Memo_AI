@@ -47,6 +47,15 @@ class AIAnalysis(TimeStampedModel):
         default='pending'
     )
 
+    # Emotion classification (French-emotion 7 classes: joie, tristesse, colere, peur, surprise, degout, neutre)
+    emotion = models.CharField(max_length=30, blank=True)
+    emotion_score = models.FloatField(null=True, blank=True)
+    emotion_status = models.CharField(
+        max_length=20,
+        choices=[('pending', 'Pending'), ('completed', 'Completed'), ('failed', 'Failed'), ('skipped', 'Skipped')],
+        default='pending'
+    )
+
     # Generated image URL (from Pollinations + local media)
     generated_image_url = models.CharField(max_length=1000, blank=True)
     image_prompt = models.TextField(blank=True)
@@ -65,9 +74,27 @@ class AIAnalysis(TimeStampedModel):
         return f"AIAnalysis(entry={self.entry_id})"
 
     @property
+    def emotion_data(self):
+        from ai.services.emotion_service import get_emotion_meta
+        return get_emotion_meta(self.emotion)
+
+    @property
+    def emotion_label(self):
+        return self.emotion_data.get('label', self.emotion.title() if self.emotion else '')
+
+    @property
+    def emotion_emoji(self):
+        return self.emotion_data.get('emoji', '😐')
+
+    @property
+    def emotion_color(self):
+        return self.emotion_data.get('color', '#94a3b8')
+
+    @property
     def is_complete(self):
         completed = ['completed', 'failed', 'skipped']
         return (
             self.summary_status in completed
             and self.sentiment_status in completed
         )
+
