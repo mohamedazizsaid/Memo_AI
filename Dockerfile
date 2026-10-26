@@ -1,0 +1,78 @@
+# ============================================================
+# MemoAI — Dockerfile (production-ready, multi-stage)
+# ============================================================
+
+# ── Stage 1: Python dependencies builder ────────────────────
+FROM python:3.12-slim AS builder
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+WORKDIR /build
+
+# Install build essentials for psycopg2 and other compiled packages
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip install --upgrade pip && \
+    pip wheel --no-cache-dir --wheel-dir /build/wheels -r requirements.txt
+
+# ── Stage 2: Production runtime ─────────────────────────────
+FROM python:3.12-slim AS runtime
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    APP_HOME=/app \
+    PORT=8000
+
+WORKDIR $APP_HOME
+
+# Runtime libs only (no gcc)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq5 \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create non-root user for security
+RUN groupadd -r memoai && useradd -r -g memoai memoai
+
+# Copy pre-built wheels from builder and install
+COPY --from=builder /build/wheels /wheels
+COPY --from=builder /build/requirements.txt .
+RUN pip install --no-cache-dir --no-index --find-links=/wheels -r requirements.txt && \
+    rm -rf /wheels
+
+# Copy project source
+COPY --chown=memoai:memoai . .
+
+# Collect static files (Whitenoise will serve them)
+RUN python manage.py collectstatic --noinput --settings=config.settings || true
+
+# Create media directory
+RUN mkdir -p /app/mediafiles && chown memoai:memoai /app/mediafiles
+
+USER memoai
+
+EXPOSE $PORT
+
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:$PORT/health/ || exit 1
+
+# Start Gunicorn (single container — Render free tier)
+CMD ["sh", "-c", "gunicorn config.wsgi:application \
+    --bind 0.0.0.0:$PORT \
+    --workers 2 \
+    --threads 4 \
+    --worker-class gthread \
+    --worker-tmp-dir /dev/shm \
+    --timeout 120 \
+    --keepalive 5 \
+    --log-level warning \
+    --access-logfile - \
+    --error-logfile -"]
