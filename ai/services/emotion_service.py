@@ -83,11 +83,14 @@ _MODEL_TYPE = None
 def get_emotion_meta(emotion_key: str, lang: str = 'fr') -> dict:
     key = str(emotion_key or 'neutre').strip().lower()
     meta = EMOTION_META.get(key, EMOTION_META['neutre'])
+    from common.icons import get_emotion_svg
+    svg_icon = get_emotion_svg(key)
     return {
         'key': key,
         'label': meta.get(lang, meta['fr']),
-        'emoji': meta.get('emoji', '😐'),
-        'color': meta.get('color', '#94a3b8'),
+        'emoji': svg_icon,
+        'icon_svg': svg_icon,
+        'color': meta.get('color', '#a8a29e'),
         'description': meta.get('description', ''),
     }
 

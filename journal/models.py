@@ -104,7 +104,18 @@ class JournalEntry(SoftDeleteModel):
 
     @property
     def mood_emoji(self):
-        return self.MOOD_EMOJI.get(self.mood, '')
+        # Kept for backward compatibility, returns custom SVG icon
+        return self.mood_icon_svg
+
+    @property
+    def mood_icon_svg(self):
+        from common.icons import get_mood_svg
+        return get_mood_svg(self.mood)
+
+    @property
+    def detected_emotion_icon_svg(self):
+        from common.icons import get_emotion_svg
+        return get_emotion_svg(self.detected_emotion)
 
     @property
     def has_audio(self):

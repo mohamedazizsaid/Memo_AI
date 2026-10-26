@@ -27,11 +27,9 @@ from .models import JournalEntry
 
 logger = logging.getLogger('memoai')
 
-MOOD_EMOJIS = {
-    'amazing': '🤩', 'good': '😊', 'neutral': '😐', 'sad': '😢',
-    'stressed': '😤', 'anxious': '😰', 'tired': '😴',
-    'angry': '😠', 'excited': '🎉', 'grateful': '🙏',
-}
+from common.icons import get_mood_svg, MOOD_SVGS
+
+MOOD_EMOJIS = {k: get_mood_svg(k) for k in MOOD_SVGS}
 
 # ───────────────────────────────────────────────────────────────────────────
 # Immersive memories ("film de souvenirs")

@@ -25,17 +25,19 @@ PERIOD_LABELS = {'7': '7', '30': '30', '90': '90', '365': '365'}
 
 # Mood keys are stored in English in the database; the dashboard shows a
 # readable, localized label with a hue used by the mood bars.
+from common.icons import get_mood_svg
+
 MOOD_META = {
-    'amazing': {'fr': 'Incroyable', 'en': 'Amazing', 'emoji': '🤩', 'hue': '#c8963e'},
-    'good': {'fr': 'Bien', 'en': 'Good', 'emoji': '😊', 'hue': '#b08a4f'},
-    'neutral': {'fr': 'Neutre', 'en': 'Neutral', 'emoji': '😐', 'hue': '#a8a29e'},
-    'sad': {'fr': 'Triste', 'en': 'Sad', 'emoji': '😢', 'hue': '#8b8580'},
-    'stressed': {'fr': 'Stresse', 'en': 'Stressed', 'emoji': '😤', 'hue': '#b4654a'},
-    'anxious': {'fr': 'Anxieux', 'en': 'Anxious', 'emoji': '😰', 'hue': '#9c8064'},
-    'tired': {'fr': 'Fatigue', 'en': 'Tired', 'emoji': '😴', 'hue': '#706a64'},
-    'angry': {'fr': 'En colere', 'en': 'Angry', 'emoji': '😠', 'hue': '#9e4a36'},
-    'excited': {'fr': 'Excité', 'en': 'Excited', 'emoji': '🎉', 'hue': '#d6a24c'},
-    'grateful': {'fr': 'Reconnaissant', 'en': 'Grateful', 'emoji': '🙏', 'hue': '#a8895f'},
+    'amazing': {'fr': 'Incroyable', 'en': 'Amazing', 'emoji': get_mood_svg('amazing'), 'hue': '#c8963e'},
+    'good': {'fr': 'Bien', 'en': 'Good', 'emoji': get_mood_svg('good'), 'hue': '#b08a4f'},
+    'neutral': {'fr': 'Neutre', 'en': 'Neutral', 'emoji': get_mood_svg('neutral'), 'hue': '#a8a29e'},
+    'sad': {'fr': 'Triste', 'en': 'Sad', 'emoji': get_mood_svg('sad'), 'hue': '#8b8580'},
+    'stressed': {'fr': 'Stresse', 'en': 'Stressed', 'emoji': get_mood_svg('stressed'), 'hue': '#b4654a'},
+    'anxious': {'fr': 'Anxieux', 'en': 'Anxious', 'emoji': get_mood_svg('anxious'), 'hue': '#9c8064'},
+    'tired': {'fr': 'Fatigue', 'en': 'Tired', 'emoji': get_mood_svg('tired'), 'hue': '#706a64'},
+    'angry': {'fr': 'En colere', 'en': 'Angry', 'emoji': get_mood_svg('angry'), 'hue': '#9e4a36'},
+    'excited': {'fr': 'Excité', 'en': 'Excited', 'emoji': get_mood_svg('excited'), 'hue': '#d6a24c'},
+    'grateful': {'fr': 'Reconnaissant', 'en': 'Grateful', 'emoji': get_mood_svg('grateful'), 'hue': '#a8895f'},
 }
 
 SENTIMENT_META = (
