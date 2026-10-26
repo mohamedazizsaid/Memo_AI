@@ -112,18 +112,21 @@
       mapEl.hidden = false;
 
       map = L.map(mapEl, { scrollWheelZoom: false, worldCopyJump: true });
-      var isDark = document.body.classList.contains('theme-dark') ||
-                   document.documentElement.getAttribute('data-theme') === 'dark' ||
-                   (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
-      var tileUrl = isDark
-        ? 'https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png'
-        : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
-
-      L.tileLayer(tileUrl, {
-        subdomains: 'abcd',
+      var tiles = L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
+        subdomains: 'abc',
         maxZoom: 20,
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>'
-      }).addTo(map);
+        attribution: '&copy; OpenStreetMap France &middot; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'
+      });
+
+      // Automatic fallback to Esri World Street Map if any tile errors occur
+      tiles.on('tileerror', function () {
+        if (!this._fallbackActive) {
+          this._fallbackActive = true;
+          this.setUrl('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}');
+        }
+      });
+
+      tiles.addTo(map);
 
       var lat = parseFloat(latInput.value), lon = parseFloat(lonInput.value);
       if (isFinite(lat) && isFinite(lon)) {
