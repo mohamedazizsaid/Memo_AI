@@ -38,7 +38,12 @@
       <span class="insight-stat-label">{% trans_text "Jours consecutifs" "Day streak" %}</span>
     </div>
     <div class="insight-stat-card">
-      <span class="insight-stat-value">{{ stats.most_used_mood_label|default:"—" }}</span>
+      <span class="insight-stat-value" style="display:inline-flex; align-items:center; gap:8px;">
+        {% if stats.most_used_mood_icon %}
+          <span class="insight-stat-mood-icon" style="display:inline-flex; align-items:center; color: var(--app-accent, #c8963e);">{{ stats.most_used_mood_icon|safe }}</span>
+        {% endif %}
+        <span>{{ stats.most_used_mood_name|default:stats.most_used_mood_label|default:"—" }}</span>
+      </span>
       <span class="insight-stat-label">{% trans_text "Humeur dominante" "Dominant mood" %}</span>
     </div>
   </div>
@@ -72,7 +77,7 @@
           {% for mood in stats.mood_rows %}
             <div class="mood-bar-row" style="--mood-hue: {{ mood.hue }}; --bar-i: {{ forloop.counter0 }};">
               <span class="mood-bar-label">
-                {% if mood.emoji %}<span class="mood-bar-emoji" aria-hidden="true">{{ mood.emoji }}</span>{% endif %}{{ mood.label }}
+                {% if mood.emoji %}<span class="mood-bar-emoji" aria-hidden="true">{{ mood.emoji | safe }}</span>{% endif %}{{ mood.label }}
               </span>
               <div class="mood-bar-track">
                 <div class="mood-bar-fill" style="width: {{ mood.percent }}%" aria-valuenow="{{ mood.count }}" role="progressbar"></div>

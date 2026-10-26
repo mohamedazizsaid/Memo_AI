@@ -5,12 +5,13 @@ Replaces generic operating system emojis (Windows/Apple/Android) with
 tailored, scalable SVG icons aligned with MemoAi's organic, impressionistic palette.
 """
 
+import re
 from django.utils.safestring import mark_safe
 
-# Custom SVGs for all 10 user moods
+# Custom SVGs for all 10 user moods (with explicit width/height and classes)
 MOOD_SVGS = {
     # Amazing: Sparkling radiant eyes with a joyful, uplifting smile
-    'amazing': '''<svg class="memo-icon memo-icon--mood memo-icon--amazing" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    'amazing': '''<svg class="memo-icon memo-icon--mood memo-icon--amazing" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
   <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
   <path d="M7.5 9.5L8.5 7.5L9.5 9.5L11.5 10.5L9.5 11.5L8.5 13.5L7.5 11.5L5.5 10.5L7.5 9.5Z" fill="currentColor"/>
   <path d="M14.5 9.5L15.5 7.5L16.5 9.5L18.5 10.5L16.5 11.5L15.5 13.5L14.5 11.5L12.5 10.5L14.5 9.5Z" fill="currentColor"/>
@@ -18,7 +19,7 @@ MOOD_SVGS = {
 </svg>''',
 
     # Good: Warm, content smiling face with soft eyes and gentle smile
-    'good': '''<svg class="memo-icon memo-icon--mood memo-icon--good" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    'good': '''<svg class="memo-icon memo-icon--mood memo-icon--good" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
   <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
   <path d="M8 10C8.5 9.2 9.5 9 10 9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
   <path d="M14 9C14.5 9 15.5 9.2 16 10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
@@ -26,7 +27,7 @@ MOOD_SVGS = {
 </svg>''',
 
     # Excited: Radiant celebratory eyes with joyous open laugh
-    'excited': '''<svg class="memo-icon memo-icon--mood memo-icon--excited" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    'excited': '''<svg class="memo-icon memo-icon--mood memo-icon--excited" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
   <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
   <path d="M7.5 9.5C8.2 8.5 9.8 8.5 10.5 9.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
   <path d="M13.5 9.5C14.2 8.5 15.8 8.5 16.5 9.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
@@ -37,7 +38,7 @@ MOOD_SVGS = {
 </svg>''',
 
     # Grateful: Gentle serene eyes with hands/lotus contour and peaceful grace
-    'grateful': '''<svg class="memo-icon memo-icon--mood memo-icon--grateful" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    'grateful': '''<svg class="memo-icon memo-icon--mood memo-icon--grateful" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
   <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
   <path d="M8 10.5C9 10 10 10.5 10 11.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
   <path d="M14 11.5C14 10.5 15 10 16 10.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
@@ -46,7 +47,7 @@ MOOD_SVGS = {
 </svg>''',
 
     # Neutral: Calm, reflective horizontal balance line
-    'neutral': '''<svg class="memo-icon memo-icon--mood memo-icon--neutral" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    'neutral': '''<svg class="memo-icon memo-icon--mood memo-icon--neutral" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
   <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
   <circle cx="9" cy="10" r="1.2" fill="currentColor"/>
   <circle cx="15" cy="10" r="1.2" fill="currentColor"/>
@@ -54,7 +55,7 @@ MOOD_SVGS = {
 </svg>''',
 
     # Tired: Peaceful closed crescent eyes with a resting breath
-    'tired': '''<svg class="memo-icon memo-icon--mood memo-icon--tired" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    'tired': '''<svg class="memo-icon memo-icon--mood memo-icon--tired" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
   <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
   <path d="M7.5 10.5C8.5 11.5 9.5 11.5 10.5 10.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
   <path d="M13.5 10.5C14.5 11.5 15.5 11.5 16.5 10.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
@@ -62,15 +63,15 @@ MOOD_SVGS = {
 </svg>''',
 
     # Stressed: Tense diagonal brow with resolute mouth line
-    'stressed': '''<svg class="memo-icon memo-icon--mood memo-icon--stressed" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    'stressed': '''<svg class="memo-icon memo-icon--mood memo-icon--stressed" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
   <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
   <line x1="7.5" y1="9.5" x2="10.5" y2="10.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
   <line x1="16.5" y1="9.5" x2="13.5" y2="10.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
   <path d="M8.5 15.5L10.2 14.5L12 15.5L13.8 14.5L15.5 15.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>''',
 
-    # Anxious: Concerned eyes with a soft worried arc
-    'anxious': '''<svg class="memo-icon memo-icon--mood memo-icon--anxious" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    # Anxious: Raised inquiring eyebrows with watchful eyes
+    'anxious': '''<svg class="memo-icon memo-icon--mood memo-icon--anxious" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
   <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
   <circle cx="9" cy="10.5" r="1.3" fill="currentColor"/>
   <circle cx="15" cy="10.5" r="1.3" fill="currentColor"/>
@@ -79,16 +80,16 @@ MOOD_SVGS = {
   <path d="M9 15.5C10.2 14.5 13.8 14.5 15 15.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
 </svg>''',
 
-    # Sad: Downcast melancholic eyes with gentle tender mouth
-    'sad': '''<svg class="memo-icon memo-icon--mood memo-icon--sad" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    # Sad: Down-curved empathetic mouth with soft eyes
+    'sad': '''<svg class="memo-icon memo-icon--mood memo-icon--sad" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
   <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
   <circle cx="9" cy="10" r="1.2" fill="currentColor"/>
   <circle cx="15" cy="10" r="1.2" fill="currentColor"/>
   <path d="M15.5 15.8C14.5 14.4 13.3 13.8 12 13.8C10.7 13.8 9.5 14.4 8.5 15.8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
 </svg>''',
 
-    # Angry: Sharp determined brow lines with firm mouth
-    'angry': '''<svg class="memo-icon memo-icon--mood memo-icon--angry" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    # Angry: Firm slanted eyebrows with determined mouth
+    'angry': '''<svg class="memo-icon memo-icon--mood memo-icon--angry" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
   <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
   <line x1="7.5" y1="8.5" x2="10.5" y2="10.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
   <line x1="16.5" y1="8.5" x2="13.5" y2="10.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
@@ -102,7 +103,7 @@ MOOD_SVGS = {
 # Custom SVGs for the 7 core AI emotions
 EMOTION_SVGS = {
     # Joie: Radiant sunburst halo with harmonious smile
-    'joie': '''<svg class="memo-icon memo-icon--emotion memo-icon--joie" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    'joie': '''<svg class="memo-icon memo-icon--emotion memo-icon--joie" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
   <circle cx="12" cy="12" r="9.5" stroke="currentColor" stroke-width="1.6"/>
   <path d="M8 9.5C8.8 8.8 9.8 8.8 10.5 9.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
   <path d="M13.5 9.5C14.2 8.8 15.2 8.8 16 9.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
@@ -110,7 +111,7 @@ EMOTION_SVGS = {
 </svg>''',
 
     # Tristesse: Gentle melancholic curve with subtle tear drop accent
-    'tristesse': '''<svg class="memo-icon memo-icon--emotion memo-icon--tristesse" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    'tristesse': '''<svg class="memo-icon memo-icon--emotion memo-icon--tristesse" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
   <circle cx="12" cy="12" r="9.5" stroke="currentColor" stroke-width="1.6"/>
   <circle cx="8.5" cy="10" r="1.2" fill="currentColor"/>
   <circle cx="15.5" cy="10" r="1.2" fill="currentColor"/>
@@ -119,7 +120,7 @@ EMOTION_SVGS = {
 </svg>''',
 
     # Colère: Resolute angled brows with intense focus
-    'colere': '''<svg class="memo-icon memo-icon--emotion memo-icon--colere" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    'colere': '''<svg class="memo-icon memo-icon--emotion memo-icon--colere" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
   <circle cx="12" cy="12" r="9.5" stroke="currentColor" stroke-width="1.6"/>
   <line x1="7.5" y1="8.5" x2="10.8" y2="10.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
   <line x1="16.5" y1="8.5" x2="13.2" y2="10.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
@@ -129,7 +130,7 @@ EMOTION_SVGS = {
 </svg>''',
 
     # Peur: Apprehensive wide eyes with trembling gentle wave
-    'peur': '''<svg class="memo-icon memo-icon--emotion memo-icon--peur" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    'peur': '''<svg class="memo-icon memo-icon--emotion memo-icon--peur" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
   <circle cx="12" cy="12" r="9.5" stroke="currentColor" stroke-width="1.6"/>
   <circle cx="9" cy="10" r="1.8" stroke="currentColor" stroke-width="1.4"/>
   <circle cx="15" cy="10" r="1.8" stroke="currentColor" stroke-width="1.4"/>
@@ -137,7 +138,7 @@ EMOTION_SVGS = {
 </svg>''',
 
     # Surprise: Wide-open round eyes with expressive oval mouth
-    'surprise': '''<svg class="memo-icon memo-icon--emotion memo-icon--surprise" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    'surprise': '''<svg class="memo-icon memo-icon--emotion memo-icon--surprise" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
   <circle cx="12" cy="12" r="9.5" stroke="currentColor" stroke-width="1.6"/>
   <circle cx="8.5" cy="9.5" r="1.5" fill="currentColor"/>
   <circle cx="15.5" cy="9.5" r="1.5" fill="currentColor"/>
@@ -145,7 +146,7 @@ EMOTION_SVGS = {
 </svg>''',
 
     # Dégoût: Squinted angled eyes with aversion mouth
-    'degout': '''<svg class="memo-icon memo-icon--emotion memo-icon--degout" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    'degout': '''<svg class="memo-icon memo-icon--emotion memo-icon--degout" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
   <circle cx="12" cy="12" r="9.5" stroke="currentColor" stroke-width="1.6"/>
   <path d="M7.5 9L10.5 11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
   <path d="M10.5 9L7.5 11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
@@ -155,7 +156,7 @@ EMOTION_SVGS = {
 </svg>''',
 
     # Neutre: Serene balanced composure
-    'neutre': '''<svg class="memo-icon memo-icon--emotion memo-icon--neutre" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    'neutre': '''<svg class="memo-icon memo-icon--emotion memo-icon--neutre" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
   <circle cx="12" cy="12" r="9.5" stroke="currentColor" stroke-width="1.6"/>
   <circle cx="8.5" cy="10" r="1.2" fill="currentColor"/>
   <circle cx="15.5" cy="10" r="1.2" fill="currentColor"/>
@@ -164,23 +165,25 @@ EMOTION_SVGS = {
 }
 
 
-def get_mood_svg(mood_key: str, size: int = None, extra_class: str = "") -> str:
+def get_mood_svg(mood_key: str, size: int = 24, extra_class: str = "") -> str:
     """Returns safe HTML string containing the bespoke SVG icon for a mood."""
     key = str(mood_key or 'neutral').strip().lower()
     raw = MOOD_SVGS.get(key, MOOD_SVGS['neutral'])
-    if size:
-        raw = raw.replace('<svg ', f'<svg width="{size}" height="{size}" ')
+    if size and size != 24:
+        raw = re.sub(r'width="\d+"', f'width="{size}"', raw)
+        raw = re.sub(r'height="\d+"', f'height="{size}"', raw)
     if extra_class:
-        raw = raw.replace('class="', f'class="{extra_class} ')
+        raw = raw.replace('class="', f'class="{extra_class} ', 1)
     return mark_safe(raw)
 
 
-def get_emotion_svg(emotion_key: str, size: int = None, extra_class: str = "") -> str:
+def get_emotion_svg(emotion_key: str, size: int = 24, extra_class: str = "") -> str:
     """Returns safe HTML string containing the bespoke SVG icon for an emotion."""
     key = str(emotion_key or 'neutre').strip().lower()
     raw = EMOTION_SVGS.get(key, EMOTION_SVGS['neutre'])
-    if size:
-        raw = raw.replace('<svg ', f'<svg width="{size}" height="{size}" ')
+    if size and size != 24:
+        raw = re.sub(r'width="\d+"', f'width="{size}"', raw)
+        raw = re.sub(r'height="\d+"', f'height="{size}"', raw)
     if extra_class:
-        raw = raw.replace('class="', f'class="{extra_class} ')
+        raw = raw.replace('class="', f'class="{extra_class} ', 1)
     return mark_safe(raw)

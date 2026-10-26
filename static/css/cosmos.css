@@ -1365,7 +1365,19 @@ ul, ol { list-style: none; }
 }
 .mood-btn:hover { border-color: var(--color-ink-black); background: var(--color-linen-canvas); }
 .mood-btn--active { border-color: var(--color-ink-black); background: var(--color-ink-black); color: white; }
-.mood-emoji { font-size: 20px; line-height: 1; }
+.mood-emoji {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  line-height: 1;
+}
+.mood-emoji svg {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
 .mood-name { font-family: var(--font-ui); font-size: 11px; font-weight: var(--fw-medium); color: inherit; }
 .mood-btn--active .mood-name { color: rgba(255,255,255,0.8); }
 

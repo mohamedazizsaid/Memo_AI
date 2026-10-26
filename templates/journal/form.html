@@ -75,7 +75,7 @@
                 data-mood="{{ value }}"
                 aria-label="{{ label }}"
                 aria-pressed="{% if form.mood.value == value %}true{% else %}false{% endif %}">
-                <span class="mood-emoji">{{ mood_emojis|get_item:value | safe }}</span>
+                <span class="mood-emoji">{{ value|mood_emoji|safe }}</span>
                 <span class="mood-name">{{ label }}</span>
               </button>
             {% endfor %}

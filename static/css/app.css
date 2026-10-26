@@ -1253,7 +1253,16 @@ html.js .reveal-stagger.is-visible > * { opacity: 1; transform: none; }
 /* These are <button>s, so the UA `buttontext` colour (black) applied and
    disappeared on the dark canvas. */
 .mood-btn, .emoji-btn, .theme-option { color: var(--app-ink); }
-.mood-btn { border-radius: 16px; }
+.mood-btn {
+  border-radius: 16px;
+  min-width: 68px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 14px;
+  cursor: pointer;
+}
 .mood-btn--active,
 .theme-option--active {
   background: var(--app-ink);
@@ -1261,6 +1270,52 @@ html.js .reveal-stagger.is-visible > * { opacity: 1; transform: none; }
   border-color: var(--app-ink);
 }
 .mood-btn--active .mood-name { color: color-mix(in srgb, var(--app-paper) 78%, transparent); }
+
+/* Bespoke Platform Vector Icons */
+.memo-icon {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  vertical-align: middle;
+  stroke: currentColor;
+  flex-shrink: 0;
+}
+.mood-emoji {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  line-height: 1;
+  margin-bottom: 3px;
+}
+.mood-emoji svg,
+.mood-emoji .memo-icon {
+  width: 24px;
+  height: 24px;
+  display: block;
+  stroke: currentColor;
+}
+.mood-bar-emoji {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+.mood-bar-emoji svg,
+.mood-bar-emoji .memo-icon {
+  width: 18px;
+  height: 18px;
+  display: inline-block;
+  vertical-align: middle;
+}
+.insight-stat-mood-icon svg,
+.insight-stat-mood-icon .memo-icon {
+  width: 26px;
+  height: 26px;
+  display: inline-block;
+  vertical-align: middle;
+}
 
 .filter-chip { color: var(--app-secondary); }
 .filter-chip--active {

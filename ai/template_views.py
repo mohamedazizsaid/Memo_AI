@@ -98,9 +98,13 @@ class InsightsView(View):
             })
 
         most_used_mood_label = ''
+        most_used_mood_name = ''
+        most_used_mood_icon = ''
         if most_used_mood:
             meta = MOOD_META.get(most_used_mood, {})
-            most_used_mood_label = f"{meta.get('emoji', '')} {meta.get(lang, most_used_mood.title())}".strip()
+            most_used_mood_name = meta.get(lang, most_used_mood.title())
+            most_used_mood_icon = meta.get('emoji', '')
+            most_used_mood_label = f"{most_used_mood_name}".strip()
 
         # ── Top tags ───────────────────────────────────────────────────────
         from tags.models import Tag
@@ -304,6 +308,8 @@ class InsightsView(View):
             'streak_days': streak,
             'most_used_mood': most_used_mood,
             'most_used_mood_label': most_used_mood_label,
+            'most_used_mood_name': most_used_mood_name,
+            'most_used_mood_icon': most_used_mood_icon,
             'entries_by_mood': entries_by_mood,
             'mood_rows': mood_rows,
             'max_mood': max_mood,
