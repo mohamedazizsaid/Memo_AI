@@ -20,7 +20,7 @@ class Person(TimeStampedModel):
         db_index=True,
     )
     name = models.CharField(max_length=255, default='Unknown')
-    avatar_url = models.URLField(blank=True)
+    avatar_url = models.TextField(blank=True)
 
     # 128-dimensional face embedding stored as comma-separated floats
     # In production, this should be encrypted at rest

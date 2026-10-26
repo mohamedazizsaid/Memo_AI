@@ -1,0 +1,3126 @@
+[
+  {
+    "model": "accounts.user",
+    "pk": "51859168-d573-453c-a943-357a6e514713",
+    "fields": {
+      "password": "pbkdf2_sha256$1000000$ruzTb5uAxOwIeQZwi6EblV$LhY9g4f8laFTqHaxDN/7UvLePeGImSpBPDS8WA2rOQQ=",
+      "is_superuser": false,
+      "email": "demo@memoai.local",
+      "first_name": "Sophie",
+      "last_name": "Martin",
+      "avatar": "/static/img/avatars/a1.svg",
+      "is_active": true,
+      "is_staff": false,
+      "created_at": "2026-09-26T15:01:17.198Z",
+      "updated_at": "2026-10-20T17:39:53.484Z",
+      "last_login": "2026-10-22T13:01:38.839Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "accounts.user",
+    "pk": "e8544782-b8af-49f9-b6ef-5608a4951055",
+    "fields": {
+      "password": "pbkdf2_sha256$1000000$4ibObruE73d4XlgwUJ3pgu$N1FG6zwrXY+cf3HmdgXwZYhK1Zs/rmC0YUW8zp7tp1Y=",
+      "is_superuser": false,
+      "email": "karim90.karim90.99@gmail.com",
+      "first_name": "karim",
+      "last_name": "karim",
+      "avatar": "",
+      "is_active": true,
+      "is_staff": false,
+      "created_at": "2026-10-10T10:59:01.604Z",
+      "updated_at": "2026-10-10T10:59:01.604Z",
+      "last_login": "2026-10-19T18:57:39.351Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "accounts.user",
+    "pk": "c87266a0-8255-4fb5-b7d5-a71501db43b6",
+    "fields": {
+      "password": "pbkdf2_sha256$1000000$nu8UqN2cr9DAlPsq79BGYe$XchjCFdrKda8KA2qo4ZwQ9gsVRgin4CzfFytKA+ZUDE=",
+      "is_superuser": false,
+      "email": "karim90.karim90.99@gmail.comm",
+      "first_name": "karim",
+      "last_name": "karim",
+      "avatar": "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80",
+      "is_active": true,
+      "is_staff": false,
+      "created_at": "2026-10-10T14:08:03.634Z",
+      "updated_at": "2026-10-10T14:08:03.634Z",
+      "last_login": "2026-10-10T14:08:03.669Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "accounts.user",
+    "pk": "6e7427ff-23f0-44a1-933f-08a94e3eda71",
+    "fields": {
+      "password": "pbkdf2_sha256$1000000$ruzTb5uAxOwIeQZwi6EblV$LhY9g4f8laFTqHaxDN/7UvLePeGImSpBPDS8WA2rOQQ=",
+      "is_superuser": false,
+      "email": "azizsaid.it@gmail.commm",
+      "first_name": "Med Aziz",
+      "last_name": "Said",
+      "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+      "is_active": true,
+      "is_staff": false,
+      "created_at": "2026-10-18T17:01:09.789Z",
+      "updated_at": "2026-10-18T17:01:09.789Z",
+      "last_login": "2026-10-20T17:08:06.685Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "accounts.user",
+    "pk": "cb9e9983-84a4-4d5f-ae49-4731470ed622",
+    "fields": {
+      "password": "pbkdf2_sha256$1000000$hYap1FVfwR1ctB90ZEdK97$eSdrBtltnUNL77AdD0h8bN421bV5V+1n01EUSeDlGt4=",
+      "is_superuser": false,
+      "email": "testuser@example.com",
+      "first_name": "Test",
+      "last_name": "User",
+      "avatar": "",
+      "is_active": true,
+      "is_staff": false,
+      "created_at": "2026-10-21T16:43:09.301Z",
+      "updated_at": "2026-10-21T16:43:09.302Z",
+      "last_login": "2026-10-21T16:43:09.420Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "accounts.user",
+    "pk": "125b19af-77c0-4d9c-8221-2ad9eace4b43",
+    "fields": {
+      "password": "pbkdf2_sha256$1000000$EliqnHoraXWPL8HTkvTU3R$ON4LqaaZgpjhZ5av/zJs3jNAkeZXKdj2uiRb6o1QhEs=",
+      "is_superuser": false,
+      "email": "azizsaid.it@gmail.com",
+      "first_name": "Med Aziz",
+      "last_name": "Said",
+      "avatar": "https://res.cloudinary.com/dhlnfpfen/image/upload/v1792673592/memoai/avatars/125b19af-77c0-4d9c-8221-2ad9eace4b43/hero_3D_cutout1_ofhbks.png",
+      "is_active": true,
+      "is_staff": false,
+      "created_at": "2026-10-22T12:53:10.942Z",
+      "updated_at": "2026-10-22T12:53:10.942Z",
+      "last_login": "2026-10-22T12:53:12.834Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "accounts.userpreferences",
+    "pk": 1,
+    "fields": {
+      "user": "51859168-d573-453c-a943-357a6e514713",
+      "theme": "light",
+      "language": "fr",
+      "reduce_motion": false,
+      "gender": "undisclosed",
+      "profile_visibility": "private",
+      "onboarding_completed": true,
+      "onboarding_completed_at": "2026-10-20T17:39:52.391Z",
+      "daily_reminder_enabled": true,
+      "daily_reminder_time": "09:00:00",
+      "weekly_summary_enabled": true,
+      "monthly_review_enabled": true,
+      "email_notifications": false,
+      "ai_summaries_enabled": true,
+      "sentiment_analysis_enabled": true,
+      "image_generation_enabled": true,
+      "face_recognition_consent": true,
+      "face_recognition_consent_date": "2026-10-20T17:39:52.391Z",
+      "auto_delete_face_embeddings": false,
+      "created_at": "2026-09-26T15:01:17.991Z",
+      "updated_at": "2026-10-20T17:39:53.505Z"
+    }
+  },
+  {
+    "model": "accounts.userpreferences",
+    "pk": 2,
+    "fields": {
+      "user": "e8544782-b8af-49f9-b6ef-5608a4951055",
+      "theme": "system",
+      "language": "fr",
+      "reduce_motion": false,
+      "gender": "",
+      "profile_visibility": "private",
+      "onboarding_completed": true,
+      "onboarding_completed_at": "2026-10-19T18:03:30.172Z",
+      "daily_reminder_enabled": true,
+      "daily_reminder_time": "09:00:00",
+      "weekly_summary_enabled": true,
+      "monthly_review_enabled": true,
+      "email_notifications": true,
+      "ai_summaries_enabled": true,
+      "sentiment_analysis_enabled": true,
+      "image_generation_enabled": true,
+      "face_recognition_consent": false,
+      "face_recognition_consent_date": null,
+      "auto_delete_face_embeddings": false,
+      "created_at": "2026-10-10T10:59:01.634Z",
+      "updated_at": "2026-10-10T10:59:01.634Z"
+    }
+  },
+  {
+    "model": "accounts.userpreferences",
+    "pk": 3,
+    "fields": {
+      "user": "c87266a0-8255-4fb5-b7d5-a71501db43b6",
+      "theme": "system",
+      "language": "fr",
+      "reduce_motion": false,
+      "gender": "",
+      "profile_visibility": "private",
+      "onboarding_completed": true,
+      "onboarding_completed_at": "2026-10-19T18:03:30.172Z",
+      "daily_reminder_enabled": true,
+      "daily_reminder_time": "09:00:00",
+      "weekly_summary_enabled": true,
+      "monthly_review_enabled": true,
+      "email_notifications": true,
+      "ai_summaries_enabled": true,
+      "sentiment_analysis_enabled": true,
+      "image_generation_enabled": true,
+      "face_recognition_consent": false,
+      "face_recognition_consent_date": null,
+      "auto_delete_face_embeddings": false,
+      "created_at": "2026-10-10T14:08:03.655Z",
+      "updated_at": "2026-10-10T14:08:03.655Z"
+    }
+  },
+  {
+    "model": "accounts.userpreferences",
+    "pk": 4,
+    "fields": {
+      "user": "6e7427ff-23f0-44a1-933f-08a94e3eda71",
+      "theme": "system",
+      "language": "fr",
+      "reduce_motion": false,
+      "gender": "",
+      "profile_visibility": "private",
+      "onboarding_completed": true,
+      "onboarding_completed_at": "2026-10-19T18:03:30.172Z",
+      "daily_reminder_enabled": true,
+      "daily_reminder_time": "09:00:00",
+      "weekly_summary_enabled": true,
+      "monthly_review_enabled": true,
+      "email_notifications": true,
+      "ai_summaries_enabled": true,
+      "sentiment_analysis_enabled": true,
+      "image_generation_enabled": true,
+      "face_recognition_consent": false,
+      "face_recognition_consent_date": null,
+      "auto_delete_face_embeddings": false,
+      "created_at": "2026-10-18T17:01:09.833Z",
+      "updated_at": "2026-10-18T17:01:09.833Z"
+    }
+  },
+  {
+    "model": "accounts.userpreferences",
+    "pk": 7,
+    "fields": {
+      "user": "cb9e9983-84a4-4d5f-ae49-4731470ed622",
+      "theme": "system",
+      "language": "fr",
+      "reduce_motion": false,
+      "gender": "",
+      "profile_visibility": "private",
+      "onboarding_completed": false,
+      "onboarding_completed_at": null,
+      "daily_reminder_enabled": true,
+      "daily_reminder_time": "09:00:00",
+      "weekly_summary_enabled": true,
+      "monthly_review_enabled": true,
+      "email_notifications": true,
+      "ai_summaries_enabled": true,
+      "sentiment_analysis_enabled": true,
+      "image_generation_enabled": true,
+      "face_recognition_consent": false,
+      "face_recognition_consent_date": null,
+      "auto_delete_face_embeddings": false,
+      "created_at": "2026-10-21T16:43:09.385Z",
+      "updated_at": "2026-10-21T16:43:09.385Z"
+    }
+  },
+  {
+    "model": "accounts.userpreferences",
+    "pk": 8,
+    "fields": {
+      "user": "125b19af-77c0-4d9c-8221-2ad9eace4b43",
+      "theme": "light",
+      "language": "en",
+      "reduce_motion": false,
+      "gender": "male",
+      "profile_visibility": "public",
+      "onboarding_completed": true,
+      "onboarding_completed_at": "2026-10-22T12:54:34.180Z",
+      "daily_reminder_enabled": true,
+      "daily_reminder_time": "09:00:00",
+      "weekly_summary_enabled": true,
+      "monthly_review_enabled": true,
+      "email_notifications": true,
+      "ai_summaries_enabled": true,
+      "sentiment_analysis_enabled": true,
+      "image_generation_enabled": true,
+      "face_recognition_consent": false,
+      "face_recognition_consent_date": null,
+      "auto_delete_face_embeddings": false,
+      "created_at": "2026-10-22T12:53:10.964Z",
+      "updated_at": "2026-10-22T12:54:34.180Z"
+    }
+  },
+  {
+    "model": "accounts.passwordresettoken",
+    "pk": "1d66e6c0-b38d-4b9e-b010-56a753a30755",
+    "fields": {
+      "user": "51859168-d573-453c-a943-357a6e514713",
+      "token": "tqOGTDtCU-aJ_v_YEvujlYZgFZbmgj-U_d2A3x-KdOY",
+      "created_at": "2026-10-20T17:39:53.651Z",
+      "expires_at": "2026-10-19T17:39:52.391Z",
+      "used": true
+    }
+  },
+  {
+    "model": "journal.journalentry",
+    "pk": "8f0913e0-e8ae-4767-9fc4-78a99a5d8750",
+    "fields": {
+      "created_at": "2026-10-22T12:55:35.001Z",
+      "updated_at": "2026-10-22T12:55:35.001Z",
+      "deleted_at": null,
+      "user": "125b19af-77c0-4d9c-8221-2ad9eace4b43",
+      "title": "une cafe",
+      "content": "cafe avec les amis",
+      "entry_date": "2026-10-22",
+      "location": "",
+      "latitude": null,
+      "longitude": null,
+      "mood": "amazing",
+      "ai_status": "completed",
+      "ai_task_id": "",
+      "ai_error_message": "",
+      "word_count": 4
+    }
+  },
+  {
+    "model": "journal.journalentry",
+    "pk": "03444d5d-1644-4c64-9f89-865b93f2ac6a",
+    "fields": {
+      "created_at": "2026-10-20T09:00:00Z",
+      "updated_at": "2026-10-20T09:00:00Z",
+      "deleted_at": null,
+      "user": "51859168-d573-453c-a943-357a6e514713",
+      "title": "Le premier café de l'automne",
+      "content": "Ce matin, la lumière avait cette couleur dorée qui annonce l'automne. Je me suis installé à la terrasse du café des Deux Moulins avec un carnet et un flat white. Les feuilles commencent à peine à tomber, mais l'air a déjà ce parfum de rentrée. J'ai écrit trois idées sans les juger, juste pour retrouver le plaisir de poser les mots. En repartant, je me suis dit que cette saison serait celle des petites habitudes douces.",
+      "entry_date": "2026-10-20",
+      "location": "Café des Deux Moulins, Paris",
+      "latitude": "48.886000",
+      "longitude": "2.338000",
+      "mood": "good",
+      "ai_status": "completed",
+      "ai_task_id": "",
+      "ai_error_message": "",
+      "word_count": 76
+    }
+  },
+  {
+    "model": "journal.journalentry",
+    "pk": "e1a8df38-c659-4e93-b503-9ff8c3d724c5",
+    "fields": {
+      "created_at": "2026-10-19T09:00:00Z",
+      "updated_at": "2026-10-19T09:00:00Z",
+      "deleted_at": null,
+      "user": "51859168-d573-453c-a943-357a6e514713",
+      "title": "Balade au parc avant la pluie",
+      "content": "Le ciel était bas et le parc presque vide. J'ai marché sans musique, en écoutant les feuilles et les quelques oiseaux qui résistaient au froid. Les fleurs du parterre avaient encore des couleurs incroyables. Juste avant que la pluie arrive, j'ai trouvé un banc et j'ai regardé les nuages glisser sur les toits. C'était une de ces heures où l'on ne fait rien et où tout semble pourtant se remettre en place.",
+      "entry_date": "2026-10-19",
+      "location": "Parc Monceau, Paris",
+      "latitude": "48.879000",
+      "longitude": "2.309000",
+      "mood": "amazing",
+      "ai_status": "completed",
+      "ai_task_id": "",
+      "ai_error_message": "",
+      "word_count": 72
+    }
+  },
+  {
+    "model": "journal.journalentry",
+    "pk": "31f318e3-8e06-4723-9531-8141d4638530",
+    "fields": {
+      "created_at": "2026-10-18T09:00:00Z",
+      "updated_at": "2026-10-18T09:00:00Z",
+      "deleted_at": null,
+      "user": "51859168-d573-453c-a943-357a6e514713",
+      "title": "Une soirée qui rallume les étoiles",
+      "content": "Camille et Thomas sont arrivés avec des vinyles et une tarte aux pommes. On a cuisiné, ri de nos vieilles photos et dansé dans le salon jusqu'à ce que les voisins demandent gentiment de baisser le volume. Léa nous a rejoints après son cours de danse. À minuit, on est montés sur la terrasse : le ciel était dégagé et la ville entière semblait respirer. J'avais oublié à quel point une soirée simple pouvait recharger autant.",
+      "entry_date": "2026-10-18",
+      "location": "Belleville, Paris",
+      "latitude": "48.872000",
+      "longitude": "2.381000",
+      "mood": "excited",
+      "ai_status": "completed",
+      "ai_task_id": "",
+      "ai_error_message": "",
+      "word_count": 76
+    }
+  },
+  {
+    "model": "journal.journalentry",
+    "pk": "1bc2d724-3bc8-4238-af81-81bd2d0e4443",
+    "fields": {
+      "created_at": "2026-10-16T09:00:00Z",
+      "updated_at": "2026-10-16T09:00:00Z",
+      "deleted_at": null,
+      "user": "51859168-d573-453c-a943-357a6e514713",
+      "title": "Dimanche slow",
+      "content": "Pas de réveil, pas de liste. J'ai fait du café, lu deux chapitres et laissé la journée s'installer sans plan. Le carnet est resté ouvert sur la table sans que j'écrive vraiment. Parfois, le repos consiste simplement à ne pas remplir le vide. En fin d'après-midi, j'ai quand même noté une idée pour la semaine. Une petite idée, pas une mission.",
+      "entry_date": "2026-10-16",
+      "location": "Maison",
+      "latitude": null,
+      "longitude": null,
+      "mood": "good",
+      "ai_status": "completed",
+      "ai_task_id": "",
+      "ai_error_message": "",
+      "word_count": 61
+    }
+  },
+  {
+    "model": "journal.journalentry",
+    "pk": "b55cb3d6-3d91-499b-a56b-5dfd1c325d52",
+    "fields": {
+      "created_at": "2026-10-10T13:52:32.495Z",
+      "updated_at": "2026-10-10T13:52:32.495Z",
+      "deleted_at": "2026-10-10T13:52:40.955Z",
+      "user": "e8544782-b8af-49f9-b6ef-5608a4951055",
+      "title": "fa faj",
+      "content": "fa fkja",
+      "entry_date": "2026-10-10",
+      "location": "",
+      "latitude": null,
+      "longitude": null,
+      "mood": "",
+      "ai_status": "processing",
+      "ai_task_id": "45d3f5cd-7219-4e27-bab2-10efb488be02",
+      "ai_error_message": "",
+      "word_count": 2
+    }
+  },
+  {
+    "model": "journal.journalentry",
+    "pk": "0a6422f2-72f4-4c70-8944-846f8bb94e20",
+    "fields": {
+      "created_at": "2026-10-10T13:52:18.919Z",
+      "updated_at": "2026-10-10T13:52:18.919Z",
+      "deleted_at": null,
+      "user": "e8544782-b8af-49f9-b6ef-5608a4951055",
+      "title": "faffa",
+      "content": "fafknakj",
+      "entry_date": "2026-10-10",
+      "location": "",
+      "latitude": null,
+      "longitude": null,
+      "mood": "",
+      "ai_status": "processing",
+      "ai_task_id": "fb5aecbe-2327-4298-b835-835f953b38bb",
+      "ai_error_message": "",
+      "word_count": 1
+    }
+  },
+  {
+    "model": "journal.journalentry",
+    "pk": "6e743499-268a-4dbf-b9f7-dcd258e00e90",
+    "fields": {
+      "created_at": "2026-10-10T09:00:00Z",
+      "updated_at": "2026-10-10T09:00:00Z",
+      "deleted_at": null,
+      "user": "51859168-d573-453c-a943-357a6e514713",
+      "title": "Le dossier qui n'en finit pas",
+      "content": "La journée a été longue. Le dossier avance, mais chaque relecture ouvre trois nouvelles questions. J'ai mangé devant l'écran et je le regrette un peu. En sortant, j'ai fait le tour du pâté de maisons pour décrocher. Le soir, j'ai fermé l'ordinateur sans répondre aux derniers messages. Demain, je demanderai de l'aide au lieu de vouloir tout porter seule.",
+      "entry_date": "2026-10-10",
+      "location": "Bureau",
+      "latitude": null,
+      "longitude": null,
+      "mood": "stressed",
+      "ai_status": "completed",
+      "ai_task_id": "",
+      "ai_error_message": "",
+      "word_count": 59
+    }
+  },
+  {
+    "model": "journal.journalentry",
+    "pk": "84af2632-0aee-4625-b485-4cd45d6d294f",
+    "fields": {
+      "created_at": "2026-09-28T09:00:00Z",
+      "updated_at": "2026-09-28T09:00:00Z",
+      "deleted_at": null,
+      "user": "51859168-d573-453c-a943-357a6e514713",
+      "title": "Retrouvailles avec Camille",
+      "content": "Cela faisait presque deux ans. On s'est retrouvées à Lyon, dans un petit café près des quais. Les premières minutes étaient timides, puis tout est revenu : nos blagues, nos silences et cette façon de finir les phrases de l'autre. On a parlé de nos vies sans comparaison, juste pour se raconter. En repartant, j'ai senti une chaleur tranquille. Certaines amitiés ne demandent qu'une table et un après-midi.",
+      "entry_date": "2026-09-28",
+      "location": "Lyon",
+      "latitude": "45.764000",
+      "longitude": "4.835700",
+      "mood": "grateful",
+      "ai_status": "completed",
+      "ai_task_id": "",
+      "ai_error_message": "",
+      "word_count": 68
+    }
+  },
+  {
+    "model": "journal.journalentry",
+    "pk": "60bf5a7c-5e23-423a-ba4e-375b1f2a7359",
+    "fields": {
+      "created_at": "2026-09-14T09:00:00Z",
+      "updated_at": "2026-09-14T09:00:00Z",
+      "deleted_at": null,
+      "user": "51859168-d573-453c-a943-357a6e514713",
+      "title": "Lumière de fin d'été",
+      "content": "Biarritz, dernier soir avant de rentrer. La plage était presque vide et l'océan avait cette couleur d'ardoise. J'ai marché jusqu'à la jetée en laissant le sable entrer dans mes chaussures. Le soleil descendait derrière les nuages, puis il a trouvé une fente et tout est devenu orange. Je n'ai pas pris trente photos. J'en ai pris une, puis je me suis assise. C'était exactement ce dont j'avais besoin.",
+      "entry_date": "2026-09-14",
+      "location": "Biarritz",
+      "latitude": "43.483200",
+      "longitude": "-1.558600",
+      "mood": "good",
+      "ai_status": "completed",
+      "ai_task_id": "",
+      "ai_error_message": "",
+      "word_count": 68
+    }
+  },
+  {
+    "model": "journal.journalentry",
+    "pk": "cdd73b68-767e-4ed7-b211-affcef60d520",
+    "fields": {
+      "created_at": "2026-08-24T09:00:00Z",
+      "updated_at": "2026-08-24T09:00:00Z",
+      "deleted_at": null,
+      "user": "51859168-d573-453c-a943-357a6e514713",
+      "title": "Sur la route des vacances",
+      "content": "On est partis tôt, avec une playlist trop longue et des sandwiches préparés la veille. La route traversait des champs de lavande et des villages de pierre. À chaque pause, on découvrait une nouvelle lumière. Thomas voulait photographier tous les panneaux, Léa voulait goûter tous les marchés. Moi, je conduisais et je souriais. La destination importait moins que cette sensation de temps ouvert devant nous.",
+      "entry_date": "2026-08-24",
+      "location": "Provence",
+      "latitude": "43.837400",
+      "longitude": "5.040000",
+      "mood": "excited",
+      "ai_status": "completed",
+      "ai_task_id": "",
+      "ai_error_message": "",
+      "word_count": 65
+    }
+  },
+  {
+    "model": "journal.journalentry",
+    "pk": "4cd193f7-f860-4cd4-bc24-2651d224a091",
+    "fields": {
+      "created_at": "2026-07-18T09:00:00Z",
+      "updated_at": "2026-07-18T09:00:00Z",
+      "deleted_at": null,
+      "user": "51859168-d573-453c-a943-357a6e514713",
+      "title": "Le goût des madeleines",
+      "content": "Mamie Jeanne avait sorti le grand plat et la recette écrite à la main. On a pesé la farine, cassé les œufs et attendu devant le four en parlant de ses étés à la mer. La cuisine sentait le citron et le beurre. À la première bouchée, je suis retournée dans la cuisine de mon enfance. Elle a ri de me voir fermer les yeux. On a tout mangé sauf trois, soigneusement rangés pour demain.",
+      "entry_date": "2026-07-18",
+      "location": "Chez Mamie",
+      "latitude": null,
+      "longitude": null,
+      "mood": "grateful",
+      "ai_status": "completed",
+      "ai_task_id": "",
+      "ai_error_message": "",
+      "word_count": 75
+    }
+  },
+  {
+    "model": "journal.journalentry",
+    "pk": "d82de4cf-cf3c-4252-af5e-67c52482af84",
+    "fields": {
+      "created_at": "2026-05-02T09:00:00Z",
+      "updated_at": "2026-05-02T09:00:00Z",
+      "deleted_at": null,
+      "user": "51859168-d573-453c-a943-357a6e514713",
+      "title": "Carnet de bord au canal",
+      "content": "J'ai passé l'après-midi au canal avec mon appareil photo. Thomas m'avait prêté un objectif et j'ai tenté de regarder la ville autrement. Les gens assis sur les quais, les reflets, les vélos qui passent trop vite. Rien d'extraordinaire, et pourtant tout devenait une image possible. On a fini avec un verre sur une terrasse. Je crois que la créativité a aussi besoin de ces heures sans but précis.",
+      "entry_date": "2026-05-02",
+      "location": "Canal Saint-Martin, Paris",
+      "latitude": null,
+      "longitude": null,
+      "mood": "good",
+      "ai_status": "completed",
+      "ai_task_id": "",
+      "ai_error_message": "",
+      "word_count": 68
+    }
+  },
+  {
+    "model": "journal.journalentry",
+    "pk": "693f07a3-c90b-44c7-9f6f-cb3898d4c91b",
+    "fields": {
+      "created_at": "2025-12-24T09:00:00Z",
+      "updated_at": "2025-12-24T09:00:00Z",
+      "deleted_at": null,
+      "user": "51859168-d573-453c-a943-357a6e514713",
+      "title": "Noël en petit comité",
+      "content": "Cette année, pas de grande tablée. Juste nous, une table plus petite et la cheminée allumée. On a cuisiné à plusieurs, mis de la musique douce et sorti les vieilles décorations. Thomas a offert un album photo qu'il avait fait en secret. Mamie a raconté une histoire que personne n'avait entendue. Le lendemain matin, les papiers cadeaux traînaient encore et la maison sentait le sapin. C'était un Noël calme, et c'était parfait.",
+      "entry_date": "2025-12-24",
+      "location": "Maison",
+      "latitude": null,
+      "longitude": null,
+      "mood": "good",
+      "ai_status": "completed",
+      "ai_task_id": "",
+      "ai_error_message": "",
+      "word_count": 72
+    }
+  },
+  {
+    "model": "journal.journalentry",
+    "pk": "cf4b37d4-851b-4320-a6aa-59978e243526",
+    "fields": {
+      "created_at": "2025-10-20T09:00:00Z",
+      "updated_at": "2025-10-20T09:00:00Z",
+      "deleted_at": null,
+      "user": "51859168-d573-453c-a943-357a6e514713",
+      "title": "Il y a un an, déjà",
+      "content": "Une année a passé. Je suis passée devant le café où j'avais l'habitude de travailler et j'ai commandé le même thé. Rien n'avait vraiment changé, et pourtant tout avait bougé. J'ai relu quelques pages de mon carnet de l'époque. J'avais peur de ne pas y arriver, peur de choisir la mauvaise direction. Aujourd'hui, je ne regrette pas le chemin. J'ai simplement envie de dire à la personne d'alors qu'elle a bien fait de continuer.",
+      "entry_date": "2025-10-20",
+      "location": "Paris",
+      "latitude": null,
+      "longitude": null,
+      "mood": "neutral",
+      "ai_status": "completed",
+      "ai_task_id": "",
+      "ai_error_message": "",
+      "word_count": 74
+    }
+  },
+  {
+    "model": "journal.journalentry",
+    "pk": "ca8fea13-009a-4788-b276-6d4d44c80192",
+    "fields": {
+      "created_at": "2024-10-20T09:00:00Z",
+      "updated_at": "2024-10-20T09:00:00Z",
+      "deleted_at": null,
+      "user": "51859168-d573-453c-a943-357a6e514713",
+      "title": "La lettre retrouvée",
+      "content": "En rangeant un tiroir, j'ai trouvé une lettre que je n'avais jamais envoyée. Elle était pliée en quatre, avec une date et beaucoup d'hésitations. J'ai mis longtemps avant de l'ouvrir. La personne qui écrivait avait besoin de dire les choses sans lendemain. Je n'ai pas eu envie de la juger. Je l'ai lue deux fois, puis je l'ai rangée dans un carnet, pas pour l'oublier, juste pour la garder. Certaines paroles attendent simplement le bon moment pour être comprises.",
+      "entry_date": "2024-10-20",
+      "location": "Jardin du Luxembourg, Paris",
+      "latitude": null,
+      "longitude": null,
+      "mood": "grateful",
+      "ai_status": "completed",
+      "ai_task_id": "",
+      "ai_error_message": "",
+      "word_count": 79
+    }
+  },
+  {
+    "model": "media_app.media",
+    "pk": "006aee0f-07b5-4e31-8e2d-9532be250409",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.535Z",
+      "updated_at": "2026-10-20T17:39:53.535Z",
+      "entry": "03444d5d-1644-4c64-9f89-865b93f2ac6a",
+      "media_type": "IMAGE",
+      "storage_url": "/static/img/orbit/o01.jpg",
+      "cloudinary_public_id": "",
+      "mime_type": "image/jpeg",
+      "file_size": 28123,
+      "duration_seconds": null,
+      "width": 1200,
+      "height": 1600,
+      "original_filename": "o01.jpg",
+      "processing_status": "completed",
+      "processing_task_id": "",
+      "processing_error": ""
+    }
+  },
+  {
+    "model": "media_app.media",
+    "pk": "9bfcecff-e6fe-411b-815b-45d9a41fc0cc",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.537Z",
+      "updated_at": "2026-10-20T17:39:53.537Z",
+      "entry": "03444d5d-1644-4c64-9f89-865b93f2ac6a",
+      "media_type": "IMAGE",
+      "storage_url": "/static/img/orbit/o02.jpg",
+      "cloudinary_public_id": "",
+      "mime_type": "image/jpeg",
+      "file_size": 44477,
+      "duration_seconds": null,
+      "width": 1200,
+      "height": 1600,
+      "original_filename": "o02.jpg",
+      "processing_status": "completed",
+      "processing_task_id": "",
+      "processing_error": ""
+    }
+  },
+  {
+    "model": "media_app.media",
+    "pk": "04677074-5972-4a37-8e13-ffac49f7df9d",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.544Z",
+      "updated_at": "2026-10-20T17:39:53.544Z",
+      "entry": "e1a8df38-c659-4e93-b503-9ff8c3d724c5",
+      "media_type": "IMAGE",
+      "storage_url": "/static/img/orbit/o03.jpg",
+      "cloudinary_public_id": "",
+      "mime_type": "image/jpeg",
+      "file_size": 11518,
+      "duration_seconds": null,
+      "width": 1200,
+      "height": 1600,
+      "original_filename": "o03.jpg",
+      "processing_status": "completed",
+      "processing_task_id": "",
+      "processing_error": ""
+    }
+  },
+  {
+    "model": "media_app.media",
+    "pk": "01ca0d1c-aa86-45fd-9bc4-87b2af884025",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.545Z",
+      "updated_at": "2026-10-20T17:39:53.545Z",
+      "entry": "e1a8df38-c659-4e93-b503-9ff8c3d724c5",
+      "media_type": "IMAGE",
+      "storage_url": "/static/img/orbit/o04.jpg",
+      "cloudinary_public_id": "",
+      "mime_type": "image/jpeg",
+      "file_size": 59226,
+      "duration_seconds": null,
+      "width": 1200,
+      "height": 1600,
+      "original_filename": "o04.jpg",
+      "processing_status": "completed",
+      "processing_task_id": "",
+      "processing_error": ""
+    }
+  },
+  {
+    "model": "media_app.media",
+    "pk": "dafe966b-e522-49f4-b67e-0a118eac27dc",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.549Z",
+      "updated_at": "2026-10-20T17:39:53.549Z",
+      "entry": "31f318e3-8e06-4723-9531-8141d4638530",
+      "media_type": "IMAGE",
+      "storage_url": "/static/img/orbit/o05.jpg",
+      "cloudinary_public_id": "",
+      "mime_type": "image/jpeg",
+      "file_size": 23240,
+      "duration_seconds": null,
+      "width": 1200,
+      "height": 1600,
+      "original_filename": "o05.jpg",
+      "processing_status": "completed",
+      "processing_task_id": "",
+      "processing_error": ""
+    }
+  },
+  {
+    "model": "media_app.media",
+    "pk": "351c8e39-2132-4cec-841d-a3a2f7f8d5e1",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.550Z",
+      "updated_at": "2026-10-20T17:39:53.550Z",
+      "entry": "31f318e3-8e06-4723-9531-8141d4638530",
+      "media_type": "IMAGE",
+      "storage_url": "/static/img/orbit/o06.jpg",
+      "cloudinary_public_id": "",
+      "mime_type": "image/jpeg",
+      "file_size": 31881,
+      "duration_seconds": null,
+      "width": 1200,
+      "height": 1600,
+      "original_filename": "o06.jpg",
+      "processing_status": "completed",
+      "processing_task_id": "",
+      "processing_error": ""
+    }
+  },
+  {
+    "model": "media_app.media",
+    "pk": "7d07d504-8361-4c5f-8067-4e3c4a075f7d",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.556Z",
+      "updated_at": "2026-10-20T17:39:53.556Z",
+      "entry": "1bc2d724-3bc8-4238-af81-81bd2d0e4443",
+      "media_type": "IMAGE",
+      "storage_url": "/static/img/orbit/o07.jpg",
+      "cloudinary_public_id": "",
+      "mime_type": "image/jpeg",
+      "file_size": 71380,
+      "duration_seconds": null,
+      "width": 1200,
+      "height": 1600,
+      "original_filename": "o07.jpg",
+      "processing_status": "completed",
+      "processing_task_id": "",
+      "processing_error": ""
+    }
+  },
+  {
+    "model": "media_app.media",
+    "pk": "a659f11b-e407-442e-9866-c96a6ab363d8",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.557Z",
+      "updated_at": "2026-10-20T17:39:53.557Z",
+      "entry": "1bc2d724-3bc8-4238-af81-81bd2d0e4443",
+      "media_type": "IMAGE",
+      "storage_url": "/static/img/orbit/o08.jpg",
+      "cloudinary_public_id": "",
+      "mime_type": "image/jpeg",
+      "file_size": 15803,
+      "duration_seconds": null,
+      "width": 1200,
+      "height": 1600,
+      "original_filename": "o08.jpg",
+      "processing_status": "completed",
+      "processing_task_id": "",
+      "processing_error": ""
+    }
+  },
+  {
+    "model": "media_app.media",
+    "pk": "5e6b57b7-058d-4b06-892e-5d6a3020d116",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.562Z",
+      "updated_at": "2026-10-20T17:39:53.562Z",
+      "entry": "6e743499-268a-4dbf-b9f7-dcd258e00e90",
+      "media_type": "IMAGE",
+      "storage_url": "/static/img/orbit/o09.jpg",
+      "cloudinary_public_id": "",
+      "mime_type": "image/jpeg",
+      "file_size": 23302,
+      "duration_seconds": null,
+      "width": 1200,
+      "height": 1600,
+      "original_filename": "o09.jpg",
+      "processing_status": "completed",
+      "processing_task_id": "",
+      "processing_error": ""
+    }
+  },
+  {
+    "model": "media_app.media",
+    "pk": "9212d164-d823-46ce-b369-f9ece9381776",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.562Z",
+      "updated_at": "2026-10-20T17:39:53.562Z",
+      "entry": "6e743499-268a-4dbf-b9f7-dcd258e00e90",
+      "media_type": "IMAGE",
+      "storage_url": "/static/img/orbit/o10.jpg",
+      "cloudinary_public_id": "",
+      "mime_type": "image/jpeg",
+      "file_size": 25330,
+      "duration_seconds": null,
+      "width": 1200,
+      "height": 1600,
+      "original_filename": "o10.jpg",
+      "processing_status": "completed",
+      "processing_task_id": "",
+      "processing_error": ""
+    }
+  },
+  {
+    "model": "media_app.media",
+    "pk": "5cfd0039-ac97-46ee-abda-0d549e8ab6a4",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.567Z",
+      "updated_at": "2026-10-20T17:39:53.567Z",
+      "entry": "84af2632-0aee-4625-b485-4cd45d6d294f",
+      "media_type": "IMAGE",
+      "storage_url": "/static/img/orbit/o11.jpg",
+      "cloudinary_public_id": "",
+      "mime_type": "image/jpeg",
+      "file_size": 32204,
+      "duration_seconds": null,
+      "width": 1200,
+      "height": 1600,
+      "original_filename": "o11.jpg",
+      "processing_status": "completed",
+      "processing_task_id": "",
+      "processing_error": ""
+    }
+  },
+  {
+    "model": "media_app.media",
+    "pk": "634ffafe-3ba7-4413-b6e8-2ec42fce6ad3",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.569Z",
+      "updated_at": "2026-10-20T17:39:53.569Z",
+      "entry": "84af2632-0aee-4625-b485-4cd45d6d294f",
+      "media_type": "IMAGE",
+      "storage_url": "/static/img/orbit/o12.jpg",
+      "cloudinary_public_id": "",
+      "mime_type": "image/jpeg",
+      "file_size": 79160,
+      "duration_seconds": null,
+      "width": 1200,
+      "height": 1600,
+      "original_filename": "o12.jpg",
+      "processing_status": "completed",
+      "processing_task_id": "",
+      "processing_error": ""
+    }
+  },
+  {
+    "model": "media_app.media",
+    "pk": "664b22ce-3377-4608-9358-fdcd72a47729",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.579Z",
+      "updated_at": "2026-10-20T17:39:53.579Z",
+      "entry": "60bf5a7c-5e23-423a-ba4e-375b1f2a7359",
+      "media_type": "IMAGE",
+      "storage_url": "/static/img/orbit/o13.jpg",
+      "cloudinary_public_id": "",
+      "mime_type": "image/jpeg",
+      "file_size": 19179,
+      "duration_seconds": null,
+      "width": 1200,
+      "height": 1600,
+      "original_filename": "o13.jpg",
+      "processing_status": "completed",
+      "processing_task_id": "",
+      "processing_error": ""
+    }
+  },
+  {
+    "model": "media_app.media",
+    "pk": "fecfeeb5-5ee5-46e3-9d65-f7f5083139ac",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.580Z",
+      "updated_at": "2026-10-20T17:39:53.580Z",
+      "entry": "60bf5a7c-5e23-423a-ba4e-375b1f2a7359",
+      "media_type": "IMAGE",
+      "storage_url": "/static/img/orbit/o14.jpg",
+      "cloudinary_public_id": "",
+      "mime_type": "image/jpeg",
+      "file_size": 36675,
+      "duration_seconds": null,
+      "width": 1200,
+      "height": 1600,
+      "original_filename": "o14.jpg",
+      "processing_status": "completed",
+      "processing_task_id": "",
+      "processing_error": ""
+    }
+  },
+  {
+    "model": "media_app.media",
+    "pk": "30750bf3-70b6-4194-b78b-37fc11f7dded",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.590Z",
+      "updated_at": "2026-10-20T17:39:53.590Z",
+      "entry": "cdd73b68-767e-4ed7-b211-affcef60d520",
+      "media_type": "IMAGE",
+      "storage_url": "/static/img/orbit/o15.jpg",
+      "cloudinary_public_id": "",
+      "mime_type": "image/jpeg",
+      "file_size": 42895,
+      "duration_seconds": null,
+      "width": 1200,
+      "height": 1600,
+      "original_filename": "o15.jpg",
+      "processing_status": "completed",
+      "processing_task_id": "",
+      "processing_error": ""
+    }
+  },
+  {
+    "model": "media_app.media",
+    "pk": "4a1cf95f-8c68-42ea-ad8e-32c4786bd0b9",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.591Z",
+      "updated_at": "2026-10-20T17:39:53.591Z",
+      "entry": "cdd73b68-767e-4ed7-b211-affcef60d520",
+      "media_type": "GENERATED_IMAGE",
+      "storage_url": "/static/img/orbit/o16.jpg",
+      "cloudinary_public_id": "",
+      "mime_type": "image/jpeg",
+      "file_size": 23127,
+      "duration_seconds": null,
+      "width": 1200,
+      "height": 1600,
+      "original_filename": "o16.jpg",
+      "processing_status": "completed",
+      "processing_task_id": "",
+      "processing_error": ""
+    }
+  },
+  {
+    "model": "media_app.media",
+    "pk": "37d157ea-3596-43a0-a11d-f247d7d9cc1a",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.599Z",
+      "updated_at": "2026-10-20T17:39:53.599Z",
+      "entry": "4cd193f7-f860-4cd4-bc24-2651d224a091",
+      "media_type": "IMAGE",
+      "storage_url": "/static/img/orbit/o17.jpg",
+      "cloudinary_public_id": "",
+      "mime_type": "image/jpeg",
+      "file_size": 48986,
+      "duration_seconds": null,
+      "width": 1200,
+      "height": 1600,
+      "original_filename": "o17.jpg",
+      "processing_status": "completed",
+      "processing_task_id": "",
+      "processing_error": ""
+    }
+  },
+  {
+    "model": "media_app.media",
+    "pk": "9b0db536-f82c-4674-b522-833036deecbe",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.600Z",
+      "updated_at": "2026-10-20T17:39:53.600Z",
+      "entry": "4cd193f7-f860-4cd4-bc24-2651d224a091",
+      "media_type": "IMAGE",
+      "storage_url": "/static/img/orbit/o18.jpg",
+      "cloudinary_public_id": "",
+      "mime_type": "image/jpeg",
+      "file_size": 81503,
+      "duration_seconds": null,
+      "width": 1200,
+      "height": 1600,
+      "original_filename": "o18.jpg",
+      "processing_status": "completed",
+      "processing_task_id": "",
+      "processing_error": ""
+    }
+  },
+  {
+    "model": "media_app.media",
+    "pk": "f4981541-a967-47e9-bc5c-355d9bfe3a26",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.604Z",
+      "updated_at": "2026-10-20T17:39:53.604Z",
+      "entry": "693f07a3-c90b-44c7-9f6f-cb3898d4c91b",
+      "media_type": "IMAGE",
+      "storage_url": "/static/img/orbit/o19.jpg",
+      "cloudinary_public_id": "",
+      "mime_type": "image/jpeg",
+      "file_size": 58391,
+      "duration_seconds": null,
+      "width": 1200,
+      "height": 1600,
+      "original_filename": "o19.jpg",
+      "processing_status": "completed",
+      "processing_task_id": "",
+      "processing_error": ""
+    }
+  },
+  {
+    "model": "media_app.media",
+    "pk": "60c3061f-2a55-4d59-ad32-23f402318bf6",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.605Z",
+      "updated_at": "2026-10-20T17:39:53.605Z",
+      "entry": "693f07a3-c90b-44c7-9f6f-cb3898d4c91b",
+      "media_type": "IMAGE",
+      "storage_url": "/static/img/orbit/o20.jpg",
+      "cloudinary_public_id": "",
+      "mime_type": "image/jpeg",
+      "file_size": 58999,
+      "duration_seconds": null,
+      "width": 1200,
+      "height": 1600,
+      "original_filename": "o20.jpg",
+      "processing_status": "completed",
+      "processing_task_id": "",
+      "processing_error": ""
+    }
+  },
+  {
+    "model": "media_app.media",
+    "pk": "b8a6a68c-5511-4ca9-8e1b-d526afe2536c",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.610Z",
+      "updated_at": "2026-10-20T17:39:53.610Z",
+      "entry": "cf4b37d4-851b-4320-a6aa-59978e243526",
+      "media_type": "IMAGE",
+      "storage_url": "/static/img/orbit/o21.jpg",
+      "cloudinary_public_id": "",
+      "mime_type": "image/jpeg",
+      "file_size": 38685,
+      "duration_seconds": null,
+      "width": 1200,
+      "height": 1600,
+      "original_filename": "o21.jpg",
+      "processing_status": "completed",
+      "processing_task_id": "",
+      "processing_error": ""
+    }
+  },
+  {
+    "model": "media_app.media",
+    "pk": "76709b1d-5add-47dc-aec4-cf97beb32d95",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.618Z",
+      "updated_at": "2026-10-20T17:39:53.618Z",
+      "entry": "ca8fea13-009a-4788-b276-6d4d44c80192",
+      "media_type": "IMAGE",
+      "storage_url": "/static/img/orbit/o22.jpg",
+      "cloudinary_public_id": "",
+      "mime_type": "image/jpeg",
+      "file_size": 45189,
+      "duration_seconds": null,
+      "width": 1200,
+      "height": 1600,
+      "original_filename": "o22.jpg",
+      "processing_status": "completed",
+      "processing_task_id": "",
+      "processing_error": ""
+    }
+  },
+  {
+    "model": "media_app.media",
+    "pk": "cc685800-f373-495a-be00-7a4c3804619e",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.619Z",
+      "updated_at": "2026-10-20T17:39:53.619Z",
+      "entry": "ca8fea13-009a-4788-b276-6d4d44c80192",
+      "media_type": "GENERATED_IMAGE",
+      "storage_url": "/static/img/orbit/o23.jpg",
+      "cloudinary_public_id": "",
+      "mime_type": "image/jpeg",
+      "file_size": 28492,
+      "duration_seconds": null,
+      "width": 1200,
+      "height": 1600,
+      "original_filename": "o23.jpg",
+      "processing_status": "completed",
+      "processing_task_id": "",
+      "processing_error": ""
+    }
+  },
+  {
+    "model": "media_app.media",
+    "pk": "ad625514-6662-4435-8cb8-d20f1ea2391a",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.624Z",
+      "updated_at": "2026-10-20T17:39:53.624Z",
+      "entry": "d82de4cf-cf3c-4252-af5e-67c52482af84",
+      "media_type": "IMAGE",
+      "storage_url": "/static/img/orbit/o24.jpg",
+      "cloudinary_public_id": "",
+      "mime_type": "image/jpeg",
+      "file_size": 21201,
+      "duration_seconds": null,
+      "width": 1200,
+      "height": 1600,
+      "original_filename": "o24.jpg",
+      "processing_status": "completed",
+      "processing_task_id": "",
+      "processing_error": ""
+    }
+  },
+  {
+    "model": "media_app.media",
+    "pk": "3db48c1d-5305-4991-9156-74a695c62a8d",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.625Z",
+      "updated_at": "2026-10-20T17:39:53.625Z",
+      "entry": "d82de4cf-cf3c-4252-af5e-67c52482af84",
+      "media_type": "IMAGE",
+      "storage_url": "/static/img/orbit/o25.jpg",
+      "cloudinary_public_id": "",
+      "mime_type": "image/jpeg",
+      "file_size": 81230,
+      "duration_seconds": null,
+      "width": 1200,
+      "height": 1600,
+      "original_filename": "o25.jpg",
+      "processing_status": "completed",
+      "processing_task_id": "",
+      "processing_error": ""
+    }
+  },
+  {
+    "model": "media_app.media",
+    "pk": "a0a962c2-89f3-4e9e-997d-6af4b4305c07",
+    "fields": {
+      "created_at": "2026-10-22T12:55:35.017Z",
+      "updated_at": "2026-10-22T12:55:35.017Z",
+      "entry": "8f0913e0-e8ae-4767-9fc4-78a99a5d8750",
+      "media_type": "IMAGE",
+      "storage_url": "https://images.pexels.com/photos/19893280/pexels-photo-19893280.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
+      "cloudinary_public_id": "",
+      "mime_type": "image/jpeg",
+      "file_size": 0,
+      "duration_seconds": null,
+      "width": null,
+      "height": null,
+      "original_filename": "Blurry portrait of a woman holding a mirror facing a serene water reflection.",
+      "processing_status": "completed",
+      "processing_task_id": "",
+      "processing_error": ""
+    }
+  },
+  {
+    "model": "ai.aianalysis",
+    "pk": "84c64de3-d51d-4270-9416-6c4b660bf222",
+    "fields": {
+      "created_at": "2026-10-10T13:52:18.961Z",
+      "updated_at": "2026-10-10T13:52:18.961Z",
+      "entry": "0a6422f2-72f4-4c70-8944-846f8bb94e20",
+      "transcription": "",
+      "transcription_language": "",
+      "transcription_status": "pending",
+      "summary": "[Mock Summary] A thoughtful entry about fafknakj...",
+      "keywords": [
+        "memory",
+        "journal",
+        "reflection",
+        "day",
+        "experience"
+      ],
+      "mood_insight": "This entry reflects a moment of personal reflection.",
+      "summary_status": "completed",
+      "sentiment": "positive",
+      "sentiment_score": 0.72,
+      "sentiment_status": "completed",
+      "generated_image_url": "",
+      "image_prompt": "",
+      "image_generation_status": "pending"
+    }
+  },
+  {
+    "model": "ai.aianalysis",
+    "pk": "ab2fa823-2c95-49fb-b577-1e56778e6b72",
+    "fields": {
+      "created_at": "2026-10-10T13:52:32.505Z",
+      "updated_at": "2026-10-10T13:52:32.505Z",
+      "entry": "b55cb3d6-3d91-499b-a56b-5dfd1c325d52",
+      "transcription": "",
+      "transcription_language": "",
+      "transcription_status": "pending",
+      "summary": "[Mock Summary] A thoughtful entry about fa fkja...",
+      "keywords": [
+        "memory",
+        "journal",
+        "reflection",
+        "day",
+        "experience"
+      ],
+      "mood_insight": "This entry reflects a moment of personal reflection.",
+      "summary_status": "completed",
+      "sentiment": "positive",
+      "sentiment_score": 0.72,
+      "sentiment_status": "completed",
+      "generated_image_url": "",
+      "image_prompt": "",
+      "image_generation_status": "pending"
+    }
+  },
+  {
+    "model": "ai.aianalysis",
+    "pk": "b87340f1-b17c-4d96-b02d-02ab50468ce9",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.537Z",
+      "updated_at": "2026-10-20T17:39:53.537Z",
+      "entry": "03444d5d-1644-4c64-9f89-865b93f2ac6a",
+      "transcription": "",
+      "transcription_language": "",
+      "transcription_status": "skipped",
+      "summary": "Une matinée simple et lumineuse, consacrée à l'écriture et au retour des rituels d'automne.",
+      "keywords": [
+        "automne",
+        "café",
+        "lumière",
+        "calme",
+        "routine"
+      ],
+      "mood_insight": "Les petits rituels et la lumière douce semblent poser un cadre rassurant pour écrire sans pression.",
+      "summary_status": "completed",
+      "sentiment": "positive",
+      "sentiment_score": 0.91,
+      "sentiment_status": "completed",
+      "generated_image_url": "",
+      "image_prompt": "Un café parisien baigné de lumière dorée d'automne, carnet ouvert sur la table.",
+      "image_generation_status": "skipped"
+    }
+  },
+  {
+    "model": "ai.aianalysis",
+    "pk": "058d6cb9-3b17-425e-9bd1-16cc96b4cb46",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.545Z",
+      "updated_at": "2026-10-20T17:39:53.545Z",
+      "entry": "e1a8df38-c659-4e93-b503-9ff8c3d724c5",
+      "transcription": "",
+      "transcription_language": "",
+      "transcription_status": "skipped",
+      "summary": "Une marche silencieuse avant la pluie, propice à l'observation et au ralentissement.",
+      "keywords": [
+        "parc",
+        "marche",
+        "nature",
+        "pluie",
+        "respiration"
+      ],
+      "mood_insight": "Le contact avec la nature et le silence semblent avoir apaisé le rythme mental de la journée.",
+      "summary_status": "completed",
+      "sentiment": "positive",
+      "sentiment_score": 0.84,
+      "sentiment_status": "completed",
+      "generated_image_url": "",
+      "image_prompt": "Un parc parisien sous un ciel de pluie, fleurs colorées et banc vide.",
+      "image_generation_status": "skipped"
+    }
+  },
+  {
+    "model": "ai.aianalysis",
+    "pk": "2420319f-8851-4547-8ac2-39e0fd1e2951",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.550Z",
+      "updated_at": "2026-10-20T17:39:53.550Z",
+      "entry": "31f318e3-8e06-4723-9531-8141d4638530",
+      "transcription": "",
+      "transcription_language": "",
+      "transcription_status": "skipped",
+      "summary": "Une soirée entre amis faite de musique, de cuisine et de rires, qui a redonné de l'énergie.",
+      "keywords": [
+        "amis",
+        "musique",
+        "rires",
+        "soirée",
+        "étoiles"
+      ],
+      "mood_insight": "La présence des proches et la créativité partagée sont clairement des sources de joie et de reconnexion.",
+      "summary_status": "completed",
+      "sentiment": "positive",
+      "sentiment_score": 0.93,
+      "sentiment_status": "completed",
+      "generated_image_url": "",
+      "image_prompt": "Une terrasse parisienne la nuit, guirlandes lumineuses et amis qui rient.",
+      "image_generation_status": "skipped"
+    }
+  },
+  {
+    "model": "ai.aianalysis",
+    "pk": "a7112ee2-2fe8-49fd-b413-03c12b4e4cf0",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.557Z",
+      "updated_at": "2026-10-20T17:39:53.557Z",
+      "entry": "1bc2d724-3bc8-4238-af81-81bd2d0e4443",
+      "transcription": "",
+      "transcription_language": "",
+      "transcription_status": "skipped",
+      "summary": "Une journée volontairement sans structure, partagée entre lecture, café et repos.",
+      "keywords": [
+        "dimanche",
+        "lecture",
+        "calme",
+        "maison",
+        "ralentir"
+      ],
+      "mood_insight": "Le besoin de ralentir est clair, même si le silence laisse aussi remonter quelques pensées en suspens.",
+      "summary_status": "completed",
+      "sentiment": "neutral",
+      "sentiment_score": 0.56,
+      "sentiment_status": "completed",
+      "generated_image_url": "",
+      "image_prompt": "Un dimanche matin calme, tasse de café et livre ouvert près de la fenêtre.",
+      "image_generation_status": "skipped"
+    }
+  },
+  {
+    "model": "ai.aianalysis",
+    "pk": "cfea2ce0-6e6b-4912-b065-1d636084c522",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.563Z",
+      "updated_at": "2026-10-20T17:39:53.563Z",
+      "entry": "6e743499-268a-4dbf-b9f7-dcd258e00e90",
+      "transcription": "",
+      "transcription_language": "",
+      "transcription_status": "skipped",
+      "summary": "Une journée de travail dense et frustrante, marquée par la pression et la difficulté à déconnecter.",
+      "keywords": [
+        "travail",
+        "pression",
+        "fatigue",
+        "délais",
+        "bureau"
+      ],
+      "mood_insight": "La charge mentale déborde sur les temps de pause. Poser une limite et demander de l'aide pourrait alléger la prochaine journée.",
+      "summary_status": "completed",
+      "sentiment": "negative",
+      "sentiment_score": 0.21,
+      "sentiment_status": "completed",
+      "generated_image_url": "",
+      "image_prompt": "Un bureau en fin de journée, écran allumé et ville grise derrière la fenêtre.",
+      "image_generation_status": "skipped"
+    }
+  },
+  {
+    "model": "ai.aianalysis",
+    "pk": "0a45617b-26d8-46fc-a347-f1976e5df94c",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.570Z",
+      "updated_at": "2026-10-20T17:39:53.570Z",
+      "entry": "84af2632-0aee-4625-b485-4cd45d6d294f",
+      "transcription": "",
+      "transcription_language": "",
+      "transcription_status": "skipped",
+      "summary": "Des retrouvailles émouvantes avec une amie d'enfance, vécues dans la simplicité et la gratitude.",
+      "keywords": [
+        "retrouvailles",
+        "amitié",
+        "lyon",
+        "souvenirs",
+        "joie"
+      ],
+      "mood_insight": "La reconnexion à une amitié ancienne procure un profond sentiment de continuité et de sécurité affective.",
+      "summary_status": "completed",
+      "sentiment": "positive",
+      "sentiment_score": 0.97,
+      "sentiment_status": "completed",
+      "generated_image_url": "",
+      "image_prompt": "Deux amies attablées dans un café lyonnais, lumière douce de fin d'après-midi.",
+      "image_generation_status": "skipped"
+    }
+  },
+  {
+    "model": "ai.aianalysis",
+    "pk": "98837533-ac05-4b25-9d17-d7e97b57f7bc",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.581Z",
+      "updated_at": "2026-10-20T17:39:53.581Z",
+      "entry": "60bf5a7c-5e23-423a-ba4e-375b1f2a7359",
+      "transcription": "",
+      "transcription_language": "",
+      "transcription_status": "skipped",
+      "summary": "Un dernier soir à Biarritz, entre océan, lumière et envie de ralentir.",
+      "keywords": [
+        "été",
+        "océan",
+        "lumière",
+        "voyage",
+        "coucher de soleil"
+      ],
+      "mood_insight": "La contemplation et la simplicité du paysage ont créé un moment de présence et de gratitude.",
+      "summary_status": "completed",
+      "sentiment": "positive",
+      "sentiment_score": 0.88,
+      "sentiment_status": "completed",
+      "generated_image_url": "",
+      "image_prompt": "Un coucher de soleil orangé sur l'océan à Biarritz, plage presque déserte.",
+      "image_generation_status": "skipped"
+    }
+  },
+  {
+    "model": "ai.aianalysis",
+    "pk": "1bf478bb-2d56-4799-8a66-737d2bd69f3c",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.592Z",
+      "updated_at": "2026-10-20T17:39:53.592Z",
+      "entry": "cdd73b68-767e-4ed7-b211-affcef60d520",
+      "transcription": "",
+      "transcription_language": "",
+      "transcription_status": "skipped",
+      "summary": "Un road trip joyeux vers la Provence, rempli de paysages, de musique et de découvertes partagées.",
+      "keywords": [
+        "route",
+        "vacances",
+        "provence",
+        "paysage",
+        "liberté"
+      ],
+      "mood_insight": "Le voyage et l'imprévu nourrissent un sentiment de liberté et de complicité.",
+      "summary_status": "completed",
+      "sentiment": "positive",
+      "sentiment_score": 0.92,
+      "sentiment_status": "completed",
+      "generated_image_url": "/static/img/orbit/o16.jpg",
+      "image_prompt": "Une route de Provence au milieu des champs de lavande, voiture au loin.",
+      "image_generation_status": "completed"
+    }
+  },
+  {
+    "model": "ai.aianalysis",
+    "pk": "56d88c55-896f-4a23-b842-775cc41b76db",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.601Z",
+      "updated_at": "2026-10-20T17:39:53.601Z",
+      "entry": "4cd193f7-f860-4cd4-bc24-2651d224a091",
+      "transcription": "",
+      "transcription_language": "",
+      "transcription_status": "skipped",
+      "summary": "Un après-midi de cuisine avec Mamie Jeanne, entre transmission, goûts d'enfance et tendresse.",
+      "keywords": [
+        "madeleines",
+        "famille",
+        "enfance",
+        "cuisine",
+        "tendresse"
+      ],
+      "mood_insight": "La cuisine partagée agit comme un pont entre les générations et ravive des souvenirs sensoriels heureux.",
+      "summary_status": "completed",
+      "sentiment": "positive",
+      "sentiment_score": 0.86,
+      "sentiment_status": "completed",
+      "generated_image_url": "",
+      "image_prompt": "Une cuisine familiale chaleureuse, madeleines dorées et recette écrite à la main.",
+      "image_generation_status": "skipped"
+    }
+  },
+  {
+    "model": "ai.aianalysis",
+    "pk": "ff6fee41-c6d5-41c0-9b61-2d021b7126f2",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.605Z",
+      "updated_at": "2026-10-20T17:39:53.605Z",
+      "entry": "693f07a3-c90b-44c7-9f6f-cb3898d4c91b",
+      "transcription": "",
+      "transcription_language": "",
+      "transcription_status": "skipped",
+      "summary": "Un Noël intime et chaleureux, centré sur la famille, les traditions et les attentions simples.",
+      "keywords": [
+        "noël",
+        "famille",
+        "maison",
+        "tradition",
+        "chaleur"
+      ],
+      "mood_insight": "La sobriété et l'intimité de cette fête semblent avoir renforcé le sentiment d'appartenance et de présence.",
+      "summary_status": "completed",
+      "sentiment": "positive",
+      "sentiment_score": 0.79,
+      "sentiment_status": "completed",
+      "generated_image_url": "",
+      "image_prompt": "Un salon décoré pour Noël, cheminée et table familiale, ambiance chaleureuse.",
+      "image_generation_status": "skipped"
+    }
+  },
+  {
+    "model": "ai.aianalysis",
+    "pk": "b17504d1-aa03-41f7-a5e8-5c0486f12ec9",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.611Z",
+      "updated_at": "2026-10-20T17:39:53.611Z",
+      "entry": "cf4b37d4-851b-4320-a6aa-59978e243526",
+      "transcription": "",
+      "transcription_language": "",
+      "transcription_status": "skipped",
+      "summary": "Un bilan un an plus tard, entre reconnaissance du chemin parcouru et douce mélancolie.",
+      "keywords": [
+        "souvenirs",
+        "temps",
+        "automne",
+        "bilan",
+        "douceur"
+      ],
+      "mood_insight": "Le regard rétrospectif est apaisé : les inquiétudes de l'époque sont reconnues sans envahir le présent.",
+      "summary_status": "completed",
+      "sentiment": "neutral",
+      "sentiment_score": 0.57,
+      "sentiment_status": "completed",
+      "generated_image_url": "",
+      "image_prompt": "Un café parisien en automne, carnet ouvert et thé fumant près de la vitre.",
+      "image_generation_status": "skipped"
+    }
+  },
+  {
+    "model": "ai.aianalysis",
+    "pk": "92c60cfe-99fa-4a04-bf91-f81c382a2d68",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.619Z",
+      "updated_at": "2026-10-20T17:39:53.619Z",
+      "entry": "ca8fea13-009a-4788-b276-6d4d44c80192",
+      "transcription": "",
+      "transcription_language": "",
+      "transcription_status": "skipped",
+      "summary": "La découverte d'une lettre ancienne déclenche un retour apaisé sur les émotions du passé.",
+      "keywords": [
+        "lettre",
+        "souvenirs",
+        "passé",
+        "compréhension",
+        "jardin"
+      ],
+      "mood_insight": "La relecture du passé permet de transformer une blessure en objet de compassion, sans la nier.",
+      "summary_status": "completed",
+      "sentiment": "positive",
+      "sentiment_score": 0.9,
+      "sentiment_status": "completed",
+      "generated_image_url": "/static/img/orbit/o23.jpg",
+      "image_prompt": "Une lettre ancienne dans un carnet, posée sur un banc de jardin baigné de lumière.",
+      "image_generation_status": "completed"
+    }
+  },
+  {
+    "model": "ai.aianalysis",
+    "pk": "bdba3a01-a8ca-4e81-a2e0-965a851378b6",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.625Z",
+      "updated_at": "2026-10-20T17:39:53.625Z",
+      "entry": "d82de4cf-cf3c-4252-af5e-67c52482af84",
+      "transcription": "",
+      "transcription_language": "",
+      "transcription_status": "skipped",
+      "summary": "Un après-midi de photographie au canal, où l'ordinaire devient matière à créativité.",
+      "keywords": [
+        "dimanche",
+        "photos",
+        "amitié",
+        "promenade",
+        "créativité"
+      ],
+      "mood_insight": "Le regard photographique aide à habiter le quotidien avec plus de curiosité et de légèreté.",
+      "summary_status": "completed",
+      "sentiment": "positive",
+      "sentiment_score": 0.74,
+      "sentiment_status": "completed",
+      "generated_image_url": "",
+      "image_prompt": "Le canal Saint-Martin à Paris, reflets dorés et silhouettes sur les quais.",
+      "image_generation_status": "skipped"
+    }
+  },
+  {
+    "model": "ai.aianalysis",
+    "pk": "655149f8-2642-4b3b-83be-8847258c9dd9",
+    "fields": {
+      "created_at": "2026-10-22T12:55:35.148Z",
+      "updated_at": "2026-10-22T12:55:35.148Z",
+      "entry": "8f0913e0-e8ae-4767-9fc4-78a99a5d8750",
+      "transcription": "",
+      "transcription_language": "",
+      "transcription_status": "pending",
+      "summary": "Aujourd'hui, vous avez partagé un moment simple mais précieux : un café avec des amis. Il semble que cette rencontre vous ait apporté de la chaleur et de la compagnie, créant une bulle de convivialité.",
+      "keywords": [
+        "Café",
+        "Amis",
+        "Convivialité",
+        "Partage",
+        "Rencontre"
+      ],
+      "mood_insight": "Il est merveilleux de voir que ces moments de connexion sociale apportent de la joie et de la légèreté à votre journée.",
+      "summary_status": "completed",
+      "sentiment": "positive",
+      "sentiment_score": 0.9,
+      "sentiment_status": "completed",
+      "generated_image_url": "",
+      "image_prompt": "A warm and inviting scene of friends gathered at a cozy cafe, hands holding coffee cups, gentle laughter, soft lighting, a sense of companionship and shared joy. Painterly style, with visible brushstrokes, evoking a feeling of comfort and connection.",
+      "image_generation_status": "failed"
+    }
+  },
+  {
+    "model": "persons.person",
+    "pk": "af802da7-afee-4ac6-bdd9-f44a52e3ac81",
+    "fields": {
+      "created_at": "2026-10-12T17:39:52.391Z",
+      "updated_at": "2026-10-12T17:39:52.391Z",
+      "user": "51859168-d573-453c-a943-357a6e514713",
+      "name": "Camille Laurent",
+      "avatar_url": "/static/img/tile_friends.jpg",
+      "face_embedding": "0.99583,0.92906,0.79117,0.60501,0.40145,0.21422,0.07436,0.00506,0.01780,0.11046,0.26770,0.46344,0.66524,0.83965,0.95776,1.00000,0.95935,0.84256,0.66899,0.46741,0.27123,0.11297,0.01887,0.00451,0.07229,0.21096,0.39755,0.60111,0.78792,0.92700,0.99530,0.98151,0.88789,0.72999,0.53396,0.33230,0.15844,0.04119,0.00000,0.04169,0.15934,0.33347,0.53519,0.73109,0.88868,0.98184,0.99513,0.92635,0.78690,0.59990,0.39633,0.20995,0.07165,0.00435,0.01920,0.11376,0.27234,0.46865,0.67016,0.84347,0.95984,0.99999,0.95726,0.83874,0.66407,0.46220,0.26660,0.10969,0.01747,0.00524,0.07502,0.21524,0.40266,0.60622,0.79217,0.92969,0.99599,0.98007,0.88458,0.72534,0.52874,0.32739,0.15464,0.03914,0.00003,0.04380,0.16318,0.33840,0.54040,0.73570,0.89194,0.98321,0.99438,0.92360,0.78261,0.59478,0.39123,0.20571,0.06898,0.00369,0.02066,0.11710,0.27700,0.47386,0.67506,0.84724,0.96186,0.99993,0.95513,0.83488,0.65913,0.45700,0.26200,0.10644,0.01613,0.00602,0.07779,0.21955,0.40779,0.61132,0.79639,0.93234,0.99662,0.97859,0.88122,0.72066,0.52353,0.32249",
+      "notes": "Amie d'enfance, retrouvée à Lyon autour d'un café.",
+      "is_confirmed": true
+    }
+  },
+  {
+    "model": "persons.person",
+    "pk": "b97532e4-df0a-46c0-b8a9-bb4d279c49e2",
+    "fields": {
+      "created_at": "2026-06-22T17:39:52.391Z",
+      "updated_at": "2026-06-22T17:39:52.391Z",
+      "user": "51859168-d573-453c-a943-357a6e514713",
+      "name": "Hugo Petit",
+      "avatar_url": "/static/img/orbit/o27.jpg",
+      "face_embedding": "0.89924,0.74617,0.55229,0.34975,0.17211,0.04882,0.00032,0.03464,0.14610,0.31623,0.51681,0.71461,0.87684,0.97660,0.99736,0.93568,0.80178,0.61786,0.41441,0.22514,0.08143,0.00710,0.01448,0.10233,0.25611,0.45030,0.65274,0.82986,0.95230,0.99977,0.96440,0.85205,0.68134,0.48058,0.28303,0.12145,0.02262,0.00292,0.06561,0.20030,0.38468,0.58817,0.77704,0.91999,0.99333,0.98489,0.89608,0.74161,0.54710,0.34478,0.16818,0.04659,0.00016,0.03658,0.14981,0.32109,0.52203,0.71931,0.88025,0.97815,0.99680,0.93309,0.79760,0.61278,0.40927,0.22079,0.07860,0.00625,0.01575,0.10552,0.26068,0.45550,0.65770,0.83377,0.95450,0.99990,0.96244,0.84832,0.67647,0.47536,0.27834,0.11806,0.02109,0.00351,0.06822,0.20450,0.38976,0.59330,0.78137,0.92280,0.99415,0.98359,0.89287,0.73703,0.54190,0.33982,0.16429,0.04442,0.00005,0.03856,0.15356,0.32598,0.52725,0.72400,0.88362,0.97965,0.99618,0.93046,0.79339,0.60769,0.40413,0.21647,0.07581,0.00546,0.01708,0.10875,0.26528,0.46071,0.66265,0.83764,0.95665,0.99998,0.96043,0.84456,0.67157,0.47015,0.27367,0.11471",
+      "notes": "Rencontré lors d'un atelier photo au canal.",
+      "is_confirmed": false
+    }
+  },
+  {
+    "model": "persons.person",
+    "pk": "7862786a-24b4-43dc-bae2-1bbd55f19ec0",
+    "fields": {
+      "created_at": "2026-09-23T17:39:52.391Z",
+      "updated_at": "2026-09-23T17:39:52.391Z",
+      "user": "51859168-d573-453c-a943-357a6e514713",
+      "name": "Léa Bernard",
+      "avatar_url": "/static/img/tile_sunset.jpg",
+      "face_embedding": "0.03709,0.15079,0.32237,0.52340,0.72055,0.88114,0.97855,0.99664,0.93241,0.79650,0.61144,0.40792,0.21965,0.07786,0.00604,0.01610,0.10636,0.26188,0.45687,0.65900,0.83478,0.95507,0.99993,0.96191,0.84734,0.67518,0.47399,0.27711,0.11718,0.02070,0.00367,0.06891,0.20561,0.39110,0.59465,0.78250,0.92353,0.99436,0.98324,0.89202,0.73582,0.54053,0.33852,0.16328,0.04385,0.00004,0.03909,0.15455,0.32726,0.52861,0.72522,0.88449,0.98004,0.99601,0.92976,0.79228,0.60635,0.40279,0.21535,0.07508,0.00526,0.01744,0.10961,0.26649,0.46207,0.66395,0.83865,0.95721,0.99999,0.95989,0.84356,0.67028,0.46878,0.27245,0.11384,0.01924,0.00433,0.07158,0.20984,0.39620,0.59977,0.78680,0.92629,0.99511,0.98187,0.88876,0.73120,0.53532,0.33359,0.15944,0.04174,0.00000,0.04114,0.15834,0.33217,0.53383,0.72987,0.88781,0.98147,0.99532,0.92707,0.78803,0.60124,0.39767,0.21107,0.07236,0.00453,0.01883,0.11289,0.27112,0.46728,0.66887,0.84247,0.95930,1.00000,0.95782,0.83975,0.66536,0.46357,0.26781,0.11055,0.01783,0.00504,0.07429,0.21411,0.40132,0.60488,0.79106",
+      "notes": "Collègue devenue amie autour des sorties running du jeudi.",
+      "is_confirmed": true
+    }
+  },
+  {
+    "model": "persons.person",
+    "pk": "d93b3500-fbdd-4018-a2e7-dc738df0f8b0",
+    "fields": {
+      "created_at": "2026-08-16T17:39:52.391Z",
+      "updated_at": "2026-08-16T17:39:52.391Z",
+      "user": "51859168-d573-453c-a943-357a6e514713",
+      "name": "Mamie Jeanne",
+      "avatar_url": "/static/img/tile_coffee.jpg",
+      "face_embedding": "0.74706,0.89986,0.98638,0.99227,0.91657,0.77182,0.58202,0.37861,0.19533,0.06255,0.00228,0.02451,0.12556,0.28867,0.48682,0.68714,0.85645,0.96667,0.99954,0.94961,0.82514,0.64679,0.44410,0.25068,0.09858,0.01303,0.00819,0.08488,0.23037,0.42056,0.62392,0.80673,0.93871,0.99796,0.97467,0.87270,0.70896,0.51057,0.31044,0.14172,0.03240,0.00058,0.05154,0.17684,0.35571,0.55850,0.75158,0.90297,0.98756,0.99133,0.91366,0.76743,0.57686,0.37356,0.19121,0.06005,0.00181,0.02615,0.12904,0.29342,0.49204,0.69198,0.86009,0.96852,0.99929,0.94730,0.82116,0.64179,0.43891,0.24616,0.09549,0.01187,0.00916,0.08781,0.23478,0.42572,0.62897,0.81084,0.94119,0.99840,0.97301,0.86920,0.70420,0.50535,0.30562,0.13810,0.03057,0.00086,0.05388,0.18085,0.36072,0.56368,0.75608,0.90604,0.98869,0.99034,0.91071,0.76300,0.57170,0.36851,0.18712,0.05759,0.00139,0.02785,0.13256,0.29818,0.49726,0.69679,0.86370,0.97032,0.99899,0.94494,0.81714,0.63677,0.43373,0.24168,0.09244,0.01076,0.01018,0.09079,0.23922,0.43089,0.63401,0.81491,0.94362,0.99879,0.97129,0.86566",
+      "notes": "Les madeleines du dimanche et les histoires qui commencent par « quand j'étais petite ».",
+      "is_confirmed": true
+    }
+  },
+  {
+    "model": "persons.person",
+    "pk": "59ed1e85-8af3-476e-80c4-ad7e46431200",
+    "fields": {
+      "created_at": "2026-10-01T17:39:52.391Z",
+      "updated_at": "2026-10-01T17:39:52.391Z",
+      "user": "51859168-d573-453c-a943-357a6e514713",
+      "name": "Thomas Moreau",
+      "avatar_url": "/static/img/tile_city.jpg",
+      "face_embedding": "0.37223,0.19013,0.05940,0.00170,0.02659,0.12996,0.29467,0.49341,0.69324,0.86104,0.96900,0.99922,0.94668,0.82011,0.64047,0.43755,0.24498,0.09469,0.01157,0.00942,0.08859,0.23595,0.42708,0.63029,0.81191,0.94183,0.99851,0.97256,0.86828,0.70295,0.50398,0.30435,0.13716,0.03010,0.00094,0.05450,0.18190,0.36204,0.56504,0.75726,0.90684,0.98898,0.99007,0.90992,0.76183,0.57034,0.36719,0.18605,0.05695,0.00129,0.02830,0.13349,0.29944,0.49863,0.69805,0.86464,0.97078,0.99890,0.94431,0.81608,0.63545,0.43237,0.24051,0.09165,0.01048,0.01046,0.09158,0.24039,0.43225,0.63533,0.81598,0.94425,0.99889,0.97083,0.86473,0.69817,0.49876,0.29956,0.13358,0.02834,0.00128,0.05689,0.18595,0.36706,0.57021,0.76172,0.90985,0.99004,0.98901,0.90691,0.75737,0.56517,0.36216,0.18200,0.05456,0.00095,0.03006,0.13707,0.30423,0.50385,0.70283,0.86819,0.97252,0.99852,0.94189,0.81202,0.63042,0.42720,0.23606,0.08866,0.00945,0.01155,0.09461,0.24487,0.43742,0.64035,0.82001,0.94662,0.99921,0.96905,0.86113,0.69336,0.49354,0.29479,0.13005,0.02664,0.00169,0.05934",
+      "notes": "Mon frère, photographe du dimanche et complice de toujours.",
+      "is_confirmed": true
+    }
+  },
+  {
+    "model": "persons.person",
+    "pk": "4fcf9a6e-c26f-4843-8ab5-2682694d2f9a",
+    "fields": {
+      "created_at": "2026-10-22T12:57:55.115Z",
+      "updated_at": "2026-10-22T12:57:55.115Z",
+      "user": "125b19af-77c0-4d9c-8221-2ad9eace4b43",
+      "name": "aziz",
+      "avatar_url": "https://res.cloudinary.com/dhlnfpfen/image/upload/v1792673874/memoai/persons/125b19af-77c0-4d9c-8221-2ad9eace4b43/hero_3D_cutout1_cfx0su.png",
+      "face_embedding": "-0.122336,0.078697,0.074589,-0.068578,-0.012731,0.003641,-0.100433,-0.014406,0.132861,-0.165002,0.228957,0.010292,-0.217457,-0.102608,0.040911,0.067127,-0.135848,-0.155205,-0.029590,-0.033163,0.114213,0.026896,-0.026627,0.058207,-0.203242,-0.348106,-0.108800,-0.145109,-0.002700,-0.162407,-0.052800,-0.030849,-0.127431,0.004891,-0.021529,0.124079,-0.037865,-0.085043,0.198919,0.037516,-0.129844,0.014965,0.017429,0.258062,0.173667,0.023983,0.063182,-0.035063,0.194927,-0.272534,0.064773,0.149813,0.147811,0.114031,0.185267,-0.145273,0.042744,0.025989,-0.114288,0.088882,-0.059747,-0.003305,0.035039,0.013684,0.193244,0.045170,-0.096023,-0.137133,0.136971,-0.140596,-0.102058,0.156600,-0.138078,-0.169683,-0.249328,0.068903,0.406245,0.151529,-0.190010,0.067966,-0.085435,-0.110179,0.051861,0.042121,-0.069252,0.020134,-0.138794,0.068057,0.286107,-0.007415,-0.033230,0.179401,0.035904,0.111512,0.071595,0.020300,-0.108972,-0.032517,-0.093028,-0.032424,0.079651,-0.072556,-0.066682,0.113092,-0.185023,0.134206,-0.004508,-0.065516,-0.061320,0.090468,-0.210599,0.001738,0.109984,-0.271704,0.140834,0.175446,0.060137,0.096848,0.097627,0.003223,-0.002616,-0.027804,-0.131602,-0.114533,0.032505,0.065504,0.015486,-0.009069",
+      "notes": "aziz",
+      "is_confirmed": false
+    }
+  },
+  {
+    "model": "persons.person",
+    "pk": "d03ff914-a9d7-4c95-a463-171c517fb50d",
+    "fields": {
+      "created_at": "2026-10-10T11:23:44.623Z",
+      "updated_at": "2026-10-10T11:24:11.852Z",
+      "user": "e8544782-b8af-49f9-b6ef-5608a4951055",
+      "name": "fhafbankn",
+      "avatar_url": "data:image/jpeg;base64,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",
+      "face_embedding": null,
+      "notes": "nfelknflean",
+      "is_confirmed": false
+    }
+  },
+  {
+    "model": "persons.facedetection",
+    "pk": "a472017a-c704-416b-a857-2f1e07df805b",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.638Z",
+      "updated_at": "2026-10-20T17:39:53.638Z",
+      "media": "dafe966b-e522-49f4-b67e-0a118eac27dc",
+      "person": "af802da7-afee-4ac6-bdd9-f44a52e3ac81",
+      "confidence": 0.96,
+      "bounding_box": {
+        "top": 0.16,
+        "right": 0.58,
+        "bottom": 0.74,
+        "left": 0.34
+      },
+      "is_corrected": false
+    }
+  },
+  {
+    "model": "persons.facedetection",
+    "pk": "c6f180f3-1a69-4991-bca2-2f14f2b827cd",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.639Z",
+      "updated_at": "2026-10-20T17:39:53.639Z",
+      "media": "dafe966b-e522-49f4-b67e-0a118eac27dc",
+      "person": "59ed1e85-8af3-476e-80c4-ad7e46431200",
+      "confidence": 0.94,
+      "bounding_box": {
+        "top": 0.18,
+        "right": 0.82,
+        "bottom": 0.79,
+        "left": 0.57
+      },
+      "is_corrected": false
+    }
+  },
+  {
+    "model": "persons.facedetection",
+    "pk": "3b3a8b1e-2e01-4d90-8ddf-a7e353c85116",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.639Z",
+      "updated_at": "2026-10-20T17:39:53.639Z",
+      "media": "dafe966b-e522-49f4-b67e-0a118eac27dc",
+      "person": "7862786a-24b4-43dc-bae2-1bbd55f19ec0",
+      "confidence": 0.92,
+      "bounding_box": {
+        "top": 0.42,
+        "right": 0.72,
+        "bottom": 0.84,
+        "left": 0.48
+      },
+      "is_corrected": false
+    }
+  },
+  {
+    "model": "persons.facedetection",
+    "pk": "1567d740-ed60-4cc2-9f27-fbee8449bcd2",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.639Z",
+      "updated_at": "2026-10-20T17:39:53.639Z",
+      "media": "5cfd0039-ac97-46ee-abda-0d549e8ab6a4",
+      "person": "af802da7-afee-4ac6-bdd9-f44a52e3ac81",
+      "confidence": 0.95,
+      "bounding_box": {
+        "top": 0.12,
+        "right": 0.55,
+        "bottom": 0.76,
+        "left": 0.31
+      },
+      "is_corrected": false
+    }
+  },
+  {
+    "model": "persons.facedetection",
+    "pk": "b7e438ff-e1c7-49f9-ba26-a9e5deff2330",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.640Z",
+      "updated_at": "2026-10-20T17:39:53.640Z",
+      "media": "37d157ea-3596-43a0-a11d-f247d7d9cc1a",
+      "person": "d93b3500-fbdd-4018-a2e7-dc738df0f8b0",
+      "confidence": 0.91,
+      "bounding_box": {
+        "top": 0.22,
+        "right": 0.61,
+        "bottom": 0.81,
+        "left": 0.37
+      },
+      "is_corrected": false
+    }
+  },
+  {
+    "model": "persons.facedetection",
+    "pk": "d22ee839-1884-4f8c-b58d-cf736e28e75e",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.640Z",
+      "updated_at": "2026-10-20T17:39:53.640Z",
+      "media": "ad625514-6662-4435-8cb8-d20f1ea2391a",
+      "person": "59ed1e85-8af3-476e-80c4-ad7e46431200",
+      "confidence": 0.89,
+      "bounding_box": {
+        "top": 0.24,
+        "right": 0.65,
+        "bottom": 0.78,
+        "left": 0.41
+      },
+      "is_corrected": false
+    }
+  },
+  {
+    "model": "persons.facedetection",
+    "pk": "bcda71ab-281f-436a-9722-fb21d302999f",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.640Z",
+      "updated_at": "2026-10-20T17:39:53.640Z",
+      "media": "cc685800-f373-495a-be00-7a4c3804619e",
+      "person": "b97532e4-df0a-46c0-b8a9-bb4d279c49e2",
+      "confidence": 0.87,
+      "bounding_box": {
+        "top": 0.3,
+        "right": 0.69,
+        "bottom": 0.73,
+        "left": 0.45
+      },
+      "is_corrected": true
+    }
+  },
+  {
+    "model": "tags.tag",
+    "pk": "776a8aaf-a631-48a9-b799-6f7fd83a5154",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.528Z",
+      "updated_at": "2026-10-20T17:39:53.528Z",
+      "user": "51859168-d573-453c-a943-357a6e514713",
+      "name": "amis",
+      "color": "#D9776A",
+      "icon": "users",
+      "is_ai_suggested": false
+    }
+  },
+  {
+    "model": "tags.tag",
+    "pk": "9d0db47e-28e1-4d1d-adf2-ab898b06e026",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.529Z",
+      "updated_at": "2026-10-20T17:39:53.529Z",
+      "user": "51859168-d573-453c-a943-357a6e514713",
+      "name": "automne",
+      "color": "#A97142",
+      "icon": "leaf",
+      "is_ai_suggested": true
+    }
+  },
+  {
+    "model": "tags.tag",
+    "pk": "8f252236-5987-47e5-aa86-c40318834441",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.530Z",
+      "updated_at": "2026-10-20T17:39:53.530Z",
+      "user": "51859168-d573-453c-a943-357a6e514713",
+      "name": "creativite",
+      "color": "#4F8A8B",
+      "icon": "pen",
+      "is_ai_suggested": false
+    }
+  },
+  {
+    "model": "tags.tag",
+    "pk": "d7e909f1-74e2-42ff-b94f-46ada9f924a4",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.528Z",
+      "updated_at": "2026-10-20T17:39:53.528Z",
+      "user": "51859168-d573-453c-a943-357a6e514713",
+      "name": "famille",
+      "color": "#B08968",
+      "icon": "home",
+      "is_ai_suggested": false
+    }
+  },
+  {
+    "model": "tags.tag",
+    "pk": "3986eefc-5a3b-459b-9173-e65c8a241066",
+    "fields": {
+      "created_at": "2026-10-10T13:54:30.344Z",
+      "updated_at": "2026-10-10T13:54:30.344Z",
+      "user": "e8544782-b8af-49f9-b6ef-5608a4951055",
+      "name": "fenalfkan",
+      "color": "#6366f1",
+      "icon": "🚚",
+      "is_ai_suggested": false
+    }
+  },
+  {
+    "model": "tags.tag",
+    "pk": "7a0f05bf-f609-4860-b6e4-e818d02f596b",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.529Z",
+      "updated_at": "2026-10-20T17:39:53.529Z",
+      "user": "51859168-d573-453c-a943-357a6e514713",
+      "name": "gourmand",
+      "color": "#D9A441",
+      "icon": "cake",
+      "is_ai_suggested": false
+    }
+  },
+  {
+    "model": "tags.tag",
+    "pk": "a1138788-a0e6-4d9e-a1a6-162b6d241f44",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.527Z",
+      "updated_at": "2026-10-21T17:46:21.713Z",
+      "user": "51859168-d573-453c-a943-357a6e514713",
+      "name": "nature",
+      "color": "#6b8f71",
+      "icon": "🌿",
+      "is_ai_suggested": false
+    }
+  },
+  {
+    "model": "tags.tag",
+    "pk": "3b18740f-3ee1-4223-bc5f-2d0a2cc5b3db",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.527Z",
+      "updated_at": "2026-10-21T17:45:27.300Z",
+      "user": "51859168-d573-453c-a943-357a6e514713",
+      "name": "quotidien",
+      "color": "#c8963e",
+      "icon": "☕",
+      "is_ai_suggested": false
+    }
+  },
+  {
+    "model": "tags.tag",
+    "pk": "8cf1bf7f-8505-466d-bfb7-3ada4d00ac69",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.529Z",
+      "updated_at": "2026-10-21T17:46:07.390Z",
+      "user": "51859168-d573-453c-a943-357a6e514713",
+      "name": "souvenirs",
+      "color": "#8c6a9e",
+      "icon": "🕰",
+      "is_ai_suggested": true
+    }
+  },
+  {
+    "model": "tags.tag",
+    "pk": "4f274c57-d67a-4ca0-b4ad-98f1cd8522a1",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.529Z",
+      "updated_at": "2026-10-20T17:39:53.529Z",
+      "user": "51859168-d573-453c-a943-357a6e514713",
+      "name": "travail",
+      "color": "#7A7F87",
+      "icon": "briefcase",
+      "is_ai_suggested": false
+    }
+  },
+  {
+    "model": "tags.tag",
+    "pk": "b634c9d6-75fe-424b-a548-b50c2a902463",
+    "fields": {
+      "created_at": "2026-10-20T17:39:53.528Z",
+      "updated_at": "2026-10-20T17:39:53.528Z",
+      "user": "51859168-d573-453c-a943-357a6e514713",
+      "name": "voyage",
+      "color": "#5B7FA6",
+      "icon": "map-pin",
+      "is_ai_suggested": true
+    }
+  },
+  {
+    "model": "tags.entrytag",
+    "pk": "5e0a0c00-1864-48e5-a6e0-a14d3d3a8072",
+    "fields": {
+      "entry": "03444d5d-1644-4c64-9f89-865b93f2ac6a",
+      "tag": "3b18740f-3ee1-4223-bc5f-2d0a2cc5b3db",
+      "is_ai_generated": false,
+      "created_at": "2026-10-20T17:39:53.538Z"
+    }
+  },
+  {
+    "model": "tags.entrytag",
+    "pk": "d962a53b-7562-44ad-8d93-be57e26cbf18",
+    "fields": {
+      "entry": "03444d5d-1644-4c64-9f89-865b93f2ac6a",
+      "tag": "7a0f05bf-f609-4860-b6e4-e818d02f596b",
+      "is_ai_generated": false,
+      "created_at": "2026-10-20T17:39:53.539Z"
+    }
+  },
+  {
+    "model": "tags.entrytag",
+    "pk": "dfc66014-2495-4843-8d2b-258346634682",
+    "fields": {
+      "entry": "03444d5d-1644-4c64-9f89-865b93f2ac6a",
+      "tag": "9d0db47e-28e1-4d1d-adf2-ab898b06e026",
+      "is_ai_generated": true,
+      "created_at": "2026-10-20T17:39:53.539Z"
+    }
+  },
+  {
+    "model": "tags.entrytag",
+    "pk": "bc35ace2-c556-41bf-95f1-660789439afd",
+    "fields": {
+      "entry": "e1a8df38-c659-4e93-b503-9ff8c3d724c5",
+      "tag": "a1138788-a0e6-4d9e-a1a6-162b6d241f44",
+      "is_ai_generated": false,
+      "created_at": "2026-10-20T17:39:53.546Z"
+    }
+  },
+  {
+    "model": "tags.entrytag",
+    "pk": "f072f5f5-b2ad-495e-a258-7bec8970db34",
+    "fields": {
+      "entry": "e1a8df38-c659-4e93-b503-9ff8c3d724c5",
+      "tag": "3b18740f-3ee1-4223-bc5f-2d0a2cc5b3db",
+      "is_ai_generated": false,
+      "created_at": "2026-10-20T17:39:53.546Z"
+    }
+  },
+  {
+    "model": "tags.entrytag",
+    "pk": "11ea1f2e-0fe1-4ed0-be60-1762464ed783",
+    "fields": {
+      "entry": "31f318e3-8e06-4723-9531-8141d4638530",
+      "tag": "776a8aaf-a631-48a9-b799-6f7fd83a5154",
+      "is_ai_generated": true,
+      "created_at": "2026-10-20T17:39:53.551Z"
+    }
+  },
+  {
+    "model": "tags.entrytag",
+    "pk": "bf366a3e-3d2c-41d1-9a4f-7cfbb5a6dbd5",
+    "fields": {
+      "entry": "31f318e3-8e06-4723-9531-8141d4638530",
+      "tag": "8f252236-5987-47e5-aa86-c40318834441",
+      "is_ai_generated": false,
+      "created_at": "2026-10-20T17:39:53.551Z"
+    }
+  },
+  {
+    "model": "tags.entrytag",
+    "pk": "88c11a08-1bd6-4924-810a-d48490f4d8c7",
+    "fields": {
+      "entry": "31f318e3-8e06-4723-9531-8141d4638530",
+      "tag": "3b18740f-3ee1-4223-bc5f-2d0a2cc5b3db",
+      "is_ai_generated": false,
+      "created_at": "2026-10-20T17:39:53.551Z"
+    }
+  },
+  {
+    "model": "tags.entrytag",
+    "pk": "c4f4522a-4bb9-4e22-b9d8-b1fa9576f88e",
+    "fields": {
+      "entry": "1bc2d724-3bc8-4238-af81-81bd2d0e4443",
+      "tag": "3b18740f-3ee1-4223-bc5f-2d0a2cc5b3db",
+      "is_ai_generated": false,
+      "created_at": "2026-10-20T17:39:53.558Z"
+    }
+  },
+  {
+    "model": "tags.entrytag",
+    "pk": "c6654829-876c-4068-a9f0-6029a793cf99",
+    "fields": {
+      "entry": "1bc2d724-3bc8-4238-af81-81bd2d0e4443",
+      "tag": "8f252236-5987-47e5-aa86-c40318834441",
+      "is_ai_generated": false,
+      "created_at": "2026-10-20T17:39:53.558Z"
+    }
+  },
+  {
+    "model": "tags.entrytag",
+    "pk": "3100ccb3-b32a-4a37-a3a3-7d2f7f0faca3",
+    "fields": {
+      "entry": "6e743499-268a-4dbf-b9f7-dcd258e00e90",
+      "tag": "4f274c57-d67a-4ca0-b4ad-98f1cd8522a1",
+      "is_ai_generated": true,
+      "created_at": "2026-10-20T17:39:53.564Z"
+    }
+  },
+  {
+    "model": "tags.entrytag",
+    "pk": "87dff989-b9ed-455c-9cb4-ba6278542457",
+    "fields": {
+      "entry": "6e743499-268a-4dbf-b9f7-dcd258e00e90",
+      "tag": "3b18740f-3ee1-4223-bc5f-2d0a2cc5b3db",
+      "is_ai_generated": false,
+      "created_at": "2026-10-20T17:39:53.564Z"
+    }
+  },
+  {
+    "model": "tags.entrytag",
+    "pk": "3fa2a896-0b2a-4cf9-8f6d-4bff0bf2619e",
+    "fields": {
+      "entry": "84af2632-0aee-4625-b485-4cd45d6d294f",
+      "tag": "776a8aaf-a631-48a9-b799-6f7fd83a5154",
+      "is_ai_generated": true,
+      "created_at": "2026-10-20T17:39:53.570Z"
+    }
+  },
+  {
+    "model": "tags.entrytag",
+    "pk": "e0e79762-d6d4-4d42-a931-4dd65342e4c4",
+    "fields": {
+      "entry": "84af2632-0aee-4625-b485-4cd45d6d294f",
+      "tag": "8cf1bf7f-8505-466d-bfb7-3ada4d00ac69",
+      "is_ai_generated": false,
+      "created_at": "2026-10-20T17:39:53.571Z"
+    }
+  },
+  {
+    "model": "tags.entrytag",
+    "pk": "a791f29a-929e-42a9-b596-0261d26ab443",
+    "fields": {
+      "entry": "60bf5a7c-5e23-423a-ba4e-375b1f2a7359",
+      "tag": "b634c9d6-75fe-424b-a548-b50c2a902463",
+      "is_ai_generated": true,
+      "created_at": "2026-10-20T17:39:53.582Z"
+    }
+  },
+  {
+    "model": "tags.entrytag",
+    "pk": "4491b70e-7d57-42f0-b8aa-aed77a228487",
+    "fields": {
+      "entry": "60bf5a7c-5e23-423a-ba4e-375b1f2a7359",
+      "tag": "a1138788-a0e6-4d9e-a1a6-162b6d241f44",
+      "is_ai_generated": false,
+      "created_at": "2026-10-20T17:39:53.582Z"
+    }
+  },
+  {
+    "model": "tags.entrytag",
+    "pk": "af7d868a-73eb-438d-b2fd-72f28e23cb2f",
+    "fields": {
+      "entry": "cdd73b68-767e-4ed7-b211-affcef60d520",
+      "tag": "b634c9d6-75fe-424b-a548-b50c2a902463",
+      "is_ai_generated": true,
+      "created_at": "2026-10-20T17:39:53.592Z"
+    }
+  },
+  {
+    "model": "tags.entrytag",
+    "pk": "025bfb71-38fe-4e02-b070-32c787f0f703",
+    "fields": {
+      "entry": "cdd73b68-767e-4ed7-b211-affcef60d520",
+      "tag": "a1138788-a0e6-4d9e-a1a6-162b6d241f44",
+      "is_ai_generated": false,
+      "created_at": "2026-10-20T17:39:53.593Z"
+    }
+  },
+  {
+    "model": "tags.entrytag",
+    "pk": "8e962440-4e79-4a1f-b56c-8203400fc0e5",
+    "fields": {
+      "entry": "cdd73b68-767e-4ed7-b211-affcef60d520",
+      "tag": "776a8aaf-a631-48a9-b799-6f7fd83a5154",
+      "is_ai_generated": false,
+      "created_at": "2026-10-20T17:39:53.593Z"
+    }
+  },
+  {
+    "model": "tags.entrytag",
+    "pk": "cb0a48be-b3ad-425b-9d09-b2a301af276d",
+    "fields": {
+      "entry": "4cd193f7-f860-4cd4-bc24-2651d224a091",
+      "tag": "d7e909f1-74e2-42ff-b94f-46ada9f924a4",
+      "is_ai_generated": true,
+      "created_at": "2026-10-20T17:39:53.601Z"
+    }
+  },
+  {
+    "model": "tags.entrytag",
+    "pk": "335a24a1-3408-4235-ad3e-70a8aacb987a",
+    "fields": {
+      "entry": "4cd193f7-f860-4cd4-bc24-2651d224a091",
+      "tag": "7a0f05bf-f609-4860-b6e4-e818d02f596b",
+      "is_ai_generated": false,
+      "created_at": "2026-10-20T17:39:53.602Z"
+    }
+  },
+  {
+    "model": "tags.entrytag",
+    "pk": "5c5dee94-9351-42b8-9f75-f5bb5e18e5f5",
+    "fields": {
+      "entry": "4cd193f7-f860-4cd4-bc24-2651d224a091",
+      "tag": "8cf1bf7f-8505-466d-bfb7-3ada4d00ac69",
+      "is_ai_generated": false,
+      "created_at": "2026-10-20T17:39:53.602Z"
+    }
+  },
+  {
+    "model": "tags.entrytag",
+    "pk": "d05cdbbb-d5e1-4796-9a69-f3382afae337",
+    "fields": {
+      "entry": "693f07a3-c90b-44c7-9f6f-cb3898d4c91b",
+      "tag": "d7e909f1-74e2-42ff-b94f-46ada9f924a4",
+      "is_ai_generated": false,
+      "created_at": "2026-10-20T17:39:53.605Z"
+    }
+  },
+  {
+    "model": "tags.entrytag",
+    "pk": "f0acc2d7-2409-455b-aadf-8b2270bd86bd",
+    "fields": {
+      "entry": "693f07a3-c90b-44c7-9f6f-cb3898d4c91b",
+      "tag": "8cf1bf7f-8505-466d-bfb7-3ada4d00ac69",
+      "is_ai_generated": false,
+      "created_at": "2026-10-20T17:39:53.606Z"
+    }
+  },
+  {
+    "model": "tags.entrytag",
+    "pk": "7175dbc8-bfd0-4754-9ad3-318b03c1dbc4",
+    "fields": {
+      "entry": "693f07a3-c90b-44c7-9f6f-cb3898d4c91b",
+      "tag": "7a0f05bf-f609-4860-b6e4-e818d02f596b",
+      "is_ai_generated": false,
+      "created_at": "2026-10-20T17:39:53.606Z"
+    }
+  },
+  {
+    "model": "tags.entrytag",
+    "pk": "db1a8294-a589-4b31-9cdb-8771034aa544",
+    "fields": {
+      "entry": "cf4b37d4-851b-4320-a6aa-59978e243526",
+      "tag": "8cf1bf7f-8505-466d-bfb7-3ada4d00ac69",
+      "is_ai_generated": true,
+      "created_at": "2026-10-20T17:39:53.611Z"
+    }
+  },
+  {
+    "model": "tags.entrytag",
+    "pk": "843b1802-352f-4c8d-a085-2463727a54ea",
+    "fields": {
+      "entry": "cf4b37d4-851b-4320-a6aa-59978e243526",
+      "tag": "9d0db47e-28e1-4d1d-adf2-ab898b06e026",
+      "is_ai_generated": false,
+      "created_at": "2026-10-20T17:39:53.612Z"
+    }
+  },
+  {
+    "model": "tags.entrytag",
+    "pk": "44bfa51a-2553-4324-99fd-b880e93c422a",
+    "fields": {
+      "entry": "ca8fea13-009a-4788-b276-6d4d44c80192",
+      "tag": "8cf1bf7f-8505-466d-bfb7-3ada4d00ac69",
+      "is_ai_generated": true,
+      "created_at": "2026-10-20T17:39:53.620Z"
+    }
+  },
+  {
+    "model": "tags.entrytag",
+    "pk": "85d32f2d-5a3f-49fc-801e-6055e02f3006",
+    "fields": {
+      "entry": "ca8fea13-009a-4788-b276-6d4d44c80192",
+      "tag": "d7e909f1-74e2-42ff-b94f-46ada9f924a4",
+      "is_ai_generated": false,
+      "created_at": "2026-10-20T17:39:53.620Z"
+    }
+  },
+  {
+    "model": "tags.entrytag",
+    "pk": "515f8a89-f9c2-4f1f-b46e-c3e7f3e815a1",
+    "fields": {
+      "entry": "d82de4cf-cf3c-4252-af5e-67c52482af84",
+      "tag": "776a8aaf-a631-48a9-b799-6f7fd83a5154",
+      "is_ai_generated": false,
+      "created_at": "2026-10-20T17:39:53.626Z"
+    }
+  },
+  {
+    "model": "tags.entrytag",
+    "pk": "48f9ccba-8209-42d5-87c5-de4f4445913c",
+    "fields": {
+      "entry": "d82de4cf-cf3c-4252-af5e-67c52482af84",
+      "tag": "8f252236-5987-47e5-aa86-c40318834441",
+      "is_ai_generated": true,
+      "created_at": "2026-10-20T17:39:53.626Z"
+    }
+  },
+  {
+    "model": "tags.entrytag",
+    "pk": "fc8854dc-8494-4ef2-8801-121927140c9c",
+    "fields": {
+      "entry": "d82de4cf-cf3c-4252-af5e-67c52482af84",
+      "tag": "3b18740f-3ee1-4223-bc5f-2d0a2cc5b3db",
+      "is_ai_generated": false,
+      "created_at": "2026-10-20T17:39:53.627Z"
+    }
+  },
+  {
+    "model": "notifications.notification",
+    "pk": "83f248a8-26b9-4374-b714-d14bf33732d4",
+    "fields": {
+      "user": "51859168-d573-453c-a943-357a6e514713",
+      "title": "Votre analyse IA est prête",
+      "message": "Le résumé, le sentiment et les mots-clés de « Le premier café de l'automne » sont disponibles.",
+      "notification_type": "ai_complete",
+      "data": {
+        "entry_id": "03444d5d-1644-4c64-9f89-865b93f2ac6a",
+        "url": "/journal/03444d5d-1644-4c64-9f89-865b93f2ac6a/"
+      },
+      "is_read": false,
+      "read_at": null,
+      "created_at": "2026-10-20T16:39:53.641Z"
+    }
+  },
+  {
+    "model": "notifications.notification",
+    "pk": "32ceb64c-d125-4008-8b7a-98487047471d",
+    "fields": {
+      "user": "51859168-d573-453c-a943-357a6e514713",
+      "title": "Un souvenir vous attend",
+      "message": "Il y a un an, vous écriviez « Il y a un an, déjà ». Envie de le relire ?",
+      "notification_type": "memory_nostalgia",
+      "data": {
+        "entry_id": "cf4b37d4-851b-4320-a6aa-59978e243526",
+        "url": "/journal/cf4b37d4-851b-4320-a6aa-59978e243526/"
+      },
+      "is_read": false,
+      "read_at": null,
+      "created_at": "2026-10-20T14:39:53.641Z"
+    }
+  },
+  {
+    "model": "notifications.notification",
+    "pk": "ad49a36f-d260-4936-9c8f-6a3f9d847d80",
+    "fields": {
+      "user": "51859168-d573-453c-a943-357a6e514713",
+      "title": "Votre résumé hebdomadaire",
+      "message": "Trois entrées, deux nouvelles photos et une humeur dominante : votre semaine en un regard.",
+      "notification_type": "weekly_summary",
+      "data": {
+        "url": "/insights/"
+      },
+      "is_read": false,
+      "read_at": null,
+      "created_at": "2026-10-19T21:39:53.641Z"
+    }
+  },
+  {
+    "model": "notifications.notification",
+    "pk": "024e21aa-ce1e-4e99-b1ce-9792296d13a4",
+    "fields": {
+      "user": "51859168-d573-453c-a943-357a6e514713",
+      "title": "Petit rappel du jour",
+      "message": "Prenez cinq minutes pour noter ce qui vous a marqué aujourd'hui.",
+      "notification_type": "daily_reminder",
+      "data": {
+        "url": "/journal/nouveau/"
+      },
+      "is_read": true,
+      "read_at": "2026-10-19T15:39:53.641Z",
+      "created_at": "2026-10-19T15:39:53.641Z"
+    }
+  },
+  {
+    "model": "notifications.notification",
+    "pk": "64515333-1cfc-4281-9762-802bcc7e9e4b",
+    "fields": {
+      "user": "51859168-d573-453c-a943-357a6e514713",
+      "title": "Série de 3 jours",
+      "message": "Vous avez écrit chaque jour depuis trois jours. Continuez sur cette lancée.",
+      "notification_type": "streak_milestone",
+      "data": {
+        "url": "/journal/"
+      },
+      "is_read": false,
+      "read_at": null,
+      "created_at": "2026-10-18T19:39:53.641Z"
+    }
+  },
+  {
+    "model": "notifications.notification",
+    "pk": "1b357297-0d8c-47ec-b96b-af2754de5ada",
+    "fields": {
+      "user": "51859168-d573-453c-a943-357a6e514713",
+      "title": "Analyse terminée",
+      "message": "La soirée à Belleville a été analysée : une entrée pleine d'énergie et d'amitié.",
+      "notification_type": "ai_complete",
+      "data": {
+        "entry_id": "31f318e3-8e06-4723-9531-8141d4638530",
+        "url": "/journal/31f318e3-8e06-4723-9531-8141d4638530/"
+      },
+      "is_read": true,
+      "read_at": "2026-10-17T17:39:53.641Z",
+      "created_at": "2026-10-17T17:39:53.641Z"
+    }
+  },
+  {
+    "model": "notifications.notification",
+    "pk": "afae1cc8-bd00-48df-a6ca-6b14cc4e31ab",
+    "fields": {
+      "user": "51859168-d573-453c-a943-357a6e514713",
+      "title": "Votre rétrospective mensuelle",
+      "message": "Le mois dernier, vos souvenirs ont surtout tourné autour de la famille et des voyages.",
+      "notification_type": "monthly_review",
+      "data": {
+        "url": "/insights/?period=90"
+      },
+      "is_read": true,
+      "read_at": "2026-10-15T17:39:53.641Z",
+      "created_at": "2026-10-15T17:39:53.641Z"
+    }
+  },
+  {
+    "model": "notifications.notification",
+    "pk": "5849ff3a-e7df-41d1-8b9e-b2d273bd4307",
+    "fields": {
+      "user": "51859168-d573-453c-a943-357a6e514713",
+      "title": "Bienvenue dans MemoAI",
+      "message": "Votre espace est prêt. Commencez par une photo, une phrase, un souvenir.",
+      "notification_type": "system",
+      "data": {
+        "url": "/journal/"
+      },
+      "is_read": true,
+      "read_at": "2026-10-10T17:39:53.641Z",
+      "created_at": "2026-10-10T17:39:53.641Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "eii7lp0bn0hsq064hm9oy9fpbaem0xjr",
+    "fields": {
+      "session_data": ".eJxVjrkOwjAQRP_FNY58rC9Ker7B2vWRBKJEylEh_p1EpIBmmpn3NC8WcVu7uC1ljn1mV5a8U9ai4F4Zw6GS4eSy4eikETITaLLs8osRpmcZDzY_cGynJk3jOvfUHJPmbJfmPuUy3M7tn6DDpdtpFWyoSZNUXoDPWIsFSUWlCiZo4X3x5BQ5l4wwSqP0BJABrJY2oBS79HsgDntu2JZdWmf2_gCzZkee:1xFa4I:LjG3i2THkoCaOV1CPI2Fbx-Vj1Qf8Y7LCI7OhTQdK3g",
+      "expire_date": "2026-10-24T16:37:06.166Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "v1ofzgsosb8gfkl13phoscbzu5zxz3jf",
+    "fields": {
+      "session_data": ".eJxVzLsOwjAMheF3yUyjpo7jhJGdZ6jsxKUF1Eq9TIh3h0odYD7_d16m5W3t223RuR2KORt0EZMLsSpIUHmEXHHyUAESB0XnyYE5_TLh_NBxt-XO422yeRrXeRC7J_ZYF3udij4vR_t30PPSf3XjSUC8RgFSyVGUuy5ITcVlbUoqCOAzKhM5jN7XKboUqUtZQuQ6mPcHOJdAGA:1xFalv:jefXktXQ_S3Kc5GCbxgWhBrFOLOhIYagvFCvr0N_ZFk",
+      "expire_date": "2026-10-24T17:22:11.963Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "tginq727i0vhd9luv9wkio2mvytf4xmb",
+    "fields": {
+      "session_data": ".eJxVjjsOwjAQRO_imkRx1uu1Kek5g7VrbwgQJVI-FeLuBEEBzTQz72keJvG29mlbdE7XYo4GbcBofagKElQOIVccHVSAxF7ROrJgDr-YcL7r-GbLjcfLVOdpXOer1O9J_W2X-jwVHU7f7Z-g56Xf6daRgDgNAqSSgyh3nZeGis3allgQwGVUJrIYnGtisDFQF7P4wI3fpZ8Dadhz44vu0m42zxdYa0f0:1xFamB:DzEzje2SDt6ds9smERGfetUpbQS05Jd_5uYoQrplAzw",
+      "expire_date": "2026-10-24T17:22:27.182Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "c8x6ift9r7bztm97nr5fih5bj94efhrd",
+    "fields": {
+      "session_data": ".eJxVjs0OgjAQhN-lZyGU7XZbj959BrLbLj9KIBE5Gd9diBz0MpeZ78u8TMPrs2_WRR_NkM3ZoA0YrQ9FRoLCIaSCo4MCkNgrWkcWzOkXE053nXY233jq5jLN0_MxSLlPyqNdyuucdbwc2z9Bz0u_0bUjAXEaBEglBVFuWy8VZZu0zjEjgEuoTGQxOFfFYGOgNibxgSu_Sb8HmnHLlTvdpDqZ9wdYW0fv:1xFamc:-pn_f_pWyJ8dnogvYfwEHNOtofJOJjjI67mXN7UvLW8",
+      "expire_date": "2026-10-24T17:22:54.794Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "fkm6495fayftj7kemxw4724ax7ohwhop",
+    "fields": {
+      "session_data": ".eJxVjjsOwjAQRO_imkRx1uu1Kek5g7VrbwgQJVI-FeLuBEEBzTQz72keJvG29mlbdE7XYo4GbcBofagKElQOIVccHVSAxF7ROrJgDr-YcL7r-GbLjcfLVOdpXOer1O9J_W2X-jwVHU7f7Z-g56Xf6daRgDgNAqSSgyh3nZeGis3allgQwGVUJrIYnGtisDFQF7P4wI3fpZ8Dadhz44vu0m42zxdYa0f0:1xFamq:Z1EqTwjhwYy_ZPeIp26-DhzRzRRwiM7ut8swzK-bA3Q",
+      "expire_date": "2026-10-24T17:23:08.394Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "4877cnup4x8lg7ysmqk8oqzez8whjatd",
+    "fields": {
+      "session_data": ".eJxVzLsOwjAMheF3yUyjpo7jhJGdZ6jsxKUF1Eq9TIh3h0odYD7_d16m5W3t223RuR2KORt0EZMLsSpIUHmEXHHyUAESB0XnyYE5_TLh_NBxt-XO422yeRrXeRC7J_ZYF3udij4vR_t30PPSf3XjSUC8RgFSyVGUuy5ITcVlbUoqCOAzKhM5jN7XKboUqUtZQuQ6mPcHOJdAGA:1xIYN5:cj94vE7dHP7_J3Q_ZH4RpgQ0E68ruGOrzcqQAwdsQ8o",
+      "expire_date": "2026-11-01T21:24:47.751Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "lakxyp98uzb2djupu3ll8gqzzfe9g56d",
+    "fields": {
+      "session_data": ".eJxVzDsOwjAQRdG9uMaWnfHM2JT0rCEaf0ICKJHyqRB7h0gpoH73vJdqZVv7dlvq3A5FnRW6gNFR0AUZtEfIWqIHDchCFZ1nB-r0y5LkRx13W-4y3iaTp3Gdh2T2xBzrYq5Tqc_L0f4d9LL0Xw3OJkoESIzcUUBJBRhqJw00GVEEGSNFy97bCJi5s0ESSRMqB5_V-wP1wj7y:1xIaBJ:77xj1WLKKDzECdwzIRfhXw94j_PXHxQxMBCBU6YShao",
+      "expire_date": "2026-11-01T23:20:45.113Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "aseq4eaaw0yc1fiug53gpn3yedlrrv02",
+    "fields": {
+      "session_data": ".eJxVjDsOwjAQBe_iGlt21usPZXrOEHntNQmgRMqnQtydREoB7ZuZ9xZd2ta-2xaeu6GIq0ATMBoXZEEP0iJkmaIFCeiTYzTWGxCX34xSfvJ4tOWRxvuk8jSu80DqUNRJF3WbCr_a0_076NPS73WNxMVZcrq6QgCFNJjcYCJgHTFUIJ2NbxoXMle7DyZHryt7IEvRis8XMy1AMg:1xIaBT:0izIfYvAs_TuyQnhR0bwgBbNrzL8wFQaLCpvgjm9DTc",
+      "expire_date": "2026-11-01T23:20:55.320Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "kjylcsm2rvwgm7i574bp9rxibkq6eufa",
+    "fields": {
+      "session_data": ".eJxVjDsOwjAQBe_iGlt21usPZXrOEHntNQmgRMqnQtydREoB7ZuZ9xZd2ta-2xaeu6GIq0ATMBoXZEEP0iJkmaIFCeiTYzTWGxCX34xSfvJ4tOWRxvuk8jSu80DqUNRJF3WbCr_a0_076NPS73WNxMVZcrq6QgCFNJjcYCJgHTFUIJ2NbxoXMle7DyZHryt7IEvRis8XMy1AMg:1xIaBk:aShScOwdrGwIzI00KSEQ3tz6DDIvEuch84elZ1E649U",
+      "expire_date": "2026-11-01T23:21:12.970Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "qjkhki6bvq9h1l06tvplfch72d56bjux",
+    "fields": {
+      "session_data": ".eJxVjDsOwjAQBe_iGlt21usPZXrOEHntNQmgRMqnQtydREoB7ZuZ9xZd2ta-2xaeu6GIq0ATMBoXZEEP0iJkmaIFCeiTYzTWGxCX34xSfvJ4tOWRxvuk8jSu80DqUNRJF3WbCr_a0_076NPS73WNxMVZcrq6QgCFNJjcYCJgHTFUIJ2NbxoXMle7DyZHryt7IEvRis8XMy1AMg:1xIaC8:GhxEML346JdVXOjYqHGkZyGhOwG1awBleOTCnlXGVCs",
+      "expire_date": "2026-11-01T23:21:36.436Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "ghgleira84k9p7ppreqk4e6o5q4cq8uz",
+    "fields": {
+      "session_data": ".eJxVjEsOwiAQQO_CWggwwIBL956hGQawftIm_ayMd7dNutD1-7xFR-vSd-tcp-5exFl4E30yIcriEaTzwJKSAwkeKVRvHBoQp98sEz_rsLflQcNtVDwOy3TPalfUQWd1HUt9XQ73b9DT3G81eW6RUFfWkb1jF3RsDnMMtlpEsFq3ChtBbJmbBUcZkqYWILMxSXy-HKA_zA:1xIaF1:ygnRKyhtNG-kanj7ng7iyJWL66olMGiWQhU851SjoHk",
+      "expire_date": "2026-11-01T23:24:35.001Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "afx2icopu9smv1t60bfyffg5v80mo6ww",
+    "fields": {
+      "session_data": ".eJxVjr1uwzAQg99Fc2ycdPrN2L3PIJzOp9htYBdWDDQI-u61AQ_twoX8SL5Upu0x5q3JmqdBXZXT0SXtYze4gJ11yB0lix26QF6ctkGjuvzFCvGnzAc7fNB8W3pe5sc6lf6I9Kfb-vdlkPvbmf1XMFIbd5oc10gBhCGys2w9xGpDid6ICQENQBXcnRBq4WrQUsEEVD0W1jodpU1am5Y5y_fXtD7VVRtIHuByXsv3XTe6yT5XV_XzC-qwUBc:1xIbht:0t5dekBuF1CIVmI1iGyLBrRzECg_n477f_6R6_qzd8k",
+      "expire_date": "2026-11-02T00:58:29.320Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "rmgro3xu65jig9f40kc9gtsocd8gwb5u",
+    "fields": {
+      "session_data": ".eJxVjEsOwiAQQO_CWggwwIBL956hGQawftIm_ayMd7dNutD1-7xFR-vSd-tcp-5exFl4E30yIcriEaTzwJKSAwkeKVRvHBoQp98sEz_rsLflQcNtVDwOy3TPalfUQWd1HUt9XQ73b9DT3G81eW6RUFfWkb1jF3RsDnMMtlpEsFq3ChtBbJmbBUcZkqYWILMxSXy-HKA_zA:1xIaFd:x467vGjeHznHbm6IC2KMUu0er-6tBxjULBrx_klwyOc",
+      "expire_date": "2026-11-01T23:25:13.320Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "2kal9z1pfwyfqcqueid6gzjeqh1wa3vb",
+    "fields": {
+      "session_data": ".eJxVjEsOwiAQQO_CWggwwIBL956hGQawftIm_ayMd7dNutD1-7xFR-vSd-tcp-5exFl4E30yIcriEaTzwJKSAwkeKVRvHBoQp98sEz_rsLflQcNtVDwOy3TPalfUQWd1HUt9XQ73b9DT3G81eW6RUFfWkb1jF3RsDnMMtlpEsFq3ChtBbJmbBUcZkqYWILMxSXy-HKA_zA:1xIaGH:lprlfAvDbfFX4KrkJw_xyyJQ9c-fM-qBUMhm8jpPPls",
+      "expire_date": "2026-11-01T23:25:53.962Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "2re55unzehqojyo81f62k5uq2flzhhww",
+    "fields": {
+      "session_data": ".eJxVjEsOwiAQQO_CWggwwIBL956hGQawftIm_ayMd7dNutD1-7xFR-vSd-tcp-5exFl4E30yIcriEaTzwJKSAwkeKVRvHBoQp98sEz_rsLflQcNtVDwOy3TPalfUQWd1HUt9XQ73b9DT3G81eW6RUFfWkb1jF3RsDnMMtlpEsFq3ChtBbJmbBUcZkqYWILMxSXy-HKA_zA:1xInl0:AVKCYQd-5u44GEAUiWet9bSl5bmvPZ2VfjrVHEDtbEo",
+      "expire_date": "2026-11-02T13:50:30.811Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "3yyt7i8rk43tx9fhrtud0a7d9jx104np",
+    "fields": {
+      "session_data": ".eJxVjEsOwiAQQO_CWggwwIBL956hGQawftIm_ayMd7dNutD1-7xFR-vSd-tcp-5exFl4E30yIcriEaTzwJKSAwkeKVRvHBoQp98sEz_rsLflQcNtVDwOy3TPalfUQWd1HUt9XQ73b9DT3G81eW6RUFfWkb1jF3RsDnMMtlpEsFq3ChtBbJmbBUcZkqYWILMxSXy-HKA_zA:1xInmS:aMIkzECNkkhyXb1bTFufBo_8SnYDA7LJd-4mcmSbQ70",
+      "expire_date": "2026-11-02T13:52:00.331Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "k0k0o18012jjwfudpo3vl36da5s3wxkx",
+    "fields": {
+      "session_data": ".eJxVjM1uwjAMgN8l57Vy4iROOHLnGSrHdWjZ1KIGpE2Idx-VOGzn7-dhBr7fpuHedBvm0RxMsClkG1M3BsLOB5SOs8cOA3HUYD1ZNB9_s8Lyqcvejhdezmsv63Lb5tLvSv-mrT-to34d3-6_wcRtetUcpCYmUIEkwYuPkKqnkqJTR4QOoCq-CFEtUh16LpiBa8Qi1uZ92rS1eV0G_b7O2485WAc5Ajx_AQ-3SDs:1xIoKX:SX5_hWGWvQDMbm7bRkpVlqn-d_MmCCzqzVQq2Z562rY",
+      "expire_date": "2026-11-02T14:27:13.153Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "ijq1dk1qkwqgzng2sjqc8d28ewx5hhga",
+    "fields": {
+      "session_data": ".eJxVjEsOgjAQQO_StZCWaTvFpXvPQKbDVFADhkKiMd5dSFjo-n3eqqFl7poly9T0rToqZ4KrjQ9F6xAK64ALqi0U4JC8OGPRgDr8ZpH4JsPWtlcaLmPJ4zBPfSw3pdxpLs9jK_fT7v4NOsrdWpPjFAi1sA7sLFuvQ7IYg6-kQoRK6ySwEsQUOVVgKUKtKXmIbEy9TbPk3I9DI89HP73UUX--YuZHCQ:1xIoKY:Ji0_8CEaBT9ssgeJjrZc-6FmS_k-ys0UE4lkYcLU9Uk",
+      "expire_date": "2026-11-02T14:27:14.284Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "6og348qsh5dfchzrbj5sl8z102pzzfsp",
+    "fields": {
+      "session_data": ".eJxVjEsOgjAQQO_StZCWaTvFpXvPQKbDVFADhkKiMd5dSFjo-n3eqqFl7poly9T0rToqZ4KrjQ9F6xAK64ALqi0U4JC8OGPRgDr8ZpH4JsPWtlcaLmPJ4zBPfSw3pdxpLs9jK_fT7v4NOsrdWpPjFAi1sA7sLFuvQ7IYg6-kQoRK6ySwEsQUOVVgKUKtKXmIbEy9TbPk3I9DI89HP73UUX--YuZHCQ:1xIoKZ:wN94gLlF_IwTaOGCS-m1Xrg77-gFkD7ch6zmzL_3PxM",
+      "expire_date": "2026-11-02T14:27:15.417Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "lhwrvmlwofikozr2qldaprw3p62tn3cd",
+    "fields": {
+      "session_data": ".eJxVjEsOwiAQQO_CWggwwIBL956hGQawftIm_ayMd7dNutD1-7xFR-vSd-tcp-5exFl4E30yIcriEaTzwJKSAwkeKVRvHBoQp98sEz_rsLflQcNtVDwOy3TPalfUQWd1HUt9XQ73b9DT3G81eW6RUFfWkb1jF3RsDnMMtlpEsFq3ChtBbJmbBUcZkqYWILMxSXy-HKA_zA:1xIome:eCtBd2N1v91xxUp3ezUCR7z3feY1WWansB-3aVALAus",
+      "expire_date": "2026-11-02T14:56:16.377Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "izilrve9qaz8glmqna41t3w60n05nxyb",
+    "fields": {
+      "session_data": ".eJxVjEsOwiAQQO_CWggwwIBL956hGQawftIm_ayMd7dNutD1-7xFR-vSd-tcp-5exFl4E30yIcriEaTzwJKSAwkeKVRvHBoQp98sEz_rsLflQcNtVDwOy3TPalfUQWd1HUt9XQ73b9DT3G81eW6RUFfWkb1jF3RsDnMMtlpEsFq3ChtBbJmbBUcZkqYWILMxSXy-HKA_zA:1xIorn:2mxKKHk5vjFtvvd3clC8nscGtIml2ZP2VkDS_4G0AuM",
+      "expire_date": "2026-11-02T15:01:35.741Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "69ey9rzbszsgeprbi32n48yzwqehuhlw",
+    "fields": {
+      "session_data": ".eJxVjEsOwiAQQO_CWggwwIBL956hGQawftIm_ayMd7dNutD1-7xFR-vSd-tcp-5exFl4E30yIcriEaTzwJKSAwkeKVRvHBoQp98sEz_rsLflQcNtVDwOy3TPalfUQWd1HUt9XQ73b9DT3G81eW6RUFfWkb1jF3RsDnMMtlpEsFq3ChtBbJmbBUcZkqYWILMxSXy-HKA_zA:1xIouD:HrEHfNdKs6EtWfAJdCtIP4wK8GXTHFM-glLWZIgGGbA",
+      "expire_date": "2026-11-02T15:04:05.997Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "mrpvo0yplc1qqicwwauga1ietopzvsvk",
+    "fields": {
+      "session_data": ".eJxVjEsOwiAQQO_CWggwwIBL956hGQawftIm_ayMd7dNutD1-7xFR-vSd-tcp-5exFl4E30yIcriEaTzwJKSAwkeKVRvHBoQp98sEz_rsLflQcNtVDwOy3TPalfUQWd1HUt9XQ73b9DT3G81eW6RUFfWkb1jF3RsDnMMtlpEsFq3ChtBbJmbBUcZkqYWILMxSXy-HKA_zA:1xIpSN:EWvY0hp577y2Z9nevrgPRy-dslTAYwrLcNfEDywaxT4",
+      "expire_date": "2026-11-02T15:39:23.190Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "jtnow7xrkhzo8jlcmde82l2vkhg5tsdd",
+    "fields": {
+      "session_data": ".eJxVjEsOwiAQQO_CWggwwIBL956hGQawftIm_ayMd7dNutD1-7xFR-vSd-tcp-5exFl4E30yIcriEaTzwJKSAwkeKVRvHBoQp98sEz_rsLflQcNtVDwOy3TPalfUQWd1HUt9XQ73b9DT3G81eW6RUFfWkb1jF3RsDnMMtlpEsFq3ChtBbJmbBUcZkqYWILMxSXy-HKA_zA:1xIpyX:QruEwYgksfC7ZBm43RQw-DwBaOKbT6C-gq726CVeN7U",
+      "expire_date": "2026-11-02T16:12:37.187Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "7u8pegfi5i8n899gi68fldxxzdl4w4ga",
+    "fields": {
+      "session_data": ".eJxVjjsOwyAQRO9CHSzwAotTps8ZrGUB24llS_5UUe4erLhImmlm3tO8REv71rf7mpZ2iOIqrPa20c7LaBGkscCSGgMSLJJLVhvUIC6_WCB-pulg44Ombq54nrZlCNUxqc52re5zTOPt3P4Jelr7QpPl7AlVYuXZGjZO-WwweFenGhFqpXKC0iDmwLkGQwEaRdlBYK2bIv0eaMeSO3WpSPMi3h81oEeo:1xIqDp:SZrSmWK5_FWFoPIuIngTOIXxSyBpq0052l66SPc8Wd8",
+      "expire_date": "2026-11-02T16:28:25.647Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "r0run8lhhlv8em20894cdm9vw2cvph6r",
+    "fields": {
+      "session_data": ".eJxVjEsOwiAQQO_CWggwwIBL956hGQawftIm_ayMd7dNutD1-7xFR-vSd-tcp-5exFl4E30yIcriEaTzwJKSAwkeKVRvHBoQp98sEz_rsLflQcNtVDwOy3TPalfUQWd1HUt9XQ73b9DT3G81eW6RUFfWkb1jF3RsDnMMtlpEsFq3ChtBbJmbBUcZkqYWILMxSXy-HKA_zA:1xIqlN:7lenc2C_rOQS4SkntIJEqd_fLguDlfztNzJ2-UMuHto",
+      "expire_date": "2026-11-02T17:03:05.488Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "nen1vnk5wv2vszulpar2i2aferb1rurj",
+    "fields": {
+      "session_data": ".eJxVjEsOwiAQQO_CWggwwIBL956hGQawftIm_ayMd7dNutD1-7xFR-vSd-tcp-5exFl4E30yIcriEaTzwJKSAwkeKVRvHBoQp98sEz_rsLflQcNtVDwOy3TPalfUQWd1HUt9XQ73b9DT3G81eW6RUFfWkb1jF3RsDnMMtlpEsFq3ChtBbJmbBUcZkqYWILMxSXy-HKA_zA:1xIqlh:M_Rwxyg2VEnQ__zHXLsdYwH3LwCsLeRaINAU9MskpVM",
+      "expire_date": "2026-11-02T17:03:25.697Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "6sk00tahyijx1ws54xs6x2m576rxzdiy",
+    "fields": {
+      "session_data": ".eJxVjEsOwiAQQO_CWggwwIBL956hGQawftIm_ayMd7dNutD1-7xFR-vSd-tcp-5exFl4E30yIcriEaTzwJKSAwkeKVRvHBoQp98sEz_rsLflQcNtVDwOy3TPalfUQWd1HUt9XQ73b9DT3G81eW6RUFfWkb1jF3RsDnMMtlpEsFq3ChtBbJmbBUcZkqYWILMxSXy-HKA_zA:1xIqmW:rHdO2jT0s5Jiu49wQiKmGhGyaPpEx6rWd-sr5tB4QVM",
+      "expire_date": "2026-11-02T17:04:16.987Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "1l0kasm0qajbofczl4e862nggvavtxmt",
+    "fields": {
+      "session_data": ".eJxVjEsOwiAQQO_CWggwwIBL956hGQawftIm_ayMd7dNutD1-7xFR-vSd-tcp-5exFl4E30yIcriEaTzwJKSAwkeKVRvHBoQp98sEz_rsLflQcNtVDwOy3TPalfUQWd1HUt9XQ73b9DT3G81eW6RUFfWkb1jF3RsDnMMtlpEsFq3ChtBbJmbBUcZkqYWILMxSXy-HKA_zA:1xIqn6:Y27tURiebJfD9TQ0amEYxiHpGgWS7iEo6Pl1Gw38V_4",
+      "expire_date": "2026-11-02T17:04:52.958Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "ip3srsqfch3dvezupn09g29067zp6e76",
+    "fields": {
+      "session_data": ".eJxVjEsOwiAQQO_CWggwwIBL956hGQawftIm_ayMd7dNutD1-7xFR-vSd-tcp-5exFl4E30yIcriEaTzwJKSAwkeKVRvHBoQp98sEz_rsLflQcNtVDwOy3TPalfUQWd1HUt9XQ73b9DT3G81eW6RUFfWkb1jF3RsDnMMtlpEsFq3ChtBbJmbBUcZkqYWILMxSXy-HKA_zA:1xIqoB:SCDJvBwm2aqwRe_hq8XDhk5g4rpBpz7KLx2Q2Xl0iCA",
+      "expire_date": "2026-11-02T17:05:59.172Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "ru2xdnscnmrsl4154azhcile4g6848tq",
+    "fields": {
+      "session_data": ".eJxVjEsOwiAQQO_CWggwwIBL956hGQawftIm_ayMd7dNutD1-7xFR-vSd-tcp-5exFl4E30yIcriEaTzwJKSAwkeKVRvHBoQp98sEz_rsLflQcNtVDwOy3TPalfUQWd1HUt9XQ73b9DT3G81eW6RUFfWkb1jF3RsDnMMtlpEsFq3ChtBbJmbBUcZkqYWILMxSXy-HKA_zA:1xIqoX:Gy8Txnq_B1zpn1DjTRKfjC6GLp8XVNSYcoch0qY-9qc",
+      "expire_date": "2026-11-02T17:06:21.325Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "er1wevk2cd7tkstjgdh8klubbq63mzpp",
+    "fields": {
+      "session_data": ".eJxVjEsOwiAQQO_CWggwwIBL956hGQawftIm_ayMd7dNutD1-7xFR-vSd-tcp-5exFl4E30yIcriEaTzwJKSAwkeKVRvHBoQp98sEz_rsLflQcNtVDwOy3TPalfUQWd1HUt9XQ73b9DT3G81eW6RUFfWkb1jF3RsDnMMtlpEsFq3ChtBbJmbBUcZkqYWILMxSXy-HKA_zA:1xIqxb:YQY1ofkaLc8ZJieFg59NlWhVWtzTudVrAitos2i1LK4",
+      "expire_date": "2026-11-02T17:15:43.019Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "s4wznbz9zhc3j0wnzy772iij5gzfuu29",
+    "fields": {
+      "session_data": ".eJxVjEsOwiAQQO_CWggwwIBL956hGQawftIm_ayMd7dNutD1-7xFR-vSd-tcp-5exFl4E30yIcriEaTzwJKSAwkeKVRvHBoQp98sEz_rsLflQcNtVDwOy3TPalfUQWd1HUt9XQ73b9DT3G81eW6RUFfWkb1jF3RsDnMMtlpEsFq3ChtBbJmbBUcZkqYWILMxSXy-HKA_zA:1xIqy1:8B3IW2jXVpkvQrPN7236la57q9CL2kaWVPu8-123xG0",
+      "expire_date": "2026-11-02T17:16:09.307Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "74957r5fzgy277bj74mlpcnna0e18yos",
+    "fields": {
+      "session_data": ".eJxVjEsOwiAQQO_CWggwwIBL956hGQawftIm_ayMd7dNutD1-7xFR-vSd-tcp-5exFl4E30yIcriEaTzwJKSAwkeKVRvHBoQp98sEz_rsLflQcNtVDwOy3TPalfUQWd1HUt9XQ73b9DT3G81eW6RUFfWkb1jF3RsDnMMtlpEsFq3ChtBbJmbBUcZkqYWILMxSXy-HKA_zA:1xIsGy:JQbc11LoSGTtjVQ143GEysU_p6UHD48o8t-mXmAqCZI",
+      "expire_date": "2026-11-02T18:39:48.417Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "psswavdsg0xz03sspg567nq9w30gf851",
+    "fields": {
+      "session_data": ".eJxVjEsOwiAQQO_CWggwwIBL956hGQawftIm_ayMd7dNutD1-7xFR-vSd-tcp-5exFl4E30yIcriEaTzwJKSAwkeKVRvHBoQp98sEz_rsLflQcNtVDwOy3TPalfUQWd1HUt9XQ73b9DT3G81eW6RUFfWkb1jF3RsDnMMtlpEsFq3ChtBbJmbBUcZkqYWILMxSXy-HKA_zA:1xIsHO:zZ4p50Xkj-n4OxAn89F0-ofXltZ8wCkD-eky95W2m-k",
+      "expire_date": "2026-11-02T18:40:14.626Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "pbucoi87mpcl798msh4n1cln5dsojo15",
+    "fields": {
+      "session_data": ".eJxVjEsOwiAQQO_CWggwwIBL956hGQawftIm_ayMd7dNutD1-7xFR-vSd-tcp-5exFl4E30yIcriEaTzwJKSAwkeKVRvHBoQp98sEz_rsLflQcNtVDwOy3TPalfUQWd1HUt9XQ73b9DT3G81eW6RUFfWkb1jF3RsDnMMtlpEsFq3ChtBbJmbBUcZkqYWILMxSXy-HKA_zA:1xIsI6:m0gbAxFu2wYCLrHO606_cdugoGtzmOibfatb4aW6b5g",
+      "expire_date": "2026-11-02T18:40:58.625Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "1ywbmmgjz60byh5gtall7i60p16a1599",
+    "fields": {
+      "session_data": ".eJxVjM1uwjAMgN8l57Vy4iROOHLnGSrHdWjZ1KIGpE2Idx-VOGzn7-dhBr7fpuHedBvm0RxMsClkG1M3BsLOB5SOs8cOA3HUYD1ZNB9_s8Lyqcvejhdezmsv63Lb5tLvSv-mrT-to34d3-6_wcRtetUcpCYmUIEkwYuPkKqnkqJTR4QOoCq-CFEtUh16LpiBa8Qi1uZ92rS1eV0G_b7O2485WAc5Ajx_AQ-3SDs:1xIszX:EpAEgeRo3Mlszkn9VJciPHMkc-iGbGMBuW926SE0xfg",
+      "expire_date": "2026-11-02T19:25:51.823Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "lrcui3j33di42momx2jxylbo7sahh0px",
+    "fields": {
+      "session_data": ".eJxVjEsOwiAQQO_CWggwwIBL956hGQawftIm_ayMd7dNutD1-7xFR-vSd-tcp-5exFl4E30yIcriEaTzwJKSAwkeKVRvHBoQp98sEz_rsLflQcNtVDwOy3TPalfUQWd1HUt9XQ73b9DT3G81eW6RUFfWkb1jF3RsDnMMtlpEsFq3ChtBbJmbBUcZkqYWILMxSXy-HKA_zA:1xIt7I:302ukLQkDuE1HUO4RNUxVAwg2hyYPNU30hwl1EtfNzk",
+      "expire_date": "2026-11-02T19:33:52.024Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "gingz0v5vt4rrs8w05o8i6cngwoqedh6",
+    "fields": {
+      "session_data": ".eJxVjEsOwiAQQO_CWggwwIBL956hGQawftIm_ayMd7dNutD1-7xFR-vSd-tcp-5exFl4E30yIcriEaTzwJKSAwkeKVRvHBoQp98sEz_rsLflQcNtVDwOy3TPalfUQWd1HUt9XQ73b9DT3G81eW6RUFfWkb1jF3RsDnMMtlpEsFq3ChtBbJmbBUcZkqYWILMxSXy-HKA_zA:1xIt7R:uSrLobExNI5o8pn-bYVlm5a-cSm2mbXHBSUoLWIrSK0",
+      "expire_date": "2026-11-02T19:34:01.843Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "77wvgnajad9cmufa384q02dt13kg9jh0",
+    "fields": {
+      "session_data": ".eJxVjEsOwiAQQO_CWggwwIBL956hGQawftIm_ayMd7dNutD1-7xFR-vSd-tcp-5exFl4E30yIcriEaTzwJKSAwkeKVRvHBoQp98sEz_rsLflQcNtVDwOy3TPalfUQWd1HUt9XQ73b9DT3G81eW6RUFfWkb1jF3RsDnMMtlpEsFq3ChtBbJmbBUcZkqYWILMxSXy-HKA_zA:1xIt8J:fH8-HTj7k5oVS4KFrhai1tWVZeg-u9vPbHsw5Vq4WBk",
+      "expire_date": "2026-11-02T19:34:55.791Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "tk23gw5nsahdsrdm1f56dgad7kifezrf",
+    "fields": {
+      "session_data": ".eJxVjEsOwiAQQO_CWggwwIBL956hGQawftIm_ayMd7dNutD1-7xFR-vSd-tcp-5exFl4E30yIcriEaTzwJKSAwkeKVRvHBoQp98sEz_rsLflQcNtVDwOy3TPalfUQWd1HUt9XQ73b9DT3G81eW6RUFfWkb1jF3RsDnMMtlpEsFq3ChtBbJmbBUcZkqYWILMxSXy-HKA_zA:1xItAF:0yixuVc2nqcQMRAAyID8an0iH9hCQBw5tg9fLHqrUkg",
+      "expire_date": "2026-11-02T19:36:55.870Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "iuqx9eumsrq6h0ka8m9f7ne85iejb39f",
+    "fields": {
+      "session_data": ".eJxVjEsOwiAQQO_CWggwwIBL956hGQawftIm_ayMd7dNutD1-7xFR-vSd-tcp-5exFl4E30yIcriEaTzwJKSAwkeKVRvHBoQp98sEz_rsLflQcNtVDwOy3TPalfUQWd1HUt9XQ73b9DT3G81eW6RUFfWkb1jF3RsDnMMtlpEsFq3ChtBbJmbBUcZkqYWILMxSXy-HKA_zA:1xItSs:NfHpf9lQnQ3BogWH6QfKroRzhJuaFnly2cKmK_X0rNc",
+      "expire_date": "2026-11-02T19:56:10.440Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "zqy11wfnz0l0fzn0aorq8uhtbcznkdo4",
+    "fields": {
+      "session_data": ".eJxVjjsOwyAQRO9CHSNgFy-kTJ8zWAsscT6yJX-qKHePLblImpFGM280b9XxuvTdOsvU3Ys6K6o1FB9tQ4DSoPOlYQGz28pYE8Xk1OkXS5yfMuxsefBwG3Ueh2W6J71X9JHO-joWeV2O7t9Az3O_0eCCgDUYM3hxbYrbFUjggxOpmwJbwxCiM8Qeo2RLCEG8aQNhJlKfL9QyP-Y:1xIta1:qFX2jTbiHhkMTCG7L9p08EvhTo1qHBFWIZ0fGl4Yn2M",
+      "expire_date": "2026-11-02T20:03:33.047Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "18d5ovrhyqyo9w5bj8ra73xla3owgypu",
+    "fields": {
+      "session_data": ".eJxVjs1ugzAQhN_F54D8s2ubHHvvM1jr9RJIIqhwkBpFffeCxCG5zGXmm5mXSrQ-hrRWWdJY1FmhidgZH5uCwTWAjhvqwDUOA3lBA8E4dXrHMvFNpp0tV5ouc8vz9FjG3O6R9nBr-z0XuX8d2Y-Cgeqw0T1Y3XsRjx6jbFwOFPuMEZzVDOAK5Mxi-y5SYIjGZmTQEHQpwqz30iq1jvOU5PdnXJ7qbKzuvNan41q6b7rSRfa5Rf39AyUpUNU:1xIy0o:Yx-TwHFfsKy6Ct4igiIs9EWXWfCN1WUy9jyKD5kRIUw",
+      "expire_date": "2026-11-03T00:47:30.593Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "3sq42tekpgigfaxwmdnq7nabj13wexlg",
+    "fields": {
+      "session_data": ".eJxVzDkOwjAQheG7uCaWlxnboaTnDNF4PCYsSqQsFeLuJFIKqN__vbfqaF36bp1l6u5FnRXahK0NqSkYfQPouaEWfOMxUhC0EK1Xp1-WiZ8y7LY8aLiNmsdhme5Z74k-1llfxyKvy9H-HfQ095uu4EwNIgEDJtlcjpRqxgTeGQbwBXJmcbVNFBmSdRkZDERTijAb9fkCMqxAig:1xIwGb:47jindjdzypawL-4x2u1_mu5NGDoie9Aq5zMuJMyUqs",
+      "expire_date": "2026-11-02T22:55:41.821Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "92cf3lsrp1u31kr4qs1q24ynin773dz7",
+    "fields": {
+      "session_data": ".eJxVzDkOwjAQheG7uCaWlxnboaTnDNF4PCYsSqQsFeLuJFIKqN__vbfqaF36bp1l6u5FnRXahK0NqSkYfQPouaEWfOMxUhC0EK1Xp1-WiZ8y7LY8aLiNmsdhme5Z74k-1llfxyKvy9H-HfQ095uu4EwNIgEDJtlcjpRqxgTeGQbwBXJmcbVNFBmSdRkZDERTijAb9fkCMqxAig:1xIwNQ:on4GnzQvXCFGKmz7lzlQFK6hcTadhAfDeUUux0nLhVg",
+      "expire_date": "2026-11-02T23:02:44.101Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "5rojb12h39ecl8gu7cziy1fjtvusdfme",
+    "fields": {
+      "session_data": ".eJxVzDkOwjAQheG7uCaWlxnboaTnDNF4PCYsSqQsFeLuJFIKqN__vbfqaF36bp1l6u5FnRXahK0NqSkYfQPouaEWfOMxUhC0EK1Xp1-WiZ8y7LY8aLiNmsdhme5Z74k-1llfxyKvy9H-HfQ095uu4EwNIgEDJtlcjpRqxgTeGQbwBXJmcbVNFBmSdRkZDERTijAb9fkCMqxAig:1xIwR0:kFAdhoP7wwqNiRioDV-JuamI4Hpgqz6jfUmS-CKiIE8",
+      "expire_date": "2026-11-02T23:06:26.488Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "xxuu27jn3jr3zuj5ea09u8ltl9n55mv8",
+    "fields": {
+      "session_data": ".eJxVzDkOwjAQheG7uCaWlxnboaTnDNF4PCYsSqQsFeLuJFIKqN__vbfqaF36bp1l6u5FnRXahK0NqSkYfQPouaEWfOMxUhC0EK1Xp1-WiZ8y7LY8aLiNmsdhme5Z74k-1llfxyKvy9H-HfQ095uu4EwNIgEDJtlcjpRqxgTeGQbwBXJmcbVNFBmSdRkZDERTijAb9fkCMqxAig:1xIwpG:DZEypgy8mH4pywLQM4Fjes25VFBbC-wWWSggSpEA1kU",
+      "expire_date": "2026-11-02T23:31:30.518Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "avaok004gt34ewqgd453mmcf6ayf1ooj",
+    "fields": {
+      "session_data": ".eJxVzDkOwjAQheG7uCaWlxnboaTnDNF4PCYsSqQsFeLuJFIKqN__vbfqaF36bp1l6u5FnRXahK0NqSkYfQPouaEWfOMxUhC0EK1Xp1-WiZ8y7LY8aLiNmsdhme5Z74k-1llfxyKvy9H-HfQ095uu4EwNIgEDJtlcjpRqxgTeGQbwBXJmcbVNFBmSdRkZDERTijAb9fkCMqxAig:1xIwpv:72sOA6haTwQ6lB0KF6foT5QkbcTO_U6s3XRZRTcP2_M",
+      "expire_date": "2026-11-02T23:32:11.589Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "7igydnpe8gezfmejtxwfqc28jn4htfl9",
+    "fields": {
+      "session_data": ".eJxVzDkOwjAQheG7uCaWlxnboaTnDNF4PCYsSqQsFeLuJFIKqN__vbfqaF36bp1l6u5FnRXahK0NqSkYfQPouaEWfOMxUhC0EK1Xp1-WiZ8y7LY8aLiNmsdhme5Z74k-1llfxyKvy9H-HfQ095uu4EwNIgEDJtlcjpRqxgTeGQbwBXJmcbVNFBmSdRkZDERTijAb9fkCMqxAig:1xIwum:zmNTsbHsPdJuoWBqrXU5_lGmqEn-T8PBr8zziAQkpkk",
+      "expire_date": "2026-11-02T23:37:12.014Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "lm20nl2avtapnxq635rdl836oflw23xb",
+    "fields": {
+      "session_data": ".eJxVzDkOwjAQheG7uCaWlxnboaTnDNF4PCYsSqQsFeLuJFIKqN__vbfqaF36bp1l6u5FnRXahK0NqSkYfQPouaEWfOMxUhC0EK1Xp1-WiZ8y7LY8aLiNmsdhme5Z74k-1llfxyKvy9H-HfQ095uu4EwNIgEDJtlcjpRqxgTeGQbwBXJmcbVNFBmSdRkZDERTijAb9fkCMqxAig:1xIwv8:Y74PwqwwI8zeNlYvd_GapZtJmqHdY6clktmQZL-LyqQ",
+      "expire_date": "2026-11-02T23:37:34.274Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "55gitjl2nm37kxhni4amzj9a3cpro54w",
+    "fields": {
+      "session_data": ".eJxVzDkOwjAQheG7uCaWlxnboaTnDNF4PCYsSqQsFeLuJFIKqN__vbfqaF36bp1l6u5FnRXahK0NqSkYfQPouaEWfOMxUhC0EK1Xp1-WiZ8y7LY8aLiNmsdhme5Z74k-1llfxyKvy9H-HfQ095uu4EwNIgEDJtlcjpRqxgTeGQbwBXJmcbVNFBmSdRkZDERTijAb9fkCMqxAig:1xIwvs:62eZ5Rw_8ynY5B8kbJNxEvfUtkX28PmU-ULA-yZ3ybk",
+      "expire_date": "2026-11-02T23:38:20.604Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "r1b2iwslftedegrudop20ere1vpjhj7n",
+    "fields": {
+      "session_data": ".eJxVzDkOwjAQheG7uCaWlxnboaTnDNF4PCYsSqQsFeLuJFIKqN__vbfqaF36bp1l6u5FnRXahK0NqSkYfQPouaEWfOMxUhC0EK1Xp1-WiZ8y7LY8aLiNmsdhme5Z74k-1llfxyKvy9H-HfQ095uu4EwNIgEDJtlcjpRqxgTeGQbwBXJmcbVNFBmSdRkZDERTijAb9fkCMqxAig:1xIwxt:i0TCJ0De6VdaUWTOiQT1feFJvSmzGskIi-4jdmGNQ2g",
+      "expire_date": "2026-11-02T23:40:25.818Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "zb0vskyzhyknd72wfe664szgjiofx2af",
+    "fields": {
+      "session_data": ".eJxVzDkOwjAQheG7uCaWlxnboaTnDNF4PCYsSqQsFeLuJFIKqN__vbfqaF36bp1l6u5FnRXahK0NqSkYfQPouaEWfOMxUhC0EK1Xp1-WiZ8y7LY8aLiNmsdhme5Z74k-1llfxyKvy9H-HfQ095uu4EwNIgEDJtlcjpRqxgTeGQbwBXJmcbVNFBmSdRkZDERTijAb9fkCMqxAig:1xIx14:uVni3_-RbflsBNJ0ndR8bV74uGgpDlSaWRIFjqtjKZA",
+      "expire_date": "2026-11-02T23:43:42.543Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "r44xsu0ze3aawwnta3o8uegb9g6bbwl4",
+    "fields": {
+      "session_data": ".eJxVzDkOwjAQheG7uCaWlxnboaTnDNF4PCYsSqQsFeLuJFIKqN__vbfqaF36bp1l6u5FnRXahK0NqSkYfQPouaEWfOMxUhC0EK1Xp1-WiZ8y7LY8aLiNmsdhme5Z74k-1llfxyKvy9H-HfQ095uu4EwNIgEDJtlcjpRqxgTeGQbwBXJmcbVNFBmSdRkZDERTijAb9fkCMqxAig:1xIxk5:tJ4NC1XdNoznUXF0FFPRWYYG1pHV6bzH9zm18HL8Wz0",
+      "expire_date": "2026-11-03T00:30:13.223Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "ccgaijeseqe0d1qa7xt75jrm75ohpf9d",
+    "fields": {
+      "session_data": ".eJxVzDkOwjAQheG7uCaWlxnboaTnDNF4PCYsSqQsFeLuJFIKqN__vbfqaF36bp1l6u5FnRXahK0NqSkYfQPouaEWfOMxUhC0EK1Xp1-WiZ8y7LY8aLiNmsdhme5Z74k-1llfxyKvy9H-HfQ095uu4EwNIgEDJtlcjpRqxgTeGQbwBXJmcbVNFBmSdRkZDERTijAb9fkCMqxAig:1xIxkJ:hr0kdtxv_BlJJdvNKeKuUxC0cc1s7LU6Go2aeSIpFxU",
+      "expire_date": "2026-11-03T00:30:27.514Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "z6piz8y4g2nnr1rqs46qpknyb9vgv9ym",
+    "fields": {
+      "session_data": ".eJxVzDkOwjAQheG7uCaWlxnboaTnDNF4PCYsSqQsFeLuJFIKqN__vbfqaF36bp1l6u5FnRXahK0NqSkYfQPouaEWfOMxUhC0EK1Xp1-WiZ8y7LY8aLiNmsdhme5Z74k-1llfxyKvy9H-HfQ095uu4EwNIgEDJtlcjpRqxgTeGQbwBXJmcbVNFBmSdRkZDERTijAb9fkCMqxAig:1xIxqL:IzzMi7FsYRKlXJ9CHxGcQf1pHKDfi8ogK4L012gVqc4",
+      "expire_date": "2026-11-03T00:36:41.547Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "2yt0q0vvwt109wnbcy76qug0znsxb0lu",
+    "fields": {
+      "session_data": ".eJxVzMsOgjAQheF36VpILzNtceneZyDtdBDUUEMh0RjfXUhY6Pr833mLNixz3y6Fp3ZI4ihQeWyU9VVCZypAQ1VowFQGXbCMCpwy4vDLYqAbj5tN1zBeck15nKch1ltS72upzznx_bS3fwd9KP2qO9Cys8wWLXpeXXTBdxE9GC0JwCSIkVh3jQ-OwCsdkUCCkykxkdxOC5cy5LHl52OYXuKotGyslJ8vOQ9I-Q:1xJ6Yd:Jz1xyXTwWq0va2JUXY0BEyaSPQa57k1NFYabfpGiaik",
+      "expire_date": "2026-11-03T09:54:59.952Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "lsvjysn3aprtofrp9zdgmzl0gwj332mq",
+    "fields": {
+      "session_data": ".eJxVzEEOwiAQheG7sJYGhhmgLt17hobCxFYNmNImGuPdbZMudP3e979FF5Z56JbKUzcmcRSkPbXaepnIGYlkogwtGmnIBcuk0WkjDr-sD_HGebPpGvKlNLHkeRr7Zrs0-1qbc0l8P-3fv8AQ6rBqHx22VlEPYDURAnjUfUSF3gVABA_eKodkLTIapZgNYFiBchAjbtHKtY4ld_x8jNNLHDWoNak-X3QaRe4:1xJ7D8:W3uTiR8yX2N6cf6Llu2V9Ag0gzMJY4Eo6OYyvSRiYpo",
+      "expire_date": "2026-11-03T10:36:50.009Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "dtwqslgk0wx9e3m7ecvemobsfgl393h9",
+    "fields": {
+      "session_data": ".eJxVzLkOwjAQhOF3cU0sez1rO5T0PEO0PkQ4lEg5KsS7k0gpoJ7_m7fqZF36bp3r1N2LOiu2kVvrY1M4uAbsciMtXOM4iK9sEaxTp1-WJD_rsNvykOE26jwOy3RPek_0sc76Opb6uhzt30Evc7_pmANabzgRecsMogibMgxiEAIoUvQmgL1HhTOmVkeQDZhAOUN9vrzVPX8:1xJ7Hw:WZSDvvjLjA9FO_GjVMp8JsSKumhSzPoknsaiayfQeII",
+      "expire_date": "2026-11-03T10:41:48.764Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "2ezk1dam6130qcz1b1cdm4xg8l94pxov",
+    "fields": {
+      "session_data": ".eJxVzLkOwjAQhOF3cU0sez1rO5T0PEO0PkQ4lEg5KsS7k0gpoJ7_m7fqZF36bp3r1N2LOiu2kVvrY1M4uAbsciMtXOM4iK9sEaxTp1-WJD_rsNvykOE26jwOy3RPek_0sc76Opb6uhzt30Evc7_pmANabzgRecsMogibMgxiEAIoUvQmgL1HhTOmVkeQDZhAOUN9vrzVPX8:1xJ7LB:cBrVbM-qsDnWiwjulVRYy-DgzrIMH3ewcVXz_Rbhj9Q",
+      "expire_date": "2026-11-03T10:45:09.831Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "73gc36pbwtherors7gpuxzp11izcutqo",
+    "fields": {
+      "session_data": ".eJxVzLkOwjAQhOF3cU0sez1rO5T0PEO0PkQ4lEg5KsS7k0gpoJ7_m7fqZF36bp3r1N2LOiu2kVvrY1M4uAbsciMtXOM4iK9sEaxTp1-WJD_rsNvykOE26jwOy3RPek_0sc76Opb6uhzt30Evc7_pmANabzgRecsMogibMgxiEAIoUvQmgL1HhTOmVkeQDZhAOUN9vrzVPX8:1xJ7MP:qF249Ln2cT1HAvnSF66K-tCHq-ghnV8Ssw0kkRouQHY",
+      "expire_date": "2026-11-03T10:46:25.257Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "4v4834eii5nngidlstytckd9dnq0lsb9",
+    "fields": {
+      "session_data": ".eJxVjkFuhDAMRe-SNaDEsZMwy9n3DJEJFtCOwoiA1NGod2-QWLSbv_F_z_-tIh_7HI8iW1xGdVNkAvXGhXYkb1skm1ru0baWPDshg95Y1fzFBk5fkk92_OQ8rV1a874tQ3dWuutauo91lMf96v4TzFzmSofksXeaBgBniBAgoBkSagyeARECBKc9knMoaLUWsYBcAe0hJTylRUpZ1hzl-7lsL3UzoKtSN9e0-Kh58CT1nWT18wsaJ03F:1xJ7SI:HXQVQ11dmriVOfJWJr2cYzUS4PA1dPB2rnfK6PcZyXM",
+      "expire_date": "2026-11-03T10:52:30.604Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "oofqch3bz2hxu49jfa8tj6a7akjoonn0",
+    "fields": {
+      "session_data": ".eJxVzDkOwjAQheG7uMaW94WSnjNEMx4PCaBEylIh7g6RUkD9_u-9RAfb2nfb0uZuIHEWsSVvE7O0jrX0HowszrHUGYpvrhEkI06_DKE-2rhbusN4m1SdxnUeUO2JOtZFXSdqz8vR_h30sPRf7ShGRMKQSLtQ0AXSJURGn01LhmxFgGqZI7FDWzIAxQyxgo9oMYj3B-7aQgE:1xJ7hU:Ojp5oLT8-pfo0qID9JGxRWu2qh_nNCkfPIHiJS8Bvhk",
+      "expire_date": "2026-11-03T11:08:12.702Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "0iq8rhmy3g0suoettqdl3a56o4q7maf6",
+    "fields": {
+      "session_data": ".eJxVzMsOgjAQheF36VpILzNtceneZyDtdBDUUEMh0RjfXUhY6Pr833mLNixz3y6Fp3ZI4ihQeWyU9VVCZypAQ1VowFQGXbCMCpwy4vDLYqAbj5tN1zBeck15nKch1ltS72upzznx_bS3fwd9KP2qO9Cys8wWLXpeXXTBdxE9GC0JwCSIkVh3jQ-OwCsdkUCCkykxkdxOC5cy5LHl52OYXuKotGyslJ8vOQ9I-Q:1xJ8zw:FB7cB6FqYgXnLCWy-MdLK7E5CSwMSD8OgnsJFyrNrvQ",
+      "expire_date": "2026-11-03T12:31:20.986Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "ea0pufc7vh16dvx1n3xgv36l8n341xll",
+    "fields": {
+      "session_data": ".eJxVzMsOgjAQheF36VpILzNtceneZyDtdBDUUEMh0RjfXUhY6Pr833mLNixz3y6Fp3ZI4ihQeWyU9VVCZypAQ1VowFQGXbCMCpwy4vDLYqAbj5tN1zBeck15nKch1ltS72upzznx_bS3fwd9KP2qO9Cys8wWLXpeXXTBdxE9GC0JwCSIkVh3jQ-OwCsdkUCCkykxkdxOC5cy5LHl52OYXuKotGyslJ8vOQ9I-Q:1xJBE2:MhTWMHtdt9MrQR1kpph7wWDauuM0fI8Wxzoy1NGOlYA",
+      "expire_date": "2026-11-03T14:54:02.047Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "11lb1snf03qxbtngzkm6i6ecdf05j0on",
+    "fields": {
+      "session_data": "e30:1xJD05:6nUYgvAkV-KuCDMfkTe1DENgAw7mPrwX0NOmP8an-VI",
+      "expire_date": "2026-11-03T16:47:45.519Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "w18nb9v5ib0sj2f83m8i81ufh8lduyzo",
+    "fields": {
+      "session_data": "e30:1xJD05:6nUYgvAkV-KuCDMfkTe1DENgAw7mPrwX0NOmP8an-VI",
+      "expire_date": "2026-11-03T16:47:45.565Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "lz2mptpmfm85p2p8lco7m664lqk1akg7",
+    "fields": {
+      "session_data": "e30:1xJD0V:UgmF2J-9obNt7TZkaPQRlLteEL0iPyt5eim-ZV7IIEw",
+      "expire_date": "2026-11-03T16:48:11.031Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "r2erz6te0q4t9no6xhoah2ijc5r1wh3w",
+    "fields": {
+      "session_data": "e30:1xJD0W:XodN0uDjFR104PMWIxNF6LbtiME8xIHv4JSnwlMLrHo",
+      "expire_date": "2026-11-03T16:48:12.929Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "gkt8pbmxapec4dcd0zo5vxmfg1u0wdqa",
+    "fields": {
+      "session_data": "e30:1xJD0Y:L5QS5ymIFud5LADN26E-9psYz7hSmn3IdpEhu5iMCow",
+      "expire_date": "2026-11-03T16:48:14.709Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "8vtlxsvj2mwa1ueqokhj2wb6tkr39amn",
+    "fields": {
+      "session_data": ".eJxVjEEOgjAQRe_StZC202kpS_eegUzpVFBDDYVEY7y7krDQ5c9_771ER-sydGvhuRujaAWqBr2yTRXRQWUQ-oq8gQrQkWVUxikQh18tUH_laXPjhaZzrvs8LfMY6g2p97fUpxz5dtzZv8BAZdhsG6R0MkXjfVLUKPRNUDLY8F29QQZtybC0xBqSBw7RGdAJtbHJk96ihUsZ89Tx4z7OT9EqLb2V8v0BC-lIOQ:1xJD48:7mqQq3gf1uP8obU7Q5YqpCDx3TxEN9kacTb0HPVTHQo",
+      "expire_date": "2026-11-03T16:51:56.467Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "t10ebektza8g0o688zoasua58yuj4l5z",
+    "fields": {
+      "session_data": ".eJxVjEEOgjAQRe_StZC202kpS_eegUzpVFBDDYVEY7y7krDQ5c9_771ER-sydGvhuRujaAWqBr2yTRXRQWUQ-oq8gQrQkWVUxikQh18tUH_laXPjhaZzrvs8LfMY6g2p97fUpxz5dtzZv8BAZdhsG6R0MkXjfVLUKPRNUDLY8F29QQZtybC0xBqSBw7RGdAJtbHJk96ihUsZ89Tx4z7OT9HK9wdfJEcH:1xJD49:L-HH2eh6_dvzKReZf3_Hk8wVY-1UnpoBmyUbCbQ6KNE",
+      "expire_date": "2026-11-03T16:51:57.461Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "kd4t4stzu97vlnolkp9k6cps638spgq8",
+    "fields": {
+      "session_data": ".eJxVzMsOwiAQheF3YW0JA8wUXLr3GZqBAVs1bdLLyvju2qQLXZ__Oy_V8bb23baUuRtEnRVCwAgUGsHWNR5dbjh61zhsmQqCb8Gp0y9LnB9l3K3cebxNOk_jOg9J74k-1kVfJynPy9H-HfS89F9dizOGUHylbE10kjx6jMlZw1IgWYqEwWcAAYuUgimVfBRLXDkRqPcHBc4_ZQ:1xJDI4:DYDRu1ff4qdfFV4770ZEfTayiAIsmzEFttKUmw6QvJY",
+      "expire_date": "2026-11-03T17:06:20.154Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "9gnb8iz13jyso9kqk3v0su7fz6whj7cy",
+    "fields": {
+      "session_data": ".eJxVzMsOwiAQheF3YS2kwMwALt37DM0MUFs1bdLLyvju2qQLXZ__Oy_V8rb27bbUuR2KOiu0EZOlqAsGrwF91pzAa4-BqaKFYL06_TLh_Kjjbsudx9tk8jSu8yBmT8yxLuY6lfq8HO3fQc9L_9U-ltIFAgkpAJBEEIyJKAZpokOuBRsnxFG4o5wcQ8aObUKXqgPI6v0BCeo_kA:1xJDp4:nIFSgGd5QuiBbIEBGEKudganxYpsupJ6rN05rR8pSgE",
+      "expire_date": "2026-11-03T17:40:26.197Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "shcddd6jc89nppe4xmnf5sd37g4pgc5g",
+    "fields": {
+      "session_data": ".eJxVjEsOgjAQQO_StZB-ZqYtS_eegUw_CGrAUEg0xrsrCQtdv89LtLwufbuWPLdDEo1A5dArclVCaypAEyv2YCqDlimjAquMOPxmgeM1j1ubLjyepzpO4zIPod6UeqelPk0p3467-zfoufTf2riUOksQrLcAFBwEdJ7I2SCdRs4JpQ7ELnBH0WuGiB0rj9pnDRC3acmlDNPY5sd9mJ-iUVp6kvL9AfbaR_8:1xJDq7:xSPrlx0zmiMSO9yB472LwBwk4_r_ajujUcaky_pRT2I",
+      "expire_date": "2026-11-03T17:41:31.684Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "6kfkvaw10738mniunaonjn9paqnlr2z6",
+    "fields": {
+      "session_data": ".eJxVzMsOwiAQheF3YS2kwMwALt37DM0MUFs1bdLLyvju2qQLXZ__Oy_V8rb27bbUuR2KOiu0EZOlqAsGrwF91pzAa4-BqaKFYL06_TLh_Kjjbsudx9tk8jSu8yBmT8yxLuY6lfq8HO3fQc9L_9U-ltIFAgkpAJBEEIyJKAZpokOuBRsnxFG4o5wcQ8aObUKXqgPI6v0BCeo_kA:1xJErW:BBCdHaRyAcOatDkda_jr8coCBnvq_TCS5PD3oUayMhY",
+      "expire_date": "2026-11-03T18:47:02.482Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "pkh00qlusxbptf48fjuaynsgtmlt0nhj",
+    "fields": {
+      "session_data": ".eJxVzMsOwiAQheF3YS2kwMwALt37DM0MUFs1bdLLyvju2qQLXZ__Oy_V8rb27bbUuR2KOiu0EZOlqAsGrwF91pzAa4-BqaKFYL06_TLh_Kjjbsudx9tk8jSu8yBmT8yxLuY6lfq8HO3fQc9L_9U-ltIFAgkpAJBEEIyJKAZpokOuBRsnxFG4o5wcQ8aObUKXqgPI6v0BCeo_kA:1xJEui:2mE2Qf_eJ-r13_9gpUCJF9cp84j430nZvjF45bzabaI",
+      "expire_date": "2026-11-03T18:50:20.550Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "io7rk38vlag9j58zmd2w09edyrwtw283",
+    "fields": {
+      "session_data": ".eJxVzMsOwiAQheF3YS2kwMwALt37DM0MUFs1bdLLyvju2qQLXZ__Oy_V8rb27bbUuR2KOiu0EZOlqAsGrwF91pzAa4-BqaKFYL06_TLh_Kjjbsudx9tk8jSu8yBmT8yxLuY6lfq8HO3fQc9L_9U-ltIFAgkpAJBEEIyJKAZpokOuBRsnxFG4o5wcQ8aObUKXqgPI6v0BCeo_kA:1xJFJp:n1dnnv5-UJbSBrVMHVDQaX0HqeGbucnrmDdi96dx8LE",
+      "expire_date": "2026-11-03T19:16:17.552Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "514km4kdvzsbbxfdmmzyjm7sx7af5ttb",
+    "fields": {
+      "session_data": ".eJxVjEsOgjAQQO_StZB-ZqYtS_eegUw_CGrAUEg0xrsrCQtdv89LtLwufbuWPLdDEo1A5dArclVCaypAEyv2YCqDlimjAquMOPxmgeM1j1ubLjyepzpO4zIPod6UeqelPk0p3467-zfoufTf2riUOksQrLcAFBwEdJ7I2SCdRs4JpQ7ELnBH0WuGiB0rj9pnDRC3acmlDNPY5sd9mJ-iUVp6kvL9AfbaR_8:1xJIxx:DN1kjdPGzaIwLNBxqKT5p_AfuB5DPtFK6L6eR_gxfQs",
+      "expire_date": "2026-11-03T23:09:57.022Z"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "qxi87gc9tro4wn5llafh0uz86uknxws3",
+    "fields": {
+      "session_data": ".eJxVzDkOwjAQheG7uMZWxh57PJT0nCEab4RFiZSlQtwdRUoB9fu_91a9bOvQb0ud-3tRZ5UTV-bodERBjcU3LRVZIzlA6moJ1qrTL0uSn3XcbXnIeJtMnsZ1viezJ-ZYF3OdSn1djvbvYJBl2DXYBtaDF4JIUiAVoAQ2NMihsHQEJBE7ppqTB24WCYnRtWyDS6Q-X64yQAQ:1xJZPB:J3S0cuCeIOFRHnnzeBxaxoDmdkVVKPl9xEL6KE8D3cI",
+      "expire_date": "2026-11-04T16:43:09.440Z"
+    }
+  },
+  {
+    "model": "token_blacklist.outstandingtoken",
+    "pk": 1,
+    "fields": {
+      "user": "51859168-d573-453c-a943-357a6e514713",
+      "jti": "08a6feb286ba41e8b797834444e23f55",
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc5MzAyNjk1MywiaWF0IjoxNzkwNDM0OTUzLCJqdGkiOiIwOGE2ZmViMjg2YmE0MWU4Yjc5NzgzNDQ0NGUyM2Y1NSIsInVzZXJfaWQiOiI1MTg1OTE2OC1kNTczLTQ1M2MtYTk0My0zNTdhNmU1MTQ3MTMifQ.KSNiAc88JuUXNg3orPiBzGcG0DYeUcwmHkj9c2HwLKk",
+      "created_at": "2026-09-26T15:02:33.027Z",
+      "expires_at": "2026-10-26T15:02:33Z"
+    }
+  },
+  {
+    "model": "token_blacklist.outstandingtoken",
+    "pk": 2,
+    "fields": {
+      "user": "51859168-d573-453c-a943-357a6e514713",
+      "jti": "4262b126798a48138727b00eac60ab96",
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc5MzI5MzMwNCwiaWF0IjoxNzkwNzAxMzA0LCJqdGkiOiI0MjYyYjEyNjc5OGE0ODEzODcyN2IwMGVhYzYwYWI5NiIsInVzZXJfaWQiOiI1MTg1OTE2OC1kNTczLTQ1M2MtYTk0My0zNTdhNmU1MTQ3MTMifQ.OFOBlli4eOn8H12awEg69Kxu7wE-7Ls_yDipOgI1SEY",
+      "created_at": "2026-09-29T17:01:44.121Z",
+      "expires_at": "2026-10-29T17:01:44Z"
+    }
+  },
+  {
+    "model": "token_blacklist.outstandingtoken",
+    "pk": 3,
+    "fields": {
+      "user": "51859168-d573-453c-a943-357a6e514713",
+      "jti": "0ac1d8860ed943f088d77bd2919c9ed9",
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc5MzM1OTg2OSwiaWF0IjoxNzkwNzY3ODY5LCJqdGkiOiIwYWMxZDg4NjBlZDk0M2YwODhkNzdiZDI5MTljOWVkOSIsInVzZXJfaWQiOiI1MTg1OTE2OC1kNTczLTQ1M2MtYTk0My0zNTdhNmU1MTQ3MTMifQ.AVBxoLr_XcCm9WXI6bW4yVyJMJpmFZCZgxUfhpmMSBc",
+      "created_at": "2026-09-30T11:31:09.974Z",
+      "expires_at": "2026-10-30T11:31:09Z"
+    }
+  },
+  {
+    "model": "token_blacklist.blacklistedtoken",
+    "pk": 1,
+    "fields": {
+      "token": 2,
+      "blacklisted_at": "2026-09-29T17:04:31.493Z"
+    }
+  }
+]

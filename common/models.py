@@ -47,6 +47,7 @@ class SoftDeleteModel(TimeStampedModel):
 
     class Meta:
         abstract = True
+        base_manager_name = 'all_objects'
 
     def delete(self, using=None, keep_parents=False):
         """Soft delete: set deleted_at instead of removing from DB."""
