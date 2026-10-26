@@ -126,6 +126,20 @@ def analyze_entry(self, entry_id: str):
             analysis.sentiment_status = 'skipped'
             analysis.save(update_fields=['sentiment_status'])
 
+    # ── 7-class Emotion Classification (French-emotion model) ───────────────
+    try:
+        from ai.services.emotion_service import classify_emotion
+        emo_res = classify_emotion(content, lang=lang)
+        analysis.emotion = emo_res.get('emotion', 'neutre')
+        analysis.emotion_score = emo_res.get('score', 0.5)
+        analysis.emotion_status = 'completed'
+        analysis.save(update_fields=['emotion', 'emotion_score', 'emotion_status'])
+        logger.info("Emotion classification for %s: %s (score=%.2f)", entry_id, analysis.emotion, analysis.emotion_score or 0)
+    except Exception as exc:
+        logger.error("Emotion classification failed for %s: %s", entry_id, exc)
+        analysis.emotion_status = 'failed'
+        analysis.save(update_fields=['emotion_status'])
+
     # ── Free image generation ───────────────────────────────────────────────
     if getattr(prefs, 'image_generation_enabled', True):
         try:

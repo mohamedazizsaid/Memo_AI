@@ -135,3 +135,22 @@ class JournalEntry(SoftDeleteModel):
         # Drop the editor's markdown markers so cards show clean prose.
         text = self.content.replace('**', '').replace('*', '')
         return text[:200] + ('...' if len(text) > 200 else '')
+
+    @property
+    def detected_emotion(self):
+        try:
+            if hasattr(self, 'ai_analysis') and self.ai_analysis.emotion:
+                return self.ai_analysis.emotion
+        except Exception:
+            pass
+        return ''
+
+    @property
+    def detected_emotion_data(self):
+        try:
+            if hasattr(self, 'ai_analysis') and self.ai_analysis.emotion:
+                return self.ai_analysis.emotion_data
+        except Exception:
+            pass
+        return {}
+
