@@ -448,7 +448,25 @@
   }
 
   // ── Initial paint ──────────────────────────────────────────────────────
-  if (hidden.theme) applyTheme(hidden.theme.value);
+  var activeTheme = (function () {
+    try {
+      var stored = localStorage.getItem('memo-theme');
+      if (stored === 'light' || stored === 'dark') return stored;
+    } catch (e) {}
+    var docTheme = document.documentElement.getAttribute('data-theme');
+    if (docTheme === 'light' || docTheme === 'dark') return docTheme;
+    if (hidden.theme && hidden.theme.value && hidden.theme.value !== 'system') {
+      return hidden.theme.value;
+    }
+    try {
+      if (localStorage.getItem('memo-theme') === 'system') return 'system';
+    } catch (e) {}
+    return (hidden.theme && hidden.theme.value) || 'light';
+  })();
+
+  if (hidden.theme) {
+    selectChoice('theme', activeTheme);
+  }
   if (hidden.language) applyLang(hidden.language.value);
   if (reduceInput && reduceInput.checked) syncMotion();
   if (reminderTime && !reminderTime.value) reminderTime.value = '20:00';

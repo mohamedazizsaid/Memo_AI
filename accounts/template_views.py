@@ -183,6 +183,13 @@ class TemplateRegisterView(View):
                 user.avatar = request.POST.get('avatar_url').strip()
                 user.save(update_fields=['avatar'])
 
+            # Capture initial theme preference from registration state
+            theme = request.POST.get('theme', '').strip()
+            if theme in dict(UserPreferences.THEME_CHOICES):
+                prefs, _ = UserPreferences.objects.get_or_create(user=user)
+                prefs.theme = theme
+                prefs.save(update_fields=['theme'])
+
             login(request, user)
             messages.success(request, f'Compte cree avec succes ! Bienvenue, {user.first_name} !')
             # New accounts always meet the animated onboarding first.
@@ -212,9 +219,16 @@ class TemplateOnboardingView(View):
         prefs, _ = UserPreferences.objects.get_or_create(user=request.user)
 
         if request.POST.get('skip') == '1':
+            theme = request.POST.get('theme', '').strip()
+            if theme in dict(UserPreferences.THEME_CHOICES):
+                prefs.theme = theme
+            lang = request.POST.get('language', '').strip()
+            if lang in dict(UserPreferences.LANGUAGE_CHOICES):
+                prefs.language = lang
+                request.session['django_language'] = lang
             prefs.onboarding_completed = True
             prefs.onboarding_completed_at = timezone.now()
-            prefs.save(update_fields=['onboarding_completed', 'onboarding_completed_at'])
+            prefs.save()
             messages.info(request, 'Vous pourrez modifier ces choix dans vos préférences.'
                           if not str(getattr(request, 'LANGUAGE_CODE', 'fr')).startswith('en')
                           else 'You can change these choices anytime in your preferences.')

@@ -51,6 +51,7 @@
 
         <form method="post" action="" id="register-form" class="auth__form" enctype="multipart/form-data" novalidate>
           {% csrf_token %}
+          <input type="hidden" name="theme" id="register-theme" value="">
 
           {% if form.non_field_errors %}
             <div class="form-error-banner" role="alert">{{ form.non_field_errors }}</div>
@@ -437,6 +438,17 @@ document.addEventListener('DOMContentLoaded', function() {
       if (fileInput) fileInput.value = '';
       if (urlInput) urlInput.value = '';
     });
+  }
+
+  // Capture active theme state so new user preferences inherit current theme
+  var regTheme = document.getElementById('register-theme');
+  if (regTheme) {
+    var currentTheme = '';
+    try { currentTheme = localStorage.getItem('memo-theme'); } catch (e) {}
+    if (!currentTheme) {
+      currentTheme = document.documentElement.getAttribute('data-theme') || 'system';
+    }
+    regTheme.value = currentTheme;
   }
 });
 </script>

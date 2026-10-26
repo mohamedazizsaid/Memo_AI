@@ -53,6 +53,19 @@
     <input type="hidden" name="gender" id="ob-gender" value="{{ preferences.gender }}">
     <input type="hidden" name="profile_visibility" id="ob-visibility" value="{{ preferences.profile_visibility|default:'private' }}">
     <input type="hidden" name="theme" id="ob-theme" value="{{ preferences.theme|default:'system' }}">
+    <script>
+      (function() {
+        try {
+          var stored = localStorage.getItem('memo-theme') || document.documentElement.getAttribute('data-theme');
+          if (stored === 'light' || stored === 'dark') {
+            var thInput = document.getElementById('ob-theme');
+            if (thInput && (!thInput.value || thInput.value === 'system')) {
+              thInput.value = stored;
+            }
+          }
+        } catch (e) {}
+      })();
+    </script>
     <input type="hidden" name="language" id="ob-language" value="{{ current_lang }}">
 
     <main class="ob__stage" id="ob-stage">
@@ -356,5 +369,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/onboarding.js' %}?v=20261019_3" defer></script>
+<script src="{% static 'js/onboarding.js' %}?v=20261026_1" defer></script>
 {% endblock %}
