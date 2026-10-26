@@ -38,15 +38,23 @@
 
       <div class="entry-card-footer">
         <span class="entry-word-count">{{ entry.word_count }} {% trans_text "mots" "words" %}</span>
-        {% if entry.ai_status == 'completed' %}
-          <span class="ai-badge">
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-label="{% trans_text 'Analyse IA complete' 'AI analysis complete' %}">
-              <circle cx="5" cy="5" r="4" stroke="currentColor" stroke-width="1.5"/>
-              <path d="M3 5l1.5 1.5L7 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            {% trans_text "IA" "AI" %}
-          </span>
-        {% endif %}
+        <div class="entry-card-badges">
+          {% if entry.detected_emotion %}
+            <span class="entry-card-emotion-chip" title="{% trans_text 'Émotion' 'Emotion' %} : {{ entry.detected_emotion_data.label }}">
+              <span class="entry-card-emotion-emoji">{{ entry.detected_emotion_data.emoji }}</span>
+              <span class="entry-card-emotion-label">{{ entry.detected_emotion_data.label }}</span>
+            </span>
+          {% endif %}
+          {% if entry.ai_status == 'completed' %}
+            <span class="ai-badge">
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-label="{% trans_text 'Analyse IA complete' 'AI analysis complete' %}">
+                <circle cx="5" cy="5" r="4" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M3 5l1.5 1.5L7 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              {% trans_text "IA" "AI" %}
+            </span>
+          {% endif %}
+        </div>
       </div>
     </div>
   </a>

@@ -91,6 +91,12 @@ class AIAnalysis(TimeStampedModel):
         return self.emotion_data.get('color', '#94a3b8')
 
     @property
+    def emotion_percent(self):
+        if self.emotion_score is not None:
+            return int(round(self.emotion_score * 100))
+        return None
+
+    @property
     def is_complete(self):
         completed = ['completed', 'failed', 'skipped']
         return (

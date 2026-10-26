@@ -159,6 +159,34 @@
           </div>
         {% endif %}
 
+        {% if entry.ai_analysis.emotion %}
+          <div class="ai-section">
+            <h3 class="ai-section-title">{% trans_text "Émotion dominante" "Dominant emotion" %}</h3>
+            <div class="sentiment-bar emotion-sentiment-bar">
+              <span class="sentiment-label emotion-detail-label" style="display: inline-flex; align-items: center; gap: 6px; font-weight: 600; color: var(--color-ink-black);">
+                <span style="font-size: 1.15rem; line-height: 1;">{{ entry.ai_analysis.emotion_emoji }}</span>
+                <span>{{ entry.ai_analysis.emotion_label }}</span>
+              </span>
+              {% if entry.ai_analysis.emotion_score is not None %}
+                <div class="sentiment-meter" role="progressbar"
+                     aria-valuemin="0" aria-valuemax="100"
+                     aria-valuenow="{{ entry.ai_analysis.emotion_percent }}"
+                     aria-label="{% trans_text 'Score de confiance' 'Confidence score' %}">
+                  <div class="sentiment-meter-fill" style="width: {{ entry.ai_analysis.emotion_percent }}%; background: {{ entry.ai_analysis.emotion_color }};"></div>
+                </div>
+                <span class="sentiment-label" style="color: var(--color-stone); font-size: 12px; font-variant-numeric: tabular-nums;">
+                  {{ entry.ai_analysis.emotion_percent }}%
+                </span>
+              {% endif %}
+            </div>
+            {% if entry.ai_analysis.emotion_data.description %}
+              <p class="ai-section-body" style="font-size: 13px; color: var(--color-stone); margin-top: 8px;">
+                {{ entry.ai_analysis.emotion_data.description }}
+              </p>
+            {% endif %}
+          </div>
+        {% endif %}
+
         {% if entry.ai_analysis.mood_insight %}
           <div class="ai-section">
             <h3 class="ai-section-title">{% trans_text "Insight emotionnel" "Emotional insight" %}</h3>

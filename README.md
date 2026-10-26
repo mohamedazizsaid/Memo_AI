@@ -97,12 +97,17 @@ MemoAI/
 │   ├── views.py               # Endpoints REST API CRUD journal
 │   └── management/commands/   # seed_demo_data, reset_demo_data
 │
-├── ai/                     # Pipeline de traitement IA
-│   ├── models.py              # AIAnalysis (résumé Gemini, sentiment RoBERTa, image Flux)
-│   ├── services/              # Connecteurs Gemini, HuggingFace, Pollinations, Face-API
-│   ├── tasks.py               # Tâches asynchrones Celery d'analyse multimodale
-│   ├── template_views.py      # Vue HTML du dashboard des Insights
-│   └── insight_views.py       # Endpoints REST API statistiques et tendances
+├── ai/                     # Pipeline de traitement IA & Machine Learning
+│   ├── models.py              # AIAnalysis (résumé Gemini, sentiment, classification 7 émotions, image Flux)
+│   ├── ml/                    # Modèles ML locaux (TF-IDF + SVM, CamemBERT fine-tuning)
+│   │   ├── train_baseline.py  # Entraînement TF-IDF + SVM calibré sur JusteLeo/French-emotion (82.7% acc)
+│   │   ├── train_camembert.py # Script d'entraînement / fine-tuning CamemBERT (Transformers)
+│   │   └── models/            # Poids sérialisés (emotion_svm.joblib)
+│   ├── services/              # emotion_service, connecteurs Gemini, HuggingFace, Pollinations, Face-API
+│   ├── tasks.py               # Tâches asynchrones Celery d'analyse multimodale & classification émotions
+│   ├── template_views.py      # Vue HTML Insights (distribution des 7 émotions & stats mensuelles)
+│   ├── insight_views.py       # Endpoints REST API statistiques et tendances
+│   └── management/commands/   # train_emotion_model, classify_emotions
 │
 ├── persons/                # Gestion des visages et des proches
 │   ├── models.py              # Person, FaceDetection (embeddings 128-d locaux)

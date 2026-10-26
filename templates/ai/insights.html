@@ -86,6 +86,117 @@
       </div>
     </div>
 
+    <!-- ═══════════════════════════════════════════════════════════════
+         INTELLIGENCE ÉMOTIONNELLE — SLIDER INTELLIGENT HORIZONTAL
+         Modèle French-Emotion (SVM & CamemBERT) + Stats mensuelles
+         ═══════════════════════════════════════════════════════════════ -->
+    <div class="insight-card insight-card--wide reveal emotion-showcase-card">
+      <div class="emotion-header-wrap">
+        <div class="emotion-header-titles">
+          <span class="emotion-header-badge">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M8 1L9.5 6H15L10.5 9L12 14L8 11L4 14L5.5 9L1 6H6.5L8 1Z" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+            {% trans_text "Machine Learning · Modèle French-Emotion" "Machine Learning · French-Emotion Model" %}
+          </span>
+          <h2 class="insight-card-title">{% trans_text "Intelligence émotionnelle & Évolution" "Emotional intelligence & evolution" %}</h2>
+        </div>
+
+        <div class="emotion-slider-controls">
+          <div class="emotion-tabs-pill" role="tablist" aria-label="Navigation émotionnelle">
+            <button type="button" class="emotion-tab-btn is-active" id="btn-tab-emotions" data-slide-target="0" role="tab" aria-selected="true">
+              <span>🎭</span> {% trans_text "7 Émotions IA" "7 AI Emotions" %}
+            </button>
+            <button type="button" class="emotion-tab-btn" id="btn-tab-monthly" data-slide-target="1" role="tab" aria-selected="false">
+              <span>📅</span> {% trans_text "Statistiques mensuelles" "Monthly statistics" %}
+            </button>
+          </div>
+          <div class="emotion-arrows-group">
+            <button type="button" class="emotion-arrow-btn" id="btn-emotion-prev" aria-label="{% trans_text 'Précédent' 'Previous' %}">‹</button>
+            <button type="button" class="emotion-arrow-btn" id="btn-emotion-next" aria-label="{% trans_text 'Suivant' 'Next' %}">›</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="emotion-slider-viewport" id="emotionSliderViewport">
+        <div class="emotion-slides-track" id="emotionSlidesTrack">
+
+          <!-- SLIDE 1 : Classification des 7 émotions IA -->
+          <div class="emotion-slide-panel" id="slide-panel-emotions" role="tabpanel">
+            {% if stats.emotion_total %}
+              <div class="emotion-grid-dual">
+                <!-- Halo impressionniste dominante -->
+                {% if stats.dominant_emotion %}
+                  <div class="emotion-halo-card" style="--dominant-color: {{ stats.dominant_emotion.color }};">
+                    <div class="emotion-halo-orb">
+                      <span>{{ stats.dominant_emotion.emoji }}</span>
+                    </div>
+                    <div class="emotion-halo-name">{{ stats.dominant_emotion.label }}</div>
+                    <div class="emotion-halo-pct">{{ stats.dominant_emotion.percent }}% {% trans_text "des souvenirs" "of memories" %}</div>
+                    <p class="emotion-halo-sub">
+                      {% trans_text "Émotion prédominante sur" "Predominant emotion over" %} {{ stats.emotion_total }} {% trans_text "entrées analysées avec le modèle IA French-Emotion." "entries analyzed with French-Emotion AI model." %}
+                    </p>
+                  </div>
+                {% endif %}
+
+                <!-- Barres des 7 émotions -->
+                <div class="sentiment-bars emotion-bars-col">
+                  {% for row in stats.emotion_rows %}
+                    <div class="sentiment-row" style="--mood-hue: {{ row.color }}; --bar-i: {{ forloop.counter0 }};">
+                      <span class="sentiment-row__label" style="display: inline-flex; align-items: center; gap: 7px; min-width: 110px;">
+                        <span style="font-size: 15px; line-height: 1;">{{ row.emoji }}</span>
+                        <span style="font-weight: 500;">{{ row.label }}</span>
+                      </span>
+                      <span class="sentiment-row__track">
+                        <span class="sentiment-row__fill" style="width: {{ row.percent }}%;"></span>
+                      </span>
+                      <span class="sentiment-row__value">{{ row.count }}<em>{{ row.percent }}%</em></span>
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+            {% else %}
+              <p class="insight-empty">{% trans_text "Aucune émotion analysée sur cette période." "No emotions analyzed in this period yet." %}</p>
+            {% endif %}
+          </div>
+
+          <!-- SLIDE 2 : Statistiques mensuelles des émotions -->
+          <div class="emotion-slide-panel" id="slide-panel-monthly" role="tabpanel">
+            {% if stats.monthly_emotions %}
+              <div class="monthly-deck-row">
+                {% for m in stats.monthly_emotions %}
+                  <div class="monthly-deck-card" style="--m-color: {{ m.top_color }};">
+                    <div class="monthly-deck-card__top">
+                      <span class="monthly-deck-card__name">{{ m.month_label }}</span>
+                      <span class="monthly-deck-card__badge">{{ m.total }} {% trans_text "souvenir(s)" "memory(ies)" %}</span>
+                    </div>
+                    <div class="monthly-dominant-banner">
+                      <span class="monthly-dominant-emoji">{{ m.top_emoji }}</span>
+                      <div>
+                        <div class="monthly-dominant-title">{% trans_text "Dominante" "Dominant" %} : {{ m.top_label }}</div>
+                        <div class="monthly-dominant-sub">{{ m.top_percent }}% {% trans_text "des écrits" "of entries" %}</div>
+                      </div>
+                    </div>
+                    <div class="monthly-mini-breakdown">
+                      {% for b in m.breakdown|slice:":3" %}
+                        <div class="monthly-mini-row">
+                          <span>{{ b.emoji }} {{ b.label }}</span>
+                          <span>{{ b.count }} <em style="font-style: normal; opacity: 0.8;">({{ b.percent }}%)</em></span>
+                        </div>
+                      {% endfor %}
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <p class="insight-empty">{% trans_text "Pas encore assez de recul mensuel." "Not enough monthly data yet." %}</p>
+            {% endif %}
+          </div>
+
+        </div>
+      </div>
+    </div>
+
     <!-- Sentiment from the AI analysis (real) -->
     <div class="insight-card reveal">
       <div class="insight-card-header">
@@ -289,6 +400,66 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     });
   });
+
+  // ── Intelligent Emotion Horizontal Slide Carousel ──────────────────
+  (function () {
+    var track = document.getElementById('emotionSlidesTrack');
+    if (!track) return;
+    var tabEmotions = document.getElementById('btn-tab-emotions');
+    var tabMonthly = document.getElementById('btn-tab-monthly');
+    var btnPrev = document.getElementById('btn-emotion-prev');
+    var btnNext = document.getElementById('btn-emotion-next');
+    var currentSlide = 0;
+
+    function goToSlide(index) {
+      currentSlide = Math.max(0, Math.min(1, index));
+      track.style.transform = 'translateX(-' + (currentSlide * 50) + '%)';
+      if (tabEmotions && tabMonthly) {
+        if (currentSlide === 0) {
+          tabEmotions.classList.add('is-active');
+          tabEmotions.setAttribute('aria-selected', 'true');
+          tabMonthly.classList.remove('is-active');
+          tabMonthly.setAttribute('aria-selected', 'false');
+        } else {
+          tabMonthly.classList.add('is-active');
+          tabMonthly.setAttribute('aria-selected', 'true');
+          tabEmotions.classList.remove('is-active');
+          tabEmotions.setAttribute('aria-selected', 'false');
+        }
+      }
+    }
+
+    if (tabEmotions) {
+      tabEmotions.addEventListener('click', function () { goToSlide(0); });
+    }
+    if (tabMonthly) {
+      tabMonthly.addEventListener('click', function () { goToSlide(1); });
+    }
+    if (btnPrev) {
+      btnPrev.addEventListener('click', function () { goToSlide(currentSlide - 1); });
+    }
+    if (btnNext) {
+      btnNext.addEventListener('click', function () { goToSlide(currentSlide + 1); });
+    }
+
+    // Touch swipe support
+    var viewport = document.getElementById('emotionSliderViewport');
+    if (viewport) {
+      var startX = 0;
+      viewport.addEventListener('touchstart', function (e) {
+        if (e.touches && e.touches.length) startX = e.touches[0].clientX;
+      }, { passive: true });
+      viewport.addEventListener('touchend', function (e) {
+        if (!e.changedTouches || !e.changedTouches.length) return;
+        var diffX = startX - e.changedTouches[0].clientX;
+        if (diffX > 40) {
+          goToSlide(1);
+        } else if (diffX < -40) {
+          goToSlide(0);
+        }
+      }, { passive: true });
+    }
+  })();
 });
 </script>
 {% endblock %}

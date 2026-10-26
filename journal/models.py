@@ -154,3 +154,12 @@ class JournalEntry(SoftDeleteModel):
             pass
         return {}
 
+    @property
+    def detected_emotion_percent(self):
+        try:
+            if hasattr(self, 'ai_analysis') and self.ai_analysis.emotion_percent is not None:
+                return self.ai_analysis.emotion_percent
+        except Exception:
+            pass
+        return None
+
