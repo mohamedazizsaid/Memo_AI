@@ -112,9 +112,17 @@
       mapEl.hidden = false;
 
       map = L.map(mapEl, { scrollWheelZoom: false, worldCopyJump: true });
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; OpenStreetMap'
+      var isDark = document.body.classList.contains('theme-dark') ||
+                   document.documentElement.getAttribute('data-theme') === 'dark' ||
+                   (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      var tileUrl = isDark
+        ? 'https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png'
+        : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+
+      L.tileLayer(tileUrl, {
+        subdomains: 'abcd',
+        maxZoom: 20,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>'
       }).addTo(map);
 
       var lat = parseFloat(latInput.value), lon = parseFloat(lonInput.value);

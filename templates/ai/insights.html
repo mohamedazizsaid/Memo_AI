@@ -169,30 +169,32 @@
           <!-- SLIDE 2 : Statistiques mensuelles des émotions -->
           <div class="emotion-slide-panel" id="slide-panel-monthly" role="tabpanel">
             {% if stats.monthly_emotions %}
-              <div class="monthly-deck-row">
-                {% for m in stats.monthly_emotions %}
-                  <div class="monthly-deck-card" style="--m-color: {{ m.top_color }};">
-                    <div class="monthly-deck-card__top">
-                      <span class="monthly-deck-card__name">{{ m.month_label }}</span>
-                      <span class="monthly-deck-card__badge">{{ m.total }} {% trans_text "souvenir(s)" "memory(ies)" %}</span>
-                    </div>
-                    <div class="monthly-dominant-banner">
-                      <span class="monthly-dominant-emoji">{{ m.top_emoji | safe }}</span>
-                      <div>
-                        <div class="monthly-dominant-title">{% trans_text "Dominante" "Dominant" %} : {{ m.top_label }}</div>
-                        <div class="monthly-dominant-sub">{{ m.top_percent }}% {% trans_text "des écrits" "of entries" %}</div>
+              <div class="monthly-scroll-wrapper">
+                <div class="monthly-deck-row" id="monthlyDeckRow">
+                  {% for m in stats.monthly_emotions %}
+                    <div class="monthly-deck-card" style="--m-color: {{ m.top_color }};">
+                      <div class="monthly-deck-card__top">
+                        <span class="monthly-deck-card__name">{{ m.month_label }}</span>
+                        <span class="monthly-deck-card__badge">{{ m.total }} {% trans_text "souvenir(s)" "memory(ies)" %}</span>
+                      </div>
+                      <div class="monthly-dominant-banner">
+                        <span class="monthly-dominant-emoji">{{ m.top_emoji | safe }}</span>
+                        <div>
+                          <div class="monthly-dominant-title">{% trans_text "Dominante" "Dominant" %} : {{ m.top_label }}</div>
+                          <div class="monthly-dominant-sub">{{ m.top_percent }}% {% trans_text "des écrits" "of entries" %}</div>
+                        </div>
+                      </div>
+                      <div class="monthly-mini-breakdown">
+                        {% for b in m.breakdown|slice:":3" %}
+                          <div class="monthly-mini-row">
+                            <span>{{ b.emoji | safe }} {{ b.label }}</span>
+                            <span>{{ b.count }} <em style="font-style: normal; opacity: 0.8;">({{ b.percent }}%)</em></span>
+                          </div>
+                        {% endfor %}
                       </div>
                     </div>
-                    <div class="monthly-mini-breakdown">
-                      {% for b in m.breakdown|slice:":3" %}
-                        <div class="monthly-mini-row">
-                          <span>{{ b.emoji | safe }} {{ b.label }}</span>
-                          <span>{{ b.count }} <em style="font-style: normal; opacity: 0.8;">({{ b.percent }}%)</em></span>
-                        </div>
-                      {% endfor %}
-                    </div>
-                  </div>
-                {% endfor %}
+                  {% endfor %}
+                </div>
               </div>
             {% else %}
               <p class="insight-empty">{% trans_text "Pas encore assez de recul mensuel." "Not enough monthly data yet." %}</p>
@@ -464,6 +466,20 @@ document.addEventListener('DOMContentLoaded', function () {
           goToSlide(0);
         }
       }, { passive: true });
+    }
+
+    // Intelligent horizontal scroll for monthly deck row
+    var deck = document.getElementById('monthlyDeckRow');
+    if (deck) {
+      deck.addEventListener('wheel', function (e) {
+        if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+          var maxScroll = deck.scrollWidth - deck.clientWidth;
+          if (maxScroll > 0 && ((e.deltaY > 0 && deck.scrollLeft < maxScroll) || (e.deltaY < 0 && deck.scrollLeft > 0))) {
+            e.preventDefault();
+            deck.scrollLeft += e.deltaY * 0.85;
+          }
+        }
+      }, { passive: false });
     }
   })();
 });

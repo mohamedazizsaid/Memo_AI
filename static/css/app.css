@@ -2368,16 +2368,53 @@ html.js .insight-card.reveal.is-visible .people-orbit__item {
   margin: 0;
 }
 
-/* Slide 2: Monthly Deck */
+/* Slide 2: Monthly Deck Intelligent Horizontal Scroll */
+.monthly-scroll-wrapper {
+  position: relative;
+  width: 100%;
+}
+
 .monthly-deck-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
   gap: 16px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding: 4px 4px 14px 4px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--app-line, rgba(0, 0, 0, 0.15)) transparent;
+}
+
+.monthly-deck-row::-webkit-scrollbar {
+  height: 6px;
+}
+
+.monthly-deck-row::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 999px;
+}
+
+.monthly-deck-row::-webkit-scrollbar-thumb {
+  background: var(--app-line, rgba(0, 0, 0, 0.18));
+  border-radius: 999px;
+  transition: background 0.2s;
+}
+
+.monthly-deck-row::-webkit-scrollbar-thumb:hover {
+  background: var(--app-accent, #c8963e);
 }
 
 .monthly-deck-card {
   position: relative;
-  padding: 16px 18px;
+  flex: 0 0 250px;
+  min-width: 250px;
+  max-width: 270px;
+  scroll-snap-align: start;
+  padding: 14px 16px;
   border-radius: 16px;
   background: var(--app-paper, #ffffff);
   border: 1px solid var(--app-line, rgba(0, 0, 0, 0.08));
@@ -2388,6 +2425,36 @@ html.js .insight-card.reveal.is-visible .people-orbit__item {
 .monthly-deck-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 10px 24px -10px rgba(0, 0, 0, 0.12);
+}
+
+.monthly-scroll-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.monthly-scroll-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--app-line, rgba(0, 0, 0, 0.12));
+  background: var(--app-paper, #ffffff);
+  color: var(--app-ink, #18181b);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.monthly-scroll-btn:hover {
+  background: var(--app-elevation, rgba(0, 0, 0, 0.06));
+  border-color: var(--app-accent, #c8963e);
+  color: var(--app-accent, #c8963e);
 }
 
 .monthly-deck-card__top {
@@ -2611,12 +2678,15 @@ html.js .insight-card.reveal.is-visible .people-orbit__item {
   }
 
   .monthly-deck-row {
-    grid-template-columns: 1fr;
     gap: 12px;
+    padding-bottom: 10px;
   }
 
   .monthly-deck-card {
-    padding: 14px 14px;
+    flex: 0 0 82%;
+    min-width: 220px;
+    max-width: 260px;
+    padding: 12px 14px;
     border-radius: 14px;
   }
 
