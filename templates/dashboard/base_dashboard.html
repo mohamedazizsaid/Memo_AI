@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+  <script>
+    /* Apply theme before first paint — same logic as base.html */
+    (function () {
+      try {
+        var s = localStorage.getItem("memo-theme") || "system";
+        if (s === "dark") document.documentElement.setAttribute("data-theme", "dark");
+        else if (s === "light") document.documentElement.setAttribute("data-theme", "light");
+        else if (s === "system" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches)
+          document.documentElement.setAttribute("data-theme", "dark");
+      } catch (e) {}
+    })();
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Admin Dashboard — MemoAI{% endblock %}</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,350;0,9..144,400;0,9..144,500;1,9..144,350&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  {% load static %}
+  <!-- Cosmos CSS (design system tokens) -->
+  <link rel="stylesheet" href="{% static 'css/cosmos.css' %}?v=20261027_1">
+  <!-- Dashboard CSS (sidebar + components) -->
+  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}?v=20261027_1">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<div class="dash-root">
+
+  <!-- ═══════════════════════ SIDEBAR ═══════════════════════ -->
+  <aside class="dash-sidebar" id="dashSidebar">
+
+    <!-- Logo / Brand -->
+    <div class="dash-sidebar-header">
+      <a href="{% url 'dashboard:overview' %}" class="dash-brand">
+        <!-- Dot cluster logo (identique cosmos) -->
+        <div class="dot-cluster dot-cluster--sm">
+          <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+          <div class="dot"></div><div class="dot dot--hidden"></div><div class="dot"></div>
+          <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        </div>
+        <div>
+          <div class="dash-brand-name">MemoAI</div>
+          <div class="dash-brand-sub">Admin Panel</div>
+        </div>
+      </a>
+      <span class="dash-admin-badge">
+        <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><circle cx="4" cy="4" r="4" fill="currentColor"/></svg>
+        Admin
+      </span>
+    </div>
+
+    <!-- Admin info -->
+    <div class="dash-admin-info">
+      <div class="dash-admin-avatar">
+        {% if request.user.avatar %}
+          <img src="{{ request.user.avatar }}" alt="{{ request.user.full_name }}">
+        {% else %}
+          <span class="dash-admin-initials">{{ request.user.initials }}</span>
+        {% endif %}
+      </div>
+      <div class="dash-admin-meta">
+        <div class="dash-admin-name">{{ request.user.full_name }}</div>
+        <div class="dash-admin-email">{{ request.user.email }}</div>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="dash-nav" aria-label="Navigation Admin">
+
+      <span class="dash-nav-section-label">Vue d'ensemble</span>
+
+      <a href="{% url 'dashboard:overview' %}"
+         class="dash-nav-item {% block nav_overview %}{% endblock %}">
+        <svg class="dash-nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="1" y="1" width="6" height="6" rx="1.5"/>
+          <rect x="9" y="1" width="6" height="6" rx="1.5"/>
+          <rect x="1" y="9" width="6" height="6" rx="1.5"/>
+          <rect x="9" y="9" width="6" height="6" rx="1.5"/>
+        </svg>
+        Tableau de bord
+      </a>
+
+      <span class="dash-nav-section-label">Gestion</span>
+
+      <a href="{% url 'dashboard:users_list' %}"
+         class="dash-nav-item {% block nav_users %}{% endblock %}">
+        <svg class="dash-nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="8" cy="5" r="3"/>
+          <path d="M2 14c0-3.314 2.686-6 6-6s6 2.686 6 6"/>
+        </svg>
+        Utilisateurs
+        {% if total_users %}<span class="dash-nav-badge">{{ total_users }}</span>{% endif %}
+      </a>
+
+      <a href="{% url 'dashboard:notifications' %}"
+         class="dash-nav-item {% block nav_notifs %}{% endblock %}">
+        <svg class="dash-nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M8 1a5 5 0 0 1 5 5v3l1.5 2H1.5L3 9V6a5 5 0 0 1 5-5Z"/>
+          <path d="M6.5 13a1.5 1.5 0 0 0 3 0"/>
+        </svg>
+        Centre de notifications
+      </a>
+
+      <span class="dash-nav-section-label">Consommation</span>
+
+      <a href="{% url 'dashboard:ai_usage' %}"
+         class="dash-nav-item {% block nav_ai %}{% endblock %}">
+        <svg class="dash-nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M8 2l1.5 3L13 6l-2.5 2.5.5 3.5L8 10.5 5 12l.5-3.5L3 6l3.5-1L8 2z"/>
+        </svg>
+        Quotas AI
+      </a>
+
+      <a href="{% url 'dashboard:storage' %}"
+         class="dash-nav-item {% block nav_storage %}{% endblock %}">
+        <svg class="dash-nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <ellipse cx="8" cy="5" rx="6" ry="2.5"/>
+          <path d="M2 5v3c0 1.38 2.686 2.5 6 2.5S14 9.38 14 8V5"/>
+          <path d="M2 8v3c0 1.38 2.686 2.5 6 2.5S14 12.38 14 11V8"/>
+        </svg>
+        Stockage Cloudinary
+      </a>
+
+      <span class="dash-nav-section-label">Système</span>
+
+      <a href="{% url 'dashboard:logs' %}"
+         class="dash-nav-item {% block nav_logs %}{% endblock %}">
+        <svg class="dash-nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="2" y="2" width="12" height="12" rx="2"/>
+          <path d="M5 6h6M5 9h4"/>
+        </svg>
+        Logs plateforme
+      </a>
+
+    </nav>
+
+    <!-- Footer sidebar -->
+    <div class="dash-sidebar-footer">
+      <!-- Bouton visite site public -->
+      <a href="/" target="_blank" rel="noopener noreferrer" class="dash-visit-btn" id="visitPublicBtn">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="8" cy="8" r="6"/>
+          <path d="M8 2c0 0-3 2-3 6s3 6 3 6"/>
+          <path d="M8 2c0 0 3 2 3 6s-3 6-3 6"/>
+          <path d="M2 8h12"/>
+        </svg>
+        Voir le site public
+        <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-left:auto">
+          <path d="M3 9L9 3M9 3H5M9 3v4"/>
+        </svg>
+      </a>
+
+      <!-- Déconnexion -->
+      <form method="post" action="{% url 'accounts:logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="dash-nav-item" style="color:#dc2626">
+          <svg class="dash-nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:0.7">
+            <path d="M10 12l4-4-4-4M14 8H6"/>
+            <path d="M6 14H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h3"/>
+          </svg>
+          Déconnexion
+        </button>
+      </form>
+    </div>
+  </aside>
+
+  <!-- ═══════════════════════ MAIN ═══════════════════════ -->
+  <main class="dash-main">
+
+    <!-- Top Bar -->
+    <div class="dash-topbar">
+      <!-- Mobile burger -->
+      <button class="dash-mobile-toggle" id="dashMobileToggle" aria-label="Menu">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M3 5h12M3 9h12M3 13h12"/>
+        </svg>
+      </button>
+
+      <div class="dash-topbar-title">{% block topbar_title %}Dashboard{% endblock %}</div>
+
+      <div class="dash-topbar-actions">
+        <!-- Theme toggle (identique cosmos) -->
+        <button class="dash-theme-toggle" id="dashThemeToggle" aria-label="Changer de thème">
+          <!-- Sun -->
+          <svg class="icon-sun" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="8" cy="8" r="3"/>
+            <path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41"/>
+          </svg>
+          <!-- Moon -->
+          <svg class="icon-moon" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M13.5 9A6.5 6.5 0 1 1 7 2.5c-.5 2 0 5 3 7s5.5 0 3.5-.5Z"/>
+          </svg>
+        </button>
+
+        <!-- Retour journal -->
+        <a href="{% url 'journal:home' %}" class="btn btn-secondary btn-sm">
+          ← Mon journal
+        </a>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="dash-content">
+      {% if messages %}
+        {% for message in messages %}
+          <div class="dash-message dash-message--{{ message.tags }}" style="
+            padding: 12px 16px;
+            border-radius: var(--r-md);
+            margin-bottom: var(--sp-16);
+            font-family: var(--font-ui);
+            font-size: var(--text-caption);
+            background: {% if 'error' in message.tags %}#fee2e2{% elif 'success' in message.tags %}#dcfce7{% else %}var(--color-linen-canvas){% endif %};
+            color: {% if 'error' in message.tags %}#dc2626{% elif 'success' in message.tags %}#16a34a{% else %}var(--color-stone){% endif %};
+            border: 1px solid {% if 'error' in message.tags %}#fecaca{% elif 'success' in message.tags %}#bbf7d0{% else %}var(--border-subtle){% endif %};
+          ">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+
+</div>
+
+<!-- Overlay mobile -->
+<div class="dash-overlay" id="dashOverlay" style="
+  display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4);
+  z-index:99; backdrop-filter:blur(4px);
+" onclick="closeSidebar()"></div>
+
+{% block extra_js %}{% endblock %}
+
+<script>
+/* ── Theme toggle ── */
+const dashThemeBtn = document.getElementById('dashThemeToggle');
+if (dashThemeBtn) {
+  dashThemeBtn.addEventListener('click', function () {
+    const html = document.documentElement;
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    const next = isDark ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    try { localStorage.setItem('memo-theme', next); } catch(e) {}
+  });
+}
+
+/* ── Mobile sidebar ── */
+const dashSidebar  = document.getElementById('dashSidebar');
+const dashOverlay  = document.getElementById('dashOverlay');
+const mobileToggle = document.getElementById('dashMobileToggle');
+
+function openSidebar() {
+  dashSidebar && dashSidebar.classList.add('open');
+  dashOverlay.style.display = 'block';
+  document.body.style.overflow = 'hidden';
+}
+function closeSidebar() {
+  dashSidebar && dashSidebar.classList.remove('open');
+  dashOverlay.style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+mobileToggle && mobileToggle.addEventListener('click', openSidebar);
+
+/* ── CSRF helper for fetch() ── */
+function getCsrfToken() {
+  return document.cookie.split(';')
+    .map(c => c.trim()).filter(c => c.startsWith('csrftoken='))
+    .map(c => c.split('=')[1])[0] || '';
+}
+</script>
+</body>
+</html>
