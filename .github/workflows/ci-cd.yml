@@ -11,7 +11,7 @@ name: 🚀 MemoAI CI/CD
 
 on:
   push:
-    branches: [main]
+    branches: [main,aziz]
   pull_request:
     branches: [main]
   workflow_dispatch:
