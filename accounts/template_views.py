@@ -59,7 +59,9 @@ def _needs_onboarding(user):
 
 
 def _post_login_target(user):
-    """Send new accounts to the onboarding before the dashboard."""
+    """Send staff users to the admin dashboard; others to journal (or onboarding)."""
+    if user.is_staff:
+        return '/admin-panel/'
     if _needs_onboarding(user):
         return reverse('accounts:onboarding')
     return reverse('journal:home')

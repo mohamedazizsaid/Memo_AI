@@ -33,48 +33,49 @@ class Command(BaseCommand):
         password = options['password']
         force = options['force']
 
-        self.stdout.write(self.style.MIGRATE_HEADING("\n🛡️  MemoAI — Seed Admin"))
-        self.stdout.write("─" * 40)
+        self.stdout.write(self.style.MIGRATE_HEADING("\n[MemoAI] Seed Admin"))
+        self.stdout.write("-" * 40)
 
-        # Vérifier si le compte existe déjà
+        # Verifier si le compte existe deja
         existing = User.objects.filter(email=email).first()
 
         if existing and not force:
             self.stdout.write(
-                self.style.WARNING(f"⚠  L'admin '{email}' existe déjà. Utilisez --force pour recréer.")
+                self.style.WARNING(f"[!] L'admin '{email}' existe deja. Utilisez --force pour recreer.")
             )
             self._ensure_preferences(existing)
             self._ensure_quota(existing)
-            self.stdout.write(self.style.SUCCESS(f"✓  Compte admin vérifié : {email}"))
+            self.stdout.write(self.style.SUCCESS(f"[OK] Compte admin verifie : {email}"))
             return
 
         if existing and force:
             existing.delete()
-            self.stdout.write(self.style.WARNING(f"  Ancien compte admin supprimé."))
+            self.stdout.write(self.style.WARNING("    Ancien compte admin supprime."))
 
-        # Créer le superuser
+        # Creer le superuser
         admin = User.objects.create_superuser(
             email=email,
             password=password,
             first_name='Admin',
             last_name='MemoAI',
         )
-        self.stdout.write(self.style.SUCCESS(f"✓  Admin créé : {email}"))
+        self.stdout.write(self.style.SUCCESS(f"[OK] Admin cree : {email}"))
 
-        # Créer les préférences
+        # Creer les preferences
         self._ensure_preferences(admin)
-        self.stdout.write(self.style.SUCCESS("✓  Préférences créées"))
+        self.stdout.write(self.style.SUCCESS("[OK] Preferences creees"))
 
-        # Créer le quota AI
+        # Creer le quota AI
         self._ensure_quota(admin)
-        self.stdout.write(self.style.SUCCESS("✓  Quota AI initialisé"))
+        self.stdout.write(self.style.SUCCESS("[OK] Quota AI initialise"))
 
-        self.stdout.write("\n" + "─" * 40)
-        self.stdout.write(self.style.SUCCESS("✅  Compte admin prêt !"))
+        self.stdout.write("\n" + "-" * 40)
+        self.stdout.write(self.style.SUCCESS("[DONE] Compte admin pret !"))
         self.stdout.write(f"   Email    : {email}")
         self.stdout.write(f"   Password : {password}")
         self.stdout.write(f"   URL      : /admin-panel/")
-        self.stdout.write("─" * 40 + "\n")
+        self.stdout.write("-" * 40 + "\n")
+
 
     def _ensure_preferences(self, user):
         from accounts.models import UserPreferences
