@@ -2,8 +2,8 @@
 # MemoAI — CI/CD Pipeline (GitHub Actions)
 # ============================================================
 # Déclenché sur :
-#   - Push sur `main` → tests + build Docker + deploy Render
-#   - Push sur `aziz` ou toute PR → tests uniquement
+#   - Push sur `main` ou `aziz` → tests + build Docker + deploy Render
+#   - PR sur `main` → tests uniquement
 #   - Workflow manuel (workflow_dispatch)
 # ============================================================
 
@@ -105,13 +105,13 @@ jobs:
         run: python manage.py check --deploy 2>&1 | grep -v "WARNINGS" || true
 
   # ────────────────────────────────────────────────────────────
-  # JOB 2 — Build & Push Docker Image (main uniquement)
+  # JOB 2 — Build & Push Docker Image (main et aziz)
   # ────────────────────────────────────────────────────────────
   build:
     name: 🐳 Build Docker Image
     runs-on: ubuntu-latest
     needs: test
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/aziz') && github.event_name == 'push'
     timeout-minutes: 20
 
     permissions:
@@ -155,13 +155,13 @@ jobs:
           target: runtime
 
   # ────────────────────────────────────────────────────────────
-  # JOB 3 — Deploy to Render (main uniquement)
+  # JOB 3 — Deploy to Render (main et aziz)
   # ────────────────────────────────────────────────────────────
   deploy:
     name: 🚀 Deploy to Render
     runs-on: ubuntu-latest
     needs: [test, build]
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/aziz') && github.event_name == 'push'
     timeout-minutes: 10
 
     steps:
