@@ -56,6 +56,16 @@ class AIAnalysis(TimeStampedModel):
         default='pending'
     )
 
+    # Voice emotion (détection émotionnelle sur la voix — estimation complémentaire non certaine)
+    voice_emotion = models.CharField(max_length=30, blank=True)
+    voice_emotion_score = models.FloatField(null=True, blank=True)
+    voice_emotion_uncertain = models.BooleanField(default=True)
+    voice_emotion_status = models.CharField(
+        max_length=20,
+        choices=[('pending', 'Pending'), ('completed', 'Completed'), ('failed', 'Failed'), ('skipped', 'Skipped')],
+        default='pending'
+    )
+
     # Generated image URL (from Pollinations + local media)
     generated_image_url = models.CharField(max_length=1000, blank=True)
     image_prompt = models.TextField(blank=True)
@@ -100,6 +110,22 @@ class AIAnalysis(TimeStampedModel):
     def emotion_percent(self):
         if self.emotion_score is not None:
             return int(round(self.emotion_score * 100))
+        return None
+
+    @property
+    def voice_emotion_data(self):
+        """Métadonnées de l'émotion vocale détectée."""
+        from ai.services.emotion_service import get_emotion_meta
+        return get_emotion_meta(self.voice_emotion or 'neutre')
+
+    @property
+    def voice_emotion_label(self):
+        return self.voice_emotion_data.get('label', '')
+
+    @property
+    def voice_emotion_percent(self):
+        if self.voice_emotion_score is not None:
+            return int(round(self.voice_emotion_score * 100))
         return None
 
     @property
