@@ -276,20 +276,33 @@ def _persist_uploaded_media(entry, files):
     saved = []
     failed = 0
     for f in files:
+        if hasattr(f, 'seek'):
+            try:
+                f.seek(0)
+            except Exception:
+                pass
+
         content_type = (getattr(f, 'content_type', '') or '').lower()
         if content_type.startswith('image/'):
             media_type = 'IMAGE'
+        elif content_type.startswith('video/'):
+            media_type = 'VIDEO'
         elif content_type.startswith('audio/'):
             media_type = 'AUDIO'
         else:
             ext = str(getattr(f, 'name', '')).lower().rsplit('.', 1)[-1]
-            media_type = 'AUDIO' if ext in ('mp3', 'wav', 'ogg', 'webm', 'm4a', 'mp4') else 'IMAGE'
+            if ext in ('mp4', 'webm', 'mov', 'avi', 'mkv', 'm4v', 'ogv'):
+                media_type = 'VIDEO'
+            elif ext in ('mp3', 'wav', 'ogg', 'm4a', 'aac', 'flac', 'opus'):
+                media_type = 'AUDIO'
+            else:
+                media_type = 'IMAGE'
 
         try:
             url, public_id = upload_media(f, media_type, entry.user_id)
         except Exception as exc:
             failed += 1
-            logger.warning('Cloudinary media upload failed for entry %s: %s', entry.pk, exc)
+            logger.warning('Cloudinary media upload failed for entry %s (%s): %s', entry.pk, getattr(f, 'name', ''), exc)
             continue
 
         media = Media.objects.create(
@@ -304,6 +317,7 @@ def _persist_uploaded_media(entry, files):
         )
         saved.append(media)
     return saved, failed
+
 
 
 def _attach_cover_image(entry, url, alt=''):
@@ -421,6 +435,11 @@ def _handle_media_processing(entry, media_list, face_data):
                     process_audio_media.delay(str(media.id))
                 except Exception as exc:
                     logger.warning('Audio processing trigger failed: %s', exc)
+
+        elif media.media_type == 'VIDEO':
+            from media_app.models import Media
+            Media.objects.filter(pk=media.pk).update(processing_status='completed')
+
 
 
 @login_required

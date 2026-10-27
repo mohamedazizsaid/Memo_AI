@@ -16,6 +16,7 @@ class Media(TimeStampedModel):
     MEDIA_TYPE_CHOICES = [
         ('IMAGE', 'Image'),
         ('AUDIO', 'Audio'),
+        ('VIDEO', 'Video'),
         ('GENERATED_IMAGE', 'Generated Image'),
     ]
 

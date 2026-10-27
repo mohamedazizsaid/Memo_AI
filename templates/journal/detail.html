@@ -110,6 +110,14 @@
                 {% trans_text "Votre navigateur ne supporte pas l'audio." "Your browser does not support audio." %}
               </audio>
             </div>
+          {% elif media.media_type == 'VIDEO' %}
+            <div class="gallery-item gallery-item--video glass-card" id="video-{{ media.id }}" style="padding:12px;">
+              <video controls preload="metadata" class="gallery-video" style="max-width:100%; border-radius:var(--r-md); display:block; margin:0 auto; background:#000;">
+                <source src="{{ media.file_url }}" type="{{ media.mime_type|default:'video/mp4' }}">
+                {% trans_text "Votre navigateur ne supporte pas la vidéo." "Your browser does not support video." %}
+              </video>
+              {% if media.caption %}<p class="gallery-caption">{{ media.caption }}</p>{% endif %}
+            </div>
           {% endif %}
         {% endfor %}
       </div>
@@ -259,10 +267,11 @@
                   <line x1="12" y1="16" x2="12.01" y2="16"/>
                 </svg>
                 <span>
-                  {% trans_text
-                    "Estimation indicative basée sur l'analyse acoustique de la voix. Non certaine — les modèles sont entraînés principalement sur des données en anglais et peuvent être imprécis."
-                    "Indicative estimate based on acoustic voice analysis. Not definitive — models are trained primarily on English data and may be inaccurate."
-                  %}
+                  {% if current_lang == 'en' %}
+                    Indicative estimate based on acoustic voice analysis. Not definitive — models are trained primarily on English data and may be inaccurate.
+                  {% else %}
+                    Estimation indicative basée sur l'analyse acoustique de la voix. Non certaine — les modèles sont entraînés principalement sur des données en anglais et peuvent être imprécis.
+                  {% endif %}
                 </span>
               </div>
             </div>

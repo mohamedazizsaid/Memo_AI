@@ -100,11 +100,28 @@ def upload_file(
     if public_id:
         options['public_id'] = public_id
 
+    if hasattr(file, 'seek'):
+        try:
+            file.seek(0)
+        except Exception:
+            pass
+
     try:
         result = cloudinary.uploader.upload(file, **options)
     except Exception as exc:  # pragma: no cover - network/provider failure
-        logger.error('Cloudinary upload failed (folder=%s): %s', full_folder, exc)
-        raise CloudinaryMediaError(f'Cloudinary upload failed: {exc}') from exc
+        # If specific resource_type failed (e.g. video sent as image), try 'auto'
+        if options.get('resource_type') != 'auto':
+            try:
+                options['resource_type'] = 'auto'
+                if hasattr(file, 'seek'):
+                    file.seek(0)
+                result = cloudinary.uploader.upload(file, **options)
+            except Exception as auto_exc:
+                logger.error('Cloudinary upload failed (folder=%s): %s (fallback error: %s)', full_folder, exc, auto_exc)
+                raise CloudinaryMediaError(f'Cloudinary upload failed: {exc}') from exc
+        else:
+            logger.error('Cloudinary upload failed (folder=%s): %s', full_folder, exc)
+            raise CloudinaryMediaError(f'Cloudinary upload failed: {exc}') from exc
 
     url = result.get('secure_url') or result.get('url')
     if not url:
@@ -113,15 +130,25 @@ def upload_file(
 
 
 def upload_media(file, media_type: str, user_id, kind: str | None = 'journal') -> tuple[str, str]:
-    """Upload a journal photo/audio note and return ``(url, public_id)``."""
-    is_audio = str(media_type).upper() == 'AUDIO'
-    subfolder = 'audio' if is_audio else 'images'
+    """Upload a journal photo/video/audio note and return ``(url, public_id)``."""
+    mt = str(media_type).upper()
+    if mt == 'AUDIO':
+        subfolder = 'audio'
+        res_type = 'video'  # Cloudinary classifies audio as video resource_type
+    elif mt == 'VIDEO':
+        subfolder = 'videos'
+        res_type = 'video'
+    else:
+        subfolder = 'images'
+        res_type = 'image'
+
     folder = f'{kind}/{user_id}/{subfolder}' if kind else f'{user_id}/{subfolder}'
     return upload_file(
         file,
         folder,
-        resource_type='video' if is_audio else 'image',
+        resource_type=res_type,
     )
+
 
 
 def upload_avatar(file, user_id, kind: str = 'avatars') -> str:
