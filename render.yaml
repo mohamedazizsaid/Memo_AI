@@ -12,7 +12,7 @@ services:
     runtime: docker
     dockerfilePath: ./Dockerfile
     dockerContext: .
-    branch: main                    # branche de production
+    branch: aziz                    # branche de production
     region: frankfurt               # ou oregon / singapore selon ton audience
     plan: free                      # passe à starter ($7/mo) pour 0 spin-down
     
