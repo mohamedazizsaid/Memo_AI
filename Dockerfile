@@ -30,6 +30,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     APP_HOME=/app \
     PORT=8000 \
+    DEBUG=False \
     FRONTEND_URL=http://localhost:8000
 
 WORKDIR $APP_HOME
@@ -54,12 +55,15 @@ RUN pip install --no-cache-dir --no-index --find-links=/wheels -r requirements.t
 # Copy project source
 COPY --chown=memoai:memoai . .
 
-# Ensure static, media and ML model directories exist with correct permissions
-RUN mkdir -p /app/staticfiles /app/mediafiles /app/ai/ml/models /app/ai/ml/data && \
-    chown -R memoai:memoai /app/staticfiles /app/mediafiles /app/ai/ml/models /app/ai/ml/data
+# Ensure static, media and ML model directories exist
+RUN mkdir -p /app/staticfiles /app/mediafiles /app/ai/ml/models /app/ai/ml/data
 
-# Collect static files (Whitenoise will serve them in production)
-RUN python manage.py collectstatic --noinput --settings=config.settings || true
+# Collect static files with DEBUG=False (WhiteNoise hashed manifests)
+RUN python manage.py collectstatic --noinput --settings=config.settings
+
+# Assign ownership to memoai user
+RUN chown -R memoai:memoai /app/staticfiles /app/mediafiles /app/ai/ml/models /app/ai/ml/data && \
+    chmod -R 775 /app/staticfiles /app/mediafiles /app/ai/ml/models /app/ai/ml/data
 
 USER memoai
 
@@ -69,8 +73,9 @@ EXPOSE $PORT
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD curl -f http://localhost:$PORT/health/ || exit 1
 
-# Start container (Render free tier / standalone Docker) : migrations + admin seed + Gunicorn
-CMD ["sh", "-c", "python manage.py migrate --noinput && \
+# Start container (Render free tier / standalone Docker) : staticfiles + migrations + admin seed + Gunicorn
+CMD ["sh", "-c", "python manage.py collectstatic --noinput && \
+    python manage.py migrate --noinput && \
     python manage.py seed_admin && \
     gunicorn config.wsgi:application \
     --bind 0.0.0.0:$PORT \
