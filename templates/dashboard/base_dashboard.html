@@ -22,9 +22,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,350;0,9..144,400;0,9..144,500;1,9..144,350&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   {% load static %}
   <!-- Cosmos CSS (design system tokens) -->
-  <link rel="stylesheet" href="{% static 'css/cosmos.css' %}?v=20261027_1">
+  <link rel="stylesheet" href="{% static 'css/cosmos.css' %}?v=20261027_layout2">
   <!-- Dashboard CSS (sidebar + components) -->
-  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}?v=20261027_1">
+  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}?v=20261027_layout2">
   {% block extra_css %}{% endblock %}
 </head>
 <body>
@@ -208,17 +208,9 @@
     <div class="dash-content">
       {% if messages %}
         {% for message in messages %}
-          <div class="dash-message dash-message--{{ message.tags }}" style="
-            padding: 12px 16px;
-            border-radius: var(--r-md);
-            margin-bottom: var(--sp-16);
-            font-family: var(--font-ui);
-            font-size: var(--text-caption);
-            background: {% if 'error' in message.tags %}#fee2e2{% elif 'success' in message.tags %}#dcfce7{% else %}var(--color-linen-canvas){% endif %};
-            color: {% if 'error' in message.tags %}#dc2626{% elif 'success' in message.tags %}#16a34a{% else %}var(--color-stone){% endif %};
-            border: 1px solid {% if 'error' in message.tags %}#fecaca{% elif 'success' in message.tags %}#bbf7d0{% else %}var(--border-subtle){% endif %};
-          ">
-            {{ message }}
+          <div class="dash-message dash-message--{{ message.tags }}">
+            <span>{{ message }}</span>
+            <button type="button" onclick="this.parentElement.remove()" style="background:none;border:none;cursor:pointer;opacity:0.6;font-size:16px;line-height:1;color:inherit;" aria-label="Fermer">✕</button>
           </div>
         {% endfor %}
       {% endif %}

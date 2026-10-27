@@ -148,15 +148,19 @@ class TemplateLoginView(View):
                 else:
                     request.session.set_expiry(0)
                 messages.success(request, f'Bienvenue, {user.first_name} !')
+                # Staff → redirection directe vers le dashboard admin (ou l'URL admin demandée)
+                if user.is_staff:
+                    target = _safe_next(request)
+                    if target and target.startswith('/admin-panel'):
+                        return redirect(target)
+                    return redirect('/admin-panel/')
+
                 if _needs_onboarding(user):
                     target = _safe_next(request)
                     return redirect(
                         f"{reverse('accounts:onboarding')}?next={target}" if target else 'accounts:onboarding'
                     )
-                # Staff → admin dashboard (ignorer le paramètre next)
-                if user.is_staff:
-                    return redirect('/admin-panel/')
-                next_url = request.GET.get('next') or request.POST.get('next') or ''
+                next_url = _safe_next(request)
                 return redirect(_with_welcome(next_url or reverse('journal:home')))
             else:
                 form.add_error(None, 'Email ou mot de passe incorrect.')

@@ -65,14 +65,7 @@
     <div class="dash-stat-meta">mots au total</div>
   </div>
 
-  <div class="dash-stat-card">
-    <div class="dash-stat-icon">
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 16l3-3 3 3 3-7 3 7"/></svg>
-    </div>
-    <div class="dash-stat-label">Utilisateurs bloqués</div>
-    <div class="dash-stat-value" style="color:{% if blocked_users > 0 %}#dc2626{% else %}inherit{% endif %}">{{ blocked_users }}</div>
-    <div class="dash-stat-meta">{{ active_users }} actifs</div>
-  </div>
+
 
 </div>
 
@@ -145,8 +138,6 @@
       </div>
       <div class="dash-panel-body">
         {% with total_s=sentiments.positive|default:0|add:sentiments.neutral|default:0|add:sentiments.negative|default:0 %}
-          {% for label, color, key in "Positif,#22c55e,positive|Neutre,#94a3b8,neutral|Négatif,#ef4444,negative"|ljust:3|cut:" " %}
-          {% endfor %}
           <!-- Sentiments bars -->
           {% if sentiments %}
             {% for sentiment, count in sentiments.items %}

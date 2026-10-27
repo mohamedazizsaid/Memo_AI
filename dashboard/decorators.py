@@ -10,7 +10,7 @@ from django.contrib import messages
 
 def admin_required(view_func):
     """
-    Décorateur pour les vues du dashboard admin.
+    Décorateur pour les vues du dashboard admin (compatible fonctions et method_decorator).
     - Redirige vers /comptes/connexion/ si non authentifié.
     - Redirige vers /journal/ si pas is_staff.
     """
@@ -25,16 +25,6 @@ def admin_required(view_func):
     return wrapper
 
 
-def admin_required_method(method):
-    """
-    Décorateur pour les méthodes de class-based views.
-    """
-    @functools.wraps(method)
-    def wrapper(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return redirect(f'/comptes/connexion/?next={request.path}')
-        if not request.user.is_staff:
-            messages.error(request, "Accès réservé aux administrateurs.")
-            return redirect('/journal/')
-        return method(self, request, *args, **kwargs)
-    return wrapper
+# Alias pour compatibilité method_decorator(admin_required_method, name='dispatch')
+admin_required_method = admin_required
+

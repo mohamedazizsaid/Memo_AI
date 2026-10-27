@@ -53,13 +53,6 @@
     <div class="dash-stat-value">{{ total_ai_img }}</div>
     <div class="dash-stat-meta">{{ type_bytes.IA|default:"0" }} MB</div>
   </div>
-  {% if cloudinary_usage %}
-  <div class="dash-stat-card">
-    <div class="dash-stat-label">Cloudinary global</div>
-    <div class="dash-stat-value">{{ cloudinary_usage.storage_mb }}<span style="font-size:16px;font-weight:400"> MB</span></div>
-    <div class="dash-stat-meta">Plan : {{ cloudinary_usage.plan }}</div>
-  </div>
-  {% endif %}
 </div>
 
 <!-- ── Cloudinary details ── -->
