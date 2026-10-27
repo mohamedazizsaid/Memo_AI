@@ -1,0 +1,189 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load static %}
+
+{% block title %}Utilisateurs — Admin MemoAI{% endblock %}
+{% block topbar_title %}Gestion des utilisateurs{% endblock %}
+{% block nav_users %}active{% endblock %}
+
+{% block content %}
+
+<!-- ── Page Header ── -->
+<div class="dash-page-header">
+  <div class="dash-page-header-row">
+    <div>
+      <h1 class="dash-page-title">Utilisateurs</h1>
+      <div class="dash-page-subtitle">{{ total }} utilisateurs enregistrés sur la plateforme</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Filtres ── -->
+<form method="get" class="dash-filters">
+  <div class="dash-search-wrapper">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+      <circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/>
+    </svg>
+    <input type="text" name="q" value="{{ q }}" placeholder="Rechercher email, prénom…"
+           class="dash-search-input" id="userSearch">
+  </div>
+
+  <select name="status" class="dash-filter-select" onchange="this.form.submit()">
+    <option value="">Tous les statuts</option>
+    <option value="active" {% if status == 'active' %}selected{% endif %}>Actifs</option>
+    <option value="blocked" {% if status == 'blocked' %}selected{% endif %}>Bloqués</option>
+    <option value="staff" {% if status == 'staff' %}selected{% endif %}>Staff</option>
+  </select>
+
+  <select name="lang" class="dash-filter-select" onchange="this.form.submit()">
+    <option value="">Toutes les langues</option>
+    <option value="fr" {% if lang == 'fr' %}selected{% endif %}>Français</option>
+    <option value="en" {% if lang == 'en' %}selected{% endif %}>English</option>
+  </select>
+
+  <button type="submit" class="btn btn-secondary btn-sm">Filtrer</button>
+  {% if q or status or lang %}
+    <a href="{% url 'dashboard:users_list' %}" class="btn btn-ghost btn-sm">✕ Effacer</a>
+  {% endif %}
+</form>
+
+<!-- ── Table ── -->
+<div class="dash-table-card">
+  <div class="dash-table-header">
+    <div class="dash-table-title">
+      {% if q or status or lang %}Résultats filtrés{% else %}Tous les utilisateurs{% endif %}
+    </div>
+  </div>
+
+  <div class="dash-table-wrapper">
+    <table class="dash-table">
+      <thead>
+        <tr>
+          <th>Utilisateur</th>
+          <th>Statut</th>
+          <th>Langue</th>
+          <th>Entrées</th>
+          <th>Quota AI</th>
+          <th>Inscription</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in users_data %}
+          {% with user=item.user quota=item.quota %}
+          <tr>
+            <!-- Utilisateur -->
+            <td>
+              <div class="dash-user-cell">
+                <div class="dash-user-avatar">
+                  {% if user.avatar %}
+                    <img src="{{ user.avatar }}" alt="{{ user.full_name }}">
+                  {% else %}
+                    <span class="dash-user-initials-sm">{{ user.initials }}</span>
+                  {% endif %}
+                </div>
+                <div>
+                  <div class="dash-user-name dash-truncate" style="max-width:160px">{{ user.full_name }}</div>
+                  <div class="dash-user-email dash-truncate" style="max-width:160px">{{ user.email }}</div>
+                </div>
+              </div>
+            </td>
+
+            <!-- Statut -->
+            <td>
+              {% if user.is_staff %}
+                <span class="dash-badge dash-badge--staff">Admin</span>
+              {% elif user.is_active %}
+                <span class="dash-badge dash-badge--active">
+                  <span class="dash-dot dash-dot--active"></span> Actif
+                </span>
+              {% else %}
+                <span class="dash-badge dash-badge--blocked">
+                  <span class="dash-dot dash-dot--blocked"></span> Bloqué
+                </span>
+              {% endif %}
+            </td>
+
+            <!-- Langue -->
+            <td>
+              <span class="dash-badge dash-badge--neutral">
+                {{ user.preferences.language|upper|default:"FR" }}
+              </span>
+            </td>
+
+            <!-- Entrées -->
+            <td>
+              <span style="font-weight:500">{{ item.entries_count }}</span>
+            </td>
+
+            <!-- Quota AI -->
+            <td style="min-width:120px">
+              {% if quota %}
+                <div class="dash-progress-label">
+                  <span>{{ quota.daily_count }}/{{ quota.DAILY_LIMIT }}</span>
+                </div>
+                <div class="dash-progress" style="width:100px">
+                  <div class="dash-progress-fill {% if quota.daily_count >= quota.DAILY_LIMIT %}dash-progress-fill--danger{% elif quota.daily_count >= 2 %}dash-progress-fill--warning{% endif %}"
+                       style="width:{{ quota.percent_used }}%"></div>
+                </div>
+              {% else %}
+                <span class="dash-badge dash-badge--neutral">—</span>
+              {% endif %}
+            </td>
+
+            <!-- Inscription -->
+            <td class="dash-text-mono" style="white-space:nowrap">
+              {{ user.created_at|date:"d/m/Y" }}
+            </td>
+
+            <!-- Actions -->
+            <td>
+              <div class="dash-row" style="gap:4px">
+                <a href="{% url 'dashboard:user_detail' user.id %}"
+                   class="btn btn-secondary btn-sm" title="Voir le profil">
+                  Détails
+                </a>
+              </div>
+            </td>
+          </tr>
+          {% endwith %}
+        {% empty %}
+          <tr>
+            <td colspan="7">
+              <div class="dash-empty">
+                <div class="dash-empty-title">Aucun utilisateur trouvé</div>
+                <div class="dash-empty-desc">Modifiez vos filtres ou recherche.</div>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="dash-table-footer">
+    <span>{{ total }} résultat{{ total|pluralize }}</span>
+    <div class="dash-pagination">
+      {% if has_prev %}
+        <a href="?page={{ page|add:'-1' }}&q={{ q }}&status={{ status }}&lang={{ lang }}"
+           class="dash-page-btn">‹</a>
+      {% else %}
+        <span class="dash-page-btn" disabled>‹</span>
+      {% endif %}
+
+      {% for p in page_range %}
+        <a href="?page={{ p }}&q={{ q }}&status={{ status }}&lang={{ lang }}"
+           class="dash-page-btn {% if p == page %}active{% endif %}">{{ p }}</a>
+      {% endfor %}
+
+      {% if has_next %}
+        <a href="?page={{ page|add:'1' }}&q={{ q }}&status={{ status }}&lang={{ lang }}"
+           class="dash-page-btn">›</a>
+      {% else %}
+        <span class="dash-page-btn" disabled>›</span>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

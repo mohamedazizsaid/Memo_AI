@@ -14,8 +14,11 @@ urlpatterns = [
     # ── Health check (Docker / Render / CI) ────────────────────────
     path('health/', health_check, name='health_check'),
 
-    # ── Admin ──────────────────────────────────────────────────────
+    # ── Admin Django ────────────────────────────────────────────────
     path('admin/', admin.site.urls),
+
+    # ── Admin Front Office (Dashboard) ──────────────────────────────
+    path('admin-panel/', include('dashboard.urls')),
 
     # ── REST API routes ────────────────────────────────────────────
     path('api/auth/', include('accounts.urls')),

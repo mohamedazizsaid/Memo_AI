@@ -51,6 +51,36 @@ def analyze_entry(self, entry_id: str):
     analysis, _ = AIAnalysis.objects.get_or_create(entry=entry)
     prefs = _prefs_for(entry.user)
 
+    # ── Rate limit : 3 analyses AI / jour / user ─────────────────────────────
+    try:
+        from dashboard.models import AIUsageQuota
+        quota, _ = AIUsageQuota.objects.get_or_create(user=entry.user)
+        if not quota.can_analyze():
+            logger.warning(
+                "AI quota exceeded for user %s (daily_count=%d/%d) — skipping entry %s",
+                entry.user.email, quota.daily_count, quota.DAILY_LIMIT, entry_id,
+            )
+            analysis.summary_status = 'skipped'
+            analysis.sentiment_status = 'skipped'
+            analysis.emotion_status = 'skipped'
+            analysis.image_generation_status = 'skipped'
+            analysis.save(update_fields=[
+                'summary_status', 'sentiment_status',
+                'emotion_status', 'image_generation_status',
+            ])
+            entry.ai_status = 'completed'
+            entry.ai_error_message = (
+                f"Quota AI atteint ({quota.daily_count}/{quota.DAILY_LIMIT} "
+                f"analyses aujourd'hui). Réessayez demain."
+            )
+            entry.save(update_fields=['ai_status', 'ai_error_message'])
+            return
+        # Quota disponible — on l'incrémente avant le pipeline
+        quota.increment()
+    except Exception as quota_exc:
+        # Si le module dashboard n'est pas encore disponible, on laisse passer
+        logger.warning("Could not check AI quota for entry %s: %s", entry_id, quota_exc)
+
     content = (entry.content or '').strip()
     if not content:
         logger.info("Entry %s has no content — skipping text analysis", entry_id)

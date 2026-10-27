@@ -1,0 +1,253 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load static %}
+
+{% block title %}Vue d'ensemble — Admin MemoAI{% endblock %}
+{% block topbar_title %}Tableau de bord{% endblock %}
+{% block nav_overview %}active{% endblock %}
+
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+
+<!-- ── Stats globales ── -->
+<div class="dash-stats-grid">
+
+  <div class="dash-stat-card">
+    <div class="dash-stat-icon">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="6" r="4"/><path d="M3 18c0-3.866 3.134-7 7-7s7 3.134 7 7"/></svg>
+    </div>
+    <div class="dash-stat-label">Utilisateurs</div>
+    <div class="dash-stat-value">{{ total_users }}</div>
+    <div class="dash-stat-meta">
+      <span class="dash-stat-trend dash-stat-trend--up">+{{ new_this_week }}</span> cette semaine
+    </div>
+  </div>
+
+  <div class="dash-stat-card">
+    <div class="dash-stat-icon">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h12v14H4z"/><path d="M8 8h4M8 11h4M8 14h2"/></svg>
+    </div>
+    <div class="dash-stat-label">Entrées journal</div>
+    <div class="dash-stat-value">{{ active_entries }}</div>
+    <div class="dash-stat-meta">
+      <span class="dash-stat-trend dash-stat-trend--up">{{ entries_today }}</span> aujourd'hui
+    </div>
+  </div>
+
+  <div class="dash-stat-card">
+    <div class="dash-stat-icon">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 2l2 4 4.5.5-3.25 3.25.75 4.25L10 12l-4 2 .75-4.25L3.5 6.5 8 6z"/></svg>
+    </div>
+    <div class="dash-stat-label">Analyses AI</div>
+    <div class="dash-stat-value">{{ total_ai }}</div>
+    <div class="dash-stat-meta">
+      <span class="dash-stat-trend dash-stat-trend--neutral">{{ ai_today }}</span> aujourd'hui
+    </div>
+  </div>
+
+  <div class="dash-stat-card">
+    <div class="dash-stat-icon">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><ellipse cx="10" cy="6" rx="7" ry="3"/><path d="M3 6v4c0 1.657 3.134 3 7 3s7-1.343 7-3V6M3 10v4c0 1.657 3.134 3 7 3s7-1.343 7-3v-4"/></svg>
+    </div>
+    <div class="dash-stat-label">Stockage DB</div>
+    <div class="dash-stat-value">{{ total_storage_mb }}<span style="font-size:18px;font-weight:400"> MB</span></div>
+    <div class="dash-stat-meta">{{ total_media }} fichiers médias</div>
+  </div>
+
+  <div class="dash-stat-card">
+    <div class="dash-stat-icon">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="7"/><path d="M10 7v3l2 2"/></svg>
+    </div>
+    <div class="dash-stat-label">Mots écrits</div>
+    <div class="dash-stat-value">{{ total_words|floatformat:0 }}</div>
+    <div class="dash-stat-meta">mots au total</div>
+  </div>
+
+  <div class="dash-stat-card">
+    <div class="dash-stat-icon">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 16l3-3 3 3 3-7 3 7"/></svg>
+    </div>
+    <div class="dash-stat-label">Utilisateurs bloqués</div>
+    <div class="dash-stat-value" style="color:{% if blocked_users > 0 %}#dc2626{% else %}inherit{% endif %}">{{ blocked_users }}</div>
+    <div class="dash-stat-meta">{{ active_users }} actifs</div>
+  </div>
+
+</div>
+
+<!-- ── Graphiques ── -->
+<div class="dash-grid-2 dash-section-gap">
+
+  <!-- Inscriptions 30j -->
+  <div class="dash-panel">
+    <div class="dash-panel-header">
+      <div class="dash-panel-title">Inscriptions — 30 derniers jours</div>
+    </div>
+    <div class="dash-panel-body">
+      <div class="dash-chart-container">
+        <canvas id="chartSignups"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Entrées 30j -->
+  <div class="dash-panel">
+    <div class="dash-panel-header">
+      <div class="dash-panel-title">Entrées journal — 30 derniers jours</div>
+    </div>
+    <div class="dash-panel-body">
+      <div class="dash-chart-container">
+        <canvas id="chartEntries"></canvas>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── Bottom Row ── -->
+<div class="dash-grid-2-1 dash-section-gap">
+
+  <!-- Logs récents -->
+  <div class="dash-panel">
+    <div class="dash-panel-header">
+      <div class="dash-panel-title">Activité admin récente</div>
+      <a href="{% url 'dashboard:logs' %}" class="btn btn-ghost btn-sm">Voir tout →</a>
+    </div>
+    {% if recent_logs %}
+      {% for log in recent_logs %}
+        <div class="dash-log-item">
+          <div class="dash-log-dot dash-log-dot--{% if log.action == 'block_user' or log.action == 'delete_user' %}danger{% elif log.action == 'send_notification' %}info{% elif log.action == 'unblock_user' %}success{% else %}neutral{% endif %}"></div>
+          <div>
+            <div class="dash-log-action">{{ log.get_action_display }}</div>
+            <div class="dash-log-meta">
+              par {{ log.admin.email|default:"?" }}
+              {% if log.target_user %} → {{ log.target_user.email }}{% endif %}
+            </div>
+          </div>
+          <div class="dash-log-time">{{ log.created_at|timesince }} ago</div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="dash-empty" style="padding:var(--sp-32)">
+        <div class="dash-empty-desc">Aucune action admin pour l'instant.</div>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Sentiments + Émotions -->
+  <div class="dash-col" style="gap:var(--sp-16)">
+
+    <!-- Sentiments -->
+    <div class="dash-panel" style="flex:1">
+      <div class="dash-panel-header">
+        <div class="dash-panel-title">Sentiments AI</div>
+      </div>
+      <div class="dash-panel-body">
+        {% with total_s=sentiments.positive|default:0|add:sentiments.neutral|default:0|add:sentiments.negative|default:0 %}
+          {% for label, color, key in "Positif,#22c55e,positive|Neutre,#94a3b8,neutral|Négatif,#ef4444,negative"|ljust:3|cut:" " %}
+          {% endfor %}
+          <!-- Sentiments bars -->
+          {% if sentiments %}
+            {% for sentiment, count in sentiments.items %}
+              <div class="dash-progress-label">
+                <span>{{ sentiment|capfirst }}</span>
+                <span>{{ count }}</span>
+              </div>
+              <div class="dash-progress" style="margin-bottom:var(--sp-12)">
+                <div class="dash-progress-fill {% if sentiment == 'positive' or sentiment == 'positif' %}dash-progress-fill--success{% elif sentiment == 'negative' or sentiment == 'négatif' %}dash-progress-fill--danger{% endif %}"
+                     style="width:{% if total_ai > 0 %}{{ count|floatformat:0 }}%{% else %}0%{% endif %}">
+                </div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="dash-empty-desc" style="padding:var(--sp-16) 0">Pas encore de données AI.</div>
+          {% endif %}
+        {% endwith %}
+      </div>
+    </div>
+
+    <!-- Quotas dépassés -->
+    <div class="dash-panel">
+      <div class="dash-panel-header">
+        <div class="dash-panel-title">Quotas AI</div>
+        <a href="{% url 'dashboard:ai_usage' %}" class="btn btn-ghost btn-sm">Gérer →</a>
+      </div>
+      <div class="dash-panel-body">
+        <div style="text-align:center;padding:var(--sp-8) 0">
+          <div class="dash-stat-value" style="font-size:40px;color:{% if quotas_exceeded > 0 %}#f59e0b{% else %}#22c55e{% endif %}">{{ quotas_exceeded }}</div>
+          <div class="dash-stat-meta" style="justify-content:center;margin-top:var(--sp-8)">
+            utilisateur(s) ayant atteint leur limite aujourd'hui
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const gridColor = isDark ? 'rgba(240,237,233,0.06)' : 'rgba(13,13,13,0.06)';
+  const textColor = isDark ? '#9a9796' : '#6e6a69';
+
+  const defaults = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: {
+        grid: { color: gridColor },
+        ticks: { color: textColor, font: { family: 'Inter', size: 10 }, maxTicksLimit: 8 },
+      },
+      y: {
+        grid: { color: gridColor },
+        ticks: { color: textColor, font: { family: 'Inter', size: 10 }, stepSize: 1 },
+        beginAtZero: true,
+      }
+    }
+  };
+
+  const labels = {{ chart_labels|safe }};
+
+  // Chart inscriptions
+  new Chart(document.getElementById('chartSignups'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        data: {{ chart_signups|safe }},
+        borderColor: isDark ? '#f0ede9' : '#0d0d0d',
+        backgroundColor: isDark ? 'rgba(240,237,233,0.06)' : 'rgba(13,13,13,0.06)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 3,
+        pointHoverRadius: 5,
+      }]
+    },
+    options: defaults
+  });
+
+  // Chart entrées
+  new Chart(document.getElementById('chartEntries'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        data: {{ chart_entries|safe }},
+        backgroundColor: isDark ? 'rgba(240,237,233,0.15)' : 'rgba(13,13,13,0.1)',
+        borderColor: isDark ? 'rgba(240,237,233,0.4)' : 'rgba(13,13,13,0.3)',
+        borderWidth: 1,
+        borderRadius: 4,
+      }]
+    },
+    options: defaults
+  });
+})();
+</script>
+{% endblock %}

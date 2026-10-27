@@ -1,0 +1,187 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load static %}
+
+{% block title %}Notifications — Admin MemoAI{% endblock %}
+{% block topbar_title %}Centre de notifications{% endblock %}
+{% block nav_notifs %}active{% endblock %}
+
+{% block content %}
+
+<!-- ── Header ── -->
+<div class="dash-page-header">
+  <div class="dash-page-header-row">
+    <div>
+      <h1 class="dash-page-title">Centre de notifications</h1>
+      <div class="dash-page-subtitle">Diffusez des notifications à tous les utilisateurs ou à une sélection</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Stats ── -->
+<div class="dash-stats-grid dash-section-gap" style="grid-template-columns: repeat(3, 1fr)">
+  <div class="dash-stat-card">
+    <div class="dash-stat-label">Total envoyées</div>
+    <div class="dash-stat-value">{{ total_sent }}</div>
+  </div>
+  <div class="dash-stat-card">
+    <div class="dash-stat-label">Non lues</div>
+    <div class="dash-stat-value">{{ unread_count }}</div>
+  </div>
+  <div class="dash-stat-card">
+    <div class="dash-stat-label">Taux de lecture</div>
+    <div class="dash-stat-value">{{ read_rate }}<span style="font-size:16px">%</span></div>
+  </div>
+</div>
+
+<!-- ── Main Grid ── -->
+<div class="dash-grid-1-2">
+
+  <!-- Formulaire d'envoi -->
+  <div class="dash-panel">
+    <div class="dash-panel-header">
+      <div class="dash-panel-title">Nouvelle notification</div>
+    </div>
+    <div class="dash-panel-body">
+      <form method="post" id="notifForm">
+        {% csrf_token %}
+
+        <!-- Ciblage -->
+        <div class="form-group">
+          <label class="form-label">Destinataires</label>
+          <select name="target_type" class="form-select" id="targetType" onchange="toggleUserSelect()">
+            <option value="all">Tous les utilisateurs actifs</option>
+            <option value="staff">Staff seulement</option>
+            <option value="user">Utilisateur spécifique</option>
+          </select>
+        </div>
+
+        <!-- Sélection utilisateur spécifique -->
+        <div class="form-group" id="userSelectGroup" style="display:none">
+          <label class="form-label">Utilisateur</label>
+          <select name="target_user_id" class="form-select">
+            <option value="">— Sélectionner —</option>
+            {% for user in users %}
+              <option value="{{ user.id }}">{{ user.email }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Type -->
+        <div class="form-group">
+          <label class="form-label">Type de notification</label>
+          <select name="notification_type" class="form-select">
+            {% for value, label in notification_types %}
+              <option value="{{ value }}">{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Titre -->
+        <div class="form-group">
+          <label class="form-label">Titre</label>
+          <input type="text" name="title" class="form-input" required
+                 id="notifTitle" placeholder="Titre de la notification…"
+                 oninput="updatePreview()">
+        </div>
+
+        <!-- Message -->
+        <div class="form-group">
+          <label class="form-label">Message</label>
+          <textarea name="message" class="form-textarea" style="min-height:120px"
+                    id="notifMessage" required placeholder="Contenu du message…"
+                    oninput="updatePreview()"></textarea>
+        </div>
+
+        <!-- Preview -->
+        <div class="form-group">
+          <label class="form-label">Aperçu</label>
+          <div class="notif-preview" id="notifPreview">
+            <div class="notif-preview-title" id="previewTitle">Titre de la notification</div>
+            <div class="notif-preview-message" id="previewMessage">Votre message s'affichera ici…</div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full"
+                onclick="return confirm('Envoyer cette notification ?')">
+          Envoyer la notification
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Historique -->
+  <div class="dash-table-card">
+    <div class="dash-table-header">
+      <div class="dash-table-title">Dernières notifications</div>
+      {% if type_stats %}
+        <div class="dash-row" style="gap:var(--sp-8)">
+          {% for ts in type_stats|slice:":3" %}
+            <span class="dash-badge dash-badge--neutral">{{ ts.notification_type }}: {{ ts.cnt }}</span>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+    <div class="dash-table-wrapper">
+      <table class="dash-table">
+        <thead>
+          <tr>
+            <th>Destinataire</th>
+            <th>Titre</th>
+            <th>Type</th>
+            <th>Lu</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for notif in recent_notifications %}
+            <tr>
+              <td>
+                <div class="dash-user-email">{{ notif.user.email }}</div>
+              </td>
+              <td>
+                <div style="font-weight:500;max-width:180px" class="dash-truncate">{{ notif.title }}</div>
+              </td>
+              <td>
+                <span class="dash-badge dash-badge--neutral">{{ notif.notification_type }}</span>
+              </td>
+              <td>
+                {% if notif.is_read %}
+                  <span class="dash-badge dash-badge--active">Lu</span>
+                {% else %}
+                  <span class="dash-badge dash-badge--pending">Non lu</span>
+                {% endif %}
+              </td>
+              <td class="dash-text-mono">{{ notif.created_at|date:"d/m H:i" }}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="5">
+                <div class="dash-empty" style="padding:var(--sp-24)">
+                  <div class="dash-empty-desc">Aucune notification envoyée.</div>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleUserSelect() {
+  const val = document.getElementById('targetType').value;
+  document.getElementById('userSelectGroup').style.display = val === 'user' ? 'block' : 'none';
+}
+
+function updatePreview() {
+  const title = document.getElementById('notifTitle').value || 'Titre de la notification';
+  const msg = document.getElementById('notifMessage').value || 'Votre message s\'affichera ici…';
+  document.getElementById('previewTitle').textContent = title;
+  document.getElementById('previewMessage').textContent = msg;
+}
+</script>
+{% endblock %}

@@ -1,0 +1,352 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load static %}
+
+{% block title %}{{ target.full_name }} — Admin MemoAI{% endblock %}
+{% block topbar_title %}Profil utilisateur{% endblock %}
+{% block nav_users %}active{% endblock %}
+
+{% block content %}
+
+<!-- ── Breadcrumb ── -->
+<div class="dash-row" style="margin-bottom:var(--sp-20);gap:var(--sp-8)">
+  <a href="{% url 'dashboard:users_list' %}" class="btn btn-ghost btn-sm">← Utilisateurs</a>
+  <span style="color:var(--color-pebble);font-family:var(--font-ui);font-size:var(--text-caption)">/</span>
+  <span style="font-family:var(--font-ui);font-size:var(--text-caption);color:var(--color-stone)">{{ target.email }}</span>
+</div>
+
+<!-- ── Profile Header ── -->
+<div class="dash-panel dash-section-gap">
+  <div class="dash-panel-body">
+    <div class="dash-user-profile">
+      <div class="dash-user-avatar-lg">
+        {% if target.avatar %}
+          <img src="{{ target.avatar }}" alt="{{ target.full_name }}">
+        {% else %}
+          <span class="dash-user-initials-lg">{{ target.initials }}</span>
+        {% endif %}
+      </div>
+      <div class="dash-user-info">
+        <div class="dash-user-fullname">{{ target.full_name }}</div>
+        <div class="dash-user-detail-email">{{ target.email }}</div>
+        <div class="dash-user-tags">
+          {% if target.is_staff %}
+            <span class="dash-badge dash-badge--staff">Admin</span>
+          {% endif %}
+          {% if target.is_active %}
+            <span class="dash-badge dash-badge--active">Actif</span>
+          {% else %}
+            <span class="dash-badge dash-badge--blocked">Bloqué</span>
+          {% endif %}
+          {% if prefs %}
+            <span class="dash-badge dash-badge--neutral">{{ prefs.language|upper }}</span>
+            <span class="dash-badge dash-badge--neutral">{{ prefs.theme|capfirst }}</span>
+          {% endif %}
+          <span class="dash-badge dash-badge--neutral">Inscrit le {{ target.created_at|date:"d/m/Y" }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Stats ── -->
+<div class="dash-stats-grid dash-section-gap">
+  <div class="dash-stat-card">
+    <div class="dash-stat-label">Entrées journal</div>
+    <div class="dash-stat-value">{{ total_entries }}</div>
+    <div class="dash-stat-meta">{{ total_words }} mots</div>
+  </div>
+  <div class="dash-stat-card">
+    <div class="dash-stat-label">Médias uploadés</div>
+    <div class="dash-stat-value">{{ total_media }}</div>
+    <div class="dash-stat-meta">{{ total_storage_mb }} MB</div>
+  </div>
+  <div class="dash-stat-card">
+    <div class="dash-stat-label">Analyses AI</div>
+    <div class="dash-stat-value">{{ total_ai }}</div>
+    <div class="dash-stat-meta">{% if top_emotion %}{{ top_emotion.emotion|capfirst }}{% else %}—{% endif %}</div>
+  </div>
+  <div class="dash-stat-card">
+    <div class="dash-stat-label">Quota AI aujourd'hui</div>
+    <div class="dash-stat-value">{{ quota.daily_count }}/{{ quota.DAILY_LIMIT }}</div>
+    <div style="margin-top:8px">
+      <div class="dash-progress">
+        <div class="dash-progress-fill {% if quota.daily_count >= quota.DAILY_LIMIT %}dash-progress-fill--danger{% elif quota.daily_count >= 2 %}dash-progress-fill--warning{% endif %}"
+             style="width:{{ quota.percent_used }}%"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Main Grid ── -->
+<div class="dash-grid-1-2 dash-section-gap">
+
+  <!-- Colonne gauche -->
+  <div class="dash-col" style="gap:var(--sp-20)">
+
+    <!-- Préférences -->
+    <div class="dash-panel">
+      <div class="dash-panel-header">
+        <div class="dash-panel-title">Préférences</div>
+      </div>
+      <div class="dash-panel-body">
+        {% if prefs %}
+          <table style="width:100%;font-family:var(--font-ui);font-size:var(--text-caption)">
+            <tr style="border-bottom:1px solid var(--border-subtle)">
+              <td style="padding:8px 0;color:var(--color-stone)">Langue</td>
+              <td style="padding:8px 0;color:var(--color-ink-black);font-weight:500">{{ prefs.get_language_display }}</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border-subtle)">
+              <td style="padding:8px 0;color:var(--color-stone)">Thème</td>
+              <td style="padding:8px 0;color:var(--color-ink-black);font-weight:500">{{ prefs.get_theme_display }}</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border-subtle)">
+              <td style="padding:8px 0;color:var(--color-stone)">Genre</td>
+              <td style="padding:8px 0;color:var(--color-ink-black);font-weight:500">{{ prefs.get_gender_display|default:"Non précisé" }}</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border-subtle)">
+              <td style="padding:8px 0;color:var(--color-stone)">Résumés AI</td>
+              <td style="padding:8px 0">
+                {% if prefs.ai_summaries_enabled %}<span class="dash-badge dash-badge--active">Activé</span>{% else %}<span class="dash-badge dash-badge--neutral">Désactivé</span>{% endif %}
+              </td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border-subtle)">
+              <td style="padding:8px 0;color:var(--color-stone)">Visage</td>
+              <td style="padding:8px 0">
+                {% if prefs.face_recognition_consent %}<span class="dash-badge dash-badge--active">Consenti</span>{% else %}<span class="dash-badge dash-badge--neutral">Non consenti</span>{% endif %}
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:8px 0;color:var(--color-stone)">Onboarding</td>
+              <td style="padding:8px 0">
+                {% if prefs.onboarding_completed %}<span class="dash-badge dash-badge--active">Complété</span>{% else %}<span class="dash-badge dash-badge--pending">En cours</span>{% endif %}
+              </td>
+            </tr>
+          </table>
+        {% else %}
+          <div class="dash-empty-desc">Pas de préférences.</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Sessions JWT -->
+    <div class="dash-panel">
+      <div class="dash-panel-header">
+        <div class="dash-panel-title">Sessions</div>
+        <form method="post" action="{% url 'dashboard:revoke_sessions' target.id %}" style="margin:0">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger btn-sm"
+                  onclick="return confirm('Révoquer toutes les sessions ?')">
+            Révoquer tout
+          </button>
+        </form>
+      </div>
+      <div class="dash-panel-body" id="sessionsContainer">
+        <div style="font-family:var(--font-ui);font-size:var(--text-caption);color:var(--color-stone)">
+          Chargement des sessions…
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Colonne droite -->
+  <div class="dash-col" style="gap:var(--sp-20)">
+
+    <!-- Actions -->
+    <div class="dash-panel">
+      <div class="dash-panel-header">
+        <div class="dash-panel-title">Actions rapides</div>
+      </div>
+      <div class="dash-panel-body dash-col" style="gap:var(--sp-12)">
+        <!-- Bloquer / Débloquer -->
+        <form method="post" action="{% url 'dashboard:user_block' target.id %}">
+          {% csrf_token %}
+          {% if target.is_active %}
+            <button type="submit" class="btn btn-danger btn-full"
+                    onclick="return confirm('Bloquer {{ target.email }} ?')">
+              🔒 Bloquer l'utilisateur
+            </button>
+          {% else %}
+            <button type="submit" class="btn btn-secondary btn-full">
+              🔓 Débloquer l'utilisateur
+            </button>
+          {% endif %}
+        </form>
+
+        <!-- Reset quota AI -->
+        <form method="post" action="{% url 'dashboard:ai_quota_reset' target.id %}">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{% url 'dashboard:user_detail' target.id %}">
+          <button type="submit" class="btn btn-secondary btn-full">
+            ↺ Réinitialiser quota AI
+          </button>
+        </form>
+
+        <!-- Envoyer notification -->
+        <button type="button" class="btn btn-secondary btn-full"
+                onclick="openNotifModal()">
+          🔔 Envoyer une notification
+        </button>
+      </div>
+    </div>
+
+    <!-- Entrées récentes -->
+    <div class="dash-panel">
+      <div class="dash-panel-header">
+        <div class="dash-panel-title">Entrées récentes</div>
+      </div>
+      {% if recent_entries %}
+        {% for entry in recent_entries %}
+          <div style="padding:var(--sp-12) var(--sp-24);border-bottom:1px solid var(--border-subtle);display:flex;align-items:center;justify-content:space-between;gap:var(--sp-8)">
+            <div>
+              <div style="font-family:var(--font-ui);font-size:var(--text-caption);font-weight:500;color:var(--color-ink-black)">
+                {{ entry.title|default:"(Sans titre)" }}
+              </div>
+              <div style="font-family:var(--font-ui);font-size:12px;color:var(--color-stone)">
+                {{ entry.entry_date|date:"d/m/Y" }} · {{ entry.word_count }} mots
+              </div>
+            </div>
+            {% if entry.mood %}
+              <span class="dash-badge dash-badge--neutral">{{ entry.mood|capfirst }}</span>
+            {% endif %}
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="dash-empty" style="padding:var(--sp-24)">
+          <div class="dash-empty-desc">Aucune entrée.</div>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Logs admin -->
+    <div class="dash-panel">
+      <div class="dash-panel-header">
+        <div class="dash-panel-title">Historique admin</div>
+      </div>
+      {% if admin_logs %}
+        {% for log in admin_logs %}
+          <div class="dash-log-item">
+            <div class="dash-log-dot dash-log-dot--{% if log.action == 'block_user' or log.action == 'delete_user' %}danger{% elif log.action == 'unblock_user' %}success{% else %}info{% endif %}"></div>
+            <div>
+              <div class="dash-log-action">{{ log.get_action_display }}</div>
+              <div class="dash-log-meta">par {{ log.admin.email|default:"?" }}</div>
+            </div>
+            <div class="dash-log-time">{{ log.created_at|date:"d/m H:i" }}</div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="dash-empty" style="padding:var(--sp-24)">
+          <div class="dash-empty-desc">Aucune action admin sur ce compte.</div>
+        </div>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+
+<!-- ── Danger Zone ── -->
+{% if not target.is_staff %}
+<div class="dash-danger-zone dash-section-gap">
+  <div class="dash-danger-title">⚠ Zone de danger</div>
+  <div class="dash-danger-description">
+    La suppression est définitive. Toutes les entrées, médias et données AI seront supprimés.
+  </div>
+  <div class="dash-danger-actions">
+    <form method="post" action="{% url 'dashboard:user_delete' target.id %}">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger"
+              onclick="return confirm('SUPPRESSION DÉFINITIVE de {{ target.email }} ? Cette action est irréversible.')">
+        🗑 Supprimer le compte définitivement
+      </button>
+    </form>
+  </div>
+</div>
+{% endif %}
+
+<!-- ── Modal Notification ── -->
+<div id="notifModal" style="
+  display:none; position:fixed; inset:0; z-index:999;
+  background:rgba(0,0,0,0.5); backdrop-filter:blur(4px);
+  align-items:center; justify-content:center;
+">
+  <div style="
+    background:var(--color-paper-white);
+    border-radius:var(--r-md);
+    border:1px solid var(--border-subtle);
+    padding:var(--sp-32);
+    width:100%; max-width:480px;
+    margin:var(--sp-16);
+  ">
+    <div style="font-family:var(--font-primary);font-size:var(--text-subheading);font-weight:500;margin-bottom:var(--sp-20)">
+      Envoyer une notification
+    </div>
+    <form method="post" action="{% url 'dashboard:notifications' %}">
+      {% csrf_token %}
+      <input type="hidden" name="target_type" value="user">
+      <input type="hidden" name="target_user_id" value="{{ target.id }}">
+      <div class="form-group">
+        <label class="form-label">Titre</label>
+        <input type="text" name="title" class="form-input" required placeholder="Titre de la notification">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Message</label>
+        <textarea name="message" class="form-textarea" style="min-height:100px" required placeholder="Contenu de la notification…"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Type</label>
+        <select name="notification_type" class="form-select">
+          <option value="system">Système</option>
+          <option value="ai_complete">AI terminée</option>
+          <option value="daily_reminder">Rappel journalier</option>
+        </select>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Envoyer</button>
+        <button type="button" class="btn btn-ghost" onclick="closeNotifModal()">Annuler</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Sessions loading
+(async function() {
+  try {
+    const resp = await fetch('{% url "dashboard:user_sessions" target.id %}');
+    const data = await resp.json();
+    const container = document.getElementById('sessionsContainer');
+    if (data.count === 0) {
+      container.innerHTML = '<div class="dash-empty-desc">Aucune session JWT active.</div>';
+      return;
+    }
+    const html = data.sessions.map(s => `
+      <div style="padding:8px 0;border-bottom:1px solid var(--border-subtle);font-family:var(--font-ui);font-size:12px">
+        <div style="font-weight:500;color:var(--color-ink-black)">Session active</div>
+        <div style="color:var(--color-stone)">
+          Créée: ${new Date(s.created_at).toLocaleString('fr-FR')}<br>
+          Expire: ${new Date(s.expires_at).toLocaleString('fr-FR')}
+        </div>
+      </div>
+    `).join('');
+    container.innerHTML = html + `<div style="margin-top:8px;font-family:var(--font-ui);font-size:12px;color:var(--color-stone)">${data.count} session(s) active(s)</div>`;
+  } catch(e) {
+    document.getElementById('sessionsContainer').innerHTML =
+      '<div class="dash-empty-desc">Impossible de charger les sessions.</div>';
+  }
+})();
+
+// Notification modal
+function openNotifModal() {
+  document.getElementById('notifModal').style.display = 'flex';
+}
+function closeNotifModal() {
+  document.getElementById('notifModal').style.display = 'none';
+}
+document.getElementById('notifModal').addEventListener('click', function(e) {
+  if (e.target === this) closeNotifModal();
+});
+</script>
+{% endblock %}

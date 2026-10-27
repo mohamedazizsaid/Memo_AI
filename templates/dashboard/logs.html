@@ -1,0 +1,125 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load static %}
+
+{% block title %}Logs — Admin MemoAI{% endblock %}
+{% block topbar_title %}Logs plateforme{% endblock %}
+{% block nav_logs %}active{% endblock %}
+
+{% block content %}
+
+<!-- ── Header ── -->
+<div class="dash-page-header">
+  <div class="dash-page-header-row">
+    <div>
+      <h1 class="dash-page-title">Logs plateforme</h1>
+      <div class="dash-page-subtitle">{{ total }} action{{ total|pluralize }} admin enregistrée{{ total|pluralize }}</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Filtres ── -->
+<form method="get" class="dash-filters">
+  <select name="action" class="dash-filter-select" onchange="this.form.submit()">
+    <option value="">Toutes les actions</option>
+    {% for value, label in action_choices %}
+      <option value="{{ value }}" {% if action_filter == value %}selected{% endif %}>{{ label }}</option>
+    {% endfor %}
+  </select>
+
+  <div class="dash-search-wrapper" style="max-width:240px">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+      <circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/>
+    </svg>
+    <input type="text" name="admin" value="{{ admin_filter }}"
+           placeholder="Email admin…" class="dash-search-input">
+  </div>
+
+  <input type="date" name="date_from" value="{{ date_from }}"
+         class="dash-filter-select" style="padding-right:12px">
+
+  <button type="submit" class="btn btn-secondary btn-sm">Filtrer</button>
+  {% if action_filter or admin_filter or date_from %}
+    <a href="{% url 'dashboard:logs' %}" class="btn btn-ghost btn-sm">✕ Effacer</a>
+  {% endif %}
+</form>
+
+<!-- ── Logs list ── -->
+<div class="dash-table-card">
+  <div class="dash-table-header">
+    <div class="dash-table-title">Historique des actions admin</div>
+    <span style="font-family:var(--font-ui);font-size:var(--text-caption);color:var(--color-stone)">
+      Page {{ page }} / {{ total_pages }}
+    </span>
+  </div>
+
+  {% if logs %}
+    {% for log in logs %}
+      {% with color=action_colors|default:"neutral" %}
+      <div class="dash-log-item">
+        <!-- Dot couleur -->
+        <div class="dash-log-dot
+          {% if log.action == 'block_user' or log.action == 'delete_user' %}dash-log-dot--danger
+          {% elif log.action == 'unblock_user' %}dash-log-dot--success
+          {% elif log.action == 'send_notification' %}dash-log-dot--info
+          {% elif log.action == 'reset_quota' or log.action == 'revoke_session' %}dash-log-dot--warning
+          {% else %}{% endif %}">
+        </div>
+
+        <!-- Contenu -->
+        <div style="flex:1;min-width:0">
+          <div class="dash-log-action">{{ log.get_action_display }}</div>
+          <div class="dash-log-meta">
+            par
+            <strong>{{ log.admin.email|default:"Admin supprimé" }}</strong>
+            {% if log.target_user %}
+              → <strong>{{ log.target_user.email }}</strong>
+            {% endif %}
+            {% if log.ip_address %}
+              · <span class="dash-text-mono" style="font-size:11px">{{ log.ip_address }}</span>
+            {% endif %}
+          </div>
+          {% if log.details %}
+            <details class="dash-log-details">
+              <summary>Voir les détails JSON</summary>
+              <pre>{{ log.details|default:"{}" }}</pre>
+            </details>
+          {% endif %}
+        </div>
+
+        <!-- Timestamp -->
+        <div class="dash-log-time" style="white-space:nowrap">
+          {{ log.created_at|date:"d/m/Y H:i:s" }}
+        </div>
+      </div>
+      {% endwith %}
+    {% endfor %}
+  {% else %}
+    <div class="dash-empty">
+      <svg class="dash-empty-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="8" y="8" width="32" height="32" rx="4"/>
+        <path d="M16 18h16M16 24h12M16 30h8"/>
+      </svg>
+      <div class="dash-empty-title">Aucun log trouvé</div>
+      <div class="dash-empty-desc">Modifiez vos filtres ou commencez à utiliser le dashboard.</div>
+    </div>
+  {% endif %}
+
+  <!-- Pagination -->
+  <div class="dash-table-footer">
+    <span>{{ total }} entrée{{ total|pluralize }}</span>
+    <div class="dash-pagination">
+      {% if has_prev %}
+        <a href="?page={{ page|add:'-1' }}&action={{ action_filter }}&admin={{ admin_filter }}&date_from={{ date_from }}"
+           class="dash-page-btn">‹</a>
+      {% endif %}
+      <span class="dash-page-btn active">{{ page }}</span>
+      {% if has_next %}
+        <a href="?page={{ page|add:'1' }}&action={{ action_filter }}&admin={{ admin_filter }}&date_from={{ date_from }}"
+           class="dash-page-btn">›</a>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}

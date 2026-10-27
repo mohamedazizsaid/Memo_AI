@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'persons',
     'tags',
     'notifications',
+    'dashboard',
 ]
 
 # ─────────────────────────────────────────────
