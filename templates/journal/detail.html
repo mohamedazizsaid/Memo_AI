@@ -212,6 +212,69 @@
           </div>
         {% endif %}
 
+        {# ── Tonalité vocale estimée ── Affiché uniquement si note audio + résultat disponible #}
+        {% if entry.has_audio and entry.ai_analysis.voice_emotion_status == 'completed' and entry.ai_analysis.voice_emotion %}
+          <div class="ai-section voice-emotion-section" id="voice-emotion-section">
+            <h3 class="ai-section-title voice-emotion-title">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="opacity:.75;">
+                <path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                <line x1="12" y1="19" x2="12" y2="23"/>
+                <line x1="8" y1="23" x2="16" y2="23"/>
+              </svg>
+              {% trans_text "Tonalité vocale estimée" "Estimated vocal tone" %}
+            </h3>
+
+            <div class="voice-emotion-result">
+              {# Barre d'émotion vocale #}
+              <div class="sentiment-bar emotion-sentiment-bar" style="margin-bottom: 10px;">
+                <span class="sentiment-label emotion-detail-label" style="display:inline-flex; align-items:center; gap:6px; font-weight:600; color:var(--color-ink-black);">
+                  <span style="line-height:1;">{{ entry.ai_analysis.voice_emotion_data.emoji | safe }}</span>
+                  <span>{{ entry.ai_analysis.voice_emotion_label }}</span>
+                  {% if entry.ai_analysis.voice_emotion_uncertain %}
+                    <span class="voice-emotion-uncertain-badge" title="{% trans_text 'Confiance insuffisante' 'Low confidence' %}">?</span>
+                  {% endif %}
+                </span>
+                {% if entry.ai_analysis.voice_emotion_score is not None %}
+                  <div class="sentiment-meter" role="progressbar"
+                       aria-valuemin="0" aria-valuemax="100"
+                       aria-valuenow="{{ entry.ai_analysis.voice_emotion_percent }}"
+                       aria-label="{% trans_text 'Score de confiance vocale' 'Vocal confidence score' %}">
+                    <div class="sentiment-meter-fill voice-emotion-meter-fill"
+                         style="width:{{ entry.ai_analysis.voice_emotion_percent }}%; background: {{ entry.ai_analysis.voice_emotion_data.color }};
+                                opacity: {% if entry.ai_analysis.voice_emotion_uncertain %}0.5{% else %}1{% endif %};">
+                    </div>
+                  </div>
+                  <span class="sentiment-label" style="color:var(--color-stone); font-size:12px; font-variant-numeric:tabular-nums;">
+                    {{ entry.ai_analysis.voice_emotion_percent }}%
+                  </span>
+                {% endif %}
+              </div>
+
+              {# Disclaimer obligatoire — ne pas présenter comme certitude #}
+              <div class="voice-emotion-disclaimer" role="note" aria-label="{% trans_text 'Avertissement estimation vocale' 'Vocal estimate warning' %}">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0; margin-top:2px;">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="8" x2="12" y2="12"/>
+                  <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                <span>
+                  {% trans_text
+                    "Estimation indicative basée sur l'analyse acoustique de la voix. Non certaine — les modèles sont entraînés principalement sur des données en anglais et peuvent être imprécis."
+                    "Indicative estimate based on acoustic voice analysis. Not definitive — models are trained primarily on English data and may be inaccurate."
+                  %}
+                </span>
+              </div>
+            </div>
+          </div>
+        {% elif entry.has_audio and entry.ai_analysis.voice_emotion_status == 'failed' %}
+          <div class="ai-section">
+            <p class="ai-section-body" style="font-size:12px; color:var(--color-stone); font-style:italic;">
+              {% trans_text "Analyse vocale indisponible pour cet enregistrement." "Vocal analysis unavailable for this recording." %}
+            </p>
+          </div>
+        {% endif %}
+
         {% if entry.ai_status == 'pending' or entry.ai_status == 'failed' %}
           <form method="post" action="/journal/{{ entry.id }}/analyser/">
             {% csrf_token %}
@@ -222,6 +285,7 @@
         {% endif %}
       </div>
     {% endif %}
+
 
     <!-- Tags -->
     {% if entry.tags.all %}

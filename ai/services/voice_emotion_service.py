@@ -162,11 +162,11 @@ def _calibrate_voice_result(proba_dict: dict, confidence: float) -> dict:
     2. Supprimer les classes avec proba < 2% (bruit de fond)
     3. Normaliser
     """
-    filtered = {k: v for k, v in proba_dict.items() if v >= 0.02}
+    filtered = {str(k): float(v) for k, v in proba_dict.items() if v >= 0.02}
     total = sum(filtered.values()) or 1.0
-    norm = {k: round(v / total, 3) for k, v in filtered.items()}
+    norm = {str(k): round(float(v / total), 3) for k, v in filtered.items()}
 
-    best = max(norm, key=norm.get)
+    best = str(max(norm, key=norm.get))
     best_score = norm[best]
 
     uncertain = confidence < CONFIDENCE_THRESHOLD

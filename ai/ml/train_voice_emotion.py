@@ -213,9 +213,9 @@ def download_cremad(target_dir: Path, max_files: int = 2000) -> Path:
     out = target_dir / "cremad_audio"
     out.mkdir(parents=True, exist_ok=True)
 
-    existing = list(out.glob("*.wav"))
+    existing = [f for f in out.glob("*.wav") if f.stat().st_size > 1000]
     if len(existing) >= max_files:
-        logger.info("CREMA-D déjà présent (%d fichiers)", len(existing))
+        logger.info("CREMA-D déjà présent (%d fichiers audio valides)", len(existing))
         return out
 
     logger.info("Récupération de l'index CREMA-D via l'API GitHub...")
@@ -236,24 +236,30 @@ def download_cremad(target_dir: Path, max_files: int = 2000) -> Path:
         if item.get("path", "").startswith("AudioWAV/") and item["path"].endswith(".wav")
     ][:max_files]
 
-    base_raw = "https://raw.githubusercontent.com/CheyneyComputerScience/CREMA-D/master/"
-    logger.info("Téléchargement de %d fichiers WAV CREMA-D...", len(wav_items))
+    # Utilisation de media.githubusercontent.com pour résoudre les fichiers binaires Git LFS
+    base_media = "https://media.githubusercontent.com/media/CheyneyComputerScience/CREMA-D/master/"
+    logger.info("Téléchargement de %d fichiers WAV CREMA-D réels (Git LFS)...", len(wav_items))
 
     for i, item in enumerate(wav_items):
         fname = Path(item["path"]).name
         dest = out / fname
-        if dest.exists():
+        if dest.exists() and dest.stat().st_size > 1000:
             continue
         try:
-            r = requests.get(base_raw + item["path"], timeout=30)
+            r = requests.get(base_media + item["path"], timeout=30)
             r.raise_for_status()
-            dest.write_bytes(r.content)
+            # Vérifier que le contenu commence bien par RIFF (vrai fichier WAV, pas un pointeur LFS)
+            if r.content.startswith(b"RIFF"):
+                dest.write_bytes(r.content)
+            else:
+                logger.warning("Fichier non WAV reçu pour %s (taille %d)", fname, len(r.content))
         except Exception as exc:
             logger.debug("Echec %s : %s", fname, exc)
-        if (i + 1) % 200 == 0:
+        if (i + 1) % 50 == 0:
             logger.info("  %d / %d téléchargés", i + 1, len(wav_items))
 
-    logger.info("CREMA-D : %d fichiers disponibles", len(list(out.glob("*.wav"))))
+    valid_wavs = [f for f in out.glob("*.wav") if f.stat().st_size > 1000]
+    logger.info("CREMA-D : %d fichiers audio valides disponibles", len(valid_wavs))
     return out
 
 
