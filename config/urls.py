@@ -7,10 +7,15 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.generic import RedirectView
+from django.templatetags.static import static as static_url
 from common.landing_views import LandingView
 from common.health_views import health_check
 
 urlpatterns = [
+    # ── Favicon fallback route ─────────────────────────────────────
+    path('favicon.ico', RedirectView.as_view(url=static_url('img/favicon.ico'), permanent=True)),
+
     # ── Health check (Docker / Render / CI) ────────────────────────
     path('health/', health_check, name='health_check'),
 
