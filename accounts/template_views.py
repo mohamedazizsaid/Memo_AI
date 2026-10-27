@@ -153,7 +153,11 @@ class TemplateLoginView(View):
                     return redirect(
                         f"{reverse('accounts:onboarding')}?next={target}" if target else 'accounts:onboarding'
                     )
-                return redirect(_with_welcome(request.GET.get('next') or reverse('journal:home')))
+                # Staff → admin dashboard (ignorer le paramètre next)
+                if user.is_staff:
+                    return redirect('/admin-panel/')
+                next_url = request.GET.get('next') or request.POST.get('next') or ''
+                return redirect(_with_welcome(next_url or reverse('journal:home')))
             else:
                 form.add_error(None, 'Email ou mot de passe incorrect.')
         return render(request, 'accounts/login.html', {'form': form})
