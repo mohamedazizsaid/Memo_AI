@@ -14,6 +14,7 @@ from django.db import models as django_models
 from django.db.models import Count, Sum, Avg, Q
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views import View
@@ -350,8 +351,13 @@ class UserBlockView(View):
 
     def post(self, request, user_id):
         target = get_object_or_404(User, pk=user_id)
+        is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest' or 'application/json' in request.headers.get('Accept', '')
+
         if target == request.user:
-            messages.error(request, "Vous ne pouvez pas vous bloquer vous-même.")
+            msg = "Vous ne pouvez pas vous bloquer vous-même."
+            messages.error(request, msg)
+            if is_ajax:
+                return JsonResponse({'status': 'error', 'message': msg}, status=400)
             return redirect('dashboard:user_detail', user_id=user_id)
 
         if target.is_active:
@@ -368,6 +374,14 @@ class UserBlockView(View):
         AdminLog.log(request.user, action, target_user=target,
                      details={'email': target.email}, request=request)
         messages.success(request, msg)
+
+        if is_ajax:
+            return JsonResponse({
+                'status': 'ok',
+                'is_active': target.is_active,
+                'message': msg
+            })
+
         return redirect('dashboard:user_detail', user_id=user_id)
 
 
@@ -377,8 +391,13 @@ class UserDeleteView(View):
 
     def post(self, request, user_id):
         target = get_object_or_404(User, pk=user_id)
+        is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest' or 'application/json' in request.headers.get('Accept', '')
+
         if target == request.user:
-            messages.error(request, "Vous ne pouvez pas supprimer votre propre compte.")
+            msg = "Vous ne pouvez pas supprimer votre propre compte."
+            messages.error(request, msg)
+            if is_ajax:
+                return JsonResponse({'status': 'error', 'message': msg}, status=400)
             return redirect('dashboard:user_detail', user_id=user_id)
 
         email = target.email
@@ -386,7 +405,16 @@ class UserDeleteView(View):
                      details={'deleted_email': email, 'deleted_id': str(target.id)},
                      request=request)
         target.delete()
-        messages.success(request, f"Utilisateur {email} supprimé définitivement.")
+        msg = f"Utilisateur {email} supprimé définitivement."
+        messages.success(request, msg)
+
+        if is_ajax:
+            return JsonResponse({
+                'status': 'ok',
+                'message': msg,
+                'redirect_url': reverse('dashboard:users_list')
+            })
+
         return redirect('dashboard:users_list')
 
 
@@ -664,10 +692,24 @@ class LogsView(View):
 
         # Pagination
         total = qs.count()
-        page = max(1, int(request.GET.get('page', 1)))
-        offset = (page - 1) * self.ITEMS_PER_PAGE
-        logs = qs[offset: offset + self.ITEMS_PER_PAGE]
-        total_pages = max(1, (total + self.ITEMS_PER_PAGE - 1) // self.ITEMS_PER_PAGE)
+        try:
+            page = max(1, int(request.GET.get('page', 1)))
+        except (ValueError, TypeError):
+            page = 1
+
+        try:
+            per_page = int(request.GET.get('per_page', 10))
+            if per_page not in (10, 25, 50, 100):
+                per_page = 10
+        except (ValueError, TypeError):
+            per_page = 10
+
+        total_pages = max(1, (total + per_page - 1) // per_page)
+        if page > total_pages:
+            page = total_pages
+
+        offset = (page - 1) * per_page
+        logs = qs[offset: offset + per_page]
 
         # Couleurs des actions
         action_colors = {
@@ -685,9 +727,11 @@ class LogsView(View):
             'logs': logs,
             'total': total,
             'page': page,
+            'per_page': per_page,
             'total_pages': total_pages,
             'has_prev': page > 1,
             'has_next': page < total_pages,
+            'page_range': range(max(1, page - 2), min(total_pages + 1, page + 3)),
             'action_filter': action_filter,
             'admin_filter': admin_filter,
             'date_from': date_from,

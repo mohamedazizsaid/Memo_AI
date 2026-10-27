@@ -11,25 +11,28 @@
 <div class="dash-page-header">
   <div class="dash-page-header-row">
     <div>
-      <h1 class="dash-page-title">Centre de notifications</h1>
-      <div class="dash-page-subtitle">Diffusez des notifications à tous les utilisateurs ou à une sélection</div>
+      <h1 class="dash-page-title">Centre de diffusion</h1>
+      <div class="dash-page-subtitle">Diffusez des annonces et notifications ciblées ou globales sur la plateforme</div>
     </div>
   </div>
 </div>
 
 <!-- ── Stats ── -->
-<div class="dash-stats-grid dash-section-gap" style="grid-template-columns: repeat(3, 1fr)">
+<div class="dash-stats-grid dash-section-gap">
   <div class="dash-stat-card">
     <div class="dash-stat-label">Total envoyées</div>
     <div class="dash-stat-value">{{ total_sent }}</div>
+    <div class="dash-stat-meta">toutes notifications confondues</div>
   </div>
   <div class="dash-stat-card">
-    <div class="dash-stat-label">Non lues</div>
-    <div class="dash-stat-value">{{ unread_count }}</div>
+    <div class="dash-stat-label">En attente de lecture</div>
+    <div class="dash-stat-value" style="color:{% if unread_count > 0 %}#d97706{% else %}inherit{% endif %}">{{ unread_count }}</div>
+    <div class="dash-stat-meta">notifications non encore ouvertes</div>
   </div>
   <div class="dash-stat-card">
-    <div class="dash-stat-label">Taux de lecture</div>
-    <div class="dash-stat-value">{{ read_rate }}<span style="font-size:16px">%</span></div>
+    <div class="dash-stat-label">Taux d'ouverture</div>
+    <div class="dash-stat-value">{{ read_rate }}<span style="font-size:18px;font-weight:400">%</span></div>
+    <div class="dash-stat-meta">taux de lecture moyen</div>
   </div>
 </div>
 
@@ -39,37 +42,37 @@
   <!-- Formulaire d'envoi -->
   <div class="dash-panel">
     <div class="dash-panel-header">
-      <div class="dash-panel-title">Nouvelle notification</div>
+      <div class="dash-panel-title">Diffuser une notification</div>
     </div>
-    <div class="dash-panel-body">
+    <div class="dash-panel-body" style="padding:20px 24px;">
       <form method="post" id="notifForm">
         {% csrf_token %}
 
         <!-- Ciblage -->
-        <div class="form-group">
-          <label class="form-label">Destinataires</label>
-          <select name="target_type" class="form-select" id="targetType" onchange="toggleUserSelect()">
+        <div class="form-group" style="margin-bottom:16px;">
+          <label class="form-label" style="display:block;font-size:12px;font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;color:var(--color-stone);">Destinataires</label>
+          <select name="target_type" class="dash-filter-select" style="width:100%;" id="targetType" onchange="toggleUserSelect()">
             <option value="all">Tous les utilisateurs actifs</option>
-            <option value="staff">Staff seulement</option>
+            <option value="staff">Staff & Administrateurs seulement</option>
             <option value="user">Utilisateur spécifique</option>
           </select>
         </div>
 
         <!-- Sélection utilisateur spécifique -->
-        <div class="form-group" id="userSelectGroup" style="display:none">
-          <label class="form-label">Utilisateur</label>
-          <select name="target_user_id" class="form-select">
-            <option value="">— Sélectionner —</option>
-            {% for user in users %}
-              <option value="{{ user.id }}">{{ user.email }}</option>
+        <div class="form-group" id="userSelectGroup" style="display:none;margin-bottom:16px;">
+          <label class="form-label" style="display:block;font-size:12px;font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;color:var(--color-stone);">Sélectionner l'utilisateur</label>
+          <select name="target_user_id" class="dash-filter-select" style="width:100%;">
+            <option value="">— Choisir un compte —</option>
+            {% for u in users %}
+              <option value="{{ u.id }}">{{ u.full_name }} ({{ u.email }})</option>
             {% endfor %}
           </select>
         </div>
 
         <!-- Type -->
-        <div class="form-group">
-          <label class="form-label">Type de notification</label>
-          <select name="notification_type" class="form-select">
+        <div class="form-group" style="margin-bottom:16px;">
+          <label class="form-label" style="display:block;font-size:12px;font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;color:var(--color-stone);">Type de notification</label>
+          <select name="notification_type" class="dash-filter-select" style="width:100%;">
             {% for value, label in notification_types %}
               <option value="{{ value }}">{{ label }}</option>
             {% endfor %}
@@ -77,46 +80,53 @@
         </div>
 
         <!-- Titre -->
-        <div class="form-group">
-          <label class="form-label">Titre</label>
-          <input type="text" name="title" class="form-input" required
-                 id="notifTitle" placeholder="Titre de la notification…"
+        <div class="form-group" style="margin-bottom:16px;">
+          <label class="form-label" style="display:block;font-size:12px;font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;color:var(--color-stone);">Titre</label>
+          <input type="text" name="title" class="dash-filter-date" required
+                 id="notifTitle" placeholder="Ex: Nouveauté sur MemoAI…"
+                 style="width:100%;box-sizing:border-box;"
                  oninput="updatePreview()">
         </div>
 
         <!-- Message -->
-        <div class="form-group">
-          <label class="form-label">Message</label>
-          <textarea name="message" class="form-textarea" style="min-height:120px"
-                    id="notifMessage" required placeholder="Contenu du message…"
+        <div class="form-group" style="margin-bottom:16px;">
+          <label class="form-label" style="display:block;font-size:12px;font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;color:var(--color-stone);">Message</label>
+          <textarea name="message" class="dash-filter-date" style="min-height:100px;width:100%;height:auto;padding:10px 12px;box-sizing:border-box;resize:vertical;"
+                    id="notifMessage" required placeholder="Rédigez le texte de votre notification…"
                     oninput="updatePreview()"></textarea>
         </div>
 
         <!-- Preview -->
-        <div class="form-group">
-          <label class="form-label">Aperçu</label>
-          <div class="notif-preview" id="notifPreview">
-            <div class="notif-preview-title" id="previewTitle">Titre de la notification</div>
-            <div class="notif-preview-message" id="previewMessage">Votre message s'affichera ici…</div>
+        <div class="form-group" style="margin-bottom:20px;">
+          <label class="form-label" style="display:block;font-size:12px;font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;color:var(--color-stone);">Aperçu en direct</label>
+          <div style="background:var(--color-linen-canvas);border:1px solid var(--border-subtle);border-radius:10px;padding:14px 16px;">
+            <div style="font-weight:600;font-size:13.5px;color:var(--color-ink-black);" id="previewTitle">Titre de la notification</div>
+            <div style="font-size:12.5px;color:var(--color-stone);margin-top:4px;line-height:1.4;" id="previewMessage">Votre message s'affichera ici en temps réel…</div>
           </div>
         </div>
 
-        <button type="submit" class="btn btn-primary btn-full"
-                onclick="return confirm('Envoyer cette notification ?')">
-          Envoyer la notification
+        <button type="submit" class="btn btn-primary btn-full" style="width:100%;height:42px;"
+                onclick="return confirm('Confirmez-vous l\'envoi de cette notification ?')">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" style="margin-right:6px;">
+            <path d="M14 2L7 9M14 2l-4 12-3-5-5-3 12-4z"/>
+          </svg>
+          Diffuser la notification
         </button>
       </form>
     </div>
   </div>
 
   <!-- Historique -->
-  <div class="dash-table-card">
+  <div class="dash-table-card" style="height: 650px;overflow: auto;">
     <div class="dash-table-header">
-      <div class="dash-table-title">Dernières notifications</div>
+      <div class="dash-table-title" style="display:flex;align-items:center;gap:10px;">
+        <span>Dernières notifications</span>
+        <span class="dash-nav-badge">{{ recent_notifications|length }}</span>
+      </div>
       {% if type_stats %}
-        <div class="dash-row" style="gap:var(--sp-8)">
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
           {% for ts in type_stats|slice:":3" %}
-            <span class="dash-badge dash-badge--neutral">{{ ts.notification_type }}: {{ ts.cnt }}</span>
+            <span class="media-chip">{{ ts.notification_type }}: {{ ts.cnt }}</span>
           {% endfor %}
         </div>
       {% endif %}
@@ -125,39 +135,56 @@
       <table class="dash-table">
         <thead>
           <tr>
-            <th>Destinataire</th>
-            <th>Titre</th>
-            <th>Type</th>
-            <th>Lu</th>
-            <th>Date</th>
+            <th style="width:26%;text-align:center">Destinataire</th>
+            <th style="width:34%;text-align:center">Titre</th>
+            <th style="width:16%;text-align:center">Type</th>
+            <th style="width:10%;text-align:center">Statut</th>
+            <th style="width:14%;text-align:center">Date</th>
           </tr>
         </thead>
         <tbody>
           {% for notif in recent_notifications %}
             <tr>
-              <td>
-                <div class="dash-user-email">{{ notif.user.email }}</div>
+              <td style="padding: 2px;text-align: center;">
+                <div style="font-weight:550;font-size:13px;color:var(--color-ink-black);">{{ notif.user.full_name|default:notif.user.email }}</div>
+                <div style="font-size:11.5px;color:var(--color-stone);">{{ notif.user.email }}</div>
+              </td>
+              <td style="padding: 2px;text-align: center;">
+                <div style="font-weight:550;font-size:13px;" class="dash-truncate">{{ notif.title }}</div>
+                <div style="font-size:11.5px;color:var(--color-stone);" class="dash-truncate">{{ notif.message|truncatechars:55 }}</div>
               </td>
               <td>
-                <div style="font-weight:500;max-width:180px" class="dash-truncate">{{ notif.title }}</div>
-              </td>
-              <td>
-                <span class="dash-badge dash-badge--neutral">{{ notif.notification_type }}</span>
+                {% if notif.notification_type == 'system' %}
+                  <span class="dash-type-badge dash-type-badge--system">Système</span>
+                {% elif notif.notification_type == 'ai_complete' %}
+                  <span class="dash-type-badge dash-type-badge--ai">Analyse IA</span>
+                {% elif notif.notification_type == 'daily_reminder' %}
+                  <span class="dash-type-badge dash-type-badge--reminder">Rappel</span>
+                {% elif notif.notification_type == 'weekly_summary' %}
+                  <span class="dash-type-badge dash-type-badge--summary">Bilan</span>
+                {% elif notif.notification_type == 'memory_nostalgia' %}
+                  <span class="dash-type-badge dash-type-badge--nostalgia">Souvenir</span>
+                {% else %}
+                  <span class="media-chip">{{ notif.notification_type }}</span>
+                {% endif %}
               </td>
               <td>
                 {% if notif.is_read %}
-                  <span class="dash-badge dash-badge--active">Lu</span>
+                  <span class="dash-badge dash-badge--active">✓ Lu</span>
                 {% else %}
-                  <span class="dash-badge dash-badge--pending">Non lu</span>
+                  <span class="dash-badge dash-badge--pending">● Non lu</span>
                 {% endif %}
               </td>
-              <td class="dash-text-mono">{{ notif.created_at|date:"d/m H:i" }}</td>
+              <td style="font-size:12px;color:var(--color-stone);white-space:nowrap;">
+                {{ notif.created_at|date:"d/m H:i" }}
+              </td>
             </tr>
           {% empty %}
             <tr>
               <td colspan="5">
-                <div class="dash-empty" style="padding:var(--sp-24)">
-                  <div class="dash-empty-desc">Aucune notification envoyée.</div>
+                <div class="dash-empty" style="padding:48px 24px;text-align:center;">
+                  <div class="dash-empty-title" style="font-weight:600;margin-bottom:6px;">Aucune notification envoyée</div>
+                  <div class="dash-empty-desc" style="color:var(--color-stone);font-size:13px;">Diffusez votre premier message à l'aide du formulaire.</div>
                 </div>
               </td>
             </tr>
@@ -179,7 +206,7 @@ function toggleUserSelect() {
 
 function updatePreview() {
   const title = document.getElementById('notifTitle').value || 'Titre de la notification';
-  const msg = document.getElementById('notifMessage').value || 'Votre message s\'affichera ici…';
+  const msg = document.getElementById('notifMessage').value || 'Votre message s\'affichera ici en temps réel…';
   document.getElementById('previewTitle').textContent = title;
   document.getElementById('previewMessage').textContent = msg;
 }

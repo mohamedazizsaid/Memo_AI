@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block title %}Logs — Admin MemoAI{% endblock %}
-{% block topbar_title %}Logs plateforme{% endblock %}
+{% block topbar_title %}Logs d'audit plateforme{% endblock %}
 {% block nav_logs %}active{% endblock %}
 
 {% block content %}
@@ -11,8 +11,8 @@
 <div class="dash-page-header">
   <div class="dash-page-header-row">
     <div>
-      <h1 class="dash-page-title">Logs plateforme</h1>
-      <div class="dash-page-subtitle">{{ total }} action{{ total|pluralize }} admin enregistrée{{ total|pluralize }}</div>
+      <h1 class="dash-page-title">Logs d'audit plateforme</h1>
+      <div class="dash-page-subtitle">{{ total }} action{{ total|pluralize }} administrateur enregistrée{{ total|pluralize }}</div>
     </div>
   </div>
 </div>
@@ -26,96 +26,107 @@
     {% endfor %}
   </select>
 
-  <div class="dash-search-wrapper" style="max-width:240px">
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-      <circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/>
+  <div class="dash-search-wrapper" style="max-width:300px">
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6">
+      <circle cx="7" cy="7" r="5"/><path d="M11 11l3.5 3.5"/>
     </svg>
     <input type="text" name="admin" value="{{ admin_filter }}"
-           placeholder="Email admin…" class="dash-search-input">
+           placeholder="Filtrer par email admin…" class="dash-search-input">
   </div>
 
-  <input type="date" name="date_from" value="{{ date_from }}"
-         class="dash-filter-select" style="padding-right:12px">
+  <div class="dash-date-group">
+    <span class="dash-date-label">Depuis</span>
+    <input type="date" name="date_from" value="{{ date_from }}" class="dash-filter-date" onchange="this.form.submit()">
+  </div>
 
-  <button type="submit" class="btn btn-secondary btn-sm">Filtrer</button>
+  <button type="submit" class="dash-filter-btn btn btn-secondary">
+    Filtrer
+  </button>
   {% if action_filter or admin_filter or date_from %}
-    <a href="{% url 'dashboard:logs' %}" class="btn btn-ghost btn-sm">✕ Effacer</a>
+    <a href="{% url 'dashboard:logs' %}" class="dash-filter-btn btn btn-ghost">✕ Réinitialiser</a>
   {% endif %}
 </form>
 
 <!-- ── Logs list ── -->
 <div class="dash-table-card">
   <div class="dash-table-header">
-    <div class="dash-table-title">Historique des actions admin</div>
-    <span style="font-family:var(--font-ui);font-size:var(--text-caption);color:var(--color-stone)">
-      Page {{ page }} / {{ total_pages }}
+    <div class="dash-table-title" style="display:flex;align-items:center;gap:10px;">
+      <span>Historique des opérations d'audit</span>
+      <span class="dash-nav-badge">{{ total }}</span>
+    </div>
+    <span style="font-family:var(--font-ui);font-size:12.5px;color:var(--color-stone)">
+      Page {{ page }} sur {{ total_pages }}
     </span>
   </div>
 
   {% if logs %}
     {% for log in logs %}
-      {% with color=action_colors|default:"neutral" %}
-      <div class="dash-log-item">
+      <div class="dash-log-item" style="padding:16px 20px;display:flex;align-items:flex-start;gap:14px;border-bottom:1px solid var(--border-subtle);transition:background 150ms ease;">
         <!-- Dot couleur -->
         <div class="dash-log-dot
           {% if log.action == 'block_user' or log.action == 'delete_user' %}dash-log-dot--danger
           {% elif log.action == 'unblock_user' %}dash-log-dot--success
           {% elif log.action == 'send_notification' %}dash-log-dot--info
           {% elif log.action == 'reset_quota' or log.action == 'revoke_session' %}dash-log-dot--warning
-          {% else %}{% endif %}">
+          {% else %}{% endif %}" style="margin-top:6px;">
         </div>
 
         <!-- Contenu -->
         <div style="flex:1;min-width:0">
-          <div class="dash-log-action">{{ log.get_action_display }}</div>
-          <div class="dash-log-meta">
-            par
-            <strong>{{ log.admin.email|default:"Admin supprimé" }}</strong>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
+            <span style="font-weight:600;font-size:13.5px;color:var(--color-ink-black);">{{ log.get_action_display }}</span>
+            <span class="media-chip" style="font-size:11px;">IP : {{ log.ip_address|default:"127.0.0.1" }}</span>
+          </div>
+
+          <div class="dash-log-meta" style="font-size:12.5px;color:var(--color-stone);line-height:1.5;">
+            Initié par <strong style="color:var(--color-ink-black)">{{ log.admin.email|default:"Admin supprimé" }}</strong>
             {% if log.target_user %}
-              → <strong>{{ log.target_user.email }}</strong>
-            {% endif %}
-            {% if log.ip_address %}
-              · <span class="dash-text-mono" style="font-size:11px">{{ log.ip_address }}</span>
+              → Cible : <strong style="color:var(--color-ink-black)">{{ log.target_user.email }}</strong>
             {% endif %}
           </div>
+
           {% if log.details %}
-            <details class="dash-log-details">
-              <summary>Voir les détails JSON</summary>
-              <pre>{{ log.details|default:"{}" }}</pre>
+            <details class="dash-log-details" style="margin-top:8px;">
+              <summary style="font-size:11.5px;color:var(--color-stone);cursor:pointer;">Détails techniques (payload JSON)</summary>
+              <pre style="background:var(--color-linen-canvas);border:1px solid var(--border-subtle);border-radius:6px;padding:8px 12px;margin-top:6px;font-size:11px;overflow-x:auto;">{{ log.details|default:"{}" }}</pre>
             </details>
           {% endif %}
         </div>
 
         <!-- Timestamp -->
-        <div class="dash-log-time" style="white-space:nowrap">
+        <div class="dash-log-time" style="font-family:var(--font-ui);font-size:12px;color:var(--color-pebble);white-space:nowrap;">
           {{ log.created_at|date:"d/m/Y H:i:s" }}
         </div>
       </div>
-      {% endwith %}
     {% endfor %}
   {% else %}
-    <div class="dash-empty">
-      <svg class="dash-empty-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5">
-        <rect x="8" y="8" width="32" height="32" rx="4"/>
-        <path d="M16 18h16M16 24h12M16 30h8"/>
-      </svg>
-      <div class="dash-empty-title">Aucun log trouvé</div>
-      <div class="dash-empty-desc">Modifiez vos filtres ou commencez à utiliser le dashboard.</div>
+    <div class="dash-empty" style="padding:48px 24px;text-align:center;">
+      <div class="dash-empty-title" style="font-weight:600;margin-bottom:6px;">Aucun événement enregistré</div>
+      <div class="dash-empty-desc" style="color:var(--color-stone);font-size:13px;">Modifiez vos critères de recherche ou filtres.</div>
     </div>
   {% endif %}
 
   <!-- Pagination -->
   <div class="dash-table-footer">
-    <span>{{ total }} entrée{{ total|pluralize }}</span>
+    <span>Affichage de {{ logs|length }} sur {{ total }} action{{ total|pluralize }}</span>
     <div class="dash-pagination">
       {% if has_prev %}
-        <a href="?page={{ page|add:'-1' }}&action={{ action_filter }}&admin={{ admin_filter }}&date_from={{ date_from }}"
-           class="dash-page-btn">‹</a>
+        <a href="?page={{ page|add:'-1' }}&action={{ action_filter }}&admin={{ admin_filter }}&date_from={{ date_from }}&per_page={{ per_page }}"
+           class="dash-page-btn" aria-label="Précédent">‹</a>
+      {% else %}
+        <span class="dash-page-btn" disabled>‹</span>
       {% endif %}
-      <span class="dash-page-btn active">{{ page }}</span>
+
+      {% for p in page_range %}
+        <a href="?page={{ p }}&action={{ action_filter }}&admin={{ admin_filter }}&date_from={{ date_from }}&per_page={{ per_page }}"
+           class="dash-page-btn {% if p == page %}active{% endif %}">{{ p }}</a>
+      {% endfor %}
+
       {% if has_next %}
-        <a href="?page={{ page|add:'1' }}&action={{ action_filter }}&admin={{ admin_filter }}&date_from={{ date_from }}"
-           class="dash-page-btn">›</a>
+        <a href="?page={{ page|add:'1' }}&action={{ action_filter }}&admin={{ admin_filter }}&date_from={{ date_from }}&per_page={{ per_page }}"
+           class="dash-page-btn" aria-label="Suivant">›</a>
+      {% else %}
+        <span class="dash-page-btn" disabled>›</span>
       {% endif %}
     </div>
   </div>

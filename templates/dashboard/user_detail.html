@@ -8,8 +8,13 @@
 {% block content %}
 
 <!-- ── Breadcrumb ── -->
-<div class="dash-row" style="margin-bottom:var(--sp-20);gap:var(--sp-8)">
-  <a href="{% url 'dashboard:users_list' %}" class="btn btn-ghost btn-sm">← Utilisateurs</a>
+<div class="dash-row" style="margin-bottom:var(--sp-20);gap:var(--sp-8);align-items:center;">
+  <a href="{% url 'dashboard:users_list' %}" class="btn btn-ghost btn-sm" style="display:inline-flex;align-items:center;gap:6px;">
+    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M10 13L5 8l5-5"/>
+    </svg>
+    <span>Utilisateurs</span>
+  </a>
   <span style="color:var(--color-pebble);font-family:var(--font-ui);font-size:var(--text-caption)">/</span>
   <span style="font-family:var(--font-ui);font-size:var(--text-caption);color:var(--color-stone)">{{ target.email }}</span>
 </div>
@@ -132,11 +137,22 @@
     <div class="dash-panel">
       <div class="dash-panel-header">
         <div class="dash-panel-title">Sessions</div>
-        <form method="post" action="{% url 'dashboard:revoke_sessions' target.id %}" style="margin:0">
+        <form id="revokeSessionsForm" method="post" action="{% url 'dashboard:revoke_sessions' target.id %}" style="margin:0">
           {% csrf_token %}
-          <button type="submit" class="btn btn-danger btn-sm"
-                  onclick="return confirm('Révoquer toutes les sessions ?')">
-            Révoquer tout
+          <button type="button" class="btn btn-danger btn-sm"
+                  style="display:inline-flex;align-items:center;gap:6px;"
+                  onclick="askConfirm({
+                    title: 'Révoquer toutes les sessions',
+                    message: 'Toutes les sessions actives de {{ target.email }} seront invalidées immédiatement. L\'utilisateur sera déconnecté.',
+                    confirmText: 'Révoquer les sessions',
+                    isDanger: true,
+                    icon: 'refresh',
+                    form: document.getElementById('revokeSessionsForm')
+                  })">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M14 8A6 6 0 1 1 8 2M14 2v6h-6"/>
+            </svg>
+            <span>Révoquer tout</span>
           </button>
         </form>
       </div>
@@ -157,35 +173,77 @@
       <div class="dash-panel-header">
         <div class="dash-panel-title">Actions rapides</div>
       </div>
-      <div class="dash-panel-body dash-col" style="gap:var(--sp-12)">
+      <div class="dash-panel-body dash-col" style="gap:8px">
         <!-- Bloquer / Débloquer -->
-        <form method="post" action="{% url 'dashboard:user_block' target.id %}">
+        <form id="blockUserForm" method="post" action="{% url 'dashboard:user_block' target.id %}">
           {% csrf_token %}
           {% if target.is_active %}
-            <button type="submit" class="btn btn-danger btn-full"
-                    onclick="return confirm('Bloquer {{ target.email }} ?')">
-              🔒 Bloquer l'utilisateur
+            <button type="button" class="btn btn-danger btn-full"
+                    style="display:inline-flex;align-items:center;justify-content:center;gap:8px;"
+                    onclick="askConfirm({
+                      title: 'Bloquer l\'utilisateur',
+                      message: 'Voulez-vous vraiment bloquer {{ target.email }} ? L\'utilisateur sera immédiatement déconnecté et ne pourra plus accéder à MemoAI.',
+                      confirmText: 'Bloquer le compte',
+                      isDanger: true,
+                      icon: 'lock',
+                      form: document.getElementById('blockUserForm')
+                    })">
+              <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
+                <rect x="3" y="7" width="10" height="7" rx="1.5"/>
+                <path d="M5.5 7V4.5a2.5 2.5 0 0 1 5 0V7"/>
+              </svg>
+              <span>Bloquer l'utilisateur</span>
             </button>
           {% else %}
-            <button type="submit" class="btn btn-secondary btn-full">
-              🔓 Débloquer l'utilisateur
+            <button type="button" class="btn btn-secondary btn-full"
+                    style="display:inline-flex;align-items:center;justify-content:center;gap:8px;"
+                    onclick="askConfirm({
+                      title: 'Débloquer l\'utilisateur',
+                      message: 'Rétablir l\'accès au compte pour {{ target.email }} ? L\'utilisateur pourra à nouveau se connecter normalement.',
+                      confirmText: 'Débloquer le compte',
+                      isDanger: false,
+                      icon: 'unlock',
+                      form: document.getElementById('blockUserForm')
+                    })">
+              <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
+                <rect x="3" y="7" width="10" height="7" rx="1.5"/>
+                <path d="M5.5 7V4.5a2.5 2.5 0 0 1 5 0"/>
+              </svg>
+              <span>Débloquer l'utilisateur</span>
             </button>
           {% endif %}
         </form>
 
         <!-- Reset quota AI -->
-        <form method="post" action="{% url 'dashboard:ai_quota_reset' target.id %}">
+        <form id="resetQuotaForm" method="post" action="{% url 'dashboard:ai_quota_reset' target.id %}">
           {% csrf_token %}
           <input type="hidden" name="next" value="{% url 'dashboard:user_detail' target.id %}">
-          <button type="submit" class="btn btn-secondary btn-full">
-            ↺ Réinitialiser quota AI
+          <button type="button" class="btn btn-secondary btn-full"
+                  style="display:inline-flex;align-items:center;justify-content:center;gap:8px;"
+                  onclick="askConfirm({
+                    title: 'Réinitialiser le quota AI',
+                    message: 'Remettre à zéro le compteur journalier d\'analyses AI pour {{ target.email }} ?',
+                    confirmText: 'Réinitialiser le quota',
+                    isDanger: false,
+                    icon: 'refresh',
+                    form: document.getElementById('resetQuotaForm')
+                  })">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M2.5 8a5.5 5.5 0 1 1 1.6 3.9M2.5 12V8h4"/>
+            </svg>
+            <span>Réinitialiser quota AI</span>
           </button>
         </form>
 
         <!-- Envoyer notification -->
         <button type="button" class="btn btn-secondary btn-full"
+                style="display:inline-flex;align-items:center;justify-content:center;gap:8px;"
                 onclick="openNotifModal()">
-          🔔 Envoyer une notification
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M8 1a5 5 0 0 1 5 5v3l1.5 2H1.5L3 9V6a5 5 0 0 1 5-5Z"/>
+            <path d="M6.5 13a1.5 1.5 0 0 0 3 0"/>
+          </svg>
+          <span>Envoyer une notification</span>
         </button>
       </div>
     </div>
@@ -197,7 +255,7 @@
       </div>
       {% if recent_entries %}
         {% for entry in recent_entries %}
-          <div style="padding:var(--sp-12) var(--sp-24);border-bottom:1px solid var(--border-subtle);display:flex;align-items:center;justify-content:space-between;gap:var(--sp-8)">
+          <div style="padding:10px var(--sp-24);border-bottom:1px solid var(--border-subtle);display:flex;align-items:center;justify-content:space-between;gap:var(--sp-8)">
             <div>
               <div style="font-family:var(--font-ui);font-size:var(--text-caption);font-weight:500;color:var(--color-ink-black)">
                 {{ entry.title|default:"(Sans titre)" }}
@@ -247,21 +305,76 @@
 <!-- ── Danger Zone ── -->
 {% if not target.is_staff %}
 <div class="dash-danger-zone dash-section-gap">
-  <div class="dash-danger-title">⚠ Zone de danger</div>
+  <div class="dash-danger-title" style="display:flex;align-items:center;gap:8px;">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
+      <path d="M8 1.5L14.5 13H1.5L8 1.5Z"/>
+      <path d="M8 6v3.5M8 11.5v.5"/>
+    </svg>
+    <span>Zone de danger</span>
+  </div>
   <div class="dash-danger-description">
     La suppression est définitive. Toutes les entrées, médias et données AI seront supprimés.
   </div>
   <div class="dash-danger-actions">
-    <form method="post" action="{% url 'dashboard:user_delete' target.id %}">
+    <form id="deleteUserForm" method="post" action="{% url 'dashboard:user_delete' target.id %}">
       {% csrf_token %}
-      <button type="submit" class="btn btn-danger"
-              onclick="return confirm('SUPPRESSION DÉFINITIVE de {{ target.email }} ? Cette action est irréversible.')">
-        🗑 Supprimer le compte définitivement
+      <button type="button" class="btn btn-danger"
+              style="display:inline-flex;align-items:center;gap:8px;"
+              onclick="askConfirm({
+                title: 'Suppression définitive du compte',
+                message: 'Cette action est irréversible. Toutes les entrées de journal, photos, audios et analyses de {{ target.email }} seront définitivement supprimés.',
+                confirmText: 'Supprimer définitivement',
+                isDanger: true,
+                icon: 'trash',
+                form: document.getElementById('deleteUserForm')
+              })">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M2.5 4h11M5.5 4V2.5A1.5 1.5 0 0 1 7 1h2a1.5 1.5 0 0 1 1.5 1.5V4M13 4v9.5a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 3 13.5V4"/>
+          <path d="M6.5 7.5v4.5M9.5 7.5v4.5"/>
+        </svg>
+        <span>Supprimer le compte définitivement</span>
       </button>
     </form>
   </div>
 </div>
 {% endif %}
+
+<!-- ── Modal Confirmation Custom MemoAI (Remplace alert/confirm navigateur) ── -->
+<div id="confirmActionModal" class="dash-confirm-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle">
+  <div class="dash-confirm-modal-card">
+    <div class="dash-confirm-header">
+      <div class="dash-confirm-icon-box dash-confirm-icon-box--danger" id="confirmModalIconBox">
+        <svg id="confirmIconDanger" width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M8 1.5L14.5 13H1.5L8 1.5Z"/>
+          <path d="M8 6v3.5M8 11.5v.5"/>
+        </svg>
+        <svg id="confirmIconLock" width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" style="display:none;">
+          <rect x="3" y="7" width="10" height="7" rx="1.5"/>
+          <path d="M5.5 7V4.5a2.5 2.5 0 0 1 5 0V7"/>
+        </svg>
+        <svg id="confirmIconUnlock" width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" style="display:none;">
+          <rect x="3" y="7" width="10" height="7" rx="1.5"/>
+          <path d="M5.5 7V4.5a2.5 2.5 0 0 1 5 0"/>
+        </svg>
+        <svg id="confirmIconTrash" width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" style="display:none;">
+          <path d="M2.5 4h11M5.5 4V2.5A1.5 1.5 0 0 1 7 1h2a1.5 1.5 0 0 1 1.5 1.5V4M13 4v9.5a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 3 13.5V4"/>
+          <path d="M6.5 7.5v4.5M9.5 7.5v4.5"/>
+        </svg>
+        <svg id="confirmIconRefresh" width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" style="display:none;">
+          <path d="M2.5 8a5.5 5.5 0 1 1 1.6 3.9M2.5 12V8h4"/>
+        </svg>
+      </div>
+      <div class="dash-confirm-content">
+        <h3 class="dash-confirm-title" id="confirmModalTitle">Confirmer l'action</h3>
+        <p class="dash-confirm-desc" id="confirmModalDesc">Êtes-vous sûr de vouloir continuer ?</p>
+      </div>
+    </div>
+    <div class="dash-confirm-actions">
+      <button type="button" class="btn btn-ghost" onclick="closeConfirmModal()">Annuler</button>
+      <button type="button" class="btn btn-danger" id="confirmModalSubmitBtn">Confirmer</button>
+    </div>
+  </div>
+</div>
 
 <!-- ── Modal Notification ── -->
 <div id="notifModal" style="
@@ -300,9 +413,14 @@
           <option value="daily_reminder">Rappel journalier</option>
         </select>
       </div>
-      <div class="form-actions">
-        <button type="submit" class="btn btn-primary">Envoyer</button>
+      <div class="form-actions" style="display:flex;gap:10px;justify-content:flex-end;">
         <button type="button" class="btn btn-ghost" onclick="closeNotifModal()">Annuler</button>
+        <button type="submit" class="btn btn-primary" style="display:inline-flex;align-items:center;gap:6px;">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M14.5 1.5l-6 13-2.5-5.5L1.5 6.5l13-5z"/>
+          </svg>
+          <span>Envoyer</span>
+        </button>
       </div>
     </form>
   </div>
@@ -347,6 +465,104 @@ function closeNotifModal() {
 }
 document.getElementById('notifModal').addEventListener('click', function(e) {
   if (e.target === this) closeNotifModal();
+});
+
+/* ── Custom Confirm Dialog & Toast Integration ── */
+let currentPendingAction = null;
+
+function askConfirm(options) {
+  const modal = document.getElementById('confirmActionModal');
+  const titleEl = document.getElementById('confirmModalTitle');
+  const descEl = document.getElementById('confirmModalDesc');
+  const submitBtn = document.getElementById('confirmModalSubmitBtn');
+  const iconBox = document.getElementById('confirmModalIconBox');
+
+  titleEl.textContent = options.title || 'Confirmer l\'action';
+  descEl.textContent = options.message || 'Êtes-vous sûr de vouloir continuer ?';
+  submitBtn.textContent = options.confirmText || 'Confirmer';
+
+  // Toggle icon styles
+  ['confirmIconDanger', 'confirmIconLock', 'confirmIconUnlock', 'confirmIconTrash', 'confirmIconRefresh'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+
+  iconBox.className = 'dash-confirm-icon-box ' + (options.isDanger ? 'dash-confirm-icon-box--danger' : 'dash-confirm-icon-box--info');
+  submitBtn.className = 'btn ' + (options.isDanger ? 'btn-danger' : 'btn-primary');
+
+  if (options.icon === 'lock') {
+    document.getElementById('confirmIconLock').style.display = 'block';
+  } else if (options.icon === 'unlock') {
+    document.getElementById('confirmIconUnlock').style.display = 'block';
+  } else if (options.icon === 'trash') {
+    document.getElementById('confirmIconTrash').style.display = 'block';
+  } else if (options.icon === 'refresh') {
+    document.getElementById('confirmIconRefresh').style.display = 'block';
+  } else {
+    document.getElementById('confirmIconDanger').style.display = 'block';
+  }
+
+  currentPendingAction = options.form;
+  modal.style.display = 'flex';
+}
+
+function closeConfirmModal() {
+  const modal = document.getElementById('confirmActionModal');
+  if (modal) modal.style.display = 'none';
+  currentPendingAction = null;
+}
+
+document.getElementById('confirmActionModal').addEventListener('click', function(e) {
+  if (e.target === this) closeConfirmModal();
+});
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    closeConfirmModal();
+    closeNotifModal();
+  }
+});
+
+document.getElementById('confirmModalSubmitBtn').addEventListener('click', async function() {
+  if (!currentPendingAction) return;
+  const form = currentPendingAction;
+  closeConfirmModal();
+
+  // Try AJAX submission first to show toast seamlessly
+  try {
+    const formData = new FormData(form);
+    const resp = await fetch(form.action, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'Accept': 'application/json'
+      }
+    });
+
+    const data = await resp.json();
+    if (data.status === 'ok') {
+      if (window.showToast) {
+        window.showToast(data.message, 'success', 'Succès');
+      }
+      if (data.redirect_url) {
+        setTimeout(function() {
+          window.location.href = data.redirect_url;
+        }, 600);
+      } else {
+        setTimeout(function() {
+          window.location.reload();
+        }, 500);
+      }
+    } else {
+      if (window.showToast) {
+        window.showToast(data.message || 'Une erreur est survenue.', 'error', 'Erreur');
+      }
+    }
+  } catch (err) {
+    // If AJAX fails for any reason, submit standard form
+    form.submit();
+  }
 });
 </script>
 {% endblock %}

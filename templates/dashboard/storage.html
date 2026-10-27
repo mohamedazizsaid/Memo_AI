@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block title %}Stockage — Admin MemoAI{% endblock %}
-{% block topbar_title %}Consommation Cloudinary{% endblock %}
+{% block topbar_title %}Consommation Cloudinary & Médias{% endblock %}
 {% block nav_storage %}active{% endblock %}
 
 {% block extra_css %}
@@ -16,12 +16,16 @@
   <div class="dash-page-header-row">
     <div>
       <h1 class="dash-page-title">Stockage Cloudinary</h1>
-      <div class="dash-page-subtitle">Consommation des médias par type et par utilisateur</div>
+      <div class="dash-page-subtitle">Suivi du volume de stockage des médias par type et par utilisateur</div>
     </div>
     {% if cloudinary_usage %}
-      <span class="dash-badge dash-badge--active">Cloudinary connecté</span>
+      <span class="dash-badge dash-badge--active">
+        <span class="dash-dot dash-dot--active"></span> Cloudinary Connecté
+      </span>
     {% else %}
-      <span class="dash-badge dash-badge--pending">Données depuis la DB locale</span>
+      <span class="dash-badge dash-badge--pending">
+        <span class="dash-dot dash-dot--neutral"></span> Base locale (media_files)
+      </span>
     {% endif %}
   </div>
 </div>
@@ -31,54 +35,55 @@
   <div class="dash-stat-card">
     <div class="dash-stat-label">Stockage total (DB)</div>
     <div class="dash-stat-value">{{ total_storage_mb }}<span style="font-size:18px;font-weight:400"> MB</span></div>
-    <div class="dash-stat-meta">depuis la table media_files</div>
+    <div class="dash-stat-meta">{{ total_media }} fichiers enregistrés</div>
   </div>
   <div class="dash-stat-card">
     <div class="dash-stat-label">Images</div>
     <div class="dash-stat-value">{{ total_images }}</div>
-    <div class="dash-stat-meta">{{ type_bytes.Images|default:"0" }} MB</div>
+    <div class="dash-stat-meta">{{ type_bytes.Images|default:"0" }} MB au total</div>
   </div>
   <div class="dash-stat-card">
-    <div class="dash-stat-label">Audio</div>
+    <div class="dash-stat-label">Fichiers Audio</div>
     <div class="dash-stat-value">{{ total_audio }}</div>
-    <div class="dash-stat-meta">{{ type_bytes.Audio|default:"0" }} MB</div>
+    <div class="dash-stat-meta">{{ type_bytes.Audio|default:"0" }} MB au total</div>
   </div>
   <div class="dash-stat-card">
-    <div class="dash-stat-label">Vidéo</div>
+    <div class="dash-stat-label">Vidéos & Reels</div>
     <div class="dash-stat-value">{{ total_video }}</div>
-    <div class="dash-stat-meta">{{ type_bytes.Vidéo|default:"0" }} MB</div>
+    <div class="dash-stat-meta">{{ type_bytes.Vidéo|default:"0" }} MB au total</div>
   </div>
   <div class="dash-stat-card">
-    <div class="dash-stat-label">Images AI</div>
+    <div class="dash-stat-label">Images IA</div>
     <div class="dash-stat-value">{{ total_ai_img }}</div>
-    <div class="dash-stat-meta">{{ type_bytes.IA|default:"0" }} MB</div>
+    <div class="dash-stat-meta">{{ type_bytes.IA|default:"0" }} MB générés</div>
   </div>
+
 </div>
 
-<!-- ── Cloudinary details ── -->
 {% if cloudinary_usage %}
+<!-- ── Cloudinary Account Box ── -->
 <div class="dash-panel dash-section-gap">
   <div class="dash-panel-header">
-    <div class="dash-panel-title">Compte Cloudinary</div>
-    <span class="dash-badge dash-badge--active">{{ cloudinary_usage.plan }}</span>
+    <div class="dash-panel-title">Statistiques du compte Cloudinary</div>
+    <span class="dash-badge dash-badge--staff">{{ cloudinary_usage.plan }}</span>
   </div>
-  <div class="dash-panel-body">
+  <div class="dash-panel-body" style="padding:20px 24px;">
     <div class="dash-grid-3">
       <div>
         <div class="dash-stat-label">Stockage utilisé</div>
-        <div style="font-family:var(--font-primary);font-size:28px;font-weight:500;letter-spacing:-1px;margin-top:4px">
+        <div style="font-family:var(--font-primary);font-size:26px;font-weight:600;margin-top:4px">
           {{ cloudinary_usage.storage_mb }} MB
         </div>
       </div>
       <div>
         <div class="dash-stat-label">Bande passante</div>
-        <div style="font-family:var(--font-primary);font-size:28px;font-weight:500;letter-spacing:-1px;margin-top:4px">
+        <div style="font-family:var(--font-primary);font-size:26px;font-weight:600;margin-top:4px">
           {{ cloudinary_usage.bandwidth_mb }} MB
         </div>
       </div>
       <div>
-        <div class="dash-stat-label">Ressources</div>
-        <div style="font-family:var(--font-primary);font-size:28px;font-weight:500;letter-spacing:-1px;margin-top:4px">
+        <div class="dash-stat-label">Ressources hébergées</div>
+        <div style="font-family:var(--font-primary);font-size:26px;font-weight:600;margin-top:4px">
           {{ cloudinary_usage.resources }}
         </div>
       </div>
@@ -93,57 +98,46 @@
   <!-- Donut par type -->
   <div class="dash-panel">
     <div class="dash-panel-header">
-      <div class="dash-panel-title">Répartition par type</div>
+      <div class="dash-panel-title">Répartition par type de média</div>
     </div>
-    <div class="dash-panel-body">
+    <div class="dash-panel-body" style="padding:20px;">
       <div class="dash-chart-container" style="height:220px">
         <canvas id="chartStorage"></canvas>
       </div>
       <!-- Légende manuelle -->
-      <div style="display:flex;flex-wrap:wrap;gap:var(--sp-12);margin-top:var(--sp-16)">
-        <div class="dash-row" style="gap:6px">
-          <span style="width:10px;height:10px;border-radius:50%;background:#6366f1;display:inline-block;flex-shrink:0"></span>
-          <span style="font-family:var(--font-ui);font-size:12px;color:var(--color-stone)">Images ({{ type_bytes.Images|default:0 }} MB)</span>
-        </div>
-        <div class="dash-row" style="gap:6px">
-          <span style="width:10px;height:10px;border-radius:50%;background:#8b5cf6;display:inline-block;flex-shrink:0"></span>
-          <span style="font-family:var(--font-ui);font-size:12px;color:var(--color-stone)">Audio ({{ type_bytes.Audio|default:0 }} MB)</span>
-        </div>
-        <div class="dash-row" style="gap:6px">
-          <span style="width:10px;height:10px;border-radius:50%;background:#a78bfa;display:inline-block;flex-shrink:0"></span>
-          <span style="font-family:var(--font-ui);font-size:12px;color:var(--color-stone)">Vidéo ({{ type_bytes.Vidéo|default:0 }} MB)</span>
-        </div>
-        <div class="dash-row" style="gap:6px">
-          <span style="width:10px;height:10px;border-radius:50%;background:#c4b5fd;display:inline-block;flex-shrink:0"></span>
-          <span style="font-family:var(--font-ui);font-size:12px;color:var(--color-stone)">IA ({{ type_bytes.IA|default:0 }} MB)</span>
-        </div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;">
+        <span class="media-chip" style="border-left:3px solid #6366f1;">Images ({{ type_bytes.Images|default:0 }} MB)</span>
+        <span class="media-chip" style="border-left:3px solid #8b5cf6;">Audio ({{ type_bytes.Audio|default:0 }} MB)</span>
+        <span class="media-chip" style="border-left:3px solid #a78bfa;">Vidéo ({{ type_bytes.Vidéo|default:0 }} MB)</span>
+        <span class="media-chip" style="border-left:3px solid #c4b5fd;">IA ({{ type_bytes.IA|default:0 }} MB)</span>
       </div>
     </div>
   </div>
 
   <!-- Top users par stockage -->
-  <div class="dash-table-card">
+  <div class="dash-table-card"style="height: 410px;overflow: auto;">
     <div class="dash-table-header">
-      <div class="dash-table-title">Top 20 utilisateurs</div>
+      <div class="dash-table-title" style="display:flex;align-items:center;gap:10px;">
+        <span>Top 20 utilisateurs par stockage</span>
+        <span class="dash-nav-badge">{{ user_storage|length }}</span>
+      </div>
     </div>
     <div class="dash-table-wrapper">
       <table class="dash-table">
         <thead>
           <tr>
-            <th>#</th>
-            <th>Utilisateur</th>
-            <th>Stockage</th>
-            <th>Médias</th>
-            <th>Barre</th>
+            <th style="width:34%;text-align: center;">Utilisateur</th>
+            <th style="width:18%;text-align: center;">Volume</th>
+            <th style="width:26%;text-align: center;">Détail des médias</th>
+            <th style="width:16%;text-align: center;">Part</th>
           </tr>
         </thead>
         <tbody>
           {% for row in user_storage %}
             <tr>
-              <td style="color:var(--color-pebble);font-family:var(--font-ui);font-size:12px">{{ forloop.counter }}</td>
-              <td>
-                <div class="dash-user-cell">
-                  <div class="dash-user-avatar">
+              <td style="padding: 10px;">
+                <div class="dash-user-cell" style="display:flex;align-items:center;gap:16px;">
+                  <div class="dash-user-avatar" style="width:40px;height:40px;border-radius:50%;flex-shrink:0;">
                     {% if row.user and row.user.avatar %}
                       <img src="{{ row.user.avatar }}" alt="">
                     {% else %}
@@ -152,36 +146,47 @@
                       </span>
                     {% endif %}
                   </div>
-                  <div>
-                    <div class="dash-user-name dash-truncate" style="max-width:140px">
+                  <div class="dash-user-info" style="display:flex;flex-direction:column;gap:2px;">
+                    <div class="dash-user-name" style="font-weight:600;">
                       {% if row.user %}{{ row.user.full_name }}{% else %}{{ row.email }}{% endif %}
                     </div>
+                    <div class="dash-user-email">{{ row.email }}</div>
                   </div>
                 </div>
               </td>
-              <td>
-                <span style="font-weight:500">{{ row.total_mb }} MB</span>
+              <td style="text-align: center;">
+                <span style="font-weight:600;font-size:13px;">{{ row.total_mb }} MB</span>
               </td>
-              <td>
-                <div style="font-family:var(--font-ui);font-size:11px;color:var(--color-stone)">
-                  {{ row.image_count }}🖼 {{ row.audio_count }}🎵 {{ row.video_count }}🎬 {{ row.ai_image_count }}✨
+              <td style="padding: 5px;">
+                <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                  {% if row.image_count %}<span class="media-chip">🖼 {{ row.image_count }}</span>{% endif %}
+                  {% if row.audio_count %}<span class="media-chip">🎵 {{ row.audio_count }}</span>{% endif %}
+                  {% if row.video_count %}<span class="media-chip">🎬 {{ row.video_count }}</span>{% endif %}
+                  {% if row.ai_image_count %}<span class="media-chip">✨ {{ row.ai_image_count }}</span>{% endif %}
+                  {% if not row.image_count and not row.audio_count and not row.video_count and not row.ai_image_count %}
+                    <span style="font-size:11.5px;color:var(--color-pebble);">0 média</span>
+                  {% endif %}
                 </div>
               </td>
-              <td style="min-width:80px">
-                <!-- Bar relative au max -->
+              <td style="padding: 5px;">
                 {% if user_storage.0.total_mb > 0 %}
-                  <div class="dash-progress" style="width:80px">
-                    <div class="dash-progress-fill dash-storage-images"
-                         style="width:{% widthratio row.total_mb user_storage.0.total_mb 100 %}%"></div>
+                  <div class="dash-quota-cell">
+                    <div class="dash-quota-bar">
+                      <div class="dash-quota-bar-fill" style="background:#6366f1;width:{% widthratio row.total_mb user_storage.0.total_mb 100 %}%;"></div>
+                    </div>
+                    <div style="font-size:10.5px;color:var(--color-pebble);">{% widthratio row.total_mb user_storage.0.total_mb 100 %}% du max</div>
                   </div>
+                {% else %}
+                  <span style="color:var(--color-pebble);">—</span>
                 {% endif %}
               </td>
             </tr>
           {% empty %}
             <tr>
               <td colspan="5">
-                <div class="dash-empty" style="padding:var(--sp-24)">
-                  <div class="dash-empty-desc">Aucun fichier média enregistré.</div>
+                <div class="dash-empty" style="padding:36px 20px;text-align:center;">
+                  <div class="dash-empty-title" style="font-weight:600;margin-bottom:4px;">Aucun média enregistré</div>
+                  <div class="dash-empty-desc" style="color:var(--color-stone);font-size:12.5px;">Les médias téléversés par vos utilisateurs apparaîtront ici.</div>
                 </div>
               </td>
             </tr>
@@ -199,32 +204,34 @@
 <script>
 (function () {
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-  new Chart(document.getElementById('chartStorage'), {
-    type: 'doughnut',
-    data: {
-      labels: {{ chart_labels|safe }},
-      datasets: [{
-        data: {{ chart_values|safe }},
-        backgroundColor: ['#6366f1', '#8b5cf6', '#a78bfa', '#c4b5fd'],
-        borderColor: isDark ? '#1e1b18' : '#ffffff',
-        borderWidth: 3,
-        hoverOffset: 6,
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      cutout: '68%',
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: ctx => ` ${ctx.label}: ${ctx.parsed} MB`
-          }
-        }
+  const chartEl = document.getElementById('chartStorage');
+  if (chartEl) {
+    new Chart(chartEl, {
+      type: 'doughnut',
+      data: {
+        labels: ['Images', 'Audio', 'Vidéo', 'IA'],
+        datasets: [{
+          data: [
+            {{ type_bytes.Images|default:0 }},
+            {{ type_bytes.Audio|default:0 }},
+            {{ type_bytes.Vidéo|default:0 }},
+            {{ type_bytes.IA|default:0 }}
+          ],
+          backgroundColor: ['#6366f1', '#8b5cf6', '#a78bfa', '#c4b5fd'],
+          borderWidth: 2,
+          borderColor: isDark ? '#1e1b18' : '#ffffff'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }
+        },
+        cutout: '72%'
       }
-    }
-  });
+    });
+  }
 })();
 </script>
 {% endblock %}

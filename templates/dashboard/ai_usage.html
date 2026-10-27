@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block title %}Quotas AI — Admin MemoAI{% endblock %}
-{% block topbar_title %}Consommation AI{% endblock %}
+{% block topbar_title %}Consommation & Quotas AI{% endblock %}
 {% block nav_ai %}active{% endblock %}
 
 {% block extra_css %}
@@ -15,8 +15,8 @@
 <div class="dash-page-header">
   <div class="dash-page-header-row">
     <div>
-      <h1 class="dash-page-title">Quotas AI</h1>
-      <div class="dash-page-subtitle">Limite : {{ daily_limit }} analyse{{ daily_limit|pluralize }} par utilisateur par jour</div>
+      <h1 class="dash-page-title">Quotas & Analyses AI</h1>
+      <div class="dash-page-subtitle">Suivi de la consommation journalière de l'IA (rate limit: {{ daily_limit }} analyses/jour/utilisateur)</div>
     </div>
   </div>
 </div>
@@ -30,20 +30,20 @@
   </div>
   <div class="dash-stat-card">
     <div class="dash-stat-label">Limites atteintes</div>
-    <div class="dash-stat-value" style="color:{% if quota_exceeded > 0 %}#f59e0b{% else %}#22c55e{% endif %}">
+    <div class="dash-stat-value" style="color:{% if quota_exceeded > 0 %}#dc2626{% else %}#16a34a{% endif %}">
       {{ quota_exceeded }}
     </div>
-    <div class="dash-stat-meta">user{{ quota_exceeded|pluralize }} à la limite</div>
+    <div class="dash-stat-meta">utilisateur{{ quota_exceeded|pluralize }} bloqué{{ quota_exceeded|pluralize }} à {{ daily_limit }}/{{ daily_limit }}</div>
   </div>
   <div class="dash-stat-card">
     <div class="dash-stat-label">Total analyses (all time)</div>
     <div class="dash-stat-value">{{ total_all_time }}</div>
-    <div class="dash-stat-meta">depuis le lancement</div>
+    <div class="dash-stat-meta">analyses générées au total</div>
   </div>
   <div class="dash-stat-card">
-    <div class="dash-stat-label">Limite journalière</div>
+    <div class="dash-stat-label">Plafond par compte</div>
     <div class="dash-stat-value">{{ daily_limit }}</div>
-    <div class="dash-stat-meta">analyses / user / jour</div>
+    <div class="dash-stat-meta">analyses / compte / jour</div>
   </div>
 </div>
 
@@ -55,72 +55,86 @@
     <div class="dash-panel-header">
       <div class="dash-panel-title">Analyses — 7 derniers jours</div>
     </div>
-    <div class="dash-panel-body">
-      <div class="dash-chart-container">
+    <div class="dash-panel-body" style="padding:20px;">
+      <div class="dash-chart-container" style="height:260px;">
         <canvas id="chartAI"></canvas>
       </div>
     </div>
   </div>
 
   <!-- Table quotas -->
-  <div class="dash-table-card">
+  <div class="dash-table-card" style="height: 450px;overflow: auto;">
     <div class="dash-table-header">
-      <div class="dash-table-title">Quotas par utilisateur</div>
-      <form method="get" style="display:flex;gap:8px">
-        <input type="text" name="q" value="{{ q }}" placeholder="Rechercher…"
-               class="dash-search-input" style="border:1px solid var(--border-subtle);border-radius:var(--r-md);padding:6px 12px;font-family:var(--font-ui);font-size:var(--text-caption)">
-        <button type="submit" class="btn btn-secondary btn-sm">OK</button>
+      <div class="dash-table-title" style="display:flex;align-items:center;gap:10px;">
+        <span>Quotas par utilisateur</span>
+        <span class="dash-nav-badge">{{ quotas|length }}</span>
+      </div>
+      <form method="get" style="display:flex;gap:10px;align-items:center;">
+        <div class="dash-search-wrapper" style="height:40px;max-width:240px;min-width:180px;padding:0 14px;border-radius:9px;">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6">
+            <circle cx="7" cy="7" r="5"/><path d="M11 11l3.5 3.5"/>
+          </svg>
+          <input type="text" name="q" value="{{ q }}" placeholder="Rechercher…"
+                 class="dash-search-input" style="font-size:13px;padding:6px 0;">
+        </div>
+        <button type="submit" class="btn btn-secondary btn-sm" style="height:40px;padding:0 16px;font-size:13px;border-radius:9px;">OK</button>
+        {% if q %}
+          <a href="{% url 'dashboard:ai_usage' %}" class="btn btn-ghost btn-sm" style="height:40px;padding:0 12px;font-size:12px;border-radius:9px;">✕</a>
+        {% endif %}
       </form>
     </div>
     <div class="dash-table-wrapper">
       <table class="dash-table">
         <thead>
           <tr>
-            <th>Utilisateur</th>
-            <th>Aujourd'hui</th>
-            <th>Progression</th>
-            <th>Total</th>
-            <th>Reset</th>
+            <th style="width:34%;text-align:center">Utilisateur</th>
+            <th style="width:18%;text-align:center">Aujourd'hui</th>
+            <th style="width:24%;text-align:center">Progression</th>
+            <th style="width:12%;text-align:center">Total</th>
+            <th style="width:12%;text-align:center">Action</th>
           </tr>
         </thead>
         <tbody>
           {% for quota in quotas %}
             <tr>
-              <td>
-                <div class="dash-user-cell">
-                  <div class="dash-user-avatar">
+              <td style="padding: 10px">
+                <div class="dash-user-cell" style="display:flex;align-items:center;gap:16px;">
+                  <div class="dash-user-avatar" style="width:40px;height:40px;border-radius:50%;flex-shrink:0;">
                     {% if quota.user.avatar %}
                       <img src="{{ quota.user.avatar }}" alt="">
                     {% else %}
                       <span class="dash-user-initials-sm">{{ quota.user.initials }}</span>
                     {% endif %}
                   </div>
-                  <div>
-                    <div class="dash-user-name">{{ quota.user.full_name }}</div>
+                  <div class="dash-user-info" style="display:flex;flex-direction:column;gap:2px;">
+                    <div class="dash-user-name" style="font-weight:600;">{{ quota.user.full_name }}</div>
                     <div class="dash-user-email">{{ quota.user.email }}</div>
                   </div>
                 </div>
               </td>
-              <td>
-                <span style="font-weight:500;{% if quota.daily_count >= daily_limit %}color:#ef4444{% elif quota.daily_count >= 2 %}color:#f59e0b{% endif %}">
+              <td style="text-align: center;">
+                <span style="font-weight:600;font-size:13px;{% if quota.daily_count >= daily_limit %}color:#dc2626;{% elif quota.daily_count >= 2 %}color:#d97706;{% else %}color:#16a34a;{% endif %}">
                   {{ quota.daily_count }}
                 </span>
-                <span style="color:var(--color-pebble)">/{{ daily_limit }}</span>
+                <span style="color:var(--color-pebble);font-size:12px;"> / {{ daily_limit }}</span>
               </td>
-              <td style="min-width:120px">
-                <div class="dash-progress">
-                  <div class="dash-progress-fill
-                    {% if quota.daily_count >= daily_limit %}dash-progress-fill--danger
-                    {% elif quota.daily_count >= 2 %}dash-progress-fill--warning
-                    {% else %}dash-progress-fill--success{% endif %}"
-                    style="width:{{ quota.percent_used }}%"></div>
+              <td style="padding: 5px;te">
+                <div class="dash-quota-cell">
+                  <div class="dash-quota-bar">
+                    <div class="dash-quota-bar-fill {% if quota.daily_count >= daily_limit %}dash-quota-bar-fill--danger{% elif quota.daily_count >= 2 %}dash-quota-bar-fill--warning{% endif %}"
+                         style="width:{{ quota.percent_used }}%;"></div>
+                  </div>
+                  <div style="font-size:11px;color:var(--color-pebble);">{{ quota.percent_used }}% consommé</div>
                 </div>
               </td>
-              <td class="dash-text-mono">{{ quota.total_analyses }}</td>
-              <td>
+              <td style="font-weight:600;font-size:13px;text-align: center;">{{ quota.total_analyses }}</td>
+              <td style="text-align:center">
                 <form method="post" action="{% url 'dashboard:ai_quota_reset' quota.user.id %}" style="margin:0">
                   {% csrf_token %}
-                  <button type="submit" class="btn btn-ghost btn-sm" title="Réinitialiser">
+                  <button type="submit" class="btn btn-secondary btn-sm"
+                          style="height:30px;padding:0 10px;font-size:11.5px;gap:4px;"
+                          title="Remettre le compteur journalier à 0"
+                          onclick="return confirm('Réinitialiser le quota journalier de {{ quota.user.email }} ?')">
                     ↺ Reset
                   </button>
                 </form>
@@ -129,8 +143,9 @@
           {% empty %}
             <tr>
               <td colspan="5">
-                <div class="dash-empty" style="padding:var(--sp-24)">
-                  <div class="dash-empty-desc">Aucun quota trouvé.</div>
+                <div class="dash-empty" style="padding:36px 20px;text-align:center;">
+                  <div class="dash-empty-title" style="font-weight:600;margin-bottom:4px;">Aucun quota trouvé</div>
+                  <div class="dash-empty-desc" style="color:var(--color-stone);font-size:12.5px;">Aucun utilisateur ne correspond à votre recherche.</div>
                 </div>
               </td>
             </tr>
@@ -151,29 +166,32 @@
   const gridColor = isDark ? 'rgba(240,237,233,0.06)' : 'rgba(13,13,13,0.06)';
   const textColor = isDark ? '#9a9796' : '#6e6a69';
 
-  new Chart(document.getElementById('chartAI'), {
-    type: 'bar',
-    data: {
-      labels: {{ chart_labels|safe }},
-      datasets: [{
-        label: 'Analyses AI',
-        data: {{ chart_ai|safe }},
-        backgroundColor: isDark ? 'rgba(99,102,241,0.4)' : 'rgba(99,102,241,0.3)',
-        borderColor: '#6366f1',
-        borderWidth: 1,
-        borderRadius: 4,
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { grid: { color: gridColor }, ticks: { color: textColor, font: { family: 'Inter', size: 11 } } },
-        y: { grid: { color: gridColor }, ticks: { color: textColor, font: { family: 'Inter', size: 11 }, stepSize: 1 }, beginAtZero: true }
+  const chartEl = document.getElementById('chartAI');
+  if (chartEl) {
+    new Chart(chartEl, {
+      type: 'bar',
+      data: {
+        labels: {{ chart_labels|safe }},
+        datasets: [{
+          label: 'Analyses AI',
+          data: {{ chart_ai|safe }},
+          backgroundColor: isDark ? 'rgba(99,102,241,0.5)' : 'rgba(99,102,241,0.3)',
+          borderColor: '#6366f1',
+          borderWidth: 1.5,
+          borderRadius: 6,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { color: gridColor }, ticks: { color: textColor, font: { family: 'Inter', size: 11 } } },
+          y: { grid: { color: gridColor }, ticks: { color: textColor, font: { family: 'Inter', size: 11 }, stepSize: 1 }, beginAtZero: true }
+        }
       }
-    }
-  });
+    });
+  }
 })();
 </script>
 {% endblock %}

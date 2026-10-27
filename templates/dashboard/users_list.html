@@ -12,7 +12,7 @@
   <div class="dash-page-header-row">
     <div>
       <h1 class="dash-page-title">Utilisateurs</h1>
-      <div class="dash-page-subtitle">{{ total }} utilisateurs enregistrés sur la plateforme</div>
+      <div class="dash-page-subtitle">{{ total }} utilisateur{{ total|pluralize }} enregistré{{ total|pluralize }} sur la plateforme</div>
     </div>
   </div>
 </div>
@@ -20,10 +20,10 @@
 <!-- ── Filtres ── -->
 <form method="get" class="dash-filters">
   <div class="dash-search-wrapper">
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-      <circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/>
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6">
+      <circle cx="7" cy="7" r="5"/><path d="M11 11l3.5 3.5"/>
     </svg>
-    <input type="text" name="q" value="{{ q }}" placeholder="Rechercher email, prénom…"
+    <input type="text" name="q" value="{{ q }}" placeholder="Rechercher par nom, email…"
            class="dash-search-input" id="userSearch">
   </div>
 
@@ -31,26 +31,29 @@
     <option value="">Tous les statuts</option>
     <option value="active" {% if status == 'active' %}selected{% endif %}>Actifs</option>
     <option value="blocked" {% if status == 'blocked' %}selected{% endif %}>Bloqués</option>
-    <option value="staff" {% if status == 'staff' %}selected{% endif %}>Staff</option>
+    <option value="staff" {% if status == 'staff' %}selected{% endif %}>Staff & Admin</option>
   </select>
 
   <select name="lang" class="dash-filter-select" onchange="this.form.submit()">
     <option value="">Toutes les langues</option>
-    <option value="fr" {% if lang == 'fr' %}selected{% endif %}>Français</option>
-    <option value="en" {% if lang == 'en' %}selected{% endif %}>English</option>
+    <option value="fr" {% if lang == 'fr' %}selected{% endif %}>Français (FR)</option>
+    <option value="en" {% if lang == 'en' %}selected{% endif %}>English (EN)</option>
   </select>
 
-  <button type="submit" class="btn btn-secondary btn-sm">Filtrer</button>
+  <button type="submit" class="dash-filter-btn btn btn-secondary">
+    Filtrer
+  </button>
   {% if q or status or lang %}
-    <a href="{% url 'dashboard:users_list' %}" class="btn btn-ghost btn-sm">✕ Effacer</a>
+    <a href="{% url 'dashboard:users_list' %}" class="dash-filter-btn btn btn-ghost">✕ Réinitialiser</a>
   {% endif %}
 </form>
 
 <!-- ── Table ── -->
 <div class="dash-table-card">
   <div class="dash-table-header">
-    <div class="dash-table-title">
-      {% if q or status or lang %}Résultats filtrés{% else %}Tous les utilisateurs{% endif %}
+    <div class="dash-table-title" style="display:flex;align-items:center;gap:10px;">
+      <span>{% if q or status or lang %}Résultats filtrés{% else %}Tous les utilisateurs{% endif %}</span>
+      <span class="dash-nav-badge">{{ total }}</span>
     </div>
   </div>
 
@@ -58,40 +61,43 @@
     <table class="dash-table">
       <thead>
         <tr>
-          <th>Utilisateur</th>
-          <th>Statut</th>
-          <th>Langue</th>
-          <th>Entrées</th>
-          <th>Quota AI</th>
-          <th>Inscription</th>
-          <th>Actions</th>
+          <th style="width:28%;text-align:center">Utilisateur</th>
+          <th style="width:13%;text-align:center">Statut</th>
+          <th style="width:9%;text-align:center">Langue</th>
+          <th style="width:11%;text-align:center">Entrées</th>
+          <th style="width:16%;text-align:center">Quota AI (jour)</th>
+          <th style="width:13%;text-align:center">Inscription</th>
+          <th style="width:10%;text-align:center">Actions</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody >
         {% for item in users_data %}
           {% with user=item.user quota=item.quota %}
-          <tr>
+          <tr >
             <!-- Utilisateur -->
-            <td>
-              <div class="dash-user-cell">
-                <div class="dash-user-avatar">
+            <td style="padding: 10px;">
+              <div class="dash-user-cell" style="display:flex;align-items:center;gap:16px;">
+                <div class="dash-user-avatar" style="width:40px;height:40px;border-radius:50%;flex-shrink:0;">
                   {% if user.avatar %}
                     <img src="{{ user.avatar }}" alt="{{ user.full_name }}">
                   {% else %}
                     <span class="dash-user-initials-sm">{{ user.initials }}</span>
                   {% endif %}
                 </div>
-                <div>
-                  <div class="dash-user-name dash-truncate" style="max-width:160px">{{ user.full_name }}</div>
-                  <div class="dash-user-email dash-truncate" style="max-width:160px">{{ user.email }}</div>
+                <div class="dash-user-info" style="display:flex;flex-direction:column;gap:2px;">
+                  <div class="dash-user-name" style="font-weight:600;">{{ user.full_name }}</div>
+                  <div class="dash-user-email">{{ user.email }}</div>
                 </div>
               </div>
             </td>
 
             <!-- Statut -->
-            <td>
+            <td style="padding: 2px;text-align: center;">
               {% if user.is_staff %}
-                <span class="dash-badge dash-badge--staff">Admin</span>
+                <span class="dash-badge dash-badge--staff">
+                  <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1.5l5.5 2.5v4c0 3.5-2.5 6.5-5.5 7.5C5 14.5 2.5 11.5 2.5 8V4L8 1.5z"/></svg>
+                  Admin
+                </span>
               {% elif user.is_active %}
                 <span class="dash-badge dash-badge--active">
                   <span class="dash-dot dash-dot--active"></span> Actif
@@ -104,26 +110,32 @@
             </td>
 
             <!-- Langue -->
-            <td>
-              <span class="dash-badge dash-badge--neutral">
-                {{ user.preferences.language|upper|default:"FR" }}
+            <td style="padding: 2px;text-align: center;">
+              <span class="dash-lang-pill">
+                {% if user.preferences.language == 'en' %}🇬🇧 EN{% else %}🇫🇷 FR{% endif %}
               </span>
             </td>
 
             <!-- Entrées -->
-            <td>
-              <span style="font-weight:500">{{ item.entries_count }}</span>
+            <td style="padding: 5px;">
+              <span style="font-weight:600;font-family:var(--font-ui);">{{ item.entries_count }}</span>
+              <span style="font-size:11px;color:var(--color-pebble);"> entrée{{ item.entries_count|pluralize }}</span>
             </td>
 
             <!-- Quota AI -->
-            <td style="min-width:120px">
+            <td style="padding: 5px;">
               {% if quota %}
-                <div class="dash-progress-label">
-                  <span>{{ quota.daily_count }}/{{ quota.DAILY_LIMIT }}</span>
-                </div>
-                <div class="dash-progress" style="width:100px">
-                  <div class="dash-progress-fill {% if quota.daily_count >= quota.DAILY_LIMIT %}dash-progress-fill--danger{% elif quota.daily_count >= 2 %}dash-progress-fill--warning{% endif %}"
-                       style="width:{{ quota.percent_used }}%"></div>
+                <div class="dash-quota-cell">
+                  <div class="dash-quota-info">
+                    <span style="{% if quota.daily_count >= quota.DAILY_LIMIT %}color:#dc2626;font-weight:600;{% elif quota.daily_count >= 2 %}color:#d97706;{% endif %}">
+                      {{ quota.daily_count }} / {{ quota.DAILY_LIMIT }}
+                    </span>
+                    <span style="font-size:11px;color:var(--color-pebble);">{{ quota.percent_used }}%</span>
+                  </div>
+                  <div class="dash-quota-bar">
+                    <div class="dash-quota-bar-fill {% if quota.daily_count >= quota.DAILY_LIMIT %}dash-quota-bar-fill--danger{% elif quota.daily_count >= 2 %}dash-quota-bar-fill--warning{% endif %}"
+                         style="width:{{ quota.percent_used }}%;"></div>
+                  </div>
                 </div>
               {% else %}
                 <span class="dash-badge dash-badge--neutral">—</span>
@@ -131,27 +143,30 @@
             </td>
 
             <!-- Inscription -->
-            <td class="dash-text-mono" style="white-space:nowrap">
+            <td style="font-family:var(--font-ui);font-size:12.5px;color:var(--color-stone);white-space:nowrap;padding: 5px; text-align:  center; ">
               {{ user.created_at|date:"d/m/Y" }}
             </td>
 
             <!-- Actions -->
-            <td>
-              <div class="dash-row" style="gap:4px">
-                <a href="{% url 'dashboard:user_detail' user.id %}"
-                   class="btn btn-secondary btn-sm" title="Voir le profil">
-                  Détails
-                </a>
-              </div>
+            <td style="text-align:center;padding: 5px;">
+              <a href="{% url 'dashboard:user_detail' user.id %}"
+                 class="btn btn-secondary btn-sm"
+                 style="height:32px;padding:0 12px;font-size:12px;gap:5px;display:inline-flex;align-items:center;">
+                <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6">
+                  <circle cx="8" cy="8" r="2.5"/>
+                  <path d="M1 8s3-5 7-5 7 5 7 5-3 5-7 5-7-5-7-5z"/>
+                </svg>
+                Détails
+              </a>
             </td>
           </tr>
           {% endwith %}
         {% empty %}
           <tr>
             <td colspan="7">
-              <div class="dash-empty">
-                <div class="dash-empty-title">Aucun utilisateur trouvé</div>
-                <div class="dash-empty-desc">Modifiez vos filtres ou recherche.</div>
+              <div class="dash-empty" style="padding:48px 24px;text-align:center;">
+                <div class="dash-empty-title" style="font-weight:600;margin-bottom:6px;">Aucun utilisateur trouvé</div>
+                <div class="dash-empty-desc" style="color:var(--color-stone);font-size:13px;">Essayez de modifier vos filtres ou termes de recherche.</div>
               </div>
             </td>
           </tr>
@@ -162,11 +177,11 @@
 
   <!-- Pagination -->
   <div class="dash-table-footer">
-    <span>{{ total }} résultat{{ total|pluralize }}</span>
+    <span>Affichage de {{ users_data|length }} sur {{ total }} utilisateur{{ total|pluralize }}</span>
     <div class="dash-pagination">
       {% if has_prev %}
         <a href="?page={{ page|add:'-1' }}&q={{ q }}&status={{ status }}&lang={{ lang }}"
-           class="dash-page-btn">‹</a>
+           class="dash-page-btn" aria-label="Précédent">‹</a>
       {% else %}
         <span class="dash-page-btn" disabled>‹</span>
       {% endif %}
@@ -178,7 +193,7 @@
 
       {% if has_next %}
         <a href="?page={{ page|add:'1' }}&q={{ q }}&status={{ status }}&lang={{ lang }}"
-           class="dash-page-btn">›</a>
+           class="dash-page-btn" aria-label="Suivant">›</a>
       {% else %}
         <span class="dash-page-btn" disabled>›</span>
       {% endif %}
