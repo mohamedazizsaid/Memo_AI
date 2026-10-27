@@ -79,7 +79,7 @@ CMD ["sh", "-c", "python manage.py migrate --noinput && \
     --worker-class gthread \
     --worker-tmp-dir /dev/shm \
     --timeout 120 \
-    --keepalive 5 \
+    --keep-alive 5 \
     --log-level warning \
     --access-logfile - \
     --error-logfile -"]
