@@ -137,24 +137,22 @@
         <div class="dash-panel-title">Sentiments AI</div>
       </div>
       <div class="dash-panel-body">
-        {% with total_s=sentiments.positive|default:0|add:sentiments.neutral|default:0|add:sentiments.negative|default:0 %}
-          <!-- Sentiments bars -->
-          {% if sentiments %}
-            {% for sentiment, count in sentiments.items %}
-              <div class="dash-progress-label">
-                <span>{{ sentiment|capfirst }}</span>
-                <span>{{ count }}</span>
+        <!-- Sentiments bars -->
+        {% if sentiments %}
+          {% for sentiment, count in sentiments.items %}
+            <div class="dash-progress-label">
+              <span>{{ sentiment|capfirst }}</span>
+              <span>{{ count }}</span>
+            </div>
+            <div class="dash-progress" style="margin-bottom:var(--sp-12)">
+              <div class="dash-progress-fill {% if sentiment == 'positive' or sentiment == 'positif' %}dash-progress-fill--success{% elif sentiment == 'negative' or sentiment == 'négatif' %}dash-progress-fill--danger{% endif %}"
+                   style="width:{% if total_ai > 0 %}{{ count|floatformat:0 }}%{% else %}0%{% endif %}">
               </div>
-              <div class="dash-progress" style="margin-bottom:var(--sp-12)">
-                <div class="dash-progress-fill {% if sentiment == 'positive' or sentiment == 'positif' %}dash-progress-fill--success{% elif sentiment == 'negative' or sentiment == 'négatif' %}dash-progress-fill--danger{% endif %}"
-                     style="width:{% if total_ai > 0 %}{{ count|floatformat:0 }}%{% else %}0%{% endif %}">
-                </div>
-              </div>
-            {% endfor %}
-          {% else %}
-            <div class="dash-empty-desc" style="padding:var(--sp-16) 0">Pas encore de données AI.</div>
-          {% endif %}
-        {% endwith %}
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="dash-empty-desc" style="padding:var(--sp-16) 0">Pas encore de données AI.</div>
+        {% endif %}
       </div>
     </div>
 
