@@ -176,36 +176,106 @@ def process_audio_media(self, media_id: str):
         return
 
     entry = media.entry
+    analysis, _ = AIAnalysis.objects.get_or_create(entry=entry)
+
+    # ── Téléchargement des bytes audio (utilisé à la fois pour la
+    #    transcription et pour la détection émotionnelle vocale) ────────────────
+    audio_bytes = None
+    mime_type = media.mime_type or 'audio/mpeg'
+    try:
+        import requests as _req
+        resp = _req.get(media.storage_url, timeout=60)
+        resp.raise_for_status()
+        audio_bytes = resp.content
+        mime_type = resp.headers.get('Content-Type', mime_type).split(';')[0]
+    except Exception as exc:
+        logger.warning("Could not download audio bytes for %s: %s", media_id, exc)
+
+    # ── Transcription ──────────────────────────────────────────────────────────
     try:
         from ai.services.huggingface_service import transcribe_audio
-        result = transcribe_audio(audio_url=media.storage_url, mime_type=media.mime_type or 'audio/mpeg')
+        result = transcribe_audio(
+            audio_bytes=audio_bytes,
+            mime_type=mime_type,
+        ) if audio_bytes else transcribe_audio(audio_url=media.storage_url, mime_type=mime_type)
         transcription = result.get('text', '')
 
-        if not transcription:
-            media.processing_status = 'completed'
-            media.save(update_fields=['processing_status'])
-            return
+        if transcription:
+            analysis.transcription = transcription
+            analysis.transcription_language = result.get('language', '')
+            analysis.transcription_status = 'completed'
+            analysis.save(update_fields=['transcription', 'transcription_language', 'transcription_status'])
 
-        analysis, _ = AIAnalysis.objects.get_or_create(entry=entry)
-        analysis.transcription = transcription
-        analysis.transcription_language = result.get('language', '')
-        analysis.transcription_status = 'completed'
-        analysis.save(update_fields=['transcription', 'transcription_language', 'transcription_status'])
+            if not entry.content:
+                entry.content = transcription
+                entry.save(update_fields=['content'])
+        else:
+            analysis.transcription_status = 'skipped'
+            analysis.save(update_fields=['transcription_status'])
 
         media.processing_status = 'completed'
         media.save(update_fields=['processing_status'])
 
-        if not entry.content:
-            entry.content = transcription
-            entry.save(update_fields=['content'])
-
-        analyze_entry.delay(str(entry.id))
-
     except Exception as exc:
-        logger.error("Audio processing failed for %s: %s", media_id, exc, exc_info=True)
+        logger.error("Audio transcription failed for %s: %s", media_id, exc, exc_info=True)
+        analysis.transcription_status = 'failed'
+        analysis.save(update_fields=['transcription_status'])
         media.processing_status = 'failed'
         media.processing_error = str(exc)
         media.save(update_fields=['processing_status', 'processing_error'])
+
+    # ── Détection des émotions vocales (complémentaire, non certaine) ──────────
+    if audio_bytes:
+        try:
+            lang = 'fr'
+            try:
+                lang = entry.user.preferences.language
+            except Exception:
+                pass
+
+            from ai.services.voice_emotion_service import classify_voice_emotion
+            ve_result = classify_voice_emotion(
+                audio_bytes=audio_bytes,
+                mime_type=mime_type,
+                lang=lang,
+            )
+
+            if ve_result.get('available') and ve_result.get('voice_emotion'):
+                analysis.voice_emotion         = ve_result['voice_emotion']
+                analysis.voice_emotion_score   = ve_result['voice_emotion_score']
+                analysis.voice_emotion_uncertain = ve_result.get('uncertain', True)
+                analysis.voice_emotion_status  = 'completed'
+                analysis.save(update_fields=[
+                    'voice_emotion', 'voice_emotion_score',
+                    'voice_emotion_uncertain', 'voice_emotion_status',
+                ])
+                logger.info(
+                    "Voice emotion for %s: %s (score=%.2f, uncertain=%s)",
+                    media_id, analysis.voice_emotion,
+                    analysis.voice_emotion_score or 0,
+                    analysis.voice_emotion_uncertain,
+                )
+            else:
+                # Modèle absent ou audio invalide → statut skipped, pas d'erreur bloquante
+                analysis.voice_emotion_status = 'skipped'
+                analysis.save(update_fields=['voice_emotion_status'])
+                logger.info(
+                    "Voice emotion skipped for %s: %s",
+                    media_id, ve_result.get('reason', 'model unavailable')
+                )
+        except Exception as exc:
+            logger.warning("Voice emotion detection failed for %s: %s", media_id, exc)
+            analysis.voice_emotion_status = 'failed'
+            analysis.save(update_fields=['voice_emotion_status'])
+    else:
+        analysis.voice_emotion_status = 'skipped'
+        analysis.save(update_fields=['voice_emotion_status'])
+
+    # ── Lancer l'analyse textuelle si une transcription est disponible ─────────
+    if analysis.transcription:
+        analyze_entry.delay(str(entry.id))
+
+
 
 
 @shared_task(
