@@ -17,7 +17,6 @@ services:
     plan: free                      # passe à starter ($7/mo) pour 0 spin-down
     
     healthCheckPath: /health/
-    preDeployCommand: "python manage.py migrate --noinput && python manage.py seed_admin"
     
     envVars:
       # ── Django ───────────────────────────────────────────

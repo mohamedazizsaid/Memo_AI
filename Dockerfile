@@ -69,8 +69,10 @@ EXPOSE $PORT
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD curl -f http://localhost:$PORT/health/ || exit 1
 
-# Start Gunicorn (single container — Render free tier)
-CMD ["sh", "-c", "gunicorn config.wsgi:application \
+# Start container (Render free tier / standalone Docker) : migrations + admin seed + Gunicorn
+CMD ["sh", "-c", "python manage.py migrate --noinput && \
+    python manage.py seed_admin && \
+    gunicorn config.wsgi:application \
     --bind 0.0.0.0:$PORT \
     --workers 2 \
     --threads 4 \

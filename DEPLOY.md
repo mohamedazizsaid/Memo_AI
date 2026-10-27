@@ -105,12 +105,13 @@ DEFAULT_FROM_EMAIL=MemoAI <noreply@memoai.app>
 PEXELS_API_KEY=...
 ```
 
-### Initialisation automatique (Pre-Deploy Command sur Render)
+### Initialisation automatique au démarrage (Compatible Render Free Tier)
 
-Le fichier `render.yaml` inclut désormais `preDeployCommand` qui exécute automatiquement les migrations et l'initialisation du compte administrateur :
+Sur le plan **Free Tier** de Render, la directive `preDeployCommand` n'est pas autorisée. 
+L'initialisation automatique (migrations de base de données + création du compte administrateur) est donc intégrée directement dans la commande de démarrage `CMD` du [`Dockerfile`](file:///c:/Users/user/Desktop/eng/3eme/django/MemoAi/MemoAI/Dockerfile) :
 
 ```bash
-python manage.py migrate --noinput && python manage.py seed_admin
+python manage.py migrate --noinput && python manage.py seed_admin && gunicorn config.wsgi:application ...
 ```
 
 > **Identifiants Admin générés par défaut :**
