@@ -12,10 +12,11 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /build
 
-# Install build essentials for psycopg2 and other compiled packages
+# Install build essentials for psycopg2, librosa/soundfile and compiled packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     libpq-dev \
+    libsndfile1-dev \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
@@ -28,14 +29,17 @@ FROM python:3.12-slim AS runtime
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     APP_HOME=/app \
-    PORT=8000
+    PORT=8000 \
+    FRONTEND_URL=http://localhost:8000
 
 WORKDIR $APP_HOME
 
-# Runtime libs only (no gcc)
+# Runtime libs only (PostgreSQL, audio decoding with libsndfile/ffmpeg, healthcheck curl)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq5 \
     curl \
+    libsndfile1 \
+    ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user for security
@@ -50,11 +54,12 @@ RUN pip install --no-cache-dir --no-index --find-links=/wheels -r requirements.t
 # Copy project source
 COPY --chown=memoai:memoai . .
 
-# Collect static files (Whitenoise will serve them)
-RUN python manage.py collectstatic --noinput --settings=config.settings || true
+# Ensure static, media and ML model directories exist with correct permissions
+RUN mkdir -p /app/staticfiles /app/mediafiles /app/ai/ml/models /app/ai/ml/data && \
+    chown -R memoai:memoai /app/staticfiles /app/mediafiles /app/ai/ml/models /app/ai/ml/data
 
-# Create media directory
-RUN mkdir -p /app/mediafiles && chown memoai:memoai /app/mediafiles
+# Collect static files (Whitenoise will serve them in production)
+RUN python manage.py collectstatic --noinput --settings=config.settings || true
 
 USER memoai
 

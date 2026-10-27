@@ -17,6 +17,7 @@ services:
     plan: free                      # passe à starter ($7/mo) pour 0 spin-down
     
     healthCheckPath: /health/
+    preDeployCommand: "python manage.py migrate --noinput && python manage.py seed_admin"
     
     envVars:
       # ── Django ───────────────────────────────────────────
@@ -26,6 +27,8 @@ services:
         value: "False"
       - key: DJANGO_SETTINGS_MODULE
         value: config.settings
+      - key: FRONTEND_URL
+        value: "https://memoai-web.onrender.com"
       - key: ALLOWED_HOSTS
         value: "memoai-web.onrender.com"
       - key: CSRF_TRUSTED_ORIGINS
@@ -33,13 +36,15 @@ services:
       - key: CORS_ALLOWED_ORIGINS
         value: "https://memoai-web.onrender.com"
 
-      # ── Database — Neon DB ────────────────────────────────
+      # ── Database — Neon DB (PostgreSQL) ───────────────────
+      - key: DATABASE_URL
+        sync: false                  # Prioritaire : postgresql://user:pass@ep-xxx.neon.tech/memoai?sslmode=require
       - key: USE_SQLITE
         value: "False"
       - key: DB_ENGINE
         value: postgresql
       - key: DB_NAME
-        sync: false                  # À remplir dans le Dashboard Render
+        sync: false                  # Optionnel si DATABASE_URL est fourni
       - key: DB_USER
         sync: false
       - key: DB_PASSWORD

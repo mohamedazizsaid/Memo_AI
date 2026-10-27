@@ -66,6 +66,7 @@ jobs:
       AI_MOCK_MODE: "True"
       EMAIL_BACKEND: django.core.mail.backends.locmem.EmailBackend
       ALLOWED_HOSTS: "localhost,127.0.0.1"
+      FRONTEND_URL: "http://localhost:8000"
 
     steps:
       - name: 📥 Checkout code
@@ -77,8 +78,9 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: pip
 
-      - name: 📦 Install dependencies
+      - name: 📦 Install system and python dependencies
         run: |
+          sudo apt-get update && sudo apt-get install -y libsndfile1 ffmpeg
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 

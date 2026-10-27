@@ -76,11 +76,14 @@ GitHub Actions CI/CD
 ```bash
 SECRET_KEY=<généré par Render ou python -c "import secrets; print(secrets.token_urlsafe(64))">
 DEBUG=False
+FRONTEND_URL=https://<ton-service>.onrender.com
 ALLOWED_HOSTS=<ton-service>.onrender.com
 CSRF_TRUSTED_ORIGINS=https://<ton-service>.onrender.com
 CORS_ALLOWED_ORIGINS=https://<ton-service>.onrender.com
 
-DATABASE_URL=postgresql://...@ep-xxx.neon.tech/memoai?sslmode=require
+DATABASE_URL=postgresql://memoai_user:password@ep-xxx.neon.tech/memoai?sslmode=require
+USE_SQLITE=False
+DB_ENGINE=postgresql
 
 USE_REDIS=False
 CELERY_ALWAYS_EAGER=True
@@ -90,8 +93,11 @@ CLOUDINARY_API_KEY=...
 CLOUDINARY_API_SECRET=...
 
 GEMINI_API_KEY=...
+GEMINI_MODEL=gemini-2.5-flash
+GEMINI_VISION_MODEL=gemini-2.5-flash
 HUGGINGFACE_API_KEY=...
 
+EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
 EMAIL_HOST_USER=...
 EMAIL_HOST_PASSWORD=...  # App password Gmail
 DEFAULT_FROM_EMAIL=MemoAI <noreply@memoai.app>
@@ -99,13 +105,19 @@ DEFAULT_FROM_EMAIL=MemoAI <noreply@memoai.app>
 PEXELS_API_KEY=...
 ```
 
-### Commande de démarrage (Build Command sur Render)
+### Initialisation automatique (Pre-Deploy Command sur Render)
+
+Le fichier `render.yaml` inclut désormais `preDeployCommand` qui exécute automatiquement les migrations et l'initialisation du compte administrateur :
 
 ```bash
-python manage.py migrate --noinput && python manage.py collectstatic --noinput
+python manage.py migrate --noinput && python manage.py seed_admin
 ```
 
-> Render exécute cela avant de démarrer Gunicorn (défini dans le Dockerfile CMD).
+> **Identifiants Admin générés par défaut :**
+> - **URL du Front-Office Admin :** `https://<ton-service>.onrender.com/admin-panel/`
+> - **Email :** `admin@memo.com`
+> - **Mot de passe :** `admin123`
+> *(Pensez à changer ce mot de passe après le premier déploiement !)*
 
 ---
 
@@ -165,8 +177,8 @@ docker compose down
 | `nginx` | 80 | Reverse proxy + static files |
 | `db` | 5432 | PostgreSQL 16 |
 | `redis` | 6379 | Cache + broker Celery |
-| `celery` | — | Worker async |
-| `celery-beat` | — | Tâches planifiées |
+| `celery` | — | Worker async (analyse IA, transcription Whisper, face detection) |
+| `celery-beat` | — | Tâches planifiées (churn hebdo dimanche 00:00, rappels quotidiens, résumés hebdo) |
 
 ### Commandes utiles Docker
 
@@ -174,11 +186,20 @@ docker compose down
 # Migrations
 docker compose exec web python manage.py migrate
 
-# Créer un superuser
+# Seeder le compte administrateur front-office (admin@memo.com / admin123)
+docker compose exec web python manage.py seed_admin
+
+# Diagnostic du modèle de churn (analyse de risque de départ)
+docker compose exec web python manage.py run_churn_check --dry-run --show-all
+
+# Créer un superuser Django classique
 docker compose exec web python manage.py createsuperuser
 
 # Shell Django
 docker compose exec web python manage.py shell
+
+# Logs Celery & Beat
+docker compose logs -f celery celery-beat
 
 # Logs Nginx
 docker compose logs -f nginx
@@ -193,11 +214,13 @@ docker compose up -d --build web
 
 Le fichier `nginx/nginx.conf` configure :
 - **Reverse proxy** vers Gunicorn (port 8000)
-- **Fichiers statiques** servis directement (pas de hit Django)
-- **Rate limiting** : 30 req/min sur `/api/`, 60 req/min général
-- **Gzip** sur tous les assets texte
-- **Security headers** (X-Frame-Options, XSS, HSTS)
-- `client_max_body_size 55M` pour les uploads
+- **Fichiers statiques** servis directement via volume partagé
+- **Upload volumineux** : `client_max_body_size 55M` (compatible photos, audios et vidéos)
+- **Timeouts étendus** : `proxy_read_timeout 180s` pour supporter l'inférence IA sans timeout HTTP 504
+- **Rate limiting calibré** : 60 req/min sur `/api/` (burst 40), 120 req/min sur le tableau de bord et pages générales
+- **Route dédiée `/admin-panel/`** prioritaire avec burst élevé (60) pour la réactivité du dashboard
+- **Compression Gzip** automatique sur CSS, JS, JSON, XML et SVG
+- **Security headers** (`X-Frame-Options`, `X-Content-Type-Options`, `X-XSS-Protection`, `Referrer-Policy`)
 
 ---
 
