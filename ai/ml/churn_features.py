@@ -103,7 +103,7 @@ def extract_user_features(user, reference_date=None):
     has_audio_entries = Media.objects.filter(entry_id__in=entry_ids, media_type='AUDIO').count()
 
     # 5. Analyses IA
-    ai_analyses_count = AIAnalysis.objects.filter(entry_id__in=entry_ids, is_successful=True).count()
+    ai_analyses_count = AIAnalysis.objects.filter(entry_id__in=entry_ids).count()
     ai_usage_rate = round(ai_analyses_count / max(1, total_entries), 3)
 
     # 6. Humeurs négatives

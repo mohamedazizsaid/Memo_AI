@@ -414,3 +414,152 @@ def cleanup_stale_tasks():
     count = stale.count()
     stale.update(ai_status='failed', ai_error_message='Task timed out')
     logger.info("Cleaned up %s stale AI tasks", count)
+
+
+@shared_task(name='ai.tasks.check_churn_risk_and_reengage_users')
+def check_churn_risk_and_reengage_users(dry_run=False, threshold=0.55):
+    """
+    Tâche programmée hebdomadaire (chaque dimanche à minuit) :
+    1. Évalue le risque de churn pour chaque utilisateur actif via le modèle ML Random Forest.
+    2. Pour les utilisateurs à risque élevé (inactifs ou en déclin d'interaction), envoie un email d'encouragement personnalisé.
+    3. Enregistre une notification in-app et un log d'audit admin.
+    """
+    from datetime import timedelta
+    from django.conf import settings
+    from django.core.mail import send_mail
+    from accounts.models import User
+    from notifications.models import Notification
+    from dashboard.models import AdminLog
+    from ai.ml.churn_service import get_churn_predictor
+
+    logger.info("[ChurnTask] Debut du scan hebdomadaire de retention des utilisateurs...")
+    predictor = get_churn_predictor()
+    two_weeks_ago = timezone.now() - timedelta(days=14)
+
+    users_qs = User.objects.filter(is_active=True, is_staff=False, is_superuser=False)
+    total_checked = 0
+    at_risk_count = 0
+    reengaged_count = 0
+
+    for user in users_qs:
+        total_checked += 1
+        try:
+            pred = predictor.predict_user(user)
+            churn_prob = pred['churn_probability']
+            is_risk = churn_prob >= threshold
+
+            if not is_risk:
+                continue
+
+            at_risk_count += 1
+
+            # Éviter de spammer : maximum 1 email de réengagement tous les 14 jours
+            already_notified = Notification.objects.filter(
+                user=user,
+                notification_type='system',
+                data__category='churn_reengagement',
+                created_at__gte=two_weeks_ago,
+            ).exists()
+
+            if already_notified:
+                logger.info("[ChurnTask] User %s deja contacte recemment (prob=%.2f). Skip.", user.email, churn_prob)
+                continue
+
+            # Créer le message d'encouragement chaleureux et personnalisé
+            user_name = user.first_name.strip() if user.first_name else "cher utilisateur"
+            subject = "✨ Vos souvenirs vous attendent sur MemoAI"
+            frontend_url = getattr(settings, 'FRONTEND_URL', 'http://localhost:8000')
+
+            # Message texte et HTML au design Cosmos
+            html_message = f"""
+            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 580px; margin: 0 auto; background: #fdfcfb; border: 1px solid #e8e4df; border-radius: 12px; padding: 32px; color: #222;">
+                <div style="text-align: center; margin-bottom: 24px;">
+                    <span style="font-size: 28px;">📖</span>
+                    <h2 style="font-family: Georgia, serif; font-size: 22px; color: #1c1917; margin: 8px 0;">Prenez un instant pour vous, {user_name}</h2>
+                </div>
+                <p style="font-size: 15px; line-height: 1.6; color: #44403c;">
+                    Nous avons remarqué que vous n'avez pas écrit dans votre journal MemoAI depuis quelque temps. La vie va vite, mais vos pensées, vos réussites et même vos doutes méritent d'être préservés.
+                </p>
+                <div style="background: #f7f5f2; border-left: 4px solid #78716c; padding: 14px 18px; margin: 20px 0; border-radius: 4px;">
+                    <p style="margin: 0; font-size: 14px; font-style: italic; color: #57534e;">
+                        « Écrire quelques lignes le soir libère l'esprit, réduit le stress et crée un trésor de souvenirs pour votre futur. »
+                    </p>
+                </div>
+                <p style="font-size: 14px; color: #78716c;">
+                    Une idée pour commencer aujourd'hui : <strong>Quel a été le moment le plus marquant ou le plus réconfortant de votre semaine ?</strong>
+                </p>
+                <div style="text-align: center; margin: 28px 0;">
+                    <a href="{frontend_url}/journal/" 
+                       style="background: #1c1917; color: #ffffff; padding: 12px 28px; border-radius: 8px; text-decoration: none; font-weight: 500; font-size: 14px; display: inline-block;">
+                        ✍️ Écrire dans mon journal
+                    </a>
+                </div>
+                <hr style="border: none; border-top: 1px solid #e7e5e4; margin: 24px 0;">
+                <p style="font-size: 12px; color: #a8a29e; text-align: center; margin: 0;">
+                    MemoAI — Votre sanctuaire de pensées et de souvenirs.<br>
+                    Vous recevez cet email car vous êtes membre de MemoAI.
+                </p>
+            </div>
+            """
+            plain_message = (
+                f"Bonjour {user_name},\n\n"
+                "Nous avons remarqué que vous n'avez pas écrit dans votre journal MemoAI depuis quelque temps.\n"
+                "Prendre quelques minutes pour poser vos pensées permet de libérer l'esprit et de préserver vos souvenirs.\n\n"
+                f"Accéder à votre journal : {frontend_url}/journal/\n\n"
+                "— L'équipe MemoAI"
+            )
+
+            if not dry_run:
+                # 1. Envoi de l'email
+                send_mail(
+                    subject=subject,
+                    message=plain_message,
+                    html_message=html_message,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[user.email],
+                    fail_silently=True,
+                )
+
+                # 2. Notification in-app
+                Notification.objects.create(
+                    user=user,
+                    title="✨ Prenez un moment pour vous",
+                    message="Quelques minutes d'écriture suffisent pour apaiser l'esprit et immortaliser vos journées.",
+                    notification_type='system',
+                    data={
+                        'category': 'churn_reengagement',
+                        'churn_probability': churn_prob,
+                        'reasons': pred['reasons'],
+                    },
+                )
+
+                # 3. Log d'audit admin
+                admin_user = User.objects.filter(is_staff=True).first()
+                AdminLog.objects.create(
+                    admin=admin_user,
+                    target_user=user,
+                    action='send_notification',
+                    ip_address='127.0.0.1',
+                    details={
+                        'type': 'churn_reengagement',
+                        'churn_probability': churn_prob,
+                        'risk_level': pred['risk_level'],
+                        'reasons': pred['reasons'],
+                        'email_sent': True,
+                    },
+                )
+
+            reengaged_count += 1
+            logger.info("[ChurnTask] Reengagement envoye a %s (prob=%.2f, dry_run=%s)", user.email, churn_prob, dry_run)
+
+        except Exception as e:
+            logger.error("[ChurnTask] Erreur lors du traitement de user %s: %s", user.email, e, exc_info=True)
+
+    summary = {
+        'total_checked': total_checked,
+        'at_risk_count': at_risk_count,
+        'reengaged_count': reengaged_count,
+        'dry_run': dry_run,
+    }
+    logger.info("[ChurnTask] Fin du scan hebdomadaire : %s", summary)
+    return summary

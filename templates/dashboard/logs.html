@@ -108,7 +108,7 @@
 
   <!-- Pagination -->
   <div class="dash-table-footer">
-    <span>Affichage de {{ logs|length }} sur {{ total }} action{{ total|pluralize }}</span>
+    <span>Affichage de la page {{ page }} sur {{ total_pages }} ({{ total }} action{{ total|pluralize }})</span>
     <div class="dash-pagination">
       {% if has_prev %}
         <a href="?page={{ page|add:'-1' }}&action={{ action_filter }}&admin={{ admin_filter }}&date_from={{ date_from }}&per_page={{ per_page }}"
@@ -117,10 +117,7 @@
         <span class="dash-page-btn" disabled>‹</span>
       {% endif %}
 
-      {% for p in page_range %}
-        <a href="?page={{ p }}&action={{ action_filter }}&admin={{ admin_filter }}&date_from={{ date_from }}&per_page={{ per_page }}"
-           class="dash-page-btn {% if p == page %}active{% endif %}">{{ p }}</a>
-      {% endfor %}
+      <span class="dash-page-btn active">{{ page }}</span>
 
       {% if has_next %}
         <a href="?page={{ page|add:'1' }}&action={{ action_filter }}&admin={{ admin_filter }}&date_from={{ date_from }}&per_page={{ per_page }}"

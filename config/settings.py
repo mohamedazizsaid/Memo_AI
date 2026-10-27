@@ -356,6 +356,10 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'ai.tasks.cleanup_stale_tasks',
         'schedule': crontab(hour='*/6'),  # Every 6 hours
     },
+    'weekly-churn-check-and-reengage': {
+        'task': 'ai.tasks.check_churn_risk_and_reengage_users',
+        'schedule': crontab(minute=0, hour=0, day_of_week='sunday'),  # Chaque dimanche à minuit
+    },
 }
 
 # ─────────────────────────────────────────────
@@ -474,6 +478,7 @@ LOGGING = {
 }
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:8000')
 
 # ─────────────────────────────────────────────
 # Security — Production settings
