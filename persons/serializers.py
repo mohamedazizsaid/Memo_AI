@@ -44,3 +44,8 @@ class FaceDetectionSerializer(serializers.ModelSerializer):
 class AssignFaceSerializer(serializers.Serializer):
     """Reassign a face detection to a different person."""
     person_id = serializers.UUIDField(allow_null=True)
+
+
+class MergePersonsSerializer(serializers.Serializer):
+    """Validate the source person identifier before a merge is attempted."""
+    source_person_id = serializers.UUIDField()

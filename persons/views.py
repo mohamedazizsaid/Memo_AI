@@ -14,7 +14,12 @@ from common.permissions import IsOwner
 from journal.models import JournalEntry
 from journal.serializers import JournalEntryListSerializer
 from .models import Person, FaceDetection
-from .serializers import PersonSerializer, PersonUpdateSerializer, AssignFaceSerializer
+from .serializers import (
+    PersonSerializer,
+    PersonUpdateSerializer,
+    AssignFaceSerializer,
+    MergePersonsSerializer,
+)
 
 
 class PersonListView(generics.ListAPIView):
@@ -46,6 +51,7 @@ class PersonDetailView(generics.RetrieveUpdateDestroyAPIView):
         kwargs['partial'] = True
         return super().update(request, *args, **kwargs)
 
+    @transaction.atomic
     def destroy(self, request, *args, **kwargs):
         person = self.get_object()
         # Clear face detections pointing to this person (don't delete media)
@@ -90,9 +96,9 @@ def merge_persons(request, pk):
     except Person.DoesNotExist:
         return Response({'error': 'Target person not found.'}, status=status.HTTP_404_NOT_FOUND)
 
-    source_id = request.data.get('source_person_id')
-    if not source_id:
-        return Response({'error': 'source_person_id is required.'}, status=status.HTTP_400_BAD_REQUEST)
+    serializer = MergePersonsSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    source_id = serializer.validated_data['source_person_id']
 
     try:
         source = Person.objects.get(pk=source_id, user=request.user)
