@@ -126,12 +126,13 @@ def assign_face(request, detection_id):
     serializer.is_valid(raise_exception=True)
 
     try:
-        detection = FaceDetection.objects.select_related('media__entry').get(pk=detection_id)
-        # Verify user owns the media
-        if detection.media.entry.user != request.user:
-            return Response({'error': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+        detection = FaceDetection.objects.select_related('media__entry').get(
+            pk=detection_id,
+            media__entry__user=request.user,
+        )
     except FaceDetection.DoesNotExist:
-        return Response({'error': 'Detection not found.'}, status=status.HTTP_404_NOT_FOUND)
+        # Use the same response for missing and unauthorized detections.
+        return Response({'error': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
 
     person_id = serializer.validated_data.get('person_id')
     if person_id:
@@ -146,4 +147,9 @@ def assign_face(request, detection_id):
     detection.is_corrected = True
     detection.save()
 
-    return Response({'success': True})
+    return Response({
+        'success': True,
+        'detection_id': str(detection.id),
+        'person_id': str(detection.person_id) if detection.person_id else None,
+        'is_corrected': detection.is_corrected,
+    })
