@@ -7,6 +7,7 @@ from rest_framework import generics, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from django.db import transaction
 
 from common.permissions import IsOwner
 from journal.models import JournalEntry
@@ -73,6 +74,7 @@ def person_memories(request, pk):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
+@transaction.atomic
 def merge_persons(request, pk):
     """
     Merge two persons into one (pk is the target person to keep).
