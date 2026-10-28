@@ -44,6 +44,7 @@ class Person(TimeStampedModel):
 
     @property
     def memory_count(self):
+        """Return distinct journal entries containing this person."""
         return self.face_detections.values('media__entry').distinct().count()
 
     @property

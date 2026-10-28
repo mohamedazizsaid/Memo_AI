@@ -7,8 +7,14 @@ from .models import Person, FaceDetection
 
 
 class PersonSerializer(serializers.ModelSerializer):
-    memory_count = serializers.ReadOnlyField()
+    memory_count = serializers.SerializerMethodField()
     has_embedding = serializers.ReadOnlyField()
+
+    def get_memory_count(self, person):
+        # List and detail querysets annotate this value to avoid one count query per person.
+        if hasattr(person, '_memory_count'):
+            return person._memory_count
+        return person.memory_count
 
     class Meta:
         model = Person

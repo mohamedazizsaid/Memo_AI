@@ -8,6 +8,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.db import transaction
+from django.db.models import Count
 
 from common.permissions import IsOwner
 from journal.models import JournalEntry
@@ -22,7 +23,9 @@ class PersonListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Person.objects.filter(user=self.request.user)
+        return Person.objects.filter(user=self.request.user).annotate(
+            _memory_count=Count('face_detections__media__entry', distinct=True),
+        )
 
 
 class PersonDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -30,7 +33,9 @@ class PersonDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Person.objects.filter(user=self.request.user)
+        return Person.objects.filter(user=self.request.user).annotate(
+            _memory_count=Count('face_detections__media__entry', distinct=True),
+        )
 
     def get_serializer_class(self):
         if self.request.method in ['PUT', 'PATCH']:
